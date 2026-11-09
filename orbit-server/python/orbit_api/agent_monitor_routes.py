@@ -26,7 +26,7 @@ async def device_session(session_factory):
         yield session
 
 
-def create_device_app(session_factory=None):
+def create_device_app(session_factory=None, *, execution_authority=None):
     """传给Uvicorn的独立ASGI；必须http=PeerCertificateH11Protocol且CERT_REQUIRED。"""
     app = FastAPI(title="ORBIT device mTLS", docs_url=None, redoc_url=None, openapi_url=None)
     store = AgentMonitorStore()
@@ -128,6 +128,51 @@ def create_device_app(session_factory=None):
             lambda session: AgentProbeStore().complete(
                 session, der, probe_id, value, request.state.orbit_request_id
             )
+        )
+
+    def execution():
+        from orbit_api.agent_execution_store import AgentExecutionStore
+
+        return AgentExecutionStore(authority=execution_authority)
+
+    def execution_read(request):
+        der = peer_certificate(request.scope)
+        if request.query_params:
+            raise OrbitError(400, "UNKNOWN_FIELD", "租约读取不接受查询字段")
+        return der
+
+    @app.get("/api/v1/agent-api/leases/next")
+    async def next_lease(request: Request):
+        der = execution_read(request)
+        return await transact(
+            lambda session: execution().next(session, der, request.state.orbit_request_id)
+        )
+
+    @app.post("/api/v1/agent-api/leases/{lease_id}/renew")
+    async def renew_lease(lease_id: str, request: Request):
+        from orbit_api.agent_execution_contract import parse_renew
+
+        der = peer_certificate(request.scope)
+        value = parse_renew(await body(request, 8192))
+        return await transact(
+            lambda session: execution().renew(
+                session, der, lease_id, value, request.state.orbit_request_id
+            )
+        )
+
+    @app.get("/api/v1/agent-api/leases/{lease_id}/command")
+    async def execution_command(lease_id: str, request: Request):
+        der = execution_read(request)
+        return await transact(lambda session: execution().command(session, der, lease_id))
+
+    @app.post("/api/v1/agent-api/events")
+    async def execution_events(request: Request):
+        from orbit_api.agent_execution_contract import parse_events
+
+        der = peer_certificate(request.scope)
+        value = parse_events(await body(request, 512 * 1024))
+        return await transact(
+            lambda session: execution().events(session, der, value, request.state.orbit_request_id)
         )
 
     return app

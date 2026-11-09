@@ -249,3 +249,60 @@ class DeviceClient:
         ):
             raise ProbeError("DEVICE_ACK_INVALID")
         return value
+
+    async def next_lease(self):
+        """仅领取已授权的原任务租约；返回空租约不表示执行成功。"""
+        from orbit_agent.execution_protocol import reject, validate_lease
+
+        value = await self.request("GET", "/api/v1/agent-api/leases/next")
+        exact(value, {"lease", "retry_after_seconds"})
+        delay = value["retry_after_seconds"]
+        if type(delay) is not int or not 0 <= delay <= 300:
+            reject()
+        if value["lease"] is not None:
+            validate_lease(value["lease"])
+        return value
+
+    async def renew_lease(self, identifier, boot_id, fencing_token):
+        """续租不能替换租约或代际；任何失败由执行器停止新的写动作。"""
+        from orbit_agent.execution_protocol import reject, validate_lease
+
+        uuid(identifier)
+        uuid(boot_id)
+        integer(fencing_token)
+        value = validate_lease(
+            await self.request(
+                "POST",
+                f"/api/v1/agent-api/leases/{identifier}/renew",
+                {"agent_id": self.agent_id, "boot_id": boot_id, "fencing_token": fencing_token},
+            )
+        )
+        if value["id"] != identifier or value["fencing_token"] != fencing_token:
+            reject()
+        return value
+
+    async def execution_command(self, identifier):
+        """只取当前租约的冻结指令，不接受任意URL或平台凭据。"""
+        from orbit_agent.execution_protocol import validate_instruction
+
+        uuid(identifier)
+        return validate_instruction(
+            await self.request("GET", f"/api/v1/agent-api/leases/{identifier}/command"), identifier
+        )
+
+    async def report_events(self, events):
+        """云端精确回执后才能确认本地事件；历史接收不授予发送能力。"""
+        from orbit_agent.execution_protocol import reject, validate_event_ack
+
+        if type(events) is not list or not 1 <= len(events) <= 100:
+            reject()
+        identifiers = []
+        for event in events:
+            if type(event) is not dict:
+                reject()
+            identifiers.append(uuid(event.get("event_id")))
+        if len(set(identifiers)) != len(identifiers):
+            reject()
+        return validate_event_ack(
+            await self.request("POST", "/api/v1/agent-api/events", {"events": events}), identifiers
+        )

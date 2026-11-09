@@ -1,0 +1,38 @@
+-- 动作能力只由受控实际验收发行，普通身份报告没有发行权限。
+CREATE TABLE orbit_agent_action_capability (
+ tenant_id CHAR(36) NOT NULL COMMENT '租户UUID',
+ id CHAR(36) NOT NULL COMMENT '能力回执UUID',
+ agent_id CHAR(36) NOT NULL COMMENT '验证设备UUID',
+ profile_binding_id CHAR(36) NOT NULL COMMENT '验证账户关联UUID',
+ agent_revision BIGINT NOT NULL COMMENT '冻结设备登记版本',
+ binding_revision BIGINT NOT NULL COMMENT '冻结账户关联版本',
+ issued_revision BIGINT NOT NULL COMMENT '发行时设备目录单调版本，确定最新回执顺序',
+ operation_kind VARCHAR(16) NOT NULL COMMENT 'CREATE/BUDGET_SET/PAUSE/DELETE/ENABLE/ARCHIVE',
+ entity_type VARCHAR(16) NOT NULL COMMENT 'CAMPAIGN/ADSET/AD',
+ workflow_version VARCHAR(64) NOT NULL COMMENT '已验证工作流版本',
+ adapter_version VARCHAR(64) NOT NULL COMMENT '已验证页面适配器版本',
+ client_version VARCHAR(64) NOT NULL COMMENT '已验证AdsPower版本',
+ browser_version VARCHAR(64) NOT NULL COMMENT '已验证内核版本',
+ page_language VARCHAR(64) NOT NULL COMMENT '已验证页面语言',
+ state VARCHAR(16) NOT NULL COMMENT 'VERIFIED或REVOKED；失效读取派生UNVERIFIED',
+ evidence_ref VARCHAR(255) NOT NULL COMMENT '受控回执标识，不含文件路径或URL',
+ evidence_sha256 CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '实际验收原始证据SHA256',
+ evidence_cases JSON NOT NULL COMMENT '成功回读、失败、未知、挑战四类实际证据摘要',
+ verified_at DATETIME(6) NOT NULL COMMENT 'UTC实际验收完成时间',
+ expires_at DATETIME(6) NOT NULL COMMENT 'UTC能力有效截止时间',
+ revoked_at DATETIME(6) NULL COMMENT 'UTC撤销时间',
+ PRIMARY KEY(tenant_id,id),
+ KEY ix_agent_capability_binding(tenant_id,profile_binding_id,operation_kind,entity_type,state),
+ FOREIGN KEY(tenant_id,agent_id) REFERENCES orbit_execution_agent(tenant_id,id),
+ FOREIGN KEY(tenant_id,profile_binding_id) REFERENCES orbit_profile_binding(tenant_id,id),
+ CHECK(state IN('VERIFIED','REVOKED')),
+ CHECK(operation_kind IN('CREATE','BUDGET_SET','PAUSE','DELETE','ENABLE','ARCHIVE')),
+ CHECK(entity_type IN('CAMPAIGN','ADSET','AD')),
+ CHECK(NOT(operation_kind='BUDGET_SET' AND entity_type='AD')),
+ CHECK(expires_at>verified_at),
+ CHECK(agent_revision>0 AND binding_revision>0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs COMMENT='AdsPower动作能力受控验收回执，未验证不得发送广告';
+ALTER TABLE orbit_execution_agent_event DROP CHECK ck_environment_event_type,
+ ADD CONSTRAINT ck_environment_event_type CHECK(resource_type IN('EXECUTION_AGENT','PROFILE_BINDING','AGENT_CAPABILITY'));
+ALTER TABLE orbit_execution_agent_outbox DROP CHECK ck_environment_outbox_type,
+ ADD CONSTRAINT ck_environment_outbox_type CHECK(resource_type IN('EXECUTION_AGENT','PROFILE_BINDING','AGENT_CAPABILITY'));

@@ -5,6 +5,9 @@
         ><div class="toolbar">
           <strong>AdsPower 监测</strong>
           <div>
+            <el-button v-if="can('read')" :disabled="busy" @click="capabilitiesOpen = true"
+              >动作能力</el-button
+            >
             <el-button
               v-if="can('read') || canManage('enroll')"
               :disabled="busy"
@@ -251,6 +254,17 @@
       :can-write="canManage('enroll')"
       :context-key="JSON.stringify([user.id, user.permissions])"
     />
+    <el-dialog
+      v-model="capabilitiesOpen"
+      title="环境动作能力矩阵"
+      width="min(1200px, calc(100vw - 24px))"
+      destroy-on-close
+    >
+      <EnvironmentCapabilitiesPanel
+        :active="capabilitiesOpen"
+        :context-key="JSON.stringify([user.id, user.permissions])"
+      />
+    </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
@@ -260,6 +274,7 @@ import AgentRegistrationForm from './AgentRegistrationForm.vue'
 import ProfileBindingsPanel from './ProfileBindingsPanel.vue'
 import AgentMonitorPanel from './AgentMonitorPanel.vue'
 import AgentProbePanel from './AgentProbePanel.vue'
+import EnvironmentCapabilitiesPanel from './EnvironmentCapabilitiesPanel.vue'
 import { newProbeSession, type ProbeSession } from '@/api/orbit/environments-probe'
 import type { AgentMonitor } from '@/api/orbit/environments-monitor'
 import {
@@ -293,7 +308,7 @@ const layers = [
   { name: '代理', value: '未知；尚无可信代理探测结果。' },
   { name: 'Meta 登录', value: '见下方服务端身份报告；登录主页不代表广告账户或币种已匹配。' },
   { name: '账户身份', value: '见下方新鲜身份核验；登记或选择 Profile 不授予执行能力。' },
-  { name: '操作能力', value: '未知；各动作、通道、层级及版本需独立验证。' },
+  { name: '操作能力', value: '查看页面顶部动作能力矩阵；未列出或失效的动作禁止执行。' },
   { name: '租约', value: '未知；无可验证的租约或 fencing 数据。' },
   { name: '当前任务', value: '未知；未接入可信任务状态。' },
   { name: '故障', value: '见下方设备故障报告；任务和代理故障暂无独立观察。' },
@@ -319,6 +334,7 @@ const identity = (cap: Pick<AgentCapability, 'actor_id' | 'tenant_id'>) =>
 const activePending = computed(() =>
   capability.value ? pending.get(identity(capability.value)) : undefined,
 )
+const capabilitiesOpen = ref(false)
 const dialog = ref(false),
   mode = ref<'CREATE' | 'EDIT' | 'REVOKE' | 'DETAIL'>('CREATE'),
   selected = ref<Agent | null>(null),

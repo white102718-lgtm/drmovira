@@ -113,6 +113,9 @@ def create_app() -> FastAPI:
     from orbit_api.execution_agent_routes import router as execution_agent_router
     from orbit_api.profile_binding_routes import router as profile_binding_router
 
+    from orbit_api.agent_capability_routes import router as agent_capability_router
+
+    app.include_router(agent_capability_router)
     app.include_router(execution_agent_router)
     app.include_router(profile_binding_router)
     from orbit_api.role_routes import router as role_router

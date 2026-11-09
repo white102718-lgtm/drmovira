@@ -1645,7 +1645,7 @@ def main() -> int:
         parser.error("执行机浏览器窗口仅附独立执行机登记档")
     if args.environment_registry_only and (
         args.migration_through != 62
-        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql", "068_agent_probe_requests.sql"}.issubset(args.migration_extra)
+        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql", "068_agent_probe_requests.sql", "069_agent_action_capabilities.sql", "070_agent_execution_leases.sql"}.issubset(args.migration_extra)
         or any(
             value is True
             and key not in {"environment_registry_only", "environment_internal_browser"}
@@ -1659,7 +1659,7 @@ def main() -> int:
         parser.error("本机AdsPower访问仅允许显式独立监测档")
     if args.environment_live_only and (
         args.migration_through != 62
-        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql", "068_agent_probe_requests.sql"}.issubset(
+        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql", "068_agent_probe_requests.sql", "069_agent_action_capabilities.sql", "070_agent_execution_leases.sql"}.issubset(
             args.migration_extra
         )
         or any(
@@ -3391,7 +3391,7 @@ def main() -> int:
             result["object_fixture"] = "本轮工作区内独占UUID目录；结束时仅清理本轮对象"
         if args.material_scanner_configuration_only:
             values["ORBIT_PYTHON_TEST_SCANNER_REGISTRY_PAYLOAD"] = runtime_profile_payload
-        if (args.launch_validation_only and args.include_launch_validation_provider) or (
+        if args.environment_live_only or (args.launch_validation_only and args.include_launch_validation_provider) or (
             args.include_launch_execution_material_references
         ):
             values["ORBIT_PYTHON_TEST_LAUNCH_VALIDATION_PROVIDER"] = True
@@ -3409,7 +3409,8 @@ def main() -> int:
         if args.include_launch_allocation_http_provider:
             values["ORBIT_PYTHON_TEST_LAUNCH_ALLOCATION_PROVIDER"] = True
         if (
-            args.include_launch_execution_provider
+            args.environment_live_only
+            or args.include_launch_execution_provider
             or args.execution_lease_only
             or args.execution_recovery_scanner_only
             or args.execution_candidate_only
@@ -3646,7 +3647,8 @@ app.add_middleware(DiagnosticProfile)
         environment = os.environ.copy()
         python_paths = [str(ROOT / "python"), str(FRAMEWORK)]
         if (
-            args.execution_lease_only
+            args.environment_live_only
+            or args.execution_lease_only
             or args.execution_recovery_scanner_only
             or args.execution_candidate_only
             or args.include_metrics_browser_fixture
@@ -6237,6 +6239,9 @@ app.add_middleware(DiagnosticProfile)
         files += [
             ROOT / "tools/environment_live_checks.py",
             ROOT / "tools/environment_probe_checks.py",
+            ROOT / "tools/environment_capability_checks.py",
+            ROOT / "tools/agent_execution_checks.py",
+            ROOT / "tools/environment_execution_checks.py",
             ROOT / "tools/environment_tls_fixture.py",
             ROOT / "tools/frontend_static_fixture.py",
             ROOT / "python/orbit_agent/requirements.txt",

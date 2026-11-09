@@ -14,6 +14,8 @@ from pathlib import Path
 from uuid import UUID, uuid4, uuid5
 
 import httpx
+from environment_capability_checks import CAPABILITY_CASES, run_capability_checks
+from environment_execution_checks import run_environment_execution_checks
 from environment_probe_checks import PROBE_CASES, run_probe_checks
 from environment_tls_fixture import make_environment_certificates
 from fixture_login import fixture_login
@@ -34,7 +36,20 @@ ENVIRONMENT_LIVE_CASES = [
     "environmentLiveDeviceRevocationImmediatelyRejects",
     "environmentLiveActualLocalSourceOrExplicitlyDisabled",
 ]
-ENVIRONMENT_LIVE_CASES += PROBE_CASES
+ENVIRONMENT_LIVE_CASES += (
+    PROBE_CASES
+    + CAPABILITY_CASES
+    + [
+        "environmentExecutionRequiresControlledAuthority",
+        "pythonAgentLeaseActualAcceptedTaskClaimAndLostAckReplay",
+        "pythonAgentLeaseActualRenewAndFencingReject",
+        "pythonAgentLeaseActualIntentCommitAndExactReplay",
+        "pythonAgentLeaseActualRevocationBlocksCommandAndIntentReplay",
+    "pythonAgentLeaseActualOutboxFailureRollsBackEnqueue",
+    "pythonAgentLeaseActualConcurrentClaimHasOneAttempt",
+    "pythonAgentLeaseActualExpiryUnknownAndHistoricalReplayCannotRestore",
+    ]
+)
 ROOT = Path(__file__).resolve().parents[1]
 TLS_PORT = 18443
 
@@ -159,6 +174,20 @@ def run_environment_live_checks(
     binding = checked(
         client.post("/api/v1/profile-bindings", headers=write(), json=binding_value), 201
     )
+    run_environment_execution_checks(client, admin, headers, values, database, sql, checked, cases)
+    run_capability_checks(
+        client,
+        headers,
+        read_headers,
+        values,
+        database,
+        tenant,
+        identifier,
+        binding,
+        sql,
+        checked,
+        cases,
+    )
     with tempfile.TemporaryDirectory(prefix="orbit-device-live-") as temporary:
         control = Path(temporary)
         certs = make_environment_certificates(control / "tls", tenant, identifier)
@@ -227,6 +256,10 @@ asyncio.run(run())
                             time.sleep(0.2)
                     else:
                         raise RuntimeError("DEVICE_LISTENER_NOT_READY")
+                    denied = checked(device.get("/api/v1/agent-api/leases/next"), 503)
+                    assert denied["code"] == "EXECUTION_AUTHORITY_UNAVAILABLE"
+                    checked(device.get("/api/v1/agent-api/leases/next?agent_id=forged"), 400)
+                    cases.append("environmentExecutionRequiresControlledAuthority")
                     _run_live_protocol(
                         client,
                         device,
