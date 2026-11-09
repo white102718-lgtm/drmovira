@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from orbit_api import account_access
 from orbit_api import execution_agent_access as access
+from orbit_api.agent_monitor_store import batch_binding_identities
 from orbit_api.errors import OrbitError
 from orbit_api.launch_access import digest
 from orbit_api.profile_binding_access import cas, fingerprint, query_rows, visible
@@ -60,7 +61,9 @@ class ProfileBindingStore:
     async def get(self, session, actor, resource_id):
         current = await access.context(session, actor, "environments.read")
         await access.clock(session, current)
-        return public_binding(await self.row(session, current, resource_id))
+        row = await self.row(session, current, resource_id)
+        observations = await batch_binding_identities(session, current.tenant_id, [row])
+        return public_binding(row) | observations[row["id"]]
 
     async def list(self, session, actor, size=50, cursor=None):
         current = await access.context(session, actor, "environments.read")
@@ -92,8 +95,9 @@ class ProfileBindingStore:
             if len(found) > size
             else None
         )
+        observations = await batch_binding_identities(session, current.tenant_id, items)
         return {
-            "items": [public_binding(row) for row in items],
+            "items": [public_binding(row) | observations[row["id"]] for row in items],
             "next_cursor": following,
             "scope_version": version,
             "data_as_of": as_of,

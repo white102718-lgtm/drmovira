@@ -248,6 +248,13 @@ def main() -> int:
         help="标签引用数与游标权限真实专项",
     )
     parser.add_argument(
+        "--environment-live-only", action="store_true", help="独立mTLS心跳与监测真实档"
+    )
+    parser.add_argument(
+        "--include-local-adspower", action="store_true", help="显式只读访问当前机器AdsPower"
+    )
+    parser.add_argument("--meta-expectation-file", type=Path, help="本机Meta验收预期账户与币种的私有JSON")
+    parser.add_argument(
         "--environment-registry-only",
         action="store_true",
         help="仅执行机登记与账户环境关联真实专项",
@@ -1299,6 +1306,7 @@ def main() -> int:
         args.material_taxonomy_scope_only,
         args.material_taxonomy_metadata_only,
         args.environment_registry_only,
+        args.environment_live_only,
         args.material_lifecycle_only,
         args.channel_owners_only,
         args.reference_channel_only,
@@ -1631,7 +1639,9 @@ def main() -> int:
         or args.include_account_worker
     ):
         parser.error("渠道快速矩阵仅初始化专属人员和渠道权限，不能混入其他专项")
-    if args.environment_internal_browser and not args.environment_registry_only:
+    if args.environment_internal_browser and not (
+        args.environment_registry_only or args.environment_live_only
+    ):
         parser.error("执行机浏览器窗口仅附独立执行机登记档")
     if args.environment_registry_only and (
         args.migration_through != 62
@@ -1643,6 +1653,27 @@ def main() -> int:
         )
     ):
         parser.error("执行机登记须独立through062加显式066迁移；不得混入其他专项")
+    if args.meta_expectation_file and not args.include_local_adspower:
+        parser.error("Meta预期文件必须伴随显式本机AdsPower验收")
+    if args.include_local_adspower and not args.environment_live_only:
+        parser.error("本机AdsPower访问仅允许显式独立监测档")
+    if args.environment_live_only and (
+        args.migration_through != 62
+        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql"}.issubset(
+            args.migration_extra
+        )
+        or any(
+            value is True
+            and key
+            not in {
+                "environment_live_only",
+                "environment_internal_browser",
+                "include_local_adspower",
+            }
+            for key, value in vars(args).items()
+        )
+    ):
+        parser.error("监测独立档须through062加显式066/067迁移，不混其他专项")
     if args.taxonomy_internal_browser and not args.material_taxonomy_metadata_only:
         parser.error("标签浏览器窗口只附独立目录元数据档")
     if args.material_taxonomy_metadata_only:
@@ -2005,6 +2036,10 @@ def main() -> int:
         result["command"] += " --include-channel-fields"
     if args.include_material_taxonomy_scope:
         result["command"] += " --include-material-taxonomy-scope"
+    if args.environment_live_only:
+        result["command"] += " --environment-live-only"
+    if args.include_local_adspower:
+        result["command"] += " --include-local-adspower"
     if args.environment_registry_only:
         result["command"] += " --environment-registry-only"
     if args.environment_internal_browser:
@@ -2441,6 +2476,12 @@ def main() -> int:
             )
         else:
             planned[-1:-1] = VENDOR_ALIAS_CASES
+    if args.environment_live_only:
+        from environment_live_checks import ENVIRONMENT_LIVE_CASES, run_environment_live_checks
+
+        planned = (
+            planned[:5] + USER_CASES + ENVIRONMENT_LIVE_CASES + ["pythonLogoutRevokesSameToken"]
+        )
     if args.environment_registry_only:
         from environment_registry_checks import (
             ENVIRONMENT_REGISTRY_CASES,
@@ -3261,7 +3302,7 @@ def main() -> int:
         with admin.cursor() as cursor:
             cursor.execute("SELECT @@datadir")
             directory = str(cursor.fetchone()[0]).replace("\\", "/").rstrip("/")
-            expected = str(ROOT.parent / ".runtime/mysql-it/data").replace("\\", "/")
+            expected = str((ROOT.parent / ".runtime/mysql-it/data").resolve()).replace("\\", "/")
             assert directory.lower() == expected.lower(), "MySQL夹具目录不匹配"
             cursor.execute(
                 f"CREATE DATABASE `{database}` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs"
@@ -3720,6 +3761,22 @@ app.add_middleware(DiagnosticProfile)
                 user_fixture = run_user_checks(client, admin, headers, password, cases)
                 result["channel_owners_fixture"] = run_channel_owners_500_checks(
                     client, admin, headers, user_fixture, password, cache, cases
+                )
+            if args.environment_live_only:
+                user_fixture = run_user_checks(client, admin, headers, password, cases)
+                result["environment_live"] = run_environment_live_checks(
+                    client,
+                    admin,
+                    headers,
+                    user_fixture,
+                    password,
+                    cache,
+                    database,
+                    values,
+                    cases,
+                    real_adspower=args.include_local_adspower,
+                    meta_expectation_file=args.meta_expectation_file,
+                    browser=args.environment_internal_browser,
                 )
             if args.environment_registry_only:
                 user_fixture = run_user_checks(client, admin, headers, password, cases)
@@ -6176,6 +6233,13 @@ app.add_middleware(DiagnosticProfile)
         files += [ROOT / "tools/material_taxonomy_scope_checks.py"]
     if args.include_material_taxonomy_capabilities:
         files += [ROOT / "tools/material_taxonomy_capability_checks.py"]
+    if args.environment_live_only:
+        files += [
+            ROOT / "tools/environment_live_checks.py",
+            ROOT / "tools/environment_tls_fixture.py",
+            ROOT / "tools/frontend_static_fixture.py",
+            ROOT / "python/orbit_agent/requirements.txt",
+        ] + list((ROOT / "python/orbit_agent").glob("*.py"))
     if args.environment_registry_only:
         files += [
             ROOT / "tools/environment_registry_checks.py",
@@ -6547,12 +6611,20 @@ app.add_middleware(DiagnosticProfile)
             "tests/e2e/orbit-python-identity-summary.spec.ts",
             "src/views/orbit/accounts/AccountDetailsDrawer.vue",
         ]
+    if args.environment_internal_browser:
+        frontend_files += [
+            "src/api/orbit/environments.ts",
+            "src/api/orbit/environments-monitor.ts",
+            "src/views/orbit/environments/index.vue",
+            "src/views/orbit/environments/AgentMonitorPanel.vue",
+            "src/views/orbit/environments/ProfileBindingsPanel.vue",
+        ]
     result["frontend_source_sha256"] = (
         {
             f: hashlib.sha256((frontend / f).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
             for f in frontend_files
         }
-        if args.browser
+        if args.browser or args.environment_internal_browser
         else {}
     )
     destination = EVIDENCE / "python-framework-integration.json"

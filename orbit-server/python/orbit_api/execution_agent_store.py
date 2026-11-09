@@ -12,6 +12,13 @@ from orbit_api.execution_agent_contract import public_agent
 from orbit_api.reference_access import managed_teams, scope_version
 from orbit_api.reference_contract import uuid_value
 
+# 查询谓词和公开回读采用同一45/90秒衰减；恢复首条仍由持久SUSPECT阻止假在线。
+LIVE_STATE_SQL = (
+    "CASE WHEN g.state='REVOKED' THEN 'REVOKED' "
+    "WHEN g.last_heartbeat IS NULL OR g.last_heartbeat<=UTC_TIMESTAMP(6)-INTERVAL 90 SECOND "
+    "THEN 'OFFLINE' WHEN g.last_heartbeat<=UTC_TIMESTAMP(6)-INTERVAL 45 SECOND "
+    "THEN 'SUSPECT' ELSE g.state END"
+)
 COLUMNS = "g.id,g.name,g.endpoint,g.probe_interval,g.revision,g.state,g.last_heartbeat"
 
 
@@ -117,7 +124,7 @@ class ExecutionAgentStore:
             where.append("(LOCATE(:q,g.name)>0 OR LOCATE(:q,g.id)>0)")
             values["q"] = filters["q"]
         if filters.get("status"):
-            where.append("g.state=:status")
+            where.append("(" + LIVE_STATE_SQL + ")=:status")
             values["status"] = filters["status"]
         for field, operator in (("date_from", ">="), ("date_to", "<")):
             if field in filters:

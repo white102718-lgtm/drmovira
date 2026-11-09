@@ -188,7 +188,13 @@
             >{{ layer.value }}</el-descriptions-item
           >
         </el-descriptions>
-        <el-button class="probe" disabled>主动探测尚未接通</el-button>
+        <AgentMonitorPanel
+          :agent-id="selected.id"
+          :active="dialog && mode === 'DETAIL'"
+          :context-key="JSON.stringify([user.id, user.permissions])"
+          @monitor="applyMonitor"
+        />
+        <el-button class="probe" disabled>主动探测命令尚未接通</el-button>
       </template>
       <AgentRegistrationForm
         v-else-if="mode === 'CREATE' || mode === 'EDIT'"
@@ -238,6 +244,8 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import useUserStore from '@/store/modules/user'
 import AgentRegistrationForm from './AgentRegistrationForm.vue'
 import ProfileBindingsPanel from './ProfileBindingsPanel.vue'
+import AgentMonitorPanel from './AgentMonitorPanel.vue'
+import type { AgentMonitor } from '@/api/orbit/environments-monitor'
 import {
   environmentApi,
   AgentApiError,
@@ -255,16 +263,16 @@ const capability = ref<AgentCapability | null>(null)
 const canManage = (action: string) => capability.value?.data_role === 'SUPER_ADMIN' && can(action)
 const states = { READY: '心跳正常', SUSPECT: '心跳疑似中断', OFFLINE: '离线', REVOKED: '已撤销' }
 const layers = [
-  { name: '设备证书', value: '未知；设备证书签发与校验尚未接通。' },
-  { name: '客户端/API', value: '未知；控制面不会探测用户 localhost。' },
-  { name: 'Profile', value: '未知；请通过独立账户环境绑定记录核对。' },
+  { name: '设备证书', value: '证书由运维独立签发；本页不读取密钥，证书状态尚无独立报告。' },
+  { name: '客户端/API', value: '见下方可信设备观察；本次只读取最近上报，不触发设备探测。' },
+  { name: 'Profile', value: '见下方最近观察清单及覆盖范围，普通用户仅见当前绑定 Profile。' },
   { name: '代理', value: '未知；尚无可信代理探测结果。' },
-  { name: 'Meta 登录', value: '未知；没有可信登录探测结果。' },
-  { name: '账户身份', value: '未知；登记及关联不代表账户身份已核验。' },
+  { name: 'Meta 登录', value: '见下方服务端身份报告；登录主页不代表广告账户或币种已匹配。' },
+  { name: '账户身份', value: '见下方新鲜身份核验；登记或选择 Profile 不授予执行能力。' },
   { name: '操作能力', value: '未知；各动作、通道、层级及版本需独立验证。' },
   { name: '租约', value: '未知；无可验证的租约或 fencing 数据。' },
   { name: '当前任务', value: '未知；未接入可信任务状态。' },
-  { name: '故障', value: '未知；没有可信故障观察数据。' },
+  { name: '故障', value: '见下方设备故障报告；任务和代理故障暂无独立观察。' },
 ]
 const loading = ref(false),
   busy = ref(false),
@@ -458,6 +466,19 @@ async function openRecord(id: string, next: 'DETAIL' | 'EDIT' | 'REVOKE') {
 const openDetail = (id: string) => openRecord(id, 'DETAIL'),
   openEdit = (id: string) => openRecord(id, 'EDIT'),
   openRevoke = (id: string) => openRecord(id, 'REVOKE')
+function applyMonitor(report: AgentMonitor) {
+  if (!dialog.value || mode.value !== 'DETAIL' || selected.value?.id !== report.agent_id) return
+  selected.value = {
+    ...selected.value,
+    state: report.machine_state,
+    last_heartbeat: report.last_heartbeat,
+  }
+  items.value = items.value.map((row) =>
+    row.id === report.agent_id
+      ? { ...row, state: report.machine_state, last_heartbeat: report.last_heartbeat }
+      : row,
+  )
+}
 function closeDialog(done?: () => void) {
   if (busy.value) return
   dialog.value = false

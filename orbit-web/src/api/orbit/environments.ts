@@ -160,7 +160,7 @@ const exact = (v: unknown, keys: string[]): v is Record<string, unknown> =>
 function invalid(): never {
   throw new AgentApiError(502, 'INVALID_RESPONSE', '执行机响应不符合合同')
 }
-async function readBody(response: Response, signal: AbortSignal) {
+async function readBody(response: Response, signal: AbortSignal, maxResponseBytes: number) {
   const reader = response.body?.getReader()
   if (!reader) invalid()
   const decoder = new TextDecoder('utf-8', { fatal: true })
@@ -176,7 +176,7 @@ async function readBody(response: Response, signal: AbortSignal) {
       const chunk = await reader.read()
       if (chunk.done) break
       size += chunk.value.byteLength
-      if (size > 2 * 1024 * 1024) invalid()
+      if (size > maxResponseBytes) invalid()
       result += decoder.decode(chunk.value, { stream: true })
     }
     signal.throwIfAborted()
@@ -196,6 +196,7 @@ export async function environmentRequest<T>(
   parse: (v: unknown) => T,
   init: RequestInit = {},
   expected = 200,
+  maxResponseBytes = 2 * 1024 * 1024,
 ): Promise<T> {
   const context = agentAuthContext(),
     controller = new AbortController(),
@@ -216,7 +217,7 @@ export async function environmentRequest<T>(
     status = response.status
     let body: unknown
     try {
-      body = await readBody(response, controller.signal)
+      body = await readBody(response, controller.signal, maxResponseBytes)
     } catch {
       throw new AgentApiError(
         [401, 403, 404, 409].includes(status) ? status : 502,

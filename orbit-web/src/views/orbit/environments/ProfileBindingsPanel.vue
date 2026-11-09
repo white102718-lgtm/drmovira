@@ -10,7 +10,7 @@
     @update:model-value="emit('update:modelValue', $event)"
   >
     <el-alert
-      title="登记关联尚未验证 Profile、Meta 登录或账户身份，不能据此执行广告操作。无可信 Profile 盘点时请填写执行机的原始 Profile ID；不读取 Local API Key。"
+      title="登记或选择 Profile 不代表身份有效；核验状态只读取服务端新鲜报告，不能据此跳过执行前校验。未盘点到的 Profile 仍可手动填写原始 ID；不读取 Local API Key。"
       type="info"
       :closable="false"
     />
@@ -136,6 +136,28 @@
             :aria-label="field.label"
             :disabled="busy || !!activePending || mode === 'DETAIL' || !manageable"
         /></el-form-item>
+        <template v-if="mode === 'SAVE'">
+          <el-button
+            v-if="canRead"
+            :disabled="busy || !!activePending || !manageable || !pickerAgentId"
+            @click="pickerOpen = !pickerOpen"
+            >{{ pickerOpen ? '收起 Profile 观察' : '从设备观察选择 Profile' }}</el-button
+          >
+          <p v-else class="profile-help">
+            无环境读取权限，可保留手工填写 Profile ID，不读取设备观察。
+          </p>
+          <p class="profile-help">
+            填写完整 Agent UUID 后可查询当前可见观察。选择不会改变身份核验状态；手工输入仍可使用。
+          </p>
+          <AgentMonitorPanel
+            v-if="pickerOpen && pickerAgentId && canRead"
+            :agent-id="pickerAgentId"
+            :active="modelValue && editing && mode === 'SAVE' && manageable && !activePending"
+            selectable
+            :context-key="contextKey"
+            @select="selectObservedProfile"
+          />
+        </template>
         <p v-if="selected">
           关联 ID：{{ selected.id }} · 版本 {{ selected.revision }} ·
           {{ identityLabels[selected.identity_state] }} · 核验时刻
@@ -181,6 +203,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { AgentApiError, environmentApi, type AgentCapability } from '@/api/orbit/environments'
+import AgentMonitorPanel from './AgentMonitorPanel.vue'
 import {
   bindingApi,
   parseBindingWrite,
@@ -224,6 +247,15 @@ const draft = reactive({
   owner_user_id: '',
   owner_team_id: '',
 })
+const pickerOpen = ref(false)
+const pickerAgentId = computed(() =>
+  /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/.test(draft.agent_id) ? draft.agent_id : '',
+)
+function selectObservedProfile(externalId: string) {
+  if (!manageable.value || busy.value || activePending.value || mode.value !== 'SAVE') return
+  draft.profile_external_id = externalId
+  pickerOpen.value = false
+}
 const fields = [
   { key: 'account_id', label: '账户 ID' },
   { key: 'agent_id', label: 'Agent ID' },
@@ -239,6 +271,7 @@ const identityLabels = {
   IDENTITY_MISMATCH: '身份不匹配',
 }
 function fill(body?: BindingWrite) {
+  pickerOpen.value = false
   Object.assign(draft, {
     account_id: body?.account_id ?? '',
     agent_id: body?.agent_id ?? '',
@@ -482,6 +515,11 @@ onBeforeUnmount(() => {
 })
 </script>
 <style scoped>
+.profile-help {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
 .toolbar {
   display: flex;
   align-items: center;

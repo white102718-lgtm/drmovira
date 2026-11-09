@@ -98,6 +98,7 @@ class CredentialCipher:
             "RULE_SCOPE_OPTIONS_CURSOR_V1",
             "EXECUTION_AGENT_CURSOR_V1",
             "PROFILE_BINDING_CURSOR_V1",
+            "AGENT_PROFILE_CURSOR_V1",
         }:
             raise ValueError("不支持的签名用途")
         key_id = key_id or self.active_key_id

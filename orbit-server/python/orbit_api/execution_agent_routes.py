@@ -100,9 +100,28 @@ async def probe_agent(resource_id: str, request: Request, user: User):
     )
 
 
+@router.get("/{resource_id}/monitor")
+async def monitor(resource_id: str, request: Request, user: User):
+    from orbit_api.agent_monitor_store import read_monitor
+
+    _read_boundary(request)
+    return await transaction(lambda session: read_monitor(session, user.user.user_id, resource_id))
+
+
 @router.get("/{resource_id}/profiles")
 async def profiles(resource_id: str, request: Request, user: User):
+    from orbit_api.agent_monitor_contract import parse_profile_filters
+    from orbit_api.agent_monitor_store import list_profiles
+
     _read_boundary(request, set(LIST_FIELDS))
+    filters, cursor = parse_profile_filters(dict(request.query_params))
     return await transaction(
-        lambda session: store().unavailable(session, user.user.user_id, resource_id, "profiles")
+        lambda session: list_profiles(
+            session,
+            user.user.user_id,
+            resource_id,
+            filters,
+            cursor,
+            DirectoryTokens(credential_cipher()),
+        )
     )

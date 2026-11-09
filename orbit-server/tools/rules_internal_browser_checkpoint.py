@@ -5,6 +5,7 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -14,7 +15,7 @@ from rule_definition_checks import guard_rule_target
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run_rules_internal_browser_checkpoint(admin, database, password):
+def run_rules_internal_browser_checkpoint(admin, database, password, *, static_dist=None):
     """由主线实际操作UI后写入具名结果；窗口存在或HTTP可达不自动算通过。"""
     guard_rule_target(admin, database)
     with socket.socket() as guard:
@@ -31,7 +32,7 @@ def run_rules_internal_browser_checkpoint(admin, database, password):
         environment = os.environ.copy()
         environment["ORBIT_E2E_BACKEND_URL"] = "http://127.0.0.1:18083"
         node = shutil.which("node")
-        if node is None:
+        if node is None and static_dist is None:
             raise RuntimeError("RULE_BROWSER_NODE_UNAVAILABLE")
         with log_path.open("wb") as log:
             child = subprocess.Popen(
@@ -43,6 +44,12 @@ def run_rules_internal_browser_checkpoint(admin, database, password):
                     "--port",
                     "18084",
                     "--strictPort",
+                ]
+                if static_dist is None
+                else [
+                    sys.executable,
+                    str(ROOT / "tools/frontend_static_fixture.py"),
+                    str(static_dist),
                 ],
                 cwd=ROOT.parent / "orbit-web",
                 env=environment,
@@ -56,6 +63,7 @@ def run_rules_internal_browser_checkpoint(admin, database, password):
                         "rules_internal_browser_control": str(control),
                         # Cookie不按端口隔离；独立host避免覆盖原127.0.0.1预览的登录Cookie。
                         "frontend": "http://localhost:18084",
+                        "frontend_mode": "BUILT_ASSETS" if static_dist else "VITE",
                         "status": "PENDING_UI_CHECKS_NOT_PASS",
                     }
                 ),

@@ -74,9 +74,17 @@ def heartbeat_state(*, revoked, received_at, now):
     return "OFFLINE" if elapsed >= 90 else "SUSPECT" if elapsed >= 45 else "READY"
 
 
-def public_agent(row):
+def public_agent(row, *, now=None):
     """保持原Agent七字段；内部权限/证书元数据不能通过行合并泄露。"""
     heartbeat = row["last_heartbeat"]
+    received = heartbeat
+    if isinstance(received, datetime) and received.tzinfo is None:
+        received = received.replace(tzinfo=UTC)
+    state = heartbeat_state(
+        revoked=row["state"] == "REVOKED", received_at=received, now=now or datetime.now(UTC)
+    )
+    if state == "READY" and row["state"] != "READY":
+        state = "SUSPECT"
     if isinstance(heartbeat, datetime):
         heartbeat = heartbeat.replace(tzinfo=UTC) if heartbeat.tzinfo is None else heartbeat
         heartbeat = heartbeat.astimezone(UTC).isoformat().replace("+00:00", "Z")
@@ -86,7 +94,7 @@ def public_agent(row):
         "probe_interval": row["probe_interval"],
         "id": row["id"],
         "revision": row["revision"],
-        "state": row["state"],
+        "state": state,
         "last_heartbeat": heartbeat,
     }
 
