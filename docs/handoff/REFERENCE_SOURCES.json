@@ -1,0 +1,38 @@
+[
+  {
+    "name": "ai-ad-platform-vben",
+    "previous_machine_path": "D:\\progress\\ai-ad-platform-vben",
+    "source_bundled": false,
+    "role": "read-only historical business reference; never a runtime configuration source",
+    "commit": "1b2b48d86cb2722c0194a610a363aced93802f53",
+    "branch": "devhs",
+    "origin": "https://github.com/hesong0105-bit/adPluse.git"
+  },
+  {
+    "name": "adpulse-power-system",
+    "previous_machine_path": "D:\\progress\\adpulse-power-system",
+    "source_bundled": false,
+    "role": "read-only historical business reference; never a runtime configuration source",
+    "commit": "325bb98d5828fcde08460fa13bdf55110755a0ff",
+    "branch": "devhs",
+    "origin": "https://github.com/chengjunhao19980625/adpulse-power-system.git"
+  },
+  {
+    "name": "backend",
+    "previous_machine_path": "D:\\progress\\backend",
+    "source_bundled": false,
+    "role": "read-only historical business reference; never a runtime configuration source",
+    "commit": "0565d8a342eb64b044d190fb5c3dc48636d9c269",
+    "branch": "devhs",
+    "origin": "http://13.229.203.162/wzl/backend.git"
+  },
+  {
+    "name": "schedulers",
+    "previous_machine_path": "D:\\progress\\schedulers",
+    "source_bundled": false,
+    "role": "read-only historical business reference; never a runtime configuration source",
+    "commit": "4ed5d58a08321e0c0701a74905df0e17fa02edac",
+    "branch": "devhs",
+    "origin": "http://13.229.203.162/wzl/schedulers.git"
+  }
+]

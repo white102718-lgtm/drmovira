@@ -1,0 +1,148 @@
+[
+  {
+    "id": "DEV-01",
+    "title": "工程骨架与合同",
+    "depends_on": [],
+    "requirements": [
+      "FR-GEN-01",
+      "FR-GEN-03",
+      "FR-GEN-05",
+      "FR-UI-01",
+      "FR-UI-02",
+      "FR-UI-03"
+    ],
+    "deliverable": "建立八模块路由、Ant Design token、DTO客户端、真实组件、fixture身份和适配接口；保留全部字段；不要复用旧DOM桥。"
+  },
+  {
+    "id": "DEV-02",
+    "title": "认证、权限与审计",
+    "depends_on": [
+      "DEV-01"
+    ],
+    "requirements": [
+      "FR-GEN-02",
+      "FR-SYS-01",
+      "FR-SYS-02"
+    ],
+    "deliverable": "OIDC/session、角色和数据范围、RLS、scope撤销、secret_ref、审计/outbox、kill switch。"
+  },
+  {
+    "id": "DEV-03",
+    "title": "引用目录与渠道",
+    "depends_on": [
+      "DEV-02"
+    ],
+    "requirements": [
+      "FR-CHN-01",
+      "FR-CHN-02",
+      "FR-CHN-03",
+      "FR-SYS-03"
+    ],
+    "deliverable": "实现4个新目录路径、完整渠道表单及历史约束，按覆盖表修正旧产品权限依赖。"
+  },
+  {
+    "id": "DEV-04",
+    "title": "账户管理与导入",
+    "depends_on": [
+      "DEV-03"
+    ],
+    "requirements": [
+      "FR-ACC-01",
+      "FR-ACC-02",
+      "FR-ACC-03"
+    ],
+    "deliverable": "18列、详情、OAuth、分配历史、同步、本地解绑、带户商的导入和逐项结果。"
+  },
+  {
+    "id": "DEV-05",
+    "title": "素材与标签",
+    "depends_on": [
+      "DEV-02"
+    ],
+    "requirements": [
+      "FR-AST-01",
+      "FR-AST-02",
+      "FR-AST-03"
+    ],
+    "deliverable": "安全上传、指标/分类/标签筛选、归并标签页、引用追溯及原子批删。"
+  },
+  {
+    "id": "DEV-06",
+    "title": "计划配置与模板",
+    "depends_on": [
+      "DEV-04",
+      "DEV-05"
+    ],
+    "requirements": [
+      "FR-LCH-01",
+      "FR-LCH-02",
+      "FR-LCH-03",
+      "FR-LCH-04"
+    ],
+    "deliverable": "六区上下表单、差异树、预检、命名和分配冻结、草稿/模板/共享。"
+  },
+  {
+    "id": "DEV-07",
+    "title": "统一命令与任务执行",
+    "depends_on": [
+      "DEV-06"
+    ],
+    "requirements": [
+      "FR-GEN-04",
+      "FR-LCH-05"
+    ],
+    "deliverable": "CAS、幂等、风险账本、DAG、outbox、任务SSE、重试取消、回读及UNKNOWN只读对账；先用确定性fake Adapter验证。"
+  },
+  {
+    "id": "DEV-08",
+    "title": "环境与双通道Adapter",
+    "depends_on": [
+      "DEV-07"
+    ],
+    "requirements": [
+      "FR-ENV-01",
+      "FR-ENV-02",
+      "FR-ENV-03"
+    ],
+    "deliverable": "设备绑定、心跳、租约fencing、动作能力证据、AdsPower Adapter和Meta Adapter、挑战恢复。"
+  },
+  {
+    "id": "DEV-09",
+    "title": "指标与建议操作",
+    "depends_on": [
+      "DEV-07"
+    ],
+    "requirements": [
+      "FR-MON-01",
+      "FR-MON-02",
+      "FR-MON-03",
+      "FR-MON-04"
+    ],
+    "deliverable": "指标发布快照、七Tab、导出、冻结建议依据、编辑/忽略/提交和采纳统计；先fixture，后真实采集。"
+  },
+  {
+    "id": "DEV-10",
+    "title": "规则与AI闭环",
+    "depends_on": [
+      "DEV-09"
+    ],
+    "requirements": [
+      "FR-RUL-01",
+      "FR-RUL-02",
+      "FR-RUL-03"
+    ],
+    "deliverable": "条件AST、调度slot、模拟、命中、冷却/额度、模型schema验证与人工确认执行。"
+  },
+  {
+    "id": "DEV-11",
+    "title": "迁移与端到端发布门禁",
+    "depends_on": [
+      "DEV-08",
+      "DEV-10"
+    ],
+    "requirements": [
+      "FR-MIG-01"
+    ],
+    "deliverable": "空库/升级迁移、引用对账、存档、真实连接器能力验证、端到端回归和回退演练。"
+  }
+]

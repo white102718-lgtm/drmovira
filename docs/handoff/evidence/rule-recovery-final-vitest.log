@@ -1,0 +1,111 @@
+
+ RUN  v3.2.4 D:/progress/orbit/orbit-web
+
+stderr | tests/orbit/rules-page.test.ts > ACTION父接管不同Editor envelope，真实:key重挂载后保留原请求而不自动重发
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+
+ ✓ tests/orbit/rules-page.test.ts (25 tests) 273ms
+ ✓ tests/orbit/rule-runs.test.ts (19 tests) 5538ms
+   ✓ 原八字段与真实UTC/0/null，默认50条不补运行时间或成功  563ms
+   ✓ 原四档20页重置首页  308ms
+   ✓ 原四档50页重置首页  313ms
+   ✓ 真实next/previous栈保持原opaque cursor，首尾禁用  329ms
+   ✓ 状态和原日期筛选只有提交生效，翻页冻结已提交query  391ms
+   ✓ 清空日期不传null，父原其余参数完整保留不修改  316ms
+ ✓ tests/orbit/rule-display-metadata-api.test.ts (12 tests) 27ms
+ ✓ tests/orbit/rule-recovery-api.test.ts (14 tests) 20ms
+ ✓ tests/orbit/rule-list.test.ts (41 tests) 11823ms
+   ✓ 无read不请求列表或任何cap，create-only不暗加read  469ms
+   ✓ 真实列表字段和四档cursor导航，filter/page变化重置  346ms
+   ✓ 模拟实际503与运行记录503可见，不发行enable资格  539ms
+   ✓ 未知意图认证变化后不显示旧对象，恢复原上下文用同键重试  315ms
+   ✓ 详情真实运行记录组件可翻页，关闭详情取消子组件读取  568ms
+   ✓ 父ACTION接管后真正卸载重挂载可恢复，未发确认不产生pending  502ms
+   ✓ 实际200行只批量一次metadata，Drawer另单户读并显示真实名/原native创建人与UTC  1285ms
+ ✓ tests/orbit/rule-editor.test.ts (26 tests) 20165ms
+   ✓ 仅edit权限读取专属定义，真实521旧范围不冒充Scope5且不读creator成员  1293ms
+   ✓ 原11字段与quoted CAS保存，允许同正文no-op版本不增长  966ms
+   ✓ 定义与上下文revision漂移409，不能保存  856ms
+   ✓ ENABLED只读但保留完整定义  854ms
+   ✓ ARCHIVED只读但保留完整定义  869ms
+   ✓ 创建无浏览器日期/时区假默认、空scope/profile不能提交  940ms
+   ✓ 候选分页不重置已修改名称，保留真实已加载配置  958ms
+   ✓ 改owner清已保存scope并按真实新owner查询配置  925ms
+   ✓ 候选403立即清所有旧敏感定义，不能发新保存  958ms
+   ✓ 普通503保留本地修改但阻止提交，明确来源失败  899ms
+   ✓ 未确认保存先交父，手动用原body/key/CAS和当前CSRF恢复  930ms
+   ✓ 明确422首次拒绝清pending并展示原字段path  865ms
+   ✓ 关闭保留进行中原意图，迟到成功不覆盖或发saved  824ms
+   ✓ 父回传未知请求重挂载先取当前会话，不跨actor重发  797ms
+   ✓ 同actor未知请求重挂载能获取当前CSRF恢复  810ms
+   ✓ CREATE真实Scope回传后原完整正文提交，不造scope回执或日期  829ms
+   ✓ 恢复Scope待选记录清pending后仍保持原owner，不把回执归给当前表单  801ms
+   ✓ Form内实际预览读取当前未保存Schedule及真实Context，不提交Rule  794ms
+   ✓ 预览401/403即时清整个Editor敏感定义，不保留表单旧数据  783ms
+   ✓ SAVE未确认期间禁用并清旧预览，不吞原pending保存意图  809ms
+   ✓ owner切换使预览上下文失效并阻旧回包，不借新owner沿用旧结果  794ms
+   ✓ 首次真实身份与native页面不符不发SAVE，清旧显示且不造未知  790ms
+   ✓ 未知SAVE主体变化拒绝第二POST，原key正文与pending保留  808ms
+ ✓ tests/orbit/rule-scope-selector.test.ts (48 tests) 22556ms
+   ✓ 只用规则create动作读取Member3，不借账户读取或默认勾选  690ms
+   ✓ 没有当前动作或真实EditorContext就不发候选/冻结  415ms
+   ✓ IDS显式跨页保留，真实POST Scope5及成员核对后才choose  564ms
+   ✓ FILTER全选五字段/空IDs，不拼当前页或假总数  567ms
+   ✓ 零匹配/未知来源503不能冻结FILTER，不显示假快照  364ms
+   ✓ 候选四档20、历史cursor及已提交filter冻结  419ms
+   ✓ 候选四档50、历史cursor及已提交filter冻结  430ms
+   ✓ 候选四档100、历史cursor及已提交filter冻结  426ms
+   ✓ 候选四档200、历史cursor及已提交filter冻结  462ms
+   ✓ UPDATE固定quoted旧CAS，未知手动恢复不自动换键或正文  509ms
+   ✓ 未知恢复后来403仍保留第一笔未知，不能另建scope写  408ms
+   ✓ 明确422不是未知，可调整而不伪造成功  434ms
+   ✓ 在途显式关闭中止本地等待、保留pending并禁止新写  453ms
+   ✓ 父接管pending后跨卸载重建仍用原请求恢复，不声明内置持久化  830ms
+   ✓ head/无关权限变化仍恢复原IfMatch，旧成员409不能apply  489ms
+   ✓ 不同actor上下文绝不重发原意图且不露旧数据  409ms
+   ✓ 不同owner上下文绝不重发原意图且不露旧数据  425ms
+   ✓ 不同rule上下文绝不重发原意图且不露旧数据  446ms
+   ✓ 成员原四档/分页及q冻结，错误403明确而不当空库存  541ms
+   ✓ 晚候选不能覆盖新规则，关闭/卸载取消读取  346ms
+   ✓ 真实Dialog打开首搜索焦点、关闭后归还触发器；普通取消无POST  376ms
+   ✓ 父镜像同一pending不把正在等待的请求误标失败或重发  449ms
+   ✓ 未知请求当前原动作已撤回时不能恢复，关闭仍保留记录  384ms
+   ✓ 已有成功回执重新打开必须重新核成员，不能直接应用旧资格  475ms
+   ✓ 同actor当前CSRF刷新只在手动恢复更新传输，业务三项逐字不变  451ms
+   ✓ head3旧成功恢复且members200只读历史，不能stamp为当前head4资格  460ms
+   ✓ 候选401即时清敏感选择和快照，不依赖props撤权，禁止新POST  451ms
+   ✓ 候选403即时清敏感选择和快照，不依赖props撤权，禁止新POST  435ms
+   ✓ 成员401清旧回执/成员/已选，但不假造空成功  443ms
+   ✓ 成员403清旧回执/成员/已选，但不假造空成功  441ms
+   ✓ 普通候选网络503保留明确选择供重试，不当作撤权抹除  320ms
+   ✓ 未知期间head变化清旧游标栈，恢复后不再沿旧页回退  436ms
+   ✓ 规则专属远程两种候选独立加载，历史状态可筛且alias null不回退name  489ms
+   ✓ 候选q与原账户q独立，四档keyset不会伪全量或清掉当前filter  592ms
+   ✓ 翻页保留曾真实选择的ID标签，非候选UUID不能塞入filter  475ms
+   ✓ 两个远程请求各有epoch，快速查询迟到不覆盖，owner/revision变化清cursor与旧filter  528ms
+   ✓ 远程401清旧候选/账户选择/已选filter，不能继续新写  485ms
+   ✓ 远程403清旧候选/账户选择/已选filter，不能继续新写  474ms
+   ✓ 远程409清旧候选/账户选择/已选filter，不能继续新写  479ms
+   ✓ 候选503保留真实已选和已验证scope，不把查询失败当空或新增freeze资格门禁  583ms
+   ✓ 远程真实空页区别于503，关闭取消两个读取且不启动其它权限API  442ms
+   ✓ 在途候选随后撤权不能吞已发scope的未知意图  480ms
+   ✓ 真实SDK解析401畸形正文后清旧候选/快照，保留已发未知scope意图  628ms
+   ✓ 真实SDK解析403畸形正文后清旧候选/快照，保留已发未知scope意图  581ms
+   ✓ 真实SDK解析409畸形正文后清旧候选/快照，保留已发未知scope意图  583ms
+   ✓ 首次SCOPE主体不符零POST且不留下假未知意图  327ms
+   ✓ 未知SCOPE遇租户变化保留原意图但禁止再POST  325ms
+   ✓ 首次身份读取期间显式关闭取消读取，迟到ctx不能生成pending或POST  333ms
+
+ Test Files  7 passed (7)
+      Tests  185 passed (185)
+   Start at  10:14:48
+   Duration  25.86s (transform 1.89s, setup 39ms, collect 9.90s, tests 60.40s, environment 5.12s, prepare 656ms)
+
+JUNIT report written to D:/progress/orbit/orbit-web/.runtime/rule-recovery-final-junit.xml

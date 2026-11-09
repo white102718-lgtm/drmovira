@@ -1,0 +1,57 @@
+{
+  "executed_at": "2026-11-09T02:23:48.480351+00:00",
+  "scope": "真实浏览器overlay P1后窄补丁；仅纯挂载/类型/格式，不计浏览器修复验收",
+  "parent_setup": "未修改，只模板绑定原handler",
+  "previous_receipt": "rule-recovery-business-receipt.json",
+  "status": "PASS_LIMITED",
+  "files": [
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleList.vue",
+      "sha256": "e7070ca93f5095cad5fdc344ee0e01ff5d59beb16e41992a13355896ea398f42"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleEditor.vue",
+      "sha256": "5fb75ed7f4b6f7f9ef42240b59497eeb8fddbbabfd861e1dbba32c56019331f4"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleScopeSelector.vue",
+      "sha256": "aebae745d2972498c418c5795a168adcbf80066a3a8eba9b1b52cb2f84603daf"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\index.vue",
+      "sha256": "98022f97876f85d103c581e83e9810287f523a99a6b1e253d5d8c0b93848acc7"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-list.test.ts",
+      "sha256": "36a1a33475e5db9f1f4398ce2e99e2840c6aa1b4e6451b2207e6bf18034dab39"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-editor.test.ts",
+      "sha256": "0a45258ed4e6b6f024803cf7cd86c4577ad806aa634d04d1795f1faefbf89a2b"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-scope-selector.test.ts",
+      "sha256": "ae4e5972cfa49c5463f5d53f623cffee8ec5a5a9d0b9ac12fceba439b8f7b6f1"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_RECOVERY.md",
+      "sha256": "fbb5e15ef423e4b1b1138d18c69100bb71d32374210dc7758878e76f8f4704c9"
+    }
+  ],
+  "logs": [
+    "rule-recovery-modal-vitest.log",
+    "rule-recovery-modal-junit.xml",
+    "rule-recovery-modal-type.log",
+    "rule-recovery-modal-final-format.log"
+  ],
+  "first_failure": "rule-recovery-modal-first-failed.log",
+  "real_browser_failure": "原归档200丢响应后父入口被双mask挡；由主线保留，不计通过",
+  "tests": {
+    "first_combined": "142 PASS / 1 FAIL; test omitted opening real Scope component",
+    "second_combined": "142 PASS / 1 FAIL; imported component still legitimately absent before choosing scope",
+    "final_editor": "27/27 PASS; see rule-recovery-modal-editor-vitest.log",
+    "other_current_tests": "116/116 from combined run; product source unchanged after it",
+    "not_claimed": "没有声称最后统一143档全跑PASS；最终Editor独立补测，原失败保留"
+  },
+  "final_test_format": "Editor测试在27PASS后仅Prettier格式化，无产品变化；final-format PASS"
+}

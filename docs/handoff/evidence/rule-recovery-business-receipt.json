@@ -1,0 +1,150 @@
+{
+  "executed_at": "2026-11-09T02:16:22.030963+00:00",
+  "scope": "定向纯协议/真实ElementPlus挂载；非HTTP/浏览器/全量",
+  "result": "PASS",
+  "tests": {
+    "count": 185,
+    "files": 7,
+    "duration_seconds": 25.86,
+    "junit": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-recovery-final-junit.xml",
+    "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-recovery-final-vitest.log"
+  },
+  "type": {
+    "result": "PASS",
+    "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-recovery-final-type.log"
+  },
+  "format": {
+    "source_test_files": 14,
+    "result": "PASS",
+    "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-recovery-final-format.log",
+    "docs_formatted": 7
+  },
+  "mechanical": {
+    "result": [],
+    "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-recovery-mechanical.log"
+  },
+  "fingerprint_statement": "最终测试后当前21文件raw与LF hash；未声称本次测试前已有完整hash快照。主线固定回归另行验证。",
+  "files": [
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\api\\orbit\\rule-recovery.ts",
+      "sha256": "d593aa2c3bc287ef166e0f651bf59f7e7e09dff95a9b6c00fa81027fff08de43",
+      "lf_sha256": "d593aa2c3bc287ef166e0f651bf59f7e7e09dff95a9b6c00fa81027fff08de43"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\api\\orbit\\rule-display-metadata.ts",
+      "sha256": "6c73f81b5d7338040bb1c352530a9ee30c74fc04d7c6bb67656dfcd2662154db",
+      "lf_sha256": "6c73f81b5d7338040bb1c352530a9ee30c74fc04d7c6bb67656dfcd2662154db"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleEditor.vue",
+      "sha256": "aff2ffc30bde68c9ca450f84efd35180604583a6e374b2594ce4c864404acb0e",
+      "lf_sha256": "aff2ffc30bde68c9ca450f84efd35180604583a6e374b2594ce4c864404acb0e"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleScopeSelector.vue",
+      "sha256": "559bc114fd2678f9de6821ebbf723ac4680a9639898833e6c5e0e3d76ef54c7a",
+      "lf_sha256": "559bc114fd2678f9de6821ebbf723ac4680a9639898833e6c5e0e3d76ef54c7a"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleList.vue",
+      "sha256": "6c43bdae88aac3df8d587477ab454778888697a138fdf3f4c7708285db4f7832",
+      "lf_sha256": "6c43bdae88aac3df8d587477ab454778888697a138fdf3f4c7708285db4f7832"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleRuns.vue",
+      "sha256": "c3019e2e96df8fad21bb3936bde7a6aa83fafcda85a4ddc098c2e31258ce9124",
+      "lf_sha256": "c3019e2e96df8fad21bb3936bde7a6aa83fafcda85a4ddc098c2e31258ce9124"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\index.vue",
+      "sha256": "9aa361b5d40ea2261600b872e3147ea312fc63f70f18c2d9d66ba745df9dc2dd",
+      "lf_sha256": "9aa361b5d40ea2261600b872e3147ea312fc63f70f18c2d9d66ba745df9dc2dd"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-recovery-api.test.ts",
+      "sha256": "ff707b3480fe2dc615e498fe8db05ef12b84f4fd45ec86bec2004334a531d9cb",
+      "lf_sha256": "ff707b3480fe2dc615e498fe8db05ef12b84f4fd45ec86bec2004334a531d9cb"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-display-metadata-api.test.ts",
+      "sha256": "2a9d81384f091c9e585017bc5805436c1c34a79fb51f4a2aac578fc2abf57d21",
+      "lf_sha256": "2a9d81384f091c9e585017bc5805436c1c34a79fb51f4a2aac578fc2abf57d21"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-editor.test.ts",
+      "sha256": "b9fc30d97ad7decdf135b68deb53a25817a3b36569856dcabd396db57d231ea4",
+      "lf_sha256": "b9fc30d97ad7decdf135b68deb53a25817a3b36569856dcabd396db57d231ea4"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-scope-selector.test.ts",
+      "sha256": "cffcf025a42089334933712204a40e99e873b15906e29b13f787fb85bd937106",
+      "lf_sha256": "cffcf025a42089334933712204a40e99e873b15906e29b13f787fb85bd937106"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-list.test.ts",
+      "sha256": "d0dadf7a7ec9207357eb209590b998aed0f060e1eb3ce0e7b2e69e0faa5a0120",
+      "lf_sha256": "d0dadf7a7ec9207357eb209590b998aed0f060e1eb3ce0e7b2e69e0faa5a0120"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-runs.test.ts",
+      "sha256": "12c40f48a76f2ae28e5149635be069cbac4ed640ed3ea66f4df87c81437a2ade",
+      "lf_sha256": "12c40f48a76f2ae28e5149635be069cbac4ed640ed3ea66f4df87c81437a2ade"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rules-page.test.ts",
+      "sha256": "352f404cefa8c3c101ed3269251e8938315d752fb8f295546613e81fca165e7e",
+      "lf_sha256": "352f404cefa8c3c101ed3269251e8938315d752fb8f295546613e81fca165e7e"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_RECOVERY.md",
+      "sha256": "46c6f4a99034b6b3d9c30628850102b7573edd903253d4aea1324ea57a6efbae",
+      "lf_sha256": "46c6f4a99034b6b3d9c30628850102b7573edd903253d4aea1324ea57a6efbae"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_LIST.md",
+      "sha256": "639081924f40734aa9c18e0d4c7fcf2e8482fc0ca41281c68a129c8cd3ab75a2",
+      "lf_sha256": "639081924f40734aa9c18e0d4c7fcf2e8482fc0ca41281c68a129c8cd3ab75a2"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULES_PAGE.md",
+      "sha256": "4af432de1a5ce422bf2b418311f0b83b1187e876bb2562a1d17a4851f2992d1e",
+      "lf_sha256": "4af432de1a5ce422bf2b418311f0b83b1187e876bb2562a1d17a4851f2992d1e"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_EDITOR.md",
+      "sha256": "2fd7568e25381e28ec3e8165dabf1c5b7fb2a95eb76948814951d163c76b1354",
+      "lf_sha256": "2fd7568e25381e28ec3e8165dabf1c5b7fb2a95eb76948814951d163c76b1354"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_SCOPE_SELECTOR.md",
+      "sha256": "8e3403fc1db4d7a96f8a73973a131012945d51830c8bc44fefc190fc627fb000",
+      "lf_sha256": "8e3403fc1db4d7a96f8a73973a131012945d51830c8bc44fefc190fc627fb000"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_DISPLAY_METADATA.md",
+      "sha256": "34a4691e2b88649750d4b4a40b81c343716b569922a4032d03609e239d31bd67",
+      "lf_sha256": "34a4691e2b88649750d4b4a40b81c343716b569922a4032d03609e239d31bd67"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_RUNS.md",
+      "sha256": "ab953db89f63e5fe76290874891f5354e90ef4d992ba277f51dfd39330877475",
+      "lf_sha256": "ab953db89f63e5fe76290874891f5354e90ef4d992ba277f51dfd39330877475"
+    }
+  ],
+  "failures_preserved": [
+    "rule-recovery-view-first-failed.log",
+    "rule-recovery-view-second-failed.log",
+    "rule-recovery-final-first-failed.log"
+  ],
+  "original_checkpoint_retained": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-metadata-business-receipt.json",
+  "external_not_tested": [
+    "真实recovery-context/metadata HTTP由主线排队",
+    "真实Cookie/OIDC再认证及浏览器由主线排队",
+    "硬刷新或浏览器重启恢复不提供"
+  ],
+  "pending_business_gaps": [
+    "operator_user_id和metric_profile_id候选读取权限来源待主线合同",
+    "具体频次展示及q100接力",
+    "模拟/启用/全局触发记录来源尚未完成"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "version": "policy-v1.2-default",
+  "source": "D方案默认，生产执行需FINANCIAL_POLICY证据",
+  "budget": {
+    "single_change_ratio": "0.20",
+    "positive_rolling_ratio": "0.30",
+    "window_hours": 24,
+    "max_major_units": "1000000",
+    "unknown_blocks_target": true,
+    "lifetime_spend_max_age_seconds": 300
+  },
+  "analysis": {
+    "snapshot_max_age_minutes": 30,
+    "new_entity_observation_hours": 24,
+    "minimum_impressions": 1000,
+    "minimum_clicks": 20,
+    "delete_min_purchases": 5,
+    "delete_min_paused_hours": 72,
+    "default_maturity_days": 28,
+    "model_timeout_seconds": 60,
+    "model_max_retries": 2
+  },
+  "plans": {
+    "max_accounts": 500,
+    "max_ads": 10000,
+    "max_dag_nodes": 100000,
+    "max_assets": 500,
+    "preview_ttl_minutes": 15,
+    "allow_repeat_default": false
+  },
+  "imports": {
+    "max_input_codepoints": 20000,
+    "max_raw_tokens": 500,
+    "fetch_lease_seconds": 120,
+    "max_retries": 3
+  },
+  "events": {
+    "retention_days": 7,
+    "idempotency_retention_years": 2
+  },
+  "agent": {
+    "lease_ttl_seconds": 120,
+    "lease_renew_seconds": 20,
+    "heartbeat_seconds": 15,
+    "suspect_after_seconds": 45,
+    "offline_after_seconds": 90,
+    "max_active_profiles_per_machine": 2,
+    "material_url_ttl_seconds": 300,
+    "evidence_url_ttl_seconds": 600
+  }
+}

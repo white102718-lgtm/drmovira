@@ -10,4 +10,4 @@
 - 默认本地18081代理本项目18080，不误连ad-mpower的8080/8081/5555服务，不启动/重启其他项目。
 - 验证命令：`pnpm format:orbit`、`pnpm format:check:orbit`、`pnpm check:orbit`、`pnpm test:orbit`、`pnpm build:prod`。新增模块补充相应测试；组件mock不代替真实前后端Playwright验收。
 - 每条业务同步后端进度台账；开发、测试、验收分别记录证据，未测试不打勾。不编辑生成报告伪造进度。
-- 当前master分支继续，不创建新分支/worktree。私有`hesong0105-bit/orbit-web`已授权提交推送；origin是用户仓库，upstream是官方来源。
+- 2026-11-09已合并到`white102718-lgtm/drmovira`，前端是统一仓库的`orbit-web/`子目录；在当前main分支继续，不创建新分支/worktree。提交推送统一仓库origin，不再推送旧独立前端仓库；完整交接见根`HANDOFF.md`。

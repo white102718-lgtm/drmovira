@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="185" failures="0" errors="0" time="60.4025564">
+    <testsuite name="tests/orbit/rule-display-metadata-api.test.ts" timestamp="2026-11-09T02:15:14.570Z" hostname="DESKTOP-7N307EV" tests="12" failures="0" errors="0" skipped="0" time="0.0271725">
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="真实1..200逗号唯一规范UUID，按原顺序一次GET无额外目录或写头" time="0.012621">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="UUID正边界200与空/201/重复/非规范/非数组严格拒绝" time="0.0024745">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="精确单键/七字段/全集顺序，不漏行或用错revision类型" time="0.0009706">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="真实null姓名与原nativeID/UTC保真，不发明用户fallback" time="0.0002995">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="用户50/团队100码点边界及NFCtrim/控制符不偷偷改写" time="0.0009517">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="时间固定UTC毫秒，真实无效日和微秒/偏移不凑成功" time="0.0005259">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="401原错误保留，HTML授权正文不降为普通故障" time="0.0023434">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="403原错误保留，HTML授权正文不降为普通故障" time="0.0012261">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="404原错误保留，HTML授权正文不降为普通故障" time="0.0011322">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="409原错误保留，HTML授权正文不降为普通故障" time="0.0012673">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="503原错误保留，HTML授权正文不降为普通故障" time="0.0007819">
+        </testcase>
+        <testcase classname="tests/orbit/rule-display-metadata-api.test.ts" name="200坏body/认证晚回/abort不接受为当前显示资料，不自动重试" time="0.0018256">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-editor.test.ts" timestamp="2026-11-09T02:15:14.573Z" hostname="DESKTOP-7N307EV" tests="26" failures="0" errors="0" skipped="0" time="20.1650299">
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="仅edit权限读取专属定义，真实521旧范围不冒充Scope5且不读creator成员" time="1.2933946">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="原11字段与quoted CAS保存，允许同正文no-op版本不增长" time="0.9659869">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="定义与上下文revision漂移409，不能保存" time="0.8559471">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="ENABLED只读但保留完整定义" time="0.854322">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="ARCHIVED只读但保留完整定义" time="0.8686622">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="创建无浏览器日期/时区假默认、空scope/profile不能提交" time="0.9402876">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="候选分页不重置已修改名称，保留真实已加载配置" time="0.9577222">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="改owner清已保存scope并按真实新owner查询配置" time="0.9246015">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="候选403立即清所有旧敏感定义，不能发新保存" time="0.957518">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="普通503保留本地修改但阻止提交，明确来源失败" time="0.8994555">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="未确认保存先交父，手动用原body/key/CAS和当前CSRF恢复" time="0.9301239">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="明确422首次拒绝清pending并展示原字段path" time="0.8653756">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="关闭保留进行中原意图，迟到成功不覆盖或发saved" time="0.8244463">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="父回传未知请求重挂载先取当前会话，不跨actor重发" time="0.7969488">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="同actor未知请求重挂载能获取当前CSRF恢复" time="0.8102456">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="上下文切换中断读取并忽略旧定义" time="0.0033533">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="CREATE真实Scope回传后原完整正文提交，不造scope回执或日期" time="0.8292558">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="恢复Scope待选记录清pending后仍保持原owner，不把回执归给当前表单" time="0.8006489">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="定义401清私密数据；迟到另一路成功也不重建表单" time="0.0047726">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="缺当前原动作不会探测Context/定义/候选" time="0.0033504">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="Form内实际预览读取当前未保存Schedule及真实Context，不提交Rule" time="0.7941473">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="预览401/403即时清整个Editor敏感定义，不保留表单旧数据" time="0.7825517">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="SAVE未确认期间禁用并清旧预览，不吞原pending保存意图" time="0.8086682">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="owner切换使预览上下文失效并阻旧回包，不借新owner沿用旧结果" time="0.7938445">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="首次真实身份与native页面不符不发SAVE，清旧显示且不造未知" time="0.790386">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="未知SAVE主体变化拒绝第二POST，原key正文与pending保留" time="0.8076159">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-list.test.ts" timestamp="2026-11-09T02:15:14.576Z" hostname="DESKTOP-7N307EV" tests="41" failures="0" errors="0" skipped="0" time="11.8230244">
+        <testcase classname="tests/orbit/rule-list.test.ts" name="无read不请求列表或任何cap，create-only不暗加read" time="0.4694528">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="真实列表字段和四档cursor导航，filter/page变化重置" time="0.3458457">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原筛选完整交SDK，503/422不伪空结果" time="0.2226269">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="15字段详情和完整调度/Decimal保真，编辑仅emit真实cap和rule" time="0.2402606">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="详情读取失败不沿用列表行冒充，late detail不可覆盖另一身份" time="0.2100683">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="旧列表晚返回不可覆盖当前身份" time="0.1934595">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="启用态先暂停，不能编辑/归档；无真实模拟不能启用" time="0.2181831">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="暂停原因/当前CAS与cap，取消无写，成功更新真实版本" time="0.2888527">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知归档手动重试保存相同body/key/CAS，不二次cap不自动发送" time="0.2888561">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="模拟实际503与运行记录503可见，不发行enable资格" time="0.5394072">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="只使用原Simulation13 expires_at与当前版本，无添加created_at；真实enable body" time="0.2642631">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原动作cap拒绝可见且不发写入，缺动作不探测cap" time="0.24807">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="编辑未提交的名称后翻页仍沿已提交筛选，不污染cursor" time="0.210962">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知意图认证变化后不显示旧对象，恢复原上下文用同键重试" time="0.3151821">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="错误模拟对象不能生成启用资格，归类未知保留原key" time="0.2546757">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="真实已过期模拟不默认有效，不能发送enable" time="0.2589023">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="服务端原path字段错误可见，非unknown拒绝允许修改原因" time="0.2434509">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="创建cap晚回不向新身份emit，不添加虚构创建人时间" time="0.1994723">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="详情真实运行记录组件可翻页，关闭详情取消子组件读取" time="0.567679">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="父显式refresh回首屏但保留appliedQuery与未提交筛选输入" time="0.2483482">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原列表读取401立即清旧详情和敏感对象，不依赖props刷新" time="0.2171425">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原列表读取403立即清旧详情和敏感对象，不依赖props刷新" time="0.2328601">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="明确读撤权保留未知归档原key/CAS/body，但不外显旧对象名和原因" time="0.2947408">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="列表409不冒撤权收走详情，运行记录入口不冒全局触发记录" time="0.2033226">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="列表503不冒撤权收走详情，运行记录入口不冒全局触发记录" time="0.2072849">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原详情读取401拒绝后清列表旧对象，不保留详情入口" time="0.2043487">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原详情读取403拒绝后清列表旧对象，不保留详情入口" time="0.1992524">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="第二页归档成功先清父ACTION，再回已提交筛选首屏不重用旧cursor" time="0.2784654">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知动作恢复403保持原意图，再次手动恢复仍同key/body/CAS" time="0.2699673">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知动作恢复409保持原意图，再次手动恢复仍同key/body/CAS" time="0.2896019">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="父ACTION接管后真正卸载重挂载可恢复，未发确认不产生pending" time="0.5017963">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="实际200行只批量一次metadata，Drawer另单户读并显示真实名/原native创建人与UTC" time="1.2851643">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata加载/真实null姓名/503读取失败分别显示，不伪造当前用户或接口未提供" time="0.1868621">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata revision与原Rule不匹配提示刷新，不能沿旧详情发编辑/暂停/归档" time="0.1967434">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata401整批不再可见即清页与旧Drawer，不泄漏部分名" time="0.2032729">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata403整批不再可见即清页与旧Drawer，不泄漏部分名" time="0.222901">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata404整批不再可见即清页与旧Drawer，不泄漏部分名" time="0.2031886">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata独立epoch取消旧页，迟到名不能污染新页" time="0.1722054">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="已发ACTION恢复仅原archive动作，不借rules.read重读或外显旧原因" time="0.1732109">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="首次ACTION实际actor不匹配不发POST或pending并隐藏旧详情" time="0.226037">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知ACTION手动复核拒绝不同主体并保留原principal正文keyCAS" time="0.2248965">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-recovery-api.test.ts" timestamp="2026-11-09T02:15:14.579Z" hostname="DESKTOP-7N307EV" tests="14" failures="0" errors="0" skipped="0" time="0.0202877">
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="原动作CREATE仅GET且不带写头" time="0.0085747">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="原动作UPDATE仅GET且不带写头" time="0.0017291">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="原动作ENABLE仅GET且不带写头" time="0.0011872">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="原动作PAUSE仅GET且不带写头" time="0.0009776">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="原动作ARCHIVE仅GET且不带写头" time="0.0008409">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="原动作SIMULATE仅GET且不带写头" time="0.0009223">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="严格三字段与native安全整数，不接受businessUUID或额外权限字段" time="0.0011423">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="真实principal不可变，仅同actor与tenant通过，空旧证明禁止恢复" time="0.0009803">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="损坏HTTP401正文保留已知状态，不降为普通502" time="0.0008647">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="损坏HTTP403正文保留已知状态，不降为普通502" time="0.0004505">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="损坏HTTP409正文保留已知状态，不降为普通502" time="0.0003705">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="损坏成功响应不能伪造principal" time="0.0005536">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="认证换代丢弃迟到身份且不补写" time="0.0004652">
+        </testcase>
+        <testcase classname="tests/orbit/rule-recovery-api.test.ts" name="调用前取消不发请求，无效动作不探测后端" time="0.0005216">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-runs.test.ts" timestamp="2026-11-09T02:15:14.580Z" hostname="DESKTOP-7N307EV" tests="19" failures="0" errors="0" skipped="0" time="5.5383912">
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原八字段与真实UTC/0/null，默认50条不补运行时间或成功" time="0.5634831">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="只有有效空页可显示空记录，加载/403/503不是空成功" time="0.2720162">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档20页重置首页" time="0.3075989">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档50页重置首页" time="0.3131542">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档100页重置首页" time="0.2867401">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档200页重置首页" time="0.2922747">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="真实next/previous栈保持原opaque cursor，首尾禁用" time="0.3286238">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="状态和原日期筛选只有提交生效，翻页冻结已提交query" time="0.3909704">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="清空日期不传null，父原其余参数完整保留不修改" time="0.3164237">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="实际403/code/path与请求ID可见，不自动重试/空成功" time="0.2723178">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="实际503/code/path与请求ID可见，不自动重试/空成功" time="0.2355442">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="实际409/code/path与请求ID可见，不自动重试/空成功" time="0.2287339">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="旧游标409后重新查询回首页，不悄悄调整结果" time="0.2645638">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="无read或未选择规则不借其它权限读记录" time="0.2237829">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="规则切换取消旧signal，late响应不覆盖新规则" time="0.2562442">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="认证/权限撤回立即清除已读数据并拒绝旧晚回" time="0.230843">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="父筛选更新取消旧页，晚失败不得覆盖新成功" time="0.2376871">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="卸载取消且AbortError不渲染成来源失败" time="0.2391973">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="不接受另一个规则的有效结构记录页" time="0.2770223">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-scope-selector.test.ts" timestamp="2026-11-09T02:15:14.582Z" hostname="DESKTOP-7N307EV" tests="48" failures="0" errors="0" skipped="0" time="22.5561496">
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="只用规则create动作读取Member3，不借账户读取或默认勾选" time="0.6904166">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="没有当前动作或真实EditorContext就不发候选/冻结" time="0.4145436">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="IDS显式跨页保留，真实POST Scope5及成员核对后才choose" time="0.5638417">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="FILTER全选五字段/空IDs，不拼当前页或假总数" time="0.5671552">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="零匹配/未知来源503不能冻结FILTER，不显示假快照" time="0.3644462">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档20、历史cursor及已提交filter冻结" time="0.4187963">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档50、历史cursor及已提交filter冻结" time="0.4303845">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档100、历史cursor及已提交filter冻结" time="0.4263435">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档200、历史cursor及已提交filter冻结" time="0.4623874">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="UPDATE固定quoted旧CAS，未知手动恢复不自动换键或正文" time="0.50896">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="未知恢复后来403仍保留第一笔未知，不能另建scope写" time="0.4077458">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="明确422不是未知，可调整而不伪造成功" time="0.4341872">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="在途显式关闭中止本地等待、保留pending并禁止新写" time="0.4530293">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="父接管pending后跨卸载重建仍用原请求恢复，不声明内置持久化" time="0.8298776">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="head/无关权限变化仍恢复原IfMatch，旧成员409不能apply" time="0.4890914">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="不同actor上下文绝不重发原意图且不露旧数据" time="0.4087805">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="不同owner上下文绝不重发原意图且不露旧数据" time="0.4247634">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="不同rule上下文绝不重发原意图且不露旧数据" time="0.4460881">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="成员原四档/分页及q冻结，错误403明确而不当空库存" time="0.5414056">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="晚候选不能覆盖新规则，关闭/卸载取消读取" time="0.3461807">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实Dialog打开首搜索焦点、关闭后归还触发器；普通取消无POST" time="0.3763984">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="父镜像同一pending不把正在等待的请求误标失败或重发" time="0.4485692">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="未知请求当前原动作已撤回时不能恢复，关闭仍保留记录" time="0.3843617">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="已有成功回执重新打开必须重新核成员，不能直接应用旧资格" time="0.4751837">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="同actor当前CSRF刷新只在手动恢复更新传输，业务三项逐字不变" time="0.4507187">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="head3旧成功恢复且members200只读历史，不能stamp为当前head4资格" time="0.4602328">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选401即时清敏感选择和快照，不依赖props撤权，禁止新POST" time="0.4508264">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选403即时清敏感选择和快照，不依赖props撤权，禁止新POST" time="0.4353899">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="成员401清旧回执/成员/已选，但不假造空成功" time="0.4430807">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="成员403清旧回执/成员/已选，但不假造空成功" time="0.4412009">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="普通候选网络503保留明确选择供重试，不当作撤权抹除" time="0.3203801">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="未知期间head变化清旧游标栈，恢复后不再沿旧页回退" time="0.4359833">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="规则专属远程两种候选独立加载，历史状态可筛且alias null不回退name" time="0.4892628">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选q与原账户q独立，四档keyset不会伪全量或清掉当前filter" time="0.5915045">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="翻页保留曾真实选择的ID标签，非候选UUID不能塞入filter" time="0.4753011">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="两个远程请求各有epoch，快速查询迟到不覆盖，owner/revision变化清cursor与旧filter" time="0.5276673">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程401清旧候选/账户选择/已选filter，不能继续新写" time="0.4853485">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程403清旧候选/账户选择/已选filter，不能继续新写" time="0.4738811">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程409清旧候选/账户选择/已选filter，不能继续新写" time="0.4794666">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选503保留真实已选和已验证scope，不把查询失败当空或新增freeze资格门禁" time="0.5828251">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程真实空页区别于503，关闭取消两个读取且不启动其它权限API" time="0.4419164">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="在途候选随后撤权不能吞已发scope的未知意图" time="0.4796341">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实SDK解析401畸形正文后清旧候选/快照，保留已发未知scope意图" time="0.6282843">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实SDK解析403畸形正文后清旧候选/快照，保留已发未知scope意图" time="0.5809023">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实SDK解析409畸形正文后清旧候选/快照，保留已发未知scope意图" time="0.58294">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="首次SCOPE主体不符零POST且不留下假未知意图" time="0.3267155">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="未知SCOPE遇租户变化保留原意图但禁止再POST" time="0.3254876">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="首次身份读取期间显式关闭取消读取，迟到ctx不能生成pending或POST" time="0.3325649">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rules-page.test.ts" timestamp="2026-11-09T02:15:14.586Z" hostname="DESKTOP-7N307EV" tests="25" failures="0" errors="0" skipped="0" time="0.2725011">
+        <testcase classname="tests/orbit/rules-page.test.ts" name="List→创建路由→返回保留同一列表与原本地筛选" time="0.0513683">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="编辑List真实rule.id放query，保存回列表显式refresh不重建列表" time="0.0110594">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="edit-only直达不挂List/不探read，真实权限传给Editor" time="0.0053933">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="create-only不用rules.read，父入口开真实CREATE模式" time="0.0116428">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=edit不创建伪编辑上下文" time="0.006475">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=edit&amp;rule_id=not-uuid不创建伪编辑上下文" time="0.0055191">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=create&amp;rule_id=00000000-0000-4000-8000-000000000001不创建伪编辑上下文" time="0.0050718">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=edit&amp;rule_id=00000000-0000-4000-8000-000000000001&amp;rule_id=00000000-0000-4000-8000-000000000002不创建伪编辑上下文" time="0.0052341">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=wrong不创建伪编辑上下文" time="0.0053527">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="父保存pending跨关闭恢复原mode/rule，不丢原业务意图或发新写" time="0.0129415">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="非空token刷新不换actor生命周期，手动恢复可更新传输认证" time="0.0080907">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="跨actor隐藏编辑器与原正文，原未知阻新写且不重发" time="0.0096834">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="同actor非权限清空变化仍保留生命周期，退出清空换代且不恢复旧意图" time="0.0100084">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="pending清除后保存成功刷新，未知未确认时不主动refresh" time="0.0123353">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="RuleRuns不冒充全局触发记录/5次预览，不加未实现菜单" time="0.002736">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="迟到旧actor pending事件不能盖成新身份" time="0.0049171">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="父完整保留SCOPE原请求，返回后只恢复原编辑目标" time="0.010129">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="ACTION父接管不同Editor envelope，真实:key重挂载后保留原请求而不自动重发" time="0.011631">
+            <system-err>
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+
+            </system-err>
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="ACTION未确认阻SPA离开，原确认成功清父后才可离开" time="0.0169636">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="已发ACTION在read撤回但原archive仍有效时保留List恢复入口，不强加read" time="0.0070343">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="另一标签登录入口保留本页，实际双context复核只重绑UI不提交" time="0.0154549">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="非原主体{&quot;actor_id&quot;:2,&quot;tenant_id&quot;:&quot;00000000-0000-4000-8000-000000000099&quot;}不刷新UI或重绑未知请求" time="0.0096695">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="非原主体{&quot;actor_id&quot;:1,&quot;tenant_id&quot;:&quot;00000000-0000-4000-8000-000000000098&quot;}不刷新UI或重绑未知请求" time="0.0086026">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="SAVE同主体证明后只更新技术context，原业务与CAS不变" time="0.0125198">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="SCOPE同主体证明后只更新技术context，原业务与CAS不变" time="0.0115921">
+        </testcase>
+    </testsuite>
+</testsuites>

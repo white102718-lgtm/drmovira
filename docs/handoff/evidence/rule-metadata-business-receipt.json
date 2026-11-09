@@ -1,0 +1,64 @@
+{
+  "name": "rule-definition-metadata-action-targeted",
+  "result": "PASS",
+  "scope": "纯SDK/原生EP挂载与类型格式，不是真实HTTP/浏览器/再认证完整闭环",
+  "executed_at": "2026-11-09T01:53:59+00:00",
+  "fingerprinted_at": "2026-11-09T01:54:48.616527+00:00",
+  "tests": 90,
+  "passed": 90,
+  "duration_seconds": 13.25,
+  "test_files": {
+    "metadata_sdk": 12,
+    "rule_list": 39,
+    "rules_page": 20,
+    "rule_runs": 19
+  },
+  "type_exit_code": 0,
+  "format_exit_code": 0,
+  "ui_mechanical": [],
+  "logs": {
+    "vitest": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-metadata-business-vitest.log",
+    "junit": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-metadata-business-junit.xml",
+    "type": "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-metadata-business-type.log"
+  },
+  "source_sha256": {
+    "src/api/orbit/rule-display-metadata.ts": "6c73f81b5d7338040bb1c352530a9ee30c74fc04d7c6bb67656dfcd2662154db",
+    "tests/orbit/rule-display-metadata-api.test.ts": "2a9d81384f091c9e585017bc5805436c1c34a79fb51f4a2aac578fc2abf57d21",
+    "docs/ORBIT_RULE_DISPLAY_METADATA.md": "34a4691e2b88649750d4b4a40b81c343716b569922a4032d03609e239d31bd67",
+    "src/views/orbit/rules/RuleList.vue": "869c535275f786ca201418d1a95fad21d33921ef7afff017fd5e9e48a93b2067",
+    "tests/orbit/rule-list.test.ts": "ef4919f6951d32e81703a047d13d0fcf383754c0b1a65c092d3a958e75f3bf31",
+    "docs/ORBIT_RULE_LIST.md": "1e75f6cc7fff4e013bb7d167786492a70d7fb7cb2e5c3673293aa1a87a7a5c96",
+    "src/views/orbit/rules/index.vue": "022b63c739dff66f23ad4bb6c3e01f80d9a1705298155819ef668ee0ec639e2f",
+    "tests/orbit/rules-page.test.ts": "8ae93cfaeaca2ad488efd0deee89cfc4bf77194f1b3bb41796c0c0a1b308af46",
+    "docs/ORBIT_RULES_PAGE.md": "ea79ac2ff9a309cec5861c4de0989af1a2e597519ca76f9f5f78f4c677195255",
+    "src/views/orbit/rules/RuleRuns.vue": "c3019e2e96df8fad21bb3936bde7a6aa83fafcda85a4ddc098c2e31258ce9124",
+    "tests/orbit/rule-runs.test.ts": "12c40f48a76f2ae28e5149635be069cbac4ed640ed3ea66f4df87c81437a2ade",
+    "docs/ORBIT_RULE_RUNS.md": "ab953db89f63e5fe76290874891f5354e90ef4d992ba277f51dfd39330877475"
+  },
+  "raw_source_sha256": {
+    "src/api/orbit/rule-display-metadata.ts": "6c73f81b5d7338040bb1c352530a9ee30c74fc04d7c6bb67656dfcd2662154db",
+    "tests/orbit/rule-display-metadata-api.test.ts": "2a9d81384f091c9e585017bc5805436c1c34a79fb51f4a2aac578fc2abf57d21",
+    "docs/ORBIT_RULE_DISPLAY_METADATA.md": "34a4691e2b88649750d4b4a40b81c343716b569922a4032d03609e239d31bd67",
+    "src/views/orbit/rules/RuleList.vue": "869c535275f786ca201418d1a95fad21d33921ef7afff017fd5e9e48a93b2067",
+    "tests/orbit/rule-list.test.ts": "ef4919f6951d32e81703a047d13d0fcf383754c0b1a65c092d3a958e75f3bf31",
+    "docs/ORBIT_RULE_LIST.md": "1e75f6cc7fff4e013bb7d167786492a70d7fb7cb2e5c3673293aa1a87a7a5c96",
+    "src/views/orbit/rules/index.vue": "022b63c739dff66f23ad4bb6c3e01f80d9a1705298155819ef668ee0ec639e2f",
+    "tests/orbit/rules-page.test.ts": "8ae93cfaeaca2ad488efd0deee89cfc4bf77194f1b3bb41796c0c0a1b308af46",
+    "docs/ORBIT_RULES_PAGE.md": "ea79ac2ff9a309cec5861c4de0989af1a2e597519ca76f9f5f78f4c677195255",
+    "src/views/orbit/rules/RuleRuns.vue": "c3019e2e96df8fad21bb3936bde7a6aa83fafcda85a4ddc098c2e31258ce9124",
+    "tests/orbit/rule-runs.test.ts": "12c40f48a76f2ae28e5149635be069cbac4ed640ed3ea66f4df87c81437a2ade",
+    "docs/ORBIT_RULE_RUNS.md": "ab953db89f63e5fe76290874891f5354e90ef4d992ba277f51dfd39330877475"
+  },
+  "hash_scope": "最终定向后固定源码指纹；没有冒称测试前另做hash",
+  "known_not_verified": [
+    "真实metadataHTTP及内置浏览器",
+    "401后SPA登录会被当前leaveguard阻止，待窄修",
+    "operator_user_id/metric_profile_id列表筛选UI候选缺口",
+    "来源simulate/enable/scheduler/globalhits"
+  ],
+  "prior_failures_retained": [
+    "rule-action-parent-first-failed.log",
+    "rule-metadata-business-first-failed.log",
+    "rule-metadata-action-readonly-first-failed.log"
+  ]
+}

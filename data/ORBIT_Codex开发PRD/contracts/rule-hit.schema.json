@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RuleHitCreatedV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "trace_id",
+    "tenant_id",
+    "rule_id",
+    "hit_id",
+    "account_id",
+    "entity_id",
+    "snapshot_id",
+    "metric_profile_id",
+    "schema_version",
+    "rule_revision",
+    "entity_type",
+    "schedule_slot",
+    "occurred_at",
+    "window_start",
+    "window_end",
+    "timezone",
+    "currency",
+    "evidence_ref",
+    "dedupe_key",
+    "quality_flags"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "trace_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "rule_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "hit_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "account_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "entity_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "metric_profile_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "rule_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "entity_type": {
+      "enum": [
+        "CAMPAIGN",
+        "ADSET",
+        "AD"
+      ]
+    },
+    "schedule_slot": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "window_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "window_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "timezone": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "evidence_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "dedupe_key": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "quality_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 8,
+      "items": {
+        "enum": [
+          "COMPLETE",
+          "STALE",
+          "PARTIAL",
+          "ATTRIBUTION_IMMATURE",
+          "MISSING_METRIC",
+          "SCOPE_CHANGED"
+        ]
+      }
+    }
+  },
+  "description": "Validate date ordering, IANA timezone, ownership and resolvable evidence reference in service; JSON Schema format validation must be enabled."
+}

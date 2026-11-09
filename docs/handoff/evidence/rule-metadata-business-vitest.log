@@ -1,0 +1,32 @@
+
+ RUN  v3.2.4 D:/progress/orbit/orbit-web
+
+ ✓ tests/orbit/rule-display-metadata-api.test.ts (12 tests) 16ms
+stderr | tests/orbit/rules-page.test.ts > ACTION父接管不同Editor envelope，真实:key重挂载后保留原请求而不自动重发
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+[Vue warn]: Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.
+
+ ✓ tests/orbit/rules-page.test.ts (20 tests) 206ms
+ ✓ tests/orbit/rule-runs.test.ts (19 tests) 4959ms
+   ✓ 原八字段与真实UTC/0/null，默认50条不补运行时间或成功  544ms
+   ✓ 状态和原日期筛选只有提交生效，翻页冻结已提交query  317ms
+ ✓ tests/orbit/rule-list.test.ts (39 tests) 10296ms
+   ✓ 无read不请求列表或任何cap，create-only不暗加read  464ms
+   ✓ 真实列表字段和四档cursor导航，filter/page变化重置  348ms
+   ✓ 模拟实际503与运行记录503可见，不发行enable资格  496ms
+   ✓ 详情真实运行记录组件可翻页，关闭详情取消子组件读取  481ms
+   ✓ 父ACTION接管后真正卸载重挂载可恢复，未发确认不产生pending  379ms
+   ✓ 实际200行只批量一次metadata，Drawer另单户读并显示真实名/原native创建人与UTC  1029ms
+
+ Test Files  4 passed (4)
+      Tests  90 passed (90)
+   Start at  09:53:59
+   Duration  13.25s (transform 1.04s, setup 24ms, collect 5.60s, tests 15.48s, environment 2.86s, prepare 365ms)
+
+JUNIT report written to D:/progress/orbit/orbit-web/.runtime/rule-metadata-business-junit.xml

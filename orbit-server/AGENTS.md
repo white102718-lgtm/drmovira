@@ -25,4 +25,4 @@
 - `python tools/orbit_progress.py check`检查覆盖和证据；`render`生成可读报告；规则新增/变化用`sync`合并。初始化脚本`record_initial_checkpoint.py`只能运行一次，禁止重置后续进度。
 - 每条开发/测试/验收分开打勾。测试证据要有实际命令、时间、环境、结果、条目ID和受测源码hash；外部阻断列出解除条件，不标PASS。
 - 本地镜像报告位于`D:/progress/orbit/docs/`；仓库内`docs/orbit/progress.json`为状态源。源代码变化使旧证据失效时重新验证，不改断言或跳过测试冒充完成。
-- GitHub私有`hesong0105-bit/orbit-server`已授权提交推送；上游remote为`upstream`，目标为`origin`。每次提交前检查状态和`git diff --check`，不得泄露凭据。
+- 2026-11-09已合并到`white102718-lgtm/drmovira`，后端是统一仓库的`orbit-server/`子目录；提交推送统一仓库origin/main，不再推送旧独立后端仓库。每次提交前检查状态和`git diff --check`，不得泄露凭据；新机接续见根`HANDOFF.md`。

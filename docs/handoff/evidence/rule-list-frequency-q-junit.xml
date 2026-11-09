@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="49" failures="0" errors="0" time="11.4229943">
+    <testsuite name="tests/orbit/rule-list.test.ts" timestamp="2026-11-09T02:29:41.527Z" hostname="DESKTOP-7N307EV" tests="49" failures="0" errors="0" skipped="0" time="11.4229943">
+        <testcase classname="tests/orbit/rule-list.test.ts" name="无read不请求列表或任何cap，create-only不暗加read" time="0.3980254">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="真实列表字段和四档cursor导航，filter/page变化重置" time="0.29586">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原筛选完整交SDK，503/422不伪空结果" time="0.1762312">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="15字段详情和完整调度/Decimal保真，编辑仅emit真实cap和rule" time="0.2103793">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="详情读取失败不沿用列表行冒充，late detail不可覆盖另一身份" time="0.1845899">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="旧列表晚返回不可覆盖当前身份" time="0.1681501">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="启用态先暂停，不能编辑/归档；无真实模拟不能启用" time="0.1868662">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="暂停原因/当前CAS与cap，取消无写，成功更新真实版本" time="0.2510748">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知归档手动重试保存相同body/key/CAS，不二次cap不自动发送" time="0.2527044">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="模拟实际503与运行记录503可见，不发行enable资格" time="0.4667977">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="只使用原Simulation13 expires_at与当前版本，无添加created_at；真实enable body" time="0.220861">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原动作cap拒绝可见且不发写入，缺动作不探测cap" time="0.2236731">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="编辑未提交的名称后翻页仍沿已提交筛选，不污染cursor" time="0.2175662">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知意图认证变化后不显示旧对象，恢复原上下文用同键重试" time="0.2685364">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="错误模拟对象不能生成启用资格，归类未知保留原key" time="0.1999617">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="真实已过期模拟不默认有效，不能发送enable" time="0.1992733">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="服务端原path字段错误可见，非unknown拒绝允许修改原因" time="0.210327">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="创建cap晚回不向新身份emit，不添加虚构创建人时间" time="0.1725747">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="详情真实运行记录组件可翻页，关闭详情取消子组件读取" time="0.4447734">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="父显式refresh回首屏但保留appliedQuery与未提交筛选输入" time="0.1975871">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原列表读取401立即清旧详情和敏感对象，不依赖props刷新" time="0.1852059">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原列表读取403立即清旧详情和敏感对象，不依赖props刷新" time="0.181791">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="明确读撤权保留未知归档原key/CAS/body，但不外显旧对象名和原因" time="0.2395942">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="列表409不冒撤权收走详情，运行记录入口不冒全局触发记录" time="0.1835577">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="列表503不冒撤权收走详情，运行记录入口不冒全局触发记录" time="0.1863382">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原详情读取401拒绝后清列表旧对象，不保留详情入口" time="0.1791134">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原详情读取403拒绝后清列表旧对象，不保留详情入口" time="0.1730656">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="第二页归档成功先清父ACTION，再回已提交筛选首屏不重用旧cursor" time="0.2377358">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知动作恢复403保持原意图，再次手动恢复仍同key/body/CAS" time="0.236553">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知动作恢复409保持原意图，再次手动恢复仍同key/body/CAS" time="0.2353603">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="父ACTION接管后真正卸载重挂载可恢复，未发确认不产生pending" time="0.3819755">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="实际200行只批量一次metadata，Drawer另单户读并显示真实名/原native创建人与UTC" time="1.0363722">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata加载/真实null姓名/503读取失败分别显示，不伪造当前用户或接口未提供" time="0.1698137">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata revision与原Rule不匹配提示刷新，不能沿旧详情发编辑/暂停/归档" time="0.1752505">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata401整批不再可见即清页与旧Drawer，不泄漏部分名" time="0.1846033">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata403整批不再可见即清页与旧Drawer，不泄漏部分名" time="0.1818265">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata404整批不再可见即清页与旧Drawer，不泄漏部分名" time="0.1852149">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="metadata独立epoch取消旧页，迟到名不能污染新页" time="0.1647591">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="已发ACTION恢复仅原archive动作，不借rules.read重读或外显旧原因" time="0.1619367">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="首次ACTION实际actor不匹配不发POST或pending并隐藏旧详情" time="0.2017541">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知ACTION手动复核拒绝不同主体并保留原principal正文keyCAS" time="0.2103769">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知ACTION认证入口位于真实最上层Dialog内，复核事件不重发或改原请求" time="0.2010618">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="列表具体频次{ frequency: &apos;INTERVAL&apos;, interval_minutes: 30, time_of_day: null, weekday: null, timezone: &apos;America/New_York&apos;, start_date: &apos;2026-01-01&apos;, end_date: &apos;2026-12-31&apos; }显示当前值与原IANA，不推算UTC" time="0.1595002">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="列表具体频次{ frequency: &apos;DAILY&apos;, interval_minutes: null, time_of_day: &apos;09:35&apos;, weekday: null, timezone: &apos;America/New_York&apos;, start_date: &apos;2026-01-01&apos;, end_date: &apos;2026-12-31&apos; }显示当前值与原IANA，不推算UTC" time="0.1625828">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="列表具体频次{ frequency: &apos;WEEKLY&apos;, interval_minutes: null, time_of_day: &apos;23:45&apos;, weekday: 7, timezone: &apos;America/New_York&apos;, start_date: &apos;2026-01-01&apos;, end_date: &apos;2026-12-31&apos; }显示当前值与原IANA，不推算UTC" time="0.1616976">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原NFC100码点完整发送，不受UTF16 maxlength截断" time="0.1696909">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原NFC100码点完整发送，不受UTF16 maxlength截断" time="0.1701109">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原NFC100码点完整发送，不受UTF16 maxlength截断" time="0.1673266">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="101码点本地拒绝不发HTTP、不改已提交q和cursor；清空按原空查询" time="0.1915601">
+        </testcase>
+    </testsuite>
+</testsuites>

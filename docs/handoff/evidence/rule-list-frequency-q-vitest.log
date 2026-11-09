@@ -1,0 +1,16 @@
+
+ RUN  v3.2.4 D:/progress/orbit/orbit-web
+
+ ✓ tests/orbit/rule-list.test.ts (49 tests) 11423ms
+   ✓ 无read不请求列表或任何cap，create-only不暗加read  398ms
+   ✓ 模拟实际503与运行记录503可见，不发行enable资格  467ms
+   ✓ 详情真实运行记录组件可翻页，关闭详情取消子组件读取  445ms
+   ✓ 父ACTION接管后真正卸载重挂载可恢复，未发确认不产生pending  382ms
+   ✓ 实际200行只批量一次metadata，Drawer另单户读并显示真实名/原native创建人与UTC  1036ms
+
+ Test Files  1 passed (1)
+      Tests  49 passed (49)
+   Start at  10:29:27
+   Duration  14.04s (transform 292ms, setup 9ms, collect 1.55s, tests 11.42s, environment 642ms, prepare 63ms)
+
+JUNIT report written to D:/progress/orbit/orbit-web/.runtime/rule-list-frequency-q-junit.xml

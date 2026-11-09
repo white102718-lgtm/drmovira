@@ -1,0 +1,39 @@
+{
+  "executed_at": "2026-11-09T02:30:08.570437+00:00",
+  "result": "PASS_LIMITED",
+  "tests": 49,
+  "duration_seconds": 14.04,
+  "scope": "List原生ElementPlus/SDK替身定向；不是新HTTP/浏览器验收",
+  "changes": [
+    "具体INTERVAL/DAILY/WEEKLY当前调度与IANA",
+    "q NFC100码点本地拒超限，保留原已提交query/cursor",
+    "不设置会截断原合法Unicode输入的UTF16硬maxlength"
+  ],
+  "unchanged": "原recovery业务逻辑、SDK、父页与其它视图未改",
+  "type": "PASS",
+  "format": "PASS",
+  "logs": [
+    "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-list-frequency-q-vitest.log",
+    "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-list-frequency-q-junit.xml",
+    "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-list-frequency-q-type.log",
+    "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-list-frequency-q-final-format.log",
+    "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-list-frequency-q-mechanical.log"
+  ],
+  "files": [
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\src\\views\\orbit\\rules\\RuleList.vue",
+      "sha256": "1e27e6aa1b694a31c648c9d4e8dc8321e043d28bf8cbd39db1ec6955fe9ccec5",
+      "lf_sha256": "1e27e6aa1b694a31c648c9d4e8dc8321e043d28bf8cbd39db1ec6955fe9ccec5"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\tests\\orbit\\rule-list.test.ts",
+      "sha256": "c3fe36415fe00f9862b72d67f3fd45d7684a357cb0a15db7d375081a17919db5",
+      "lf_sha256": "c3fe36415fe00f9862b72d67f3fd45d7684a357cb0a15db7d375081a17919db5"
+    },
+    {
+      "path": "D:\\progress\\orbit\\orbit-web\\docs\\ORBIT_RULE_LIST.md",
+      "sha256": "c8e9e069279757fbeb3dc7793c5a0c90cf59bae98177d872656c78674bab6376",
+      "lf_sha256": "c8e9e069279757fbeb3dc7793c5a0c90cf59bae98177d872656c78674bab6376"
+    }
+  ]
+}

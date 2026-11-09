@@ -1,0 +1,9 @@
+{
+  "new_paths": [
+    "/api/v1/reference-catalogs/{kind}",
+    "/api/v1/reference-catalog-imports",
+    "/api/v1/reference-catalog-imports/{id}",
+    "/api/v1/reference-catalog-imports/{id}/commit"
+  ],
+  "description": "PRD补全的实施方案；不是已上线接口"
+}

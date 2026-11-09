@@ -2,6 +2,8 @@
 
 ORBIT 广告投放管理后台的前后端合并仓库。
 
+**接手开发先读：[开发交接与Codex接续](HANDOFF.md)。** 产品原始资料完整保存在`data/`，可执行`python tools/verify_handoff.py`校验本次交接文件。
+
 | 目录 | 内容 |
 | --- | --- |
 | `orbit-web/` | Vue 3、Element Plus 前端，保留若依布局及原菜单 |
