@@ -248,6 +248,14 @@ def main() -> int:
         help="标签引用数与游标权限真实专项",
     )
     parser.add_argument(
+        "--environment-registry-only",
+        action="store_true",
+        help="仅执行机登记与账户环境关联真实专项",
+    )
+    parser.add_argument(
+        "--environment-internal-browser", action="store_true", help="执行机专项后等待实际页面验收"
+    )
+    parser.add_argument(
         "--taxonomy-internal-browser",
         action="store_true",
         help="标签元数据专项后等待人工真实UI检查",
@@ -1007,7 +1015,9 @@ def main() -> int:
             value is True
             and key
             not in {
-                "identity_publication_only", "browser", "include_identity_inventory_boundaries",
+                "identity_publication_only",
+                "browser",
+                "include_identity_inventory_boundaries",
                 "include_launch_identity_drafts",
             }
             for key, value in vars(args).items()
@@ -1288,6 +1298,7 @@ def main() -> int:
         args.vendor_alias_only,
         args.material_taxonomy_scope_only,
         args.material_taxonomy_metadata_only,
+        args.environment_registry_only,
         args.material_lifecycle_only,
         args.channel_owners_only,
         args.reference_channel_only,
@@ -1620,11 +1631,24 @@ def main() -> int:
         or args.include_account_worker
     ):
         parser.error("渠道快速矩阵仅初始化专属人员和渠道权限，不能混入其他专项")
+    if args.environment_internal_browser and not args.environment_registry_only:
+        parser.error("执行机浏览器窗口仅附独立执行机登记档")
+    if args.environment_registry_only and (
+        args.migration_through != 62
+        or "066_execution_agent_registry.sql" not in args.migration_extra
+        or any(
+            value is True
+            and key not in {"environment_registry_only", "environment_internal_browser"}
+            for key, value in vars(args).items()
+        )
+    ):
+        parser.error("执行机登记须独立through062加显式066迁移；不得混入其他专项")
     if args.taxonomy_internal_browser and not args.material_taxonomy_metadata_only:
         parser.error("标签浏览器窗口只附独立目录元数据档")
     if args.material_taxonomy_metadata_only:
         permitted = {
-            "material_taxonomy_metadata_only", "include_material_taxonomy_capabilities",
+            "material_taxonomy_metadata_only",
+            "include_material_taxonomy_capabilities",
             "taxonomy_internal_browser",
         }
         if (
@@ -1981,6 +2005,10 @@ def main() -> int:
         result["command"] += " --include-channel-fields"
     if args.include_material_taxonomy_scope:
         result["command"] += " --include-material-taxonomy-scope"
+    if args.environment_registry_only:
+        result["command"] += " --environment-registry-only"
+    if args.environment_internal_browser:
+        result["command"] += " --environment-internal-browser"
     if args.material_taxonomy_metadata_only:
         result["command"] += " --material-taxonomy-metadata-only"
         result["scope"] = (
@@ -2413,6 +2441,20 @@ def main() -> int:
             )
         else:
             planned[-1:-1] = VENDOR_ALIAS_CASES
+    if args.environment_registry_only:
+        from environment_registry_checks import (
+            ENVIRONMENT_REGISTRY_CASES,
+            run_environment_registry_checks,
+        )
+        from profile_binding_checks import PROFILE_BINDING_CASES, run_profile_binding_checks
+
+        planned = (
+            planned[:5]
+            + USER_CASES
+            + ENVIRONMENT_REGISTRY_CASES
+            + PROFILE_BINDING_CASES
+            + ["pythonLogoutRevokesSameToken"]
+        )
     if args.include_material_taxonomy_scope or args.material_taxonomy_metadata_only:
         from material_taxonomy_scope_checks import (
             MATERIAL_TAXONOMY_SCOPE_CASES,
@@ -3679,6 +3721,22 @@ app.add_middleware(DiagnosticProfile)
                 result["channel_owners_fixture"] = run_channel_owners_500_checks(
                     client, admin, headers, user_fixture, password, cache, cases
                 )
+            if args.environment_registry_only:
+                user_fixture = run_user_checks(client, admin, headers, password, cases)
+                result["environment_registry"] = run_environment_registry_checks(
+                    client, admin, headers, user_fixture, password, cache, database, cases
+                )
+                result["profile_bindings"] = run_profile_binding_checks(
+                    client, admin, headers, database, password, cache, cases
+                )
+                if args.environment_internal_browser:
+                    from rules_internal_browser_checkpoint import (
+                        run_rules_internal_browser_checkpoint,
+                    )
+
+                    result["environment_internal_browser"] = run_rules_internal_browser_checkpoint(
+                        admin, database, password
+                    )
             if args.material_taxonomy_scope_only or args.material_taxonomy_metadata_only:
                 user_fixture = run_user_checks(client, admin, headers, password, cases)
                 run_material_taxonomy_scope_checks(
@@ -6118,6 +6176,13 @@ app.add_middleware(DiagnosticProfile)
         files += [ROOT / "tools/material_taxonomy_scope_checks.py"]
     if args.include_material_taxonomy_capabilities:
         files += [ROOT / "tools/material_taxonomy_capability_checks.py"]
+    if args.environment_registry_only:
+        files += [
+            ROOT / "tools/environment_registry_checks.py",
+            ROOT / "tools/profile_binding_checks.py",
+        ]
+    if args.environment_internal_browser:
+        files += [ROOT / "tools/rules_internal_browser_checkpoint.py"]
     if args.taxonomy_internal_browser:
         files += [ROOT / "tools/rules_internal_browser_checkpoint.py"]
     if args.include_channel_fields:

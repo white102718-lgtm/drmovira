@@ -71,6 +71,16 @@ BUSINESS_MENUS = {
             "tags.archive": 31058,
         },
     ),
+    "environments": (
+        31060,
+        "",  # 设备目录仅导航；管理另核SUPER_ADMIN和精确动作。
+        {
+            "environments.read": 31061,
+            "environments.enroll": 31062,
+            "environments.revoke": 31063,
+            "environments.probe": 31064,
+        },
+    ),
     "channels": (
         31070,
         "channels.read",

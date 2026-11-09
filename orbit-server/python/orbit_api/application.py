@@ -110,6 +110,11 @@ def create_app() -> FastAPI:
     from orbit_api.team_routes import router as team_router
 
     app.include_router(team_router)
+    from orbit_api.execution_agent_routes import router as execution_agent_router
+    from orbit_api.profile_binding_routes import router as profile_binding_router
+
+    app.include_router(execution_agent_router)
+    app.include_router(profile_binding_router)
     from orbit_api.role_routes import router as role_router
 
     app.include_router(role_router)
@@ -171,6 +176,7 @@ def create_app() -> FastAPI:
     app.include_router(rule_display_metadata_router)
     app.include_router(rule_recovery_context_router)
     from orbit_api.account_channel_routes import router as account_channel_router
+
     app.include_router(account_channel_router)
     app.include_router(rule_list_filter_router)
     app.include_router(rule_router)
