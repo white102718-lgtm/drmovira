@@ -84,19 +84,32 @@ async def revoke_agent(resource_id: str, request: Request, user: User):
     return await save(request, user, resource_id, "revoke")
 
 
-@router.post("/{resource_id}/probe")
+@router.post("/{resource_id}/probe", status_code=202)
 async def probe_agent(resource_id: str, request: Request, user: User):
-    _, csrf, expected, _ = await write_boundary(request, updating=True, empty=True, limit=0)
+    from orbit_api.agent_probe_store import AgentProbeStore
+
+    key, csrf, expected, _ = await write_boundary(request, updating=True, empty=True, limit=0)
     return await transaction(
-        lambda session: store().unavailable(
+        lambda session: AgentProbeStore(DirectoryTokens(credential_cipher())).enqueue(
             session,
             user.user.user_id,
             resource_id,
-            "probe",
             request.headers.get("authorization", ""),
             csrf,
+            key,
             expected,
+            request.state.orbit_request_id,
         )
+    )
+
+
+@router.get("/{resource_id}/probe-requests/{probe_id}")
+async def probe_status(resource_id: str, probe_id: str, request: Request, user: User):
+    from orbit_api.agent_probe_store import AgentProbeStore
+
+    _read_boundary(request)
+    return await transaction(
+        lambda session: AgentProbeStore().get(session, user.user.user_id, resource_id, probe_id)
     )
 
 

@@ -149,7 +149,8 @@
     <el-dialog
       v-model="dialog"
       :title="dialogTitle"
-      width="760px"
+      width="min(760px, calc(100vw - 24px))"
+      class="environment-detail-dialog"
       :close-on-click-modal="false"
       :close-on-press-escape="!busy"
       :show-close="!busy"
@@ -192,9 +193,22 @@
           :agent-id="selected.id"
           :active="dialog && mode === 'DETAIL'"
           :context-key="JSON.stringify([user.id, user.permissions])"
+          :refresh-key="probeRefresh"
           @monitor="applyMonitor"
         />
-        <el-button class="probe" disabled>主动探测命令尚未接通</el-button>
+        <AgentProbePanel
+          v-if="capability?.data_role === 'SUPER_ADMIN'"
+          :agent-id="selected.id"
+          :revision="selected.revision"
+          :actor-id="capability.actor_id"
+          :tenant-id="capability.tenant_id"
+          :can-probe="canManage('probe')"
+          :active="dialog && mode === 'DETAIL'"
+          :revoked="selected.state === 'REVOKED'"
+          :session="probeState(selected.id, capability)"
+          @busy="busy = $event"
+          @completed="probeRefresh++"
+        />
       </template>
       <AgentRegistrationForm
         v-else-if="mode === 'CREATE' || mode === 'EDIT'"
@@ -245,6 +259,8 @@ import useUserStore from '@/store/modules/user'
 import AgentRegistrationForm from './AgentRegistrationForm.vue'
 import ProfileBindingsPanel from './ProfileBindingsPanel.vue'
 import AgentMonitorPanel from './AgentMonitorPanel.vue'
+import AgentProbePanel from './AgentProbePanel.vue'
+import { newProbeSession, type ProbeSession } from '@/api/orbit/environments-probe'
 import type { AgentMonitor } from '@/api/orbit/environments-monitor'
 import {
   environmentApi,
@@ -257,6 +273,14 @@ import {
 } from '@/api/orbit/environments'
 const user = useUserStore()
 const bindingsOpen = ref(false)
+const probeRefresh = ref(0)
+// 未确认探测按当前主体和设备隔离保存在父页；关闭详情不会变成另一个新请求。
+const probeSessions = reactive(new Map<string, ProbeSession>())
+function probeState(agentId: string, cap: AgentCapability): ProbeSession {
+  const key = `${cap.tenant_id}:${cap.actor_id}:${agentId}`
+  if (!probeSessions.has(key)) probeSessions.set(key, newProbeSession())
+  return probeSessions.get(key)!
+}
 const can = (action: string) =>
   user.permissions.includes('*:*:*') || user.permissions.includes(`environments.${action}`)
 const capability = ref<AgentCapability | null>(null)
@@ -601,9 +625,24 @@ onBeforeUnmount(() => {
   generation++
   controller?.abort()
   pending.clear()
+  probeSessions.clear()
 })
 </script>
 <style scoped>
+/* 弹窗被传送到body；在实际弹窗内约束长ID和两列表格，而非仅检查页面根宽度。 */
+:global(.environment-detail-dialog .el-descriptions__table) {
+  table-layout: fixed;
+  width: 100%;
+}
+:global(.environment-detail-dialog .el-descriptions__cell) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+:global(.environment-detail-dialog .el-dialog__body) {
+  min-width: 0;
+}
+
 .toolbar,
 .pagination {
   display: flex;

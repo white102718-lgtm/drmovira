@@ -14,6 +14,7 @@ from pathlib import Path
 from uuid import UUID, uuid4, uuid5
 
 import httpx
+from environment_probe_checks import PROBE_CASES, run_probe_checks
 from environment_tls_fixture import make_environment_certificates
 from fixture_login import fixture_login
 from metric_fact_schema_checks import MetricFactSqlFixture
@@ -33,6 +34,7 @@ ENVIRONMENT_LIVE_CASES = [
     "environmentLiveDeviceRevocationImmediatelyRejects",
     "environmentLiveActualLocalSourceOrExplicitlyDisabled",
 ]
+ENVIRONMENT_LIVE_CASES += PROBE_CASES
 ROOT = Path(__file__).resolve().parents[1]
 TLS_PORT = 18443
 
@@ -244,6 +246,18 @@ asyncio.run(run())
                         cases,
                         read_headers,
                     )
+                    run_probe_checks(
+                        client,
+                        device,
+                        headers,
+                        write,
+                        sql,
+                        checked,
+                        tenant,
+                        identifier,
+                        cases,
+                        read_headers,
+                    )
                     # 实际本机采集与gstack由同一仍存活的mTLS监听器接续。
                     result = _run_local_source(
                         admin,
@@ -264,7 +278,7 @@ asyncio.run(run())
                         binding_value,
                         meta_expectation_file,
                     )
-                    cases.append(ENVIRONMENT_LIVE_CASES[-1])
+                    cases.append(ENVIRONMENT_LIVE_CASES[12])
                     checked(
                         client.post(
                             f"/api/v1/execution-agents/{identifier}/revoke",
@@ -638,6 +652,22 @@ asyncio.run(main())
                 ),
                 "advertising_writes": False,
             }
+            # 真正本机Agent必须执行请求之后的新盘点，旧心跳/旧VALID不能冒充本次完成。
+            probe_root = f"/api/v1/execution-agents/{agent}"
+            probe = checked(client.post(probe_root + "/probe", headers=write(1, "PROBE")), 202)
+            deadline = time.monotonic() + 125
+            while time.monotonic() < deadline:
+                state = checked(
+                    client.get(probe_root + "/probe-requests/" + probe["id"], headers=headers)
+                )
+                if state["state"] != "QUEUED":
+                    break
+                if worker.poll() is not None:
+                    raise RuntimeError("REAL_AGENT_EXITED_DURING_PROBE")
+                time.sleep(0.5)
+            if state["state"] != "COMPLETED":
+                raise RuntimeError("REAL_AGENT_PROBE_NOT_COMPLETED")
+            result["active_probe"] = {"state": state["state"], "new_observation": True}
             if browser:
                 from rules_internal_browser_checkpoint import run_rules_internal_browser_checkpoint
 

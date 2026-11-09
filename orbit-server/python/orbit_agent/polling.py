@@ -13,6 +13,7 @@ from orbit_agent.adspower_status import DEFAULT_ENDPOINT, ProbeError
 from orbit_agent.discovery_cache import BackgroundDiscovery
 from orbit_agent.meta_dom_probe import inspect_existing_page, observe_existing_pages
 from orbit_agent.meta_dom_v2 import classify_pages
+from orbit_agent.probe_requests import ProbeRequests
 from orbit_agent.protocol import ADAPTER_VERSION, profile_id
 from orbit_agent.spool import Spool
 from orbit_agent.transport import DeviceClient, DeviceRejected
@@ -47,6 +48,7 @@ async def flush(device, spool, *, budget_seconds=8):
         except DeviceRejected as error:
             if error.status in {400, 403, 404, 409, 410, 422}:
                 spool.reject(event["local_id"])
+                blocked = True
                 if event["kind"] == "heartbeat":
                     raise ProbeError(error.code) from None
             else:
@@ -58,10 +60,18 @@ async def flush(device, spool, *, budget_seconds=8):
     return not blocked
 
 
-async def run_cycle(adapter, device, spool, *, selected_profiles):
+async def run_cycle(adapter, device, spool, *, selected_profiles, probes=None):
+    if probes is not None:
+        await probes.before_cycle(adapter, device)
     if not await flush(device, spool):
         return {"delivery": "PENDING", "error_code": "DEVICE_CONNECTION_FAILED"}
-    config = await device.configuration()
+    configuration_ready = True
+    try:
+        config = await device.configuration()
+    except ProbeError:
+        # 配置读取失败不能停止设备心跳，但没有当前绑定就不探测身份或完成请求。
+        config = {"bindings": []}
+        configuration_ready = False
     snapshot = await adapter.discover()
     observed = now()
     profiles = [
@@ -98,6 +108,8 @@ async def run_cycle(adapter, device, spool, *, selected_profiles):
     )
     reports = 0
     deferred = 0
+    eligible = []
+    reported_bindings = []
     identity_deadline = asyncio.get_running_loop().time() + 12
     # READY需要两个连续新心跳；首个SUSPECT不制造可被误认已核验的身份报告。
     if ack["state"] == "READY":
@@ -153,12 +165,29 @@ async def run_cycle(adapter, device, spool, *, selected_profiles):
                     "evidence_sha256": result["evidence_sha256"],
                 },
             )
+            reported_bindings.append(binding)
             reports += 1
-    await flush(
+    reports_acknowledged = await flush(
         device,
         spool,
         budget_seconds=max(0, min(8, identity_deadline - asyncio.get_running_loop().time())),
     )
+    if probes is not None:
+        await probes.after_cycle(
+            adapter,
+            device,
+            spool,
+            snapshot,
+            seq,
+            eligible=eligible,
+            reported=reported_bindings,
+            verified=(
+                configuration_ready
+                and reports_acknowledged
+                and ack["state"] == "READY"
+                and not spool.pending()
+            ),
+        )
     return snapshot.summary() | {
         "delivery": "PENDING" if spool.pending() else "ACKNOWLEDGED",
         "monitor_state": ack["state"],
@@ -200,6 +229,7 @@ async def run(args):
     count = 0
     spool = None
     background = None
+    probes = ProbeRequests()
     try:
         if not args.collect_only:
             if not all(
@@ -228,7 +258,9 @@ async def run(args):
                 result = (
                     await collect_only(adapter, selected)
                     if args.collect_only
-                    else await run_cycle(background, device, spool, selected_profiles=selected)
+                    else await run_cycle(
+                        background, device, spool, selected_profiles=selected, probes=probes
+                    )
                 )
             except ProbeError as error:
                 result = {"error_code": error.code, "delivery": "PENDING"}

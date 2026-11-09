@@ -108,4 +108,26 @@ def create_device_app(session_factory=None):
             )
         )
 
+    @app.get("/api/v1/agent-api/probe-requests")
+    async def pending_probe(request: Request):
+        from orbit_api.agent_probe_store import AgentProbeStore
+
+        der = peer_certificate(request.scope)
+        if request.query_params:
+            raise OrbitError(400, "UNKNOWN_FIELD", "探测请求不接受查询字段")
+        return await transact(lambda session: AgentProbeStore().pending(session, der))
+
+    @app.post("/api/v1/agent-api/probe-requests/{probe_id}/complete")
+    async def complete_probe(probe_id: str, request: Request):
+        from orbit_api.agent_probe_contract import parse_completion
+        from orbit_api.agent_probe_store import AgentProbeStore
+
+        der = peer_certificate(request.scope)
+        value = parse_completion(await body(request, 8192))
+        return await transact(
+            lambda session: AgentProbeStore().complete(
+                session, der, probe_id, value, request.state.orbit_request_id
+            )
+        )
+
     return app

@@ -15,6 +15,9 @@ class BackgroundDiscovery:
         self.latest = None
         self.task = None
         self.ready = asyncio.Event()
+        self.refresh = asyncio.Event()
+        self.started_generation = 0
+        self.completed_generation = 0
 
     @staticmethod
     def unavailable():
@@ -22,13 +25,29 @@ class BackgroundDiscovery:
 
     async def _worker(self):
         while True:
+            self.refresh.clear()
+            self.started_generation += 1
             try:
                 self.latest = await self.source.discover()
             except Exception:
                 # 不输出底层异常；后台失败不能留下未处理Task异常或伪装API仍可达。
                 self.latest = self.unavailable()
+            self.completed_generation = self.started_generation
             self.ready.set()
-            await asyncio.sleep(self.refresh_interval)
+            try:
+                async with asyncio.timeout(self.refresh_interval):
+                    await self.refresh.wait()
+            except TimeoutError:
+                pass
+
+    def request_refresh(self):
+        """只唤醒串行后台任务；已在进行的旧发现不能当成新请求的结果。"""
+        target = self.started_generation + 1
+        self.refresh.set()
+        return target
+
+    def is_refresh_result(self, snapshot, generation):
+        return snapshot is self.latest and self.completed_generation >= generation
 
     async def discover(self):
         if self.task is None:

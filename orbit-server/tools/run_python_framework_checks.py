@@ -1645,21 +1645,21 @@ def main() -> int:
         parser.error("执行机浏览器窗口仅附独立执行机登记档")
     if args.environment_registry_only and (
         args.migration_through != 62
-        or "066_execution_agent_registry.sql" not in args.migration_extra
+        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql", "068_agent_probe_requests.sql"}.issubset(args.migration_extra)
         or any(
             value is True
             and key not in {"environment_registry_only", "environment_internal_browser"}
             for key, value in vars(args).items()
         )
     ):
-        parser.error("执行机登记须独立through062加显式066迁移；不得混入其他专项")
+        parser.error("执行机登记须独立through062加显式066/067/068迁移；不得混入其他专项")
     if args.meta_expectation_file and not args.include_local_adspower:
         parser.error("Meta预期文件必须伴随显式本机AdsPower验收")
     if args.include_local_adspower and not args.environment_live_only:
         parser.error("本机AdsPower访问仅允许显式独立监测档")
     if args.environment_live_only and (
         args.migration_through != 62
-        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql"}.issubset(
+        or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql", "068_agent_probe_requests.sql"}.issubset(
             args.migration_extra
         )
         or any(
@@ -1673,7 +1673,7 @@ def main() -> int:
             for key, value in vars(args).items()
         )
     ):
-        parser.error("监测独立档须through062加显式066/067迁移，不混其他专项")
+        parser.error("监测独立档须through062加显式066/067/068迁移，不混其他专项")
     if args.taxonomy_internal_browser and not args.material_taxonomy_metadata_only:
         parser.error("标签浏览器窗口只附独立目录元数据档")
     if args.material_taxonomy_metadata_only:
@@ -6236,6 +6236,7 @@ app.add_middleware(DiagnosticProfile)
     if args.environment_live_only:
         files += [
             ROOT / "tools/environment_live_checks.py",
+            ROOT / "tools/environment_probe_checks.py",
             ROOT / "tools/environment_tls_fixture.py",
             ROOT / "tools/frontend_static_fixture.py",
             ROOT / "python/orbit_agent/requirements.txt",
@@ -6615,8 +6616,10 @@ app.add_middleware(DiagnosticProfile)
         frontend_files += [
             "src/api/orbit/environments.ts",
             "src/api/orbit/environments-monitor.ts",
+            "src/api/orbit/environments-probe.ts",
             "src/views/orbit/environments/index.vue",
             "src/views/orbit/environments/AgentMonitorPanel.vue",
+            "src/views/orbit/environments/AgentProbePanel.vue",
             "src/views/orbit/environments/ProfileBindingsPanel.vue",
         ]
     result["frontend_source_sha256"] = (

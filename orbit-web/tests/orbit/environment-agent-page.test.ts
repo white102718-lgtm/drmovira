@@ -235,3 +235,9 @@ it('pending intent cannot be presented as an unrelated record detail', async () 
   await click('恢复未确认操作')
   expect(document.body.textContent).toContain('重试原请求')
 })
+it('detail dialog constrains its actual inline width to the viewport instead of a fixed 760px', async () => {
+  await start()
+  await click('详情')
+  const dialog = document.querySelector<HTMLElement>('.el-dialog')!
+  expect(dialog.style.getPropertyValue('--el-dialog-width')).toBe('min(760px, calc(100vw - 24px))')
+})

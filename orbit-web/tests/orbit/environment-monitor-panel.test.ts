@@ -131,3 +131,13 @@ it('new agent cancels stale response and never displays previous device profiles
   await flushPromises()
   expect(w.text()).not.toContain('stale-old-agent')
 })
+it('external completed probe refreshes observations without clearing applied Profile query', async () => {
+  await start({ refreshKey: 0 })
+  await w.get('input[aria-label="Profile 查询"]').setValue('keep-query')
+  await click('查询 Profile')
+  const before = vi.mocked(monitorApi.profiles).mock.calls.length
+  await w.setProps({ refreshKey: 1 })
+  await flushPromises()
+  expect(monitorApi.profiles).toHaveBeenCalledTimes(before + 1)
+  expect(vi.mocked(monitorApi.profiles).mock.lastCall?.[1]).toMatchObject({ q: 'keep-query' })
+})

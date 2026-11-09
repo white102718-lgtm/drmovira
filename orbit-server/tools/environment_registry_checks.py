@@ -24,7 +24,7 @@ ENVIRONMENT_REGISTRY_CASES = [
     "environmentDeviceRevocationHidesFromUsersAndKeepsAdminRead",
     "environmentAuditOutboxFailureRollsBackEveryWrite",
     "environmentCurrentActionRevocationRejectsSuccessfulReplay",
-    "environmentForeignTenantAndUnsupportedProbeRemainClosed",
+    "environmentForeignTenantHiddenAndReadOnlyProbeQueued",
 ]
 
 
@@ -397,10 +397,15 @@ def run_environment_registry_checks(
     alive = first["items"][0]
     if alive["id"] == agent["id"]:
         alive = first["items"][1]
-    checked(
+    probe = checked(
         client.post(root + "/" + alive["id"] + "/probe", headers=wh(alive["revision"], "PROBE")),
-        503,
+        202,
     )
+    assert probe["state"] == "QUEUED"
+    probe_state = checked(
+        client.get(root + "/" + alive["id"] + "/probe-requests/" + probe["id"], headers=headers)
+    )
+    assert probe_state["state"] == "QUEUED" and probe_state["completed_at"] is None
     cases.append(ENVIRONMENT_REGISTRY_CASES[15])
     return {
         "scope": "isolated device registry and unverified profile associations",

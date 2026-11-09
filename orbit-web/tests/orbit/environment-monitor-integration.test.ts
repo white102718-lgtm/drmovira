@@ -133,3 +133,30 @@ it('enroll-only retains manual profile input without attempting monitor reads', 
   expect(monitorApi.get).not.toHaveBeenCalled()
   expect(monitorApi.profiles).not.toHaveBeenCalled()
 })
+it('superadmin with probe action can confirm a new request and retains it after closing detail', async () => {
+  const { probeApi } = await import('@/api/orbit/environments-probe')
+  user.permissions.push('environments.probe')
+  const submit = vi
+    .spyOn(probeApi, 'submit')
+    .mockResolvedValue({ id, revision: 1, state: 'QUEUED', request_id: id })
+  vi.spyOn(probeApi, 'get').mockResolvedValue({
+    id,
+    agent_id: id,
+    state: 'QUEUED',
+    created_at: '2026-11-09T00:00:00Z',
+    expires_at: '2026-11-09T00:02:00Z',
+    completed_at: null,
+    error_code: null,
+  })
+  w = mount(Page, { global: { plugins: [ElementPlus] }, attachTo: document.body })
+  await flushPromises()
+  await click('详情')
+  await click('主动只读探测')
+  await click('确认开始探测')
+  expect(submit).toHaveBeenCalledTimes(1)
+  await click('关闭')
+  await click('详情')
+  expect(document.body.textContent).toContain('等待设备执行')
+  expect(submit).toHaveBeenCalledTimes(1)
+  user.permissions.pop()
+})

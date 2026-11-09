@@ -17,6 +17,7 @@ from orbit_agent.protocol import (
     exact,
     integer,
     profile_id,
+    timestamp,
     uuid,
     validate_payload,
 )
@@ -204,3 +205,47 @@ class DeviceClient:
         if payload["agent_id"] != self.agent_id:
             raise ProbeError("DEVICE_AGENT_MISMATCH")
         return validate_ack(kind, await self.request("POST", PATHS[kind], payload), self.agent_id)
+
+    async def probe_requests(self):
+        """只读取本设备的新观察请求，拒绝任意命令或URL扩展。"""
+        from datetime import datetime
+
+        value = await self.request("GET", "/api/v1/agent-api/probe-requests")
+        exact(value, {"agent_id", "request"})
+        if value["agent_id"] != self.agent_id:
+            raise ProbeError("DEVICE_AGENT_MISMATCH")
+        item = value["request"]
+        if item is not None:
+            exact(item, {"id", "created_at", "expires_at"})
+            uuid(item["id"])
+            duration = (
+                datetime.fromisoformat(timestamp(item["expires_at"]))
+                - datetime.fromisoformat(timestamp(item["created_at"]))
+            ).total_seconds()
+            if not 0 < duration <= 120:
+                raise ProbeError("DEVICE_RESPONSE_INVALID")
+        return value
+
+    async def complete_probe(self, identifier, payload):
+        """完成只表示已交付新观察，不宣称广告账户可写。"""
+        uuid(identifier)
+        exact(payload, {"agent_id", "boot_id", "seq", "observed_at"})
+        uuid(payload["agent_id"])
+        uuid(payload["boot_id"])
+        integer(payload["seq"])
+        timestamp(payload["observed_at"])
+        if payload["agent_id"] != self.agent_id:
+            raise ProbeError("DEVICE_AGENT_MISMATCH")
+        value = await self.request(
+            "POST", f"/api/v1/agent-api/probe-requests/{identifier}/complete", payload
+        )
+        exact(value, {"id", "revision", "state", "request_id"})
+        uuid(value["request_id"])
+        if (
+            value["id"] != identifier
+            or type(value["revision"]) is not int
+            or value["revision"] != 1
+            or value["state"] not in {"COMPLETED", "FAILED"}
+        ):
+            raise ProbeError("DEVICE_ACK_INVALID")
+        return value

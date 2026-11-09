@@ -136,8 +136,14 @@ import {
   type ProfileQuery,
 } from '@/api/orbit/environments-monitor'
 const props = withDefaults(
-  defineProps<{ agentId: string; active?: boolean; selectable?: boolean; contextKey?: string }>(),
-  { active: true, selectable: false, contextKey: '' },
+  defineProps<{
+    agentId: string
+    active?: boolean
+    selectable?: boolean
+    contextKey?: string
+    refreshKey?: number
+  }>(),
+  { active: true, selectable: false, contextKey: '', refreshKey: 0 },
 )
 const emit = defineEmits<{ select: [externalProfileId: string]; monitor: [report: AgentMonitor] }>()
 const machineLabels = {
@@ -296,11 +302,21 @@ watch(
   },
   { immediate: true },
 )
+// 探测完成只刷新当前查询，不把查询条件误当成身份上下文而清空。
+watch(
+  () => props.refreshKey,
+  () => {
+    if (props.active) void refresh()
+  },
+)
 onBeforeUnmount(cancel)
 </script>
 <style scoped>
 .agent-monitor {
   margin-top: 20px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 .monitor-toolbar {
   display: flex;
@@ -319,5 +335,14 @@ onBeforeUnmount(cancel)
 }
 .el-alert {
   margin: 12px 0;
+}
+@media (max-width: 600px) {
+  .profile-query :deep(.el-form-item) {
+    display: flex;
+    margin-right: 0;
+  }
+  .profile-query :deep(.el-form-item__content) {
+    min-width: 0;
+  }
 }
 </style>
