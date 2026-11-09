@@ -2,7 +2,12 @@ import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import ElementPlus, { ElMessageBox } from 'element-plus'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import DraftEditor from '@/views/orbit/launch/DraftEditor.vue'
-import { launchApi, type LaunchCapabilities, type LaunchPlan } from '@/api/orbit/launch'
+import {
+  launchApi,
+  LaunchDraftError,
+  type LaunchCapabilities,
+  type LaunchPlan,
+} from '@/api/orbit/launch'
 import { ReferenceApiError } from '@/api/orbit/references'
 import { newDraft } from '@/api/orbit/launch-form'
 import { readDraftRecovery } from '@/api/orbit/launch-recovery'
@@ -468,4 +473,76 @@ it('子范围unknown锁挡关闭/保存/刷新；原上下文prop变化只传递
   expect(picker.props('contextKey')).toContain('changed-context')
   expect(picker.props('modelValue')).toBe(true)
   expect(save).not.toHaveBeenCalled()
+})
+
+it('身份422保留原输入并按服务端Pointer定位实际账户主页字段', async () => {
+  const account = '00000000-0000-4000-8000-000000000010',
+    page = '1234567890'
+  const binding = { account_id: account, page_id: page, groups: [], ad_overrides: [] }
+  const source = { ...saved(), account_ids: [account], identity_bindings: [binding] }
+  const path = '/identity_bindings/0/page_id'
+  vi.spyOn(launchApi, 'save').mockRejectedValue(
+    new LaunchDraftError(422, 'LAUNCH_IDENTITY_UNAVAILABLE', '当前主页不可用', [
+      { path, code: 'LAUNCH_IDENTITY_UNAVAILABLE', message: '当前主页不可用', constraint: null },
+    ]),
+  )
+  const identities = vi.spyOn(accountIdentitiesApi, 'get').mockResolvedValue({
+    account_id: account,
+    resources: [
+      { external_id: page, name: '原主页', kind: 'PAGE', usable: false, reason_code: 'REVOKED' },
+    ],
+    capability_version: 'observe-2',
+    observed_at: '2026-11-09T00:00:00Z',
+  })
+  await start({ plan: source, identityReadAllowed: true })
+  await click('保存服务器草稿')
+  expect(readDraftRecovery(caps.actor_user_id)?.body.identity_bindings).toEqual([binding])
+  expect(document.body.textContent).toContain(path)
+  expect(identities).not.toHaveBeenCalled()
+  await click('定位字段')
+  expect(identities).toHaveBeenCalledWith(account, expect.any(AbortSignal))
+  expect(document.body.textContent).toContain('逐账户身份配置')
+  expect(document.body.textContent).toContain('已定位当前版本的实际字段')
+  expect(readDraftRecovery(caps.actor_user_id)?.body.identity_bindings).toEqual([binding])
+})
+it('profile_binding_ids的503仅说明环境绑定核验未接入，保留身份输入', async () => {
+  const path = '/profile_binding_ids',
+    source = { ...saved(), profile_binding_ids: ['00000000-0000-4000-8000-000000000020'] }
+  vi.spyOn(launchApi, 'save').mockRejectedValue(
+    new LaunchDraftError(
+      503,
+      'LAUNCH_IDENTITY_DEPENDENCY_UNAVAILABLE',
+      '逐账户环境绑定核验尚未接入',
+      [
+        {
+          path,
+          code: 'LAUNCH_IDENTITY_DEPENDENCY_UNAVAILABLE',
+          message: '逐账户环境绑定核验尚未接入',
+          constraint: null,
+        },
+      ],
+    ),
+  )
+  await start({ plan: source })
+  await click('保存服务器草稿')
+  expect(document.body.textContent).toContain('账户环境绑定（profile_binding_ids）核验尚未接入')
+  expect(document.body.textContent).not.toContain('当前非空身份保存依赖尚未接通')
+  expect(readDraftRecovery(caps.actor_user_id)?.body.profile_binding_ids).toEqual(
+    source.profile_binding_ids,
+  )
+  expect(nameInput().disabled).toBe(false)
+})
+it('非空身份草稿允许真实SDK保存成功并完整回读到编辑器', async () => {
+  const account = '00000000-0000-4000-8000-000000000030'
+  const binding = { account_id: account, page_id: '12345', groups: [], ad_overrides: [] }
+  const source = { ...saved(), account_ids: [account], identity_bindings: [binding] }
+  const save = vi.spyOn(launchApi, 'save').mockResolvedValue({ ...source, revision: 2 })
+  await start({ plan: source, identityReadAllowed: true })
+  await click('保存服务器草稿')
+  expect(save.mock.calls[0][0].identity_bindings).toEqual([binding])
+  expect(wrapper.emitted('saved')?.[0]?.[0]).toMatchObject({
+    revision: 2,
+    identity_bindings: [binding],
+  })
+  expect(document.body.textContent).toContain('服务器已保存')
 })

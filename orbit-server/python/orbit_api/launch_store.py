@@ -250,7 +250,7 @@ class LaunchStore:
                 raise OrbitError(409, "PLAN_STATE_CONFLICT", "计划状态已变化")
             if previous["revision"] >= MAX_REVISION:
                 raise OrbitError(409, "REVISION_EXHAUSTED", "计划版本已达上限")
-            # 正文不变但精确指标来源换版，仍须建立新的PlanVersion；无关目录时钟不触发。
+            # 正文不变但指标或身份精确来源换版，仍须新建PlanVersion；无关目录时钟不触发。
             from orbit_api.launch_plan_source import capture_plan_source
 
             # validate只递增状态CAS头，不制造配置版本；先按真实最新配置源核完整性。
@@ -265,9 +265,10 @@ class LaunchStore:
                     | {"id": identifier, "revision": source.source_revision},
                 )
             ).scalar_one()
-            old_metric = _decode(frozen).get("metric_profiles", {})
-            if _decode(previous["payload_json"]) == value and old_metric == dependencies.get(
-                "metric_profiles", {}
+            old_dependencies = _decode(frozen)
+            if _decode(previous["payload_json"]) == value and all(
+                old_dependencies.get(kind, {}) == dependencies.get(kind, {})
+                for kind in ("metric_profiles", "identities")
             ):
                 result = public_plan(previous)
                 await access.remember(session, current, operation, key, payload_hash, result)

@@ -10,6 +10,10 @@ from orbit_api.configuration_store import _decode
 from orbit_api.errors import OrbitError
 from orbit_api.launch_access import digest, owner
 from orbit_api.launch_expansion import expanded_counts
+from orbit_api.launch_identity_references import (
+    prepare_identity_sources,
+    resolve_identity_dependencies,
+)
 from orbit_api.material_references import require_allocation_assets
 from orbit_api.reference_access import clock as reference_clock
 from orbit_api.reference_access import managed_teams, readable
@@ -46,6 +50,20 @@ async def validate_sources(session, current, value, *, permission, isolated_fixt
 
     ownership = value["ownership"]
     owner_actor = await owner(session, current, ownership)
+    if value.get("profile_binding_ids"):
+        raise OrbitError(
+            503,
+            "LAUNCH_IDENTITY_DEPENDENCY_UNAVAILABLE",
+            "逐账户环境绑定核验尚未接入",
+            "/profile_binding_ids",
+        )
+    identity_sources = {}
+    if value.get("identity_bindings"):
+        # 权限先于来源发现；统一预锁来源，避免范围消费后反向补锁配置/发行。
+        caller, _ = await source_contexts(session, current, ownership, owner_actor, "accounts")
+        identity_sources = await prepare_identity_sources(
+            session, caller, value["identity_bindings"]
+        )
     metric_dependencies = await resolve_metric_profile_dependencies(
         session,
         current,
@@ -57,13 +75,6 @@ async def validate_sources(session, current, value, *, permission, isolated_fixt
     )
     # 仅操作调用方的工作副本；原请求幂等意图与死锁重试输入由LaunchStore保留。
     scope_dependency = await resolve_account_scope(session, current, value)
-    if value["identity_bindings"] or value.get("profile_binding_ids"):
-        raise OrbitError(
-            503,
-            "LAUNCH_IDENTITY_DEPENDENCY_UNAVAILABLE",
-            "逐账户身份及环境绑定核验尚未接入",
-            "/identity_bindings",
-        )
     result = {"accounts": {}, "assets": {}, "channel": None}
     if metric_dependencies["metric_profiles"]:
         result.update(metric_dependencies)
@@ -191,6 +202,7 @@ async def validate_sources(session, current, value, *, permission, isolated_fixt
             identifier: {"revision": row["revision"], "catalog_revision": row["catalog_revision"]}
             for identifier, row in linked.items()
         }
+    result.update(await resolve_identity_dependencies(session, current, value, identity_sources))
     return result
 
 

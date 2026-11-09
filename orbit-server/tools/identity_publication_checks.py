@@ -64,6 +64,7 @@ def run_identity_publication_checks(
     cipher=None,
     prepare_browser_fixture=False,
     include_inventory_boundaries=False,
+    launch_draft_hook=None,
 ):
     try:
         from account_scope_visibility_plan_checks import prepare_plan_identities
@@ -74,6 +75,8 @@ def run_identity_publication_checks(
         from tools.fixture_login import fixture_login
         from tools.meta_observation_registry_checks import guard_meta_registry_target
 
+    if launch_draft_hook is not None and not callable(launch_draft_hook):
+        raise ValueError("身份草稿hook必须由主线显式传入可调用对象")
     guard_meta_registry_target(admin, database)
     if type(prepare_browser_fixture) is not bool:
         raise ValueError("浏览器fixture开关必须显式布尔值")
@@ -476,6 +479,23 @@ def run_identity_publication_checks(
                 assert actual == expected
                 assert receipt["execution_authorized"] is False
                 cases.append(IDENTITY_PUBLICATION_CASES[1])
+
+                def launch_check(phase, inventory):
+                    if launch_draft_hook is not None:
+                        launch_draft_hook(
+                            phase,
+                            client=client,
+                            admin=admin,
+                            headers=headers,
+                            tenant=tenant,
+                            owner=owner,
+                            team=team,
+                            account_id=account_id,
+                            inventory=inventory,
+                            cases=cases,
+                        )
+
+                launch_check("initial", actual)
                 latest, latest_receipt = first, receipt
                 base = datetime.now(UTC) - timedelta(minutes=2)
                 for index, microsecond in enumerate((123499, 123500, 999999), 1):
@@ -497,6 +517,7 @@ def run_identity_publication_checks(
                     )
                     assert await read() == json.loads(latest.payload_json)
                 cases.append(IDENTITY_PUBLICATION_CASES[2])
+                launch_check("refreshed", await read())
                 sql(
                     "UPDATE orbit_system_configuration SET enabled=0,"
                     "revision=revision+1 WHERE tenant_id=%s AND id=%s",
@@ -510,6 +531,7 @@ def run_identity_publication_checks(
                     "UPDATE sys_identity_subject SET auth_version=auth_version+1 WHERE user_id=%s",
                     (actor,),
                 )
+                launch_check("revoked", expected)
                 assert await persist(first, key) == receipt
                 # 进程重启/来源换版后，默认None Authority仍可恢复旧metadata；不重抓网络。
                 async with sessions() as session, session.begin():
@@ -544,6 +566,7 @@ def run_identity_publication_checks(
                     "UPDATE orbit_ad_account SET owner_user_id=%s WHERE tenant_id=%s AND id=%s",
                     (manager["owner_user_id"], tenant, account_id),
                 )
+                launch_check("owner_changed", expected)
                 await denied(lambda: persist(first, key), 404, "NOT_FOUND")
                 sql(
                     "UPDATE orbit_ad_account SET owner_user_id=%s WHERE tenant_id=%s AND id=%s",
@@ -676,24 +699,65 @@ def run_identity_publication_checks(
                         raise AssertionError("不可变表DELETE必须1644")
                     finally:
                         admin.rollback()
-                async with sessions() as session, session.begin():
-                    await session.execute(
-                        text(
-                            "UPDATE orbit_account_identity_resource SET usable=2 WHERE "
-                            "tenant_id=:tenant AND account_id=:id AND revision=5 AND kind='PAGE'"
-                        ),
-                        {"tenant": tenant, "id": account_id},
+                frozen_trigger = sql(
+                    "SELECT COUNT(*) FROM information_schema.TRIGGERS WHERE "
+                    "TRIGGER_SCHEMA=DATABASE() AND TRIGGER_NAME='trg_identity_resource_freeze_bu'",
+                    fetch=True,
+                )[0][0]
+                if frozen_trigger:
+                    # 055后已发布资源在数据库层冻结：真实恶意UPDATE必须先被拒绝，
+                    # 不为旧损坏夹具删触发器或取消封存，也不把防护成功当成读取失败。
+                    snapshot_sql = (
+                        "SELECT * FROM orbit_account_identity_resource WHERE tenant_id=%s "
+                        "AND account_id=%s AND revision=5 ORDER BY kind,external_id"
                     )
+                    snapshot_args = (tenant, account_id)
+                    before_resources = sql(snapshot_sql, snapshot_args, fetch=True)
+                    before_counts = counts()
+                    before_read = await read()
+                    assert before_resources
+                    assert sql(
+                        "SELECT provenance_frozen FROM orbit_account_identity_history "
+                        "WHERE tenant_id=%s AND account_id=%s AND revision=5",
+                        snapshot_args,
+                        fetch=True,
+                    ) == ((1,),)
                     try:
-                        await readmodel.get(session, actor, account_id)
-                    except OrbitError as error:
-                        assert (error.status, error.code) == (
-                            503,
-                            "IDENTITY_PUBLICATION_HISTORY_INVALID",
-                        )
+                        with admin.cursor() as cursor:
+                            cursor.execute(
+                                "UPDATE orbit_account_identity_resource SET usable=2 WHERE "
+                                "tenant_id=%s AND account_id=%s AND revision=5 AND kind='PAGE'",
+                                snapshot_args,
+                            )
+                    except Exception as error:
+                        assert error.args == (1644, "IDENTITY_RESOURCE_FROZEN")
                     else:
-                        raise AssertionError("损坏Boolean必须在bool转换前拒绝")
-                    await session.rollback()
+                        raise AssertionError("已发布身份资源必须在写入损坏Boolean前拒绝")
+                    finally:
+                        admin.rollback()
+                    assert sql(snapshot_sql, snapshot_args, fetch=True) == before_resources
+                    assert counts() == before_counts
+                    assert await read() == before_read
+                else:
+                    async with sessions() as session, session.begin():
+                        await session.execute(
+                            text(
+                                "UPDATE orbit_account_identity_resource SET usable=2 WHERE "
+                                "tenant_id=:tenant AND account_id=:id "
+                                "AND revision=5 AND kind='PAGE'"
+                            ),
+                            {"tenant": tenant, "id": account_id},
+                        )
+                        try:
+                            await readmodel.get(session, actor, account_id)
+                        except OrbitError as error:
+                            assert (error.status, error.code) == (
+                                503,
+                                "IDENTITY_PUBLICATION_HISTORY_INVALID",
+                            )
+                        else:
+                            raise AssertionError("损坏Boolean必须在bool转换前拒绝")
+                        await session.rollback()
                 cases.append(IDENTITY_PUBLICATION_CASES[10])
                 sql(
                     "UPDATE orbit_identity_capability_release SET "

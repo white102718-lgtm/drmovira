@@ -59,7 +59,7 @@ BUSINESS_MENUS = {
     ),
     "assets": (
         31050,
-        "assets.read",
+        "",  # 065导航不授予素材读取；标签动作独立授权。
         {
             "assets.read": 31051,
             "assets.upload": 31052,

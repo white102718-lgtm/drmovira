@@ -959,3 +959,49 @@ it('当前渠道查询使用UUID，续页保留筛选，清空后不沿用旧渠
   await flushPromises()
   expect(rulesApi.list).toHaveBeenLastCalledWith({ page_size: 50 }, expect.any(AbortSignal))
 })
+it('列表条件摘要保留根与各组逻辑，展开完整20条件及原精度阈值', async () => {
+  const value = row()
+  value.logic = 'OR'
+  value.groups = [
+    {
+      logic: 'AND',
+      conditions: Array.from({ length: 10 }, (_, i) => ({
+        metric: 'spend',
+        operator: 'GTE',
+        threshold: `12345678901234567890.${String(i).padStart(6, '0')}`,
+      })),
+    },
+    {
+      logic: 'OR',
+      conditions: Array.from({ length: 10 }, (_, i) => ({
+        metric: 'clicks',
+        operator: 'LT',
+        threshold: String(i),
+      })),
+    },
+  ]
+  vi.mocked(rulesApi.list).mockResolvedValue(page([value]))
+  await render()
+  const summary = wrapper.find('details.rule-condition-summary')
+  expect(summary.exists()).toBe(true)
+  expect(summary.find('summary').text()).toContain('根 OR')
+  expect(summary.find('summary').text()).toContain('组1 AND')
+  expect(summary.find('summary').text()).toContain('组2 OR')
+  expect(summary.find('summary').text()).toContain('20 条条件')
+  await summary.find('summary').trigger('click')
+  expect(summary.findAll('.rule-condition-leaf')).toHaveLength(20)
+  expect(summary.text()).toContain('spend GTE 12345678901234567890.000009')
+  expect(summary.text()).toContain('clicks LT 0')
+  expect(summary.text()).toContain('clicks LT 9')
+})
+it('列表显示完整账户范围快照并可进入详情，不臆造账户数', async () => {
+  await render()
+  const scope = wrapper.find('.rule-account-scope')
+  expect(scope.text()).toContain(id(4))
+  expect(scope.text()).not.toMatch(/\d+\s*(个|户|账户)/u)
+  await scope.find('button').trigger('click')
+  await flushPromises()
+  expect(rulesApi.get).toHaveBeenCalledWith(id(), expect.any(AbortSignal))
+  expect(wrapper.findComponent(ElDrawer).props('modelValue')).toBe(true)
+  expect(wrapper.text()).toContain('账户范围快照')
+})

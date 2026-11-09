@@ -34,3 +34,6 @@ tools/run_python_framework_checks.py -text
 
 # 验收原始日志和历史回执保留字节，不把测试输出空白当源码格式修改。
 docs/orbit/evidence/** -text -whitespace
+
+# Preserve original identity acceptance runner line endings.
+tools/identity_publication_checks.py -text

@@ -76,6 +76,7 @@ def test_runner_callable_signature_matches_parent_contract():
         "cipher",
         "prepare_browser_fixture",
         "include_inventory_boundaries",
+        "launch_draft_hook",
     ]
     assert signature.parameters["cipher"].kind is inspect.Parameter.KEYWORD_ONLY
     assert signature.parameters["prepare_browser_fixture"].default is False

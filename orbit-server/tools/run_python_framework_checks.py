@@ -248,6 +248,24 @@ def main() -> int:
         help="标签引用数与游标权限真实专项",
     )
     parser.add_argument(
+        "--taxonomy-internal-browser",
+        action="store_true",
+        help="标签元数据专项后等待人工真实UI检查",
+    )
+    parser.add_argument(
+        "--include-launch-identity-drafts", action="store_true", help="身份发布档附投放草稿身份闭环"
+    )
+    parser.add_argument(
+        "--material-taxonomy-metadata-only",
+        action="store_true",
+        help="仅人员与标签分类目录元数据，不配置对象存储/扫描，不覆盖上传验收",
+    )
+    parser.add_argument(
+        "--include-material-taxonomy-capabilities",
+        action="store_true",
+        help="标签分类独立动作能力真实专项，仅附目录元数据档与显式065迁移",
+    )
+    parser.add_argument(
         "--material-taxonomy-scope-only", action="store_true", help="仅初始化人员与标签范围专项"
     )
     parser.add_argument(
@@ -979,12 +997,19 @@ def main() -> int:
         )
     ):
         parser.error("指标窄读取仅允许独立运行及明确through046以上")
+    if args.include_launch_identity_drafts and (
+        not args.identity_publication_only or args.migration_through != 62
+    ):
+        parser.error("投放草稿身份专项仅附identity-publication-only through062")
     if args.identity_publication_only and (
         args.migration_through < 46
         or any(
             value is True
             and key
-            not in {"identity_publication_only", "browser", "include_identity_inventory_boundaries"}
+            not in {
+                "identity_publication_only", "browser", "include_identity_inventory_boundaries",
+                "include_launch_identity_drafts",
+            }
             for key, value in vars(args).items()
         )
     ):
@@ -1262,6 +1287,7 @@ def main() -> int:
         args.material_only,
         args.vendor_alias_only,
         args.material_taxonomy_scope_only,
+        args.material_taxonomy_metadata_only,
         args.material_lifecycle_only,
         args.channel_owners_only,
         args.reference_channel_only,
@@ -1594,6 +1620,26 @@ def main() -> int:
         or args.include_account_worker
     ):
         parser.error("渠道快速矩阵仅初始化专属人员和渠道权限，不能混入其他专项")
+    if args.taxonomy_internal_browser and not args.material_taxonomy_metadata_only:
+        parser.error("标签浏览器窗口只附独立目录元数据档")
+    if args.material_taxonomy_metadata_only:
+        permitted = {
+            "material_taxonomy_metadata_only", "include_material_taxonomy_capabilities",
+            "taxonomy_internal_browser",
+        }
+        if (
+            not args.include_material_taxonomy_capabilities
+            or args.material_scanner_manifest
+            or args.material_video_bin
+            or any(value is True and key not in permitted for key, value in vars(args).items())
+        ):
+            parser.error("标签目录元数据档不得混入上传、对象存储、扫描或其他专项")
+    if args.include_material_taxonomy_capabilities and (
+        not args.material_taxonomy_metadata_only
+        or args.migration_through != 62
+        or "065_material_taxonomy_menu_access.sql" not in args.migration_extra
+    ):
+        parser.error("标签独立能力专项仅附目录元数据档、through062及显式065菜单迁移")
     if args.include_material_taxonomy_scope and (
         args.migration_through < 16 or not args.include_materials
     ):
@@ -1935,9 +1981,21 @@ def main() -> int:
         result["command"] += " --include-channel-fields"
     if args.include_material_taxonomy_scope:
         result["command"] += " --include-material-taxonomy-scope"
+    if args.material_taxonomy_metadata_only:
+        result["command"] += " --material-taxonomy-metadata-only"
+        result["scope"] = (
+            "仅真实人员及标签分类目录元数据、范围计数、动作权限、CAS/幂等与引用保护；"
+            "无对象存储/扫描器，不覆盖素材上传、处理、扫描或投放"
+        )
+    if args.taxonomy_internal_browser:
+        result["command"] += " --taxonomy-internal-browser"
+    if args.include_material_taxonomy_capabilities:
+        result["command"] += " --include-material-taxonomy-capabilities"
     if args.material_taxonomy_scope_only:
         result["command"] += " --material-taxonomy-scope-only"
         result["scope"] = "仅初始化、真实人员与标签计数/游标范围，不代表完整后台回归"
+        if args.include_material_taxonomy_capabilities:
+            result["scope"] += "；含标签分类独立动作能力、CAS/幂等、引用保护"
     if args.include_vendor_alias:
         result["command"] += " --include-vendor-alias"
     if args.vendor_alias_only:
@@ -2143,6 +2201,9 @@ def main() -> int:
             "仅053完整身份发布/原GET与精确来源CAS；独立隔离能力发行技术样本，"
             "非真实Meta权威、列表摘要、浏览器或广告执行验收"
         )
+    if args.include_launch_identity_drafts:
+        result["command"] += " --include-launch-identity-drafts"
+        result["scope"] += "；含草稿身份当前发行引用闭环，无真实Meta请求或广告写入"
     if args.include_identity_inventory_boundaries:
         result["command"] += " --include-identity-inventory-boundaries"
         result["scope"] += "；附目标真实0/5000库存与5001拒绝全表不变，非Meta或500账户容量"
@@ -2352,13 +2413,13 @@ def main() -> int:
             )
         else:
             planned[-1:-1] = VENDOR_ALIAS_CASES
-    if args.include_material_taxonomy_scope:
+    if args.include_material_taxonomy_scope or args.material_taxonomy_metadata_only:
         from material_taxonomy_scope_checks import (
             MATERIAL_TAXONOMY_SCOPE_CASES,
             run_material_taxonomy_scope_checks,
         )
 
-        if args.material_taxonomy_scope_only:
+        if args.material_taxonomy_scope_only or args.material_taxonomy_metadata_only:
             planned = (
                 planned[:5]
                 + USER_CASES
@@ -2367,6 +2428,13 @@ def main() -> int:
             )
         else:
             planned[-1:-1] = MATERIAL_TAXONOMY_SCOPE_CASES
+    if args.include_material_taxonomy_capabilities:
+        from material_taxonomy_capability_checks import (
+            MATERIAL_TAXONOMY_CAPABILITY_CASES,
+            run_material_taxonomy_capability_checks,
+        )
+
+        planned[-1:-1] = MATERIAL_TAXONOMY_CAPABILITY_CASES
     if args.include_channel_fields:
         from channel_field_contract_checks import (
             CHANNEL_FIELD_CONTRACT_CASES,
@@ -2990,6 +3058,13 @@ def main() -> int:
         )
 
         planned = planned[:5] + list(IDENTITY_PUBLICATION_CASES) + ["pythonLogoutRevokesSameToken"]
+        if args.include_launch_identity_drafts:
+            from launch_identity_draft_checks import (
+                LAUNCH_IDENTITY_DRAFT_CASES,
+                LaunchIdentityDraftChecks,
+            )
+
+            planned[-1:-1] = LAUNCH_IDENTITY_DRAFT_CASES
         if args.include_identity_inventory_boundaries:
             from identity_publication_checks import IDENTITY_INVENTORY_BOUNDARY_CASES
 
@@ -3604,11 +3679,23 @@ app.add_middleware(DiagnosticProfile)
                 result["channel_owners_fixture"] = run_channel_owners_500_checks(
                     client, admin, headers, user_fixture, password, cache, cases
                 )
-            if args.material_taxonomy_scope_only:
+            if args.material_taxonomy_scope_only or args.material_taxonomy_metadata_only:
                 user_fixture = run_user_checks(client, admin, headers, password, cases)
                 run_material_taxonomy_scope_checks(
                     client, admin, headers, user_fixture, password, cache, cases
                 )
+                if args.include_material_taxonomy_capabilities:
+                    run_material_taxonomy_capability_checks(
+                        client, admin, headers, user_fixture, password, cache, cases
+                    )
+                if args.taxonomy_internal_browser:
+                    from rules_internal_browser_checkpoint import (
+                        run_rules_internal_browser_checkpoint,
+                    )
+
+                    result["taxonomy_internal_browser"] = run_rules_internal_browser_checkpoint(
+                        admin, database, password
+                    )
             if args.vendor_alias_only:
                 user_fixture = run_user_checks(client, admin, headers, password, cases)
                 run_vendor_alias_checks(
@@ -5174,6 +5261,9 @@ app.add_middleware(DiagnosticProfile)
                     cipher=CredentialCipher("fixture", values["ORBIT_PYTHON_SECRETS_KEYS"]),
                     prepare_browser_fixture=args.browser,
                     include_inventory_boundaries=args.include_identity_inventory_boundaries,
+                    launch_draft_hook=(
+                        LaunchIdentityDraftChecks() if args.include_launch_identity_drafts else None
+                    ),
                 )
             if args.metrics_scope_only:
                 result["metric_scope"] = run_metric_scope_checks(
@@ -5959,6 +6049,8 @@ app.add_middleware(DiagnosticProfile)
         ]
     if args.identity_publication_only:
         files += [ROOT / "tools/identity_publication_checks.py"]
+    if args.include_launch_identity_drafts:
+        files += [ROOT / "tools/launch_identity_draft_checks.py"]
     if args.identity_summary_only:
         files += [
             ROOT / "tools/identity_publication_summary_checks.py",
@@ -6022,8 +6114,12 @@ app.add_middleware(DiagnosticProfile)
         ]
     if args.include_vendor_alias:
         files += [ROOT / "tools/vendor_alias_checks.py"]
-    if args.include_material_taxonomy_scope:
+    if args.include_material_taxonomy_scope or args.material_taxonomy_metadata_only:
         files += [ROOT / "tools/material_taxonomy_scope_checks.py"]
+    if args.include_material_taxonomy_capabilities:
+        files += [ROOT / "tools/material_taxonomy_capability_checks.py"]
+    if args.taxonomy_internal_browser:
+        files += [ROOT / "tools/rules_internal_browser_checkpoint.py"]
     if args.include_channel_fields:
         files += [
             ROOT / "tools/channel_field_contract_checks.py",

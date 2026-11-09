@@ -368,3 +368,9 @@ it('500账户/万组/万广告均分页，末页完整且没有截断原model', 
   expect(wrapper!.props('campaigns')).toEqual(campaigns)
   expect(applied()).toBeUndefined()
 })
+it('身份提示准确区分草稿保存核验与执行能力，不沿用非空身份未接通提示', async () => {
+  await start()
+  expect(document.body.textContent).not.toContain('当前非空身份保存依赖尚未接通')
+  expect(document.body.textContent).toContain('保存时由服务端核验当前账户的主页、像素和应用引用')
+  expect(document.body.textContent).toContain('优化事件与商店URL仍须正式预检')
+})

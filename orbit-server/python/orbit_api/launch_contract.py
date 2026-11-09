@@ -338,9 +338,9 @@ def parse_plan(raw):
         bp = ("identity_bindings", bi)
         binding["account_id"] = uuid_field(binding["account_id"], (*bp, "account_id"))
         if (
-            binding["account_id"] not in value["account_ids"]
-            or binding["account_id"] in binding_ids
-        ):
+            not value.get("account_scope_snapshot_id")
+            and binding["account_id"] not in value["account_ids"]
+        ) or binding["account_id"] in binding_ids:
             fail((*bp, "account_id"), "身份账户须为已选且不得重复")
         binding_ids.add(binding["account_id"])
         _numeric(binding["page_id"], (*bp, "page_id"))

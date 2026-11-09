@@ -1,7 +1,7 @@
 <template>
   <section class="identity-bindings">
     <el-alert
-      title="身份资源是最近一次观察；草稿值仍须服务端逐账户能力核验，不能据此执行广告。当前非空身份保存依赖尚未接通。"
+      title="身份资源是最近一次观察；保存时由服务端核验当前账户的主页、像素和应用引用。优化事件与商店URL仍须正式预检，保存草稿不代表已获执行授权。"
       type="info"
       :closable="false"
     />

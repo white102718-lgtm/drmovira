@@ -3,7 +3,7 @@
     <div class="toolbar">
       <h2>素材库</h2>
       <div>
-        <el-button v-if="can('tags.read')" @click="taxonomyVisible = true">标签与分类</el-button
+        <el-button v-if="canTaxonomy" @click="taxonomyVisible = true">标签与分类</el-button
         ><el-button v-if="can('assets.upload')" type="primary" :disabled="!caps" @click="openUpload"
           >上传素材</el-button
         ><el-button
@@ -17,12 +17,13 @@
       </div>
     </div>
     <el-alert
+      v-if="can('assets.read')"
       title="当前按名称浏览。广告指标汇总尚未接入，花费、点击、展示、ROAS、转化和使用次数为未知；不以0代替。"
       type="info"
       :closable="false"
       show-icon
     />
-    <el-form :inline="true" class="filters" @submit.prevent="reload">
+    <el-form v-if="can('assets.read')" :inline="true" class="filters" @submit.prevent="reload">
       <el-form-item label="名称"
         ><el-input
           v-model="q"
@@ -81,8 +82,15 @@
         ><el-button :disabled="loading" @click="reset">重置</el-button></el-form-item
       >
     </el-form>
-    <el-alert v-if="error" :title="error" type="error" :closable="false" show-icon />
+    <el-alert
+      v-if="error && can('assets.read')"
+      :title="error"
+      type="error"
+      :closable="false"
+      show-icon
+    />
     <el-table
+      v-if="can('assets.read')"
       v-loading="loading"
       :data="items"
       row-key="id"
@@ -151,7 +159,7 @@
         ></el-table-column
       >
     </el-table>
-    <div class="pagination">
+    <div v-if="can('assets.read')" class="pagination">
       <el-select v-model="pageSize" aria-label="每页素材数量" style="width: 120px" @change="reload"
         ><el-option
           v-for="n in [20, 50, 100, 200]"
@@ -164,6 +172,7 @@
       ><el-button :disabled="loading" @click="reload">刷新处理状态</el-button>
     </div>
     <el-drawer
+      v-if="can('assets.read')"
       v-model="detailVisible"
       title="素材详情与引用关系"
       size="min(780px, 100%)"
@@ -248,6 +257,7 @@
       </template>
     </el-drawer>
     <el-dialog
+      v-if="can('assets.read')"
       v-model="editorVisible"
       title="编辑素材元数据"
       :style="{ maxWidth: 'calc(100vw - 24px)' }"
@@ -284,7 +294,7 @@
       >
     </el-dialog>
     <MaterialUpload
-      v-if="uploadVisible && caps"
+      v-if="can('assets.read') && uploadVisible && caps"
       :key="uploadEpoch"
       v-model="uploadVisible"
       :csrf="caps.csrf_token"
@@ -293,17 +303,17 @@
       :default-category="caps.default_category_id"
       @completed="reload"
     />
+    <p v-if="!can('assets.read')">当前没有素材读取权限；已授权的标签分类管理可独立使用。</p>
     <MaterialTaxonomyPanel
-      v-if="caps"
       v-model="taxonomyVisible"
-      :csrf="caps.csrf_token"
       :can="can"
-      @changed="loadTaxonomy"
+      :context-key="JSON.stringify([user.id, user.permissions])"
+      @changed="taxonomyChanged"
     />
   </div>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import useUserStore from '@/store/modules/user'
 import { orbitAuthHeaders, orbitCredentials } from '@/api/orbit/authentication'
@@ -320,6 +330,18 @@ import MaterialTaxonomyPanel from './MaterialTaxonomy.vue'
 const user = useUserStore()
 const can = (permission: string) =>
   user.permissions.includes('*:*:*') || user.permissions.includes(permission)
+const canTaxonomy = computed(() =>
+  ['tags.read', 'tags.create', 'tags.edit', 'tags.archive'].some(can),
+)
+async function taxonomyChanged() {
+  if (can('assets.read')) {
+    try {
+      await loadTaxonomy()
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : '标签分类读取失败'
+    }
+  }
+}
 const states: Record<string, string> = {
   INITIATED: '等待上传',
   UPLOADING: '上传中',
@@ -647,6 +669,7 @@ async function archiveSelected() {
   }
 }
 onMounted(async () => {
+  if (!can('assets.read')) return
   try {
     caps.value = await materialApi.capabilities()
     await loadTaxonomy()

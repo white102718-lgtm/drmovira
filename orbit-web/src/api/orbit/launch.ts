@@ -1,4 +1,6 @@
-import { referenceRequest, writeHeaders } from './references'
+import { referenceRequest, writeHeaders, ReferenceApiError } from './references'
+import { orbitAuthHeaders, orbitCredentials } from './authentication'
+import { parsePlanHttpFieldError, type PlanHttpFieldError } from './launch-validation'
 
 export interface PlanOwnership {
   owner_user_id: string
@@ -109,6 +111,77 @@ export interface CollectionPage<T> {
   scope_version: number
   data_as_of: string
 }
+/** 草稿保存保留服务端字段Pointer；其余目录请求继续使用原客户端。 */
+export class LaunchDraftError extends ReferenceApiError {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    public field_errors: PlanHttpFieldError[] = [],
+  ) {
+    super(status, code, message)
+  }
+}
+async function saveDraftRequest(path: string, init: RequestInit): Promise<LaunchPlan> {
+  const context = JSON.stringify([orbitCredentials(), orbitAuthHeaders()]),
+    controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
+  try {
+    let response: Response
+    try {
+      response = await fetch(`${import.meta.env.VITE_APP_BASE_API}/api/v1${path}`, {
+        ...init,
+        signal: controller.signal,
+        credentials: orbitCredentials(),
+        cache: 'no-store',
+        headers: orbitAuthHeaders({ 'Content-Type': 'application/json', ...init.headers }),
+      })
+    } catch {
+      throw new LaunchDraftError(
+        0,
+        'NETWORK_UNAVAILABLE',
+        '草稿保存连接中断或超时，请重试原请求确认结果',
+      )
+    }
+    let value
+    try {
+      value = await response.json()
+    } catch {
+      throw new LaunchDraftError(502, 'INVALID_RESPONSE', '草稿响应未能确认，请重试原请求')
+    }
+    if (context !== JSON.stringify([orbitCredentials(), orbitAuthHeaders()]))
+      throw new LaunchDraftError(
+        502,
+        'SESSION_CONTEXT_CHANGED',
+        '认证上下文已变化，保存结果未能确认',
+      )
+    if (!response.ok || (typeof value?.code === 'number' && value.code !== 200)) {
+      let fields: PlanHttpFieldError[] = []
+      try {
+        if (value?.field_errors !== undefined) {
+          if (!Array.isArray(value.field_errors) || value.field_errors.length > 100)
+            throw new Error()
+          fields = value.field_errors.map(parsePlanHttpFieldError)
+        }
+      } catch {
+        throw new LaunchDraftError(
+          502,
+          'INVALID_RESPONSE',
+          '草稿错误响应字段未能确认，请保留原请求',
+        )
+      }
+      throw new LaunchDraftError(
+        response.status,
+        value?.code ?? 'REQUEST_FAILED',
+        value?.message ?? value?.msg ?? '草稿保存失败',
+        fields,
+      )
+    }
+    return value as LaunchPlan
+  } finally {
+    clearTimeout(timeout)
+  }
+}
 export const launchApi = {
   capabilities: () => referenceRequest<LaunchCapabilities>('/launch-plans/capabilities'),
   owners: (cursor = '') =>
@@ -124,7 +197,7 @@ export const launchApi = {
     key: string,
     existing?: Pick<LaunchPlan, 'id' | 'revision'>,
   ) =>
-    referenceRequest<LaunchPlan>(
+    saveDraftRequest(
       existing ? `/launch-plans/${encodeURIComponent(existing.id)}` : '/launch-plans',
       {
         method: existing ? 'PUT' : 'POST',

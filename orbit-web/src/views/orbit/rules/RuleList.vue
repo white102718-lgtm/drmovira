@@ -83,6 +83,65 @@
     <p v-if="loading" role="status">正在读取规则…</p>
     <el-table :data="page?.items ?? []" row-key="id" empty-text="暂无已读取的规则">
       <el-table-column prop="name" label="规则名称" min-width="170" />
+      <el-table-column label="条件摘要" min-width="270">
+        <template #default="{ row }">
+          <details class="rule-condition-summary">
+            <summary>
+              <span
+                >根 {{ row.logic }} ·
+                {{
+                  row.groups.reduce(
+                    (count: number, group: Rule['groups'][number]) =>
+                      count + group.conditions.length,
+                    0,
+                  )
+                }}
+                条条件</span
+              >
+              <small
+                >{{
+                  row.groups
+                    .map(
+                      (group: Rule['groups'][number], index: number) =>
+                        `组${index + 1} ${group.logic}`,
+                    )
+                    .join(' · ')
+                }}
+                · 展开查看</small
+              >
+            </summary>
+            <div
+              v-for="(group, groupIndex) in row.groups"
+              :key="groupIndex"
+              class="rule-condition-group"
+            >
+              <strong>组{{ groupIndex + 1 }} · {{ group.logic }}</strong>
+              <p
+                v-for="(leaf, leafIndex) in group.conditions"
+                :key="leafIndex"
+                class="rule-condition-leaf"
+              >
+                {{ leaf.metric }} {{ leaf.operator }} {{ leaf.threshold }}
+              </p>
+            </div>
+          </details>
+        </template>
+      </el-table-column>
+      <el-table-column label="账户范围" min-width="245">
+        <template #default="{ row }">
+          <div class="rule-account-scope">
+            <small>范围快照 · 查看详情</small>
+            <el-button
+              link
+              type="primary"
+              :aria-label="`查看账户范围 ${row.scope_snapshot_id}`"
+              :disabled="!!intent || busy || listMetadataStale"
+              @click="openDetail(row.id)"
+              >{{ row.scope_snapshot_id }}</el-button
+            >
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" width="100"
         ><template #default="{ row }">{{
           stateLabel[row.state as RuleState]
@@ -1087,5 +1146,40 @@ onBeforeUnmount(() => {
   .schedule {
     grid-template-columns: 1fr;
   }
+}
+
+/* 原条件逐项保真；默认摘要收拢，键盘可展开全部条件，不把缺失范围数量猜成零。 */
+.rule-condition-summary {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.rule-condition-summary summary {
+  cursor: pointer;
+}
+.rule-condition-summary summary small,
+.rule-account-scope small {
+  display: block;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+.rule-condition-group {
+  margin-top: 8px;
+}
+.rule-condition-group strong {
+  font-weight: 500;
+}
+.rule-condition-leaf {
+  margin: 2px 0;
+  font-variant-numeric: tabular-nums;
+}
+.rule-account-scope :deep(.el-button) {
+  height: auto;
+  padding: 3px 0;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.5;
+}
+.rule-account-scope :deep(.el-button span) {
+  overflow-wrap: anywhere;
 }
 </style>

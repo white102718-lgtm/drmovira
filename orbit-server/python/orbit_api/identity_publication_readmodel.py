@@ -20,24 +20,32 @@ from orbit_api.meta_observation_registry import database_time, one
 
 
 class IdentityPublicationReadmodel:
-    async def get(self, session, actor, account_id):
+    async def get(self, session, actor, account_id, *, prepared_sources=None):
         account_id = identifier(account_id, "/id")
         current = await require_business_access(session, actor, "accounts", "accounts.read")
         p = {"tenant": current.tenant_id, "account": account_id}
         # 仅发现需要锁的来源ID，不对客户端返回；真实授权/版本均后续当前锁读。
-        probe = await one(
-            session,
-            "SELECT p.evidence_id,p.release_id FROM orbit_account_identity_head h "
-            "JOIN orbit_account_identity_history v ON v.tenant_id=h.tenant_id "
-            "AND v.account_id=h.account_id AND v.revision=h.revision "
-            "JOIN orbit_identity_publication_provenance p ON p.tenant_id=v.tenant_id "
-            "AND p.evidence_id=v.evidence_id WHERE h.tenant_id=:tenant AND h.account_id=:account",
-            p,
-        )
-        # 无可信来源只核对象可见性，不以空releaseID先查来源，也不在clock之后补来源锁。
-        configurations, release = ([], None)
-        if probe is not None:
-            configurations, release = await lock_sources(session, current, probe["release_id"])
+        if prepared_sources is None:
+            probe = await one(
+                session,
+                "SELECT p.evidence_id,p.release_id FROM orbit_account_identity_head h "
+                "JOIN orbit_account_identity_history v ON v.tenant_id=h.tenant_id "
+                "AND v.account_id=h.account_id AND v.revision=h.revision "
+                "JOIN orbit_identity_publication_provenance p ON p.tenant_id=v.tenant_id "
+                "AND p.evidence_id=v.evidence_id WHERE h.tenant_id=:tenant "
+                "AND h.account_id=:account",
+                p,
+            )
+            # 无可信来源只核对象可见性，不以空releaseID先查来源，也不在clock之后补来源锁。
+            configurations, release = ([], None)
+            if probe is not None:
+                configurations, release = await lock_sources(session, current, probe["release_id"])
+        else:
+            # 仅内部草稿引用调用；来源已在任何业务clock之前加锁。
+            # 后续当前head与probe不一致仍失败，不为新来源补锁。
+            probe = prepared_sources["probe"]
+            configurations = prepared_sources["configurations"]
+            release = prepared_sources["release"]
         await clock(session, current)
         account = (await current_accounts(session, current, [account_id]))[0]
         if (

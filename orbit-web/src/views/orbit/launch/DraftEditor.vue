@@ -16,6 +16,18 @@
         {{ locationNotice }}
       </p>
       <el-alert v-if="error" :title="error" type="error" :closable="false" />
+      <div v-if="saveFieldErrors.length" class="save-field-errors" role="alert">
+        <p v-for="(field, index) in saveFieldErrors" :key="index">
+          {{ field.message }} · {{ field.path }}
+          <el-button
+            link
+            type="primary"
+            :disabled="locked || signature !== failedDraftSignature"
+            @click="locateSaveError(field.path)"
+            >定位字段</el-button
+          >
+        </p>
+      </div>
       <el-alert v-if="cacheWarning" :title="cacheWarning" type="warning" :closable="false" />
       <el-alert
         v-if="uncertain"
@@ -213,6 +225,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import {
   launchApi,
+  LaunchDraftError,
   type LaunchCapabilities,
   type LaunchPlan,
   type OwnerOption,
@@ -220,6 +233,7 @@ import {
   type CampaignConfig,
 } from '@/api/orbit/launch'
 import { ReferenceApiError } from '@/api/orbit/references'
+import type { PlanHttpFieldError } from '@/api/orbit/launch-validation'
 import { cacheDraft, clearDraftRecovery, type DraftRecovery } from '@/api/orbit/launch-recovery'
 import {
   cloneValue,
@@ -276,6 +290,28 @@ const editorFields = ref<HTMLElement>(),
   identityBindings = ref<InstanceType<typeof PlanIdentityBindings>>(),
   locationNotice = ref('')
 const locationFocusTrigger = ref(0)
+const saveFieldErrors = ref<PlanHttpFieldError[]>([])
+const failedDraftSignature = ref('')
+const localFocus = ref<{ path: string; segments: string[]; revision: number; signature: string }>()
+function locateSaveError(path: string) {
+  if (
+    locked.value ||
+    signature.value !== failedDraftSignature.value ||
+    !path.startsWith('/') ||
+    /~(?![01])/u.test(path)
+  )
+    return
+  localFocus.value = {
+    path,
+    segments: path
+      .slice(1)
+      .split('/')
+      .map((x) => x.replaceAll('~1', '/').replaceAll('~0', '~')),
+    revision: existing.value?.revision ?? 0,
+    signature: failedDraftSignature.value,
+  }
+}
+
 const locked = computed(() => saving.value || uncertain.value || accountScopeLocked.value)
 const signature = computed(() => JSON.stringify(form.value))
 const accountCount = computed(() =>
@@ -317,6 +353,8 @@ watch(
   async (open) => {
     if (!open || !props.capabilities) return
     error.value = ''
+    saveFieldErrors.value = []
+    localFocus.value = undefined
     cacheWarning.value = ''
     pending = null
     uncertain.value = false
@@ -551,6 +589,9 @@ async function send() {
   const wasUncertain = uncertain.value
   saving.value = true
   error.value = ''
+  saveFieldErrors.value = []
+  localFocus.value = undefined
+  const submittedSignature = signature.value
   try {
     const result = await launchApi.save(
       cloneValue(pending.body),
@@ -587,7 +628,22 @@ async function send() {
         !definitiveDependency &&
         (cause.status === 0 || cause.status >= 500))
     if (!uncertain.value) pending = null
-    error.value = cause instanceof Error ? cause.message : '保存失败，当前配置未保存'
+    if (cause instanceof LaunchDraftError) {
+      saveFieldErrors.value = cause.field_errors
+      failedDraftSignature.value = submittedSignature
+    }
+    const environmentUnavailable =
+      cause instanceof LaunchDraftError &&
+      cause.status === 503 &&
+      cause.field_errors.some(
+        (field) =>
+          field.path === '/profile_binding_ids' || field.path.startsWith('/profile_binding_ids/'),
+      )
+    error.value = environmentUnavailable
+      ? '账户环境绑定（profile_binding_ids）核验尚未接入；当前身份输入已保留，未保存成功。'
+      : cause instanceof Error
+        ? cause.message
+        : '保存失败，当前配置未保存'
     remember()
   } finally {
     saving.value = false
@@ -629,7 +685,8 @@ onMounted(() => window.addEventListener('beforeunload', protectUnknownScope))
 onBeforeUnmount(() => window.removeEventListener('beforeunload', protectUnknownScope))
 let locationGeneration = 0
 watch(
-  () => [props.modelValue, props.focusField, locationFocusTrigger.value] as const,
+  () =>
+    [props.modelValue, localFocus.value ?? props.focusField, locationFocusTrigger.value] as const,
   async ([open, request]) => {
     const generation = ++locationGeneration
     locationNotice.value = ''
@@ -641,7 +698,14 @@ watch(
       locationNotice.value = `${message} 原路径：${request.path}`
       void nextTick(() => locationAnchor.value?.focus())
     }
-    if (locked.value || props.recovery || request.revision !== existing.value?.revision) {
+    const fromSave = 'signature' in request
+    if (
+      locked.value ||
+      (fromSave
+        ? request.signature !== signature.value ||
+          request.revision !== (existing.value?.revision ?? 0)
+        : props.recovery || request.revision !== existing.value?.revision)
+    ) {
       fail('错误来源版本或编辑意图已变化，未按旧索引定位。')
       return
     }
