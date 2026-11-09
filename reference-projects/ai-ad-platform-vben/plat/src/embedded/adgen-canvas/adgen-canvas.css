@@ -1,0 +1,1476 @@
+.adgen-canvas-scope,
+.adgen-canvas-scope > div {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+/* 挂到 body 的右键菜单仍要吃到白色主题变量，但不能铺满全屏挡住画布。 */
+.adgen-canvas-floating-portal.adgen-canvas-scope,
+.adgen-canvas-floating-portal.adgen-canvas-scope > div {
+  height: 0;
+  min-height: 0;
+  overflow: visible;
+  pointer-events: none;
+  width: 0;
+}
+
+.adgen-canvas-floating-portal [role='menu'] {
+  pointer-events: auto;
+}
+
+.adgen-canvas-scope .canvas-theme-shell {
+  --canvas-accent-hsl: var(--ui-primary-hsl, 262 83% 58%);
+  --canvas-accent-hover-hsl: var(--ui-primary-hover-hsl, 263 70% 50%);
+  --canvas-accent-soft-hsl: var(--ui-primary-soft-hsl, 250 100% 97%);
+  --canvas-accent: hsl(var(--canvas-accent-hsl));
+  --canvas-accent-hover: hsl(var(--canvas-accent-hover-hsl));
+  --canvas-accent-soft: hsl(var(--canvas-accent-soft-hsl));
+  --canvas-accent-soft-alpha: hsl(var(--canvas-accent-hsl) / 0.14);
+  --canvas-accent-border: hsl(var(--canvas-accent-hsl) / 0.36);
+  --canvas-accent-ring: hsl(var(--canvas-accent-hsl) / 0.3);
+  --canvas-floating-background: rgba(255, 255, 255, 0.96);
+  --canvas-floating-border: rgba(203, 213, 225, 0.82);
+  --canvas-floating-foreground: #0f172a;
+  --canvas-floating-muted: #64748b;
+  --canvas-overlay-background: rgba(15, 23, 42, 0.18);
+  /* 拖线落点不用主色：当前主色接近黑，叠在媒体节点上几乎看不见。 */
+  --canvas-drop-target: hsl(var(--link, 221.2 83.2% 53.3%));
+  --canvas-drop-target-halo: #fff;
+  --canvas-drop-target-track: hsl(var(--link, 221.2 83.2% 53.3%) / 0.32);
+  --canvas-connection-pulse: #4aa3ff;
+  height: 100%;
+  color-scheme: light;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .canvas-title-editor,
+.adgen-canvas-scope .canvas-theme-shell .canvas-title-editor:hover,
+.adgen-canvas-scope .canvas-theme-shell .canvas-title-editor:focus,
+.adgen-canvas-scope .canvas-theme-shell .canvas-title-editor:focus-visible {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+.adgen-canvas-scope
+  .canvas-theme-shell
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not(
+    [type='file']
+  ),
+.adgen-canvas-scope .canvas-theme-shell textarea,
+.adgen-canvas-scope .canvas-theme-shell select {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+.adgen-canvas-scope
+  .canvas-theme-shell
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not(
+    [type='file']
+  ):focus,
+.adgen-canvas-scope .canvas-theme-shell textarea:focus,
+.adgen-canvas-scope .canvas-theme-shell select:focus {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+/*
+ * The canvas keeps its own light/dark background switch. Only interactive
+ * accents inherit the host application's selected palette.
+ */
+.adgen-canvas-scope .canvas-theme-shell .canvas-node-type-icon {
+  color: var(--canvas-accent) !important;
+  background-color: var(--canvas-accent-soft) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .canvas-accent-background,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-500,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-600,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-700 {
+  background-color: var(--canvas-accent) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .hover\:bg-violet-500:hover,
+.adgen-canvas-scope .canvas-theme-shell .hover\:bg-violet-600:hover,
+.adgen-canvas-scope .canvas-theme-shell .hover\:bg-violet-700:hover {
+  background-color: var(--canvas-accent-hover) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .hover\:bg-violet-50:hover,
+.adgen-canvas-scope .canvas-theme-shell .hover\:bg-violet-100:hover {
+  background-color: var(--canvas-accent-soft) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-50,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-50\/55,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-50\/60,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-50\/70,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-100,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-500\/10,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-500\/15,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-500\/20,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-400\/5,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-400\/10,
+.adgen-canvas-scope .canvas-theme-shell .bg-violet-400\/15 {
+  background-color: var(--canvas-accent-soft-alpha) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .text-violet-200,
+.adgen-canvas-scope .canvas-theme-shell .text-violet-300,
+.adgen-canvas-scope .canvas-theme-shell .text-violet-400,
+.adgen-canvas-scope .canvas-theme-shell .text-violet-500,
+.adgen-canvas-scope .canvas-theme-shell .text-violet-600,
+.adgen-canvas-scope .canvas-theme-shell .text-violet-700,
+.adgen-canvas-scope .canvas-theme-shell .text-violet-800 {
+  color: var(--canvas-accent) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .border-violet-100,
+.adgen-canvas-scope .canvas-theme-shell .border-violet-200,
+.adgen-canvas-scope .canvas-theme-shell .border-violet-300,
+.adgen-canvas-scope .canvas-theme-shell .border-violet-400,
+.adgen-canvas-scope .canvas-theme-shell .border-violet-400\/30,
+.adgen-canvas-scope .canvas-theme-shell .border-violet-400\/45,
+.adgen-canvas-scope .canvas-theme-shell .border-violet-500 {
+  border-color: var(--canvas-accent-border) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .ring-violet-100\/80,
+.adgen-canvas-scope .canvas-theme-shell .ring-violet-200,
+.adgen-canvas-scope .canvas-theme-shell .focus\:ring-violet-300,
+.adgen-canvas-scope .canvas-theme-shell .focus\:ring-violet-400,
+.adgen-canvas-scope .canvas-theme-shell .focus-visible\:ring-violet-400 {
+  --tw-ring-color: var(--canvas-accent-ring) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .accent-violet-600 {
+  accent-color: var(--canvas-accent);
+}
+
+.canvas-node-generating-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 28;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #fff;
+  background: rgb(2 6 23 / 72%);
+  border-radius: inherit;
+  backdrop-filter: blur(10px);
+}
+
+.canvas-node-generating-overlay__label {
+  max-width: calc(100% - 24px);
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .canvas-node-selected {
+  border-color: var(--canvas-accent-border) !important;
+  box-shadow:
+    0 20px 54px hsl(var(--canvas-accent-hsl) / 0.2),
+    0 0 0 4px var(--canvas-accent-soft-alpha) !important;
+}
+
+/* The chat launcher is portalled to document.body, outside canvas scope. */
+.canvas-theme-accent-portal {
+  --canvas-portal-accent: hsl(var(--ui-primary-hsl, 262 83% 58%));
+  --canvas-portal-accent-hover: hsl(var(--ui-primary-hover-hsl, 263 70% 50%));
+  --canvas-portal-accent-soft: hsl(var(--ui-primary-hsl, 262 83% 58%) / 0.32);
+  color: var(--canvas-portal-accent) !important;
+  --tw-ring-color: var(--canvas-portal-accent-soft) !important;
+}
+
+.canvas-theme-accent-portal[data-chat-open='true'] {
+  color: white !important;
+  background-color: var(--canvas-portal-accent) !important;
+  border-color: var(--canvas-portal-accent) !important;
+}
+
+.canvas-theme-accent-portal[data-chat-open='true']:hover {
+  background-color: var(--canvas-portal-accent-hover) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark {
+  --canvas-floating-background: rgba(14, 18, 27, 0.96);
+  --canvas-floating-border: rgba(148, 163, 184, 0.22);
+  --canvas-floating-foreground: #e8edf5;
+  --canvas-floating-muted: #aab4c3;
+  --canvas-overlay-background: rgba(2, 6, 23, 0.58);
+  --canvas-connection-pulse: #6ed0ff;
+  color-scheme: dark;
+  background-color: #080b11 !important;
+  color: #e5e7eb !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark > header {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark main > aside {
+  background-color: rgba(14, 18, 27, 0.96) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark main > section {
+  background-color: #0a0e15 !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .bg-white,
+.adgen-canvas-scope .canvas-theme-dark .bg-white\/80,
+.adgen-canvas-scope .canvas-theme-dark .bg-white\/85,
+.adgen-canvas-scope .canvas-theme-dark .bg-white\/90,
+.adgen-canvas-scope .canvas-theme-dark .bg-white\/95 {
+  background-color: rgba(20, 25, 36, 0.96) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .bg-slate-50,
+.adgen-canvas-scope .canvas-theme-dark .bg-slate-50\/70,
+.adgen-canvas-scope .canvas-theme-dark .bg-slate-50\/80,
+.adgen-canvas-scope .canvas-theme-dark .bg-slate-50\/90,
+.adgen-canvas-scope .canvas-theme-dark .bg-slate-100 {
+  background-color: #171d28 !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .bg-slate-200,
+.adgen-canvas-scope .canvas-theme-dark .bg-slate-300 {
+  background-color: #303949 !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .text-slate-900,
+.adgen-canvas-scope .canvas-theme-dark .text-slate-800,
+.adgen-canvas-scope .canvas-theme-dark .text-slate-700 {
+  color: #e8edf5 !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .text-slate-600,
+.adgen-canvas-scope .canvas-theme-dark .text-slate-500 {
+  color: #aab4c3 !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .text-slate-400,
+.adgen-canvas-scope .canvas-theme-dark .text-slate-300 {
+  color: #7f8b9d !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .border-slate-200,
+.adgen-canvas-scope .canvas-theme-dark .border-slate-200\/80,
+.adgen-canvas-scope .canvas-theme-dark .border-white\/80,
+.adgen-canvas-scope .canvas-theme-dark .border-white\/90 {
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-50,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-50\/60,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-50\/70,
+.adgen-canvas-scope .canvas-theme-dark .bg-fuchsia-50,
+.adgen-canvas-scope .canvas-theme-dark .bg-fuchsia-50\/80,
+.adgen-canvas-scope .canvas-theme-dark .bg-pink-50 {
+  background-color: rgba(124, 58, 237, 0.18) !important;
+}
+
+/* Keep palette accents intact when the canvas itself is switched to dark. */
+.adgen-canvas-scope .canvas-theme-dark .canvas-node-type-icon {
+  color: var(--canvas-accent) !important;
+  background-color: var(--canvas-accent-soft-alpha) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-50,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-50\/55,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-50\/60,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-50\/70,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-100,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-500\/10,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-500\/15,
+.adgen-canvas-scope .canvas-theme-dark .bg-violet-500\/20 {
+  background-color: var(--canvas-accent-soft-alpha) !important;
+}
+
+.adgen-canvas-scope .canvas-theme-dark input,
+.adgen-canvas-scope .canvas-theme-dark textarea,
+.adgen-canvas-scope .canvas-theme-dark select,
+.adgen-canvas-scope .canvas-theme-dark option {
+  color-scheme: dark;
+}
+
+.adgen-canvas-scope .canvas-theme-shell [role='menu'],
+.adgen-canvas-scope
+  .canvas-theme-shell
+  [role='dialog']:not(.canvas-media-preview-overlay):not(
+    .canvas-cloud-library-overlay
+  ):not(.canvas-history-overlay) {
+  color: var(--canvas-floating-foreground) !important;
+  background: var(--canvas-floating-background) !important;
+  border-color: var(--canvas-floating-border) !important;
+}
+
+.adgen-canvas-scope
+  .canvas-theme-shell
+  [role='menu']
+  .canvas-menu-option-active {
+  color: #fff !important;
+}
+
+.adgen-canvas-scope
+  .canvas-theme-shell:not(.canvas-theme-dark)
+  [role='menu']
+  .text-white,
+.adgen-canvas-scope
+  .canvas-theme-shell:not(.canvas-theme-dark)
+  [role='dialog']:not(.canvas-media-preview-overlay):not(
+    .canvas-history-overlay
+  )
+  .text-white,
+.adgen-canvas-scope
+  .canvas-theme-shell:not(.canvas-theme-dark)
+  .canvas-media-preview-header
+  .text-white {
+  color: var(--canvas-floating-foreground) !important;
+}
+
+.adgen-canvas-scope
+  .canvas-theme-shell:not(.canvas-theme-dark)
+  [role='menu']
+  .text-slate-300,
+.adgen-canvas-scope
+  .canvas-theme-shell:not(.canvas-theme-dark)
+  [role='menu']
+  .text-slate-400,
+.adgen-canvas-scope
+  .canvas-theme-shell:not(.canvas-theme-dark)
+  [role='dialog']
+  .text-slate-400 {
+  color: var(--canvas-floating-muted) !important;
+}
+
+.adgen-canvas-scope
+  .canvas-theme-shell
+  .canvas-cloud-library-overlay[role='dialog'] {
+  background: var(--canvas-overlay-background) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.adgen-canvas-scope .canvas-theme-shell .canvas-history-overlay[role='dialog'] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.adgen-canvas-scope .canvas-history-tile-mask {
+  background: rgba(15, 23, 42, 0.28) !important;
+}
+
+.adgen-canvas-scope .canvas-history-tile-mask button {
+  color: #fff !important;
+}
+
+/* 叠在生成图上的操作芯片：跟画布主题走，不用白字半透明，避免白底图上看不清。 */
+.adgen-canvas-scope .canvas-media-tile-action {
+  display: flex;
+  height: 28px;
+  cursor: pointer;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--canvas-floating-border) !important;
+  border-radius: 6px;
+  background: var(--canvas-floating-background) !important;
+  padding: 0 8px;
+  color: var(--canvas-floating-foreground) !important;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 14%),
+    0 6px 16px rgb(15 23 42 / 10%);
+  backdrop-filter: blur(10px);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.adgen-canvas-scope .canvas-media-tile-action--pill {
+  border-radius: 999px;
+  padding: 0 10px;
+}
+
+.adgen-canvas-scope .canvas-media-tile-action svg {
+  flex-shrink: 0;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+.adgen-canvas-scope .canvas-media-tile-action:hover {
+  border-color: var(--canvas-accent-border) !important;
+  background: var(--canvas-accent-soft) !important;
+  color: var(--canvas-accent) !important;
+}
+
+.adgen-canvas-scope .canvas-media-tile-action:focus-visible {
+  outline: 2px solid var(--canvas-accent);
+  outline-offset: 2px;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .canvas-media-tile-action {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 35%),
+    0 8px 18px rgb(0 0 0 / 28%);
+}
+
+.adgen-canvas-scope .canvas-theme-dark .canvas-media-tile-action:hover {
+  background: var(--canvas-accent-soft-alpha) !important;
+}
+
+/* 画布浮动条挂到 body，不能跟节点一样被挤窄，否则中文会按字折成一列。 */
+.canvas-floating-toolbar {
+  width: max-content;
+  max-width: none;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.canvas-floating-toolbar button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.canvas-grid-split-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  min-width: 188px;
+  padding: 6px;
+  color: var(--canvas-floating-foreground, #0f172a);
+  background: var(--canvas-floating-background, rgb(255 255 255 / 0.96));
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 16%);
+}
+
+.canvas-grid-split-menu--compact {
+  right: 0;
+  left: auto;
+  top: calc(100% + 6px);
+  min-width: 88px;
+}
+
+.canvas-grid-split-menu__item {
+  display: flex;
+  width: 100%;
+  height: 36px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 0 10px;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.canvas-grid-split-menu__item:hover,
+.canvas-grid-split-menu__item.is-active {
+  background: var(--canvas-accent-soft, #f5f3ff);
+  color: var(--canvas-accent, #4f46e5);
+}
+
+.canvas-grid-split-menu__divider {
+  display: block;
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--canvas-floating-border, rgb(226 232 240));
+}
+
+.canvas-grid-split-custom {
+  position: relative;
+}
+
+.canvas-grid-split-custom__label {
+  pointer-events: none;
+}
+
+.canvas-grid-split-custom__panel {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  z-index: 31;
+  display: none;
+  width: 176px;
+  padding: 12px;
+  color: var(--canvas-floating-foreground, #0f172a);
+  background: var(--canvas-floating-background, rgb(255 255 255 / 0.96));
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 16%);
+}
+
+.canvas-grid-split-custom:hover .canvas-grid-split-custom__panel,
+.canvas-grid-split-custom:focus-within .canvas-grid-split-custom__panel {
+  display: block;
+}
+
+.canvas-grid-split-custom__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.canvas-grid-split-custom__head strong {
+  font-weight: 600;
+  color: var(--canvas-floating-muted, #64748b);
+}
+
+.canvas-grid-split-custom__grid {
+  display: grid;
+  gap: 4px;
+}
+
+.canvas-grid-split-custom__cell {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  border-radius: 4px;
+  background: transparent;
+  padding: 0;
+}
+
+.canvas-grid-split-custom__cell.is-active {
+  border-color: var(--canvas-accent-border, rgb(79 70 229 / 0.36));
+  background: var(--canvas-accent, #4f46e5);
+}
+
+.canvas-grid-split-overlay {
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: inherit;
+  background: rgb(15 23 42 / 18%);
+}
+
+.canvas-grid-split-hint {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  margin: 0;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgb(15 23 42 / 55%);
+  pointer-events: none;
+}
+
+.canvas-grid-split-cell {
+  position: relative;
+  display: flex;
+  pointer-events: none;
+  cursor: pointer;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 38%);
+  background: transparent;
+  padding: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgb(15 23 42 / 55%);
+  user-select: none;
+}
+
+.canvas-grid-split-cell.is-selected {
+  border-color: var(--canvas-accent, #4f46e5);
+  background: hsl(var(--canvas-accent-hsl, 239 84% 67%) / 0.18);
+  box-shadow: inset 0 0 0 1px var(--canvas-accent, #4f46e5);
+}
+
+.canvas-grid-split-actionbar {
+  color: var(--canvas-floating-foreground, #0f172a);
+  background: var(--canvas-floating-background, rgb(255 255 255 / 0.96));
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  box-shadow: 0 12px 36px rgb(15 23 42 / 16%);
+}
+
+.canvas-grid-split-actionbar__divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 2px;
+  background: var(--canvas-floating-border, rgb(226 232 240));
+}
+
+.canvas-grid-split-actionbar__btn {
+  display: flex;
+  height: 36px;
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  padding: 0 10px;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.canvas-grid-split-actionbar__btn:hover {
+  background: var(--canvas-accent-soft, #f5f3ff);
+  color: var(--canvas-accent, #4f46e5);
+}
+
+.canvas-grid-split-actionbar__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.canvas-grid-split-actionbar__btn--primary {
+  color: var(--canvas-accent, #4f46e5);
+}
+
+.adgen-canvas-scope .canvas-empty-viewport-hint {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px;
+  width: max-content !important;
+  max-width: none !important;
+  padding: 6px 6px 6px 14px;
+  overflow: visible !important;
+  color: #334155 !important;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12) !important;
+}
+
+.adgen-canvas-scope .canvas-empty-viewport-hint span,
+.adgen-canvas-scope .canvas-empty-viewport-hint button {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 32px !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+  line-height: 32px !important;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+}
+
+.adgen-canvas-scope .canvas-empty-viewport-hint button {
+  justify-content: center !important;
+  padding: 0 12px !important;
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+}
+
+.adgen-canvas-scope .canvas-empty-viewport-hint button:hover {
+  background: #e2e8f0 !important;
+}
+
+.adgen-canvas-scope
+  .canvas-empty-viewport-hint
+  .canvas-empty-viewport-hint__close {
+  width: 32px !important;
+  padding: 0 !important;
+  color: #64748b !important;
+  background: transparent !important;
+}
+
+.adgen-canvas-scope
+  .canvas-empty-viewport-hint
+  .canvas-empty-viewport-hint__close:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+.adgen-canvas-scope .canvas-media-preview-overlay[role='dialog'] {
+  background: rgba(2, 6, 23, 0.1) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.adgen-canvas-scope .canvas-media-preview-panel {
+  border-color: var(--canvas-floating-border) !important;
+}
+
+.adgen-canvas-scope .canvas-media-preview-header {
+  color: var(--canvas-floating-foreground) !important;
+  background: var(--canvas-floating-background) !important;
+  border-color: var(--canvas-floating-border) !important;
+}
+
+/* The media preview is portalled to document.body and must not inherit host button colors. */
+html
+  body
+  #canvas-media-preview-overlay.canvas-media-preview-overlay[role='dialog'] {
+  isolation: isolate;
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+html body #canvas-media-preview-overlay::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  content: '';
+  background: #020617;
+  opacity: 0.1;
+}
+
+html body #canvas-media-preview-overlay > .canvas-media-preview-panel {
+  position: relative;
+  z-index: 1;
+  color: #fff !important;
+  background: rgba(2, 6, 23, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+#canvas-media-preview-overlay .canvas-media-preview-header {
+  color: #fff !important;
+  background: rgba(2, 6, 23, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+#canvas-media-preview-overlay .canvas-media-preview-header .text-white {
+  color: #fff !important;
+}
+
+#canvas-media-preview-overlay .canvas-media-preview-action {
+  color: #fff !important;
+  background: rgba(30, 41, 59, 0.82) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+#canvas-media-preview-overlay .canvas-media-preview-action:hover {
+  color: #fff !important;
+  background: rgba(71, 85, 105, 0.92) !important;
+}
+
+#canvas-media-preview-overlay .canvas-media-preview-action svg {
+  display: block !important;
+  color: #fff !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+}
+
+.adgen-canvas-scope
+  .canvas-theme-shell
+  [role='menu']
+  .canvas-menu-option-active.text-white {
+  color: #fff !important;
+}
+
+.adgen-canvas-scope .canvas-model-favorite-btn {
+  color: #94a3b8 !important;
+}
+
+.adgen-canvas-scope .canvas-model-favorite-btn.is-on {
+  color: #f59e0b !important;
+}
+
+.adgen-canvas-scope
+  [role='menu']
+  .canvas-menu-option-active
+  .canvas-model-favorite-btn:not(.is-on) {
+  color: rgb(255 255 255 / 0.75) !important;
+}
+
+.adgen-canvas-scope .canvas-connection-drop-target__halo,
+.adgen-canvas-scope .canvas-connection-drop-target__track,
+.adgen-canvas-scope .canvas-connection-drop-target__path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.adgen-canvas-scope .canvas-connection-snap-port {
+  background-color: var(--canvas-drop-target) !important;
+  box-shadow: 0 0 0 4px var(--canvas-drop-target-track) !important;
+}
+
+.adgen-canvas-scope .canvas-connection-drop-target__halo {
+  stroke: var(--canvas-drop-target-halo);
+  stroke-width: 6;
+}
+
+.adgen-canvas-scope .canvas-connection-drop-target__track {
+  stroke: var(--canvas-drop-target-track);
+  stroke-width: 3;
+}
+
+.adgen-canvas-scope .canvas-connection-drop-target__path {
+  stroke: var(--canvas-drop-target);
+  stroke-width: 2.5;
+  stroke-dasharray: 14 10;
+  animation: canvas-connection-marquee 2.4s linear infinite;
+}
+
+@keyframes canvas-connection-marquee {
+  to {
+    stroke-dashoffset: -36;
+  }
+}
+
+.adgen-canvas-scope .canvas-connection-pulse-glow,
+.adgen-canvas-scope .canvas-connection-pulse-core {
+  fill: none;
+  stroke: var(--canvas-connection-pulse);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* pathLength=1：短划 4% + 空隙 96%，每条相关连线只跑一颗短脉冲。 */
+  stroke-dasharray: 0.04 0.96;
+  animation: canvas-connection-pulse 2.8s linear infinite;
+  animation-delay: var(--canvas-pulse-delay, 0s);
+}
+
+.adgen-canvas-scope .canvas-connection-pulse-glow {
+  stroke-width: 6;
+  stroke-opacity: 0.32;
+}
+
+.adgen-canvas-scope .canvas-connection-pulse-core {
+  stroke-width: 2.6;
+  stroke-opacity: 0.95;
+}
+
+@keyframes canvas-connection-pulse {
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+.adgen-canvas-scope .canvas-selection-group {
+  box-sizing: border-box;
+  overflow: visible;
+  border: 1.5px dashed rgba(71, 85, 105, 0.78);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.38);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.72);
+  pointer-events: auto;
+}
+
+.adgen-canvas-scope .canvas-group-output-port {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  z-index: 40;
+  display: flex;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: #8b5cf6;
+  box-shadow: 0 4px 10px rgb(15 23 42 / 18%);
+  transform: translateY(-50%);
+}
+
+.adgen-canvas-scope .canvas-group-output-port:hover,
+.adgen-canvas-scope .canvas-group-output-port.is-pending {
+  background: #6d28d9;
+}
+
+.adgen-canvas-scope .canvas-group-output-port.is-pending {
+  box-shadow: 0 0 0 4px rgb(196 181 253 / 70%);
+}
+
+.adgen-canvas-scope .canvas-theme-dark .canvas-group-output-port {
+  border-color: #0f172a;
+}
+
+.adgen-canvas-scope .canvas-selection-group--idle {
+  border-color: rgba(71, 85, 105, 0.36);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.adgen-canvas-scope .canvas-theme-dark .canvas-selection-group {
+  border-color: rgba(226, 232, 240, 0.72);
+  background: rgba(15, 23, 42, 0.28);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.35);
+}
+
+.adgen-canvas-scope .canvas-theme-dark .canvas-selection-group--idle {
+  border-color: rgba(226, 232, 240, 0.3);
+  background: rgba(15, 23, 42, 0.1);
+  box-shadow: none;
+}
+
+/* 提示词扩大遮罩挂到 body，样式不能只写在 .adgen-canvas-scope 下。 */
+.canvas-prompt-editor {
+  margin-top: 12px;
+  overflow: visible;
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  border-radius: 12px;
+  background: var(--canvas-floating-background, rgb(248 250 252 / 0.9));
+  color: var(--canvas-floating-foreground, #334155);
+}
+
+.canvas-prompt-editor--expanded {
+  display: flex;
+  min-height: 168px;
+  max-height: min(52vh, 480px);
+  flex-direction: column;
+}
+
+.canvas-prompt-editor--compact {
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.canvas-prompt-editor--compact .canvas-prompt-toolbar {
+  gap: 6px;
+  padding: 0 36px 0 0;
+}
+
+.canvas-prompt-editor--compact .canvas-prompt-mention-editor {
+  min-height: 72px;
+  max-height: 88px;
+  padding: 8px 36px 8px 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.canvas-prompt-editor--compact .canvas-prompt-expand-btn {
+  top: 0;
+  right: 0;
+}
+
+.canvas-quick-settings {
+  position: fixed;
+  z-index: 180;
+  box-sizing: border-box;
+  width: 760px;
+  max-width: calc(100vw - 24px);
+  padding: 10px 12px 10px;
+  overflow: visible;
+  color: var(--canvas-floating-foreground, #0f172a);
+  background: var(--canvas-floating-background, rgb(255 255 255 / 0.98));
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  border-radius: 18px;
+  box-shadow: 0 16px 48px rgb(15 23 42 / 18%);
+  --canvas-floating-background: rgba(255, 255, 255, 0.98);
+  --canvas-floating-border: rgba(203, 213, 225, 0.82);
+  --canvas-floating-foreground: #0f172a;
+  --canvas-floating-muted: #64748b;
+}
+
+.canvas-quick-settings--dark {
+  --canvas-floating-background: rgba(14, 18, 27, 0.98);
+  --canvas-floating-border: rgba(148, 163, 184, 0.22);
+  --canvas-floating-foreground: #e8edf5;
+  --canvas-floating-muted: #aab4c3;
+}
+
+/* 简易设置通过 portal 挂到 document.body，不能依赖画布容器的暗色选择器。 */
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) {
+  color-scheme: dark;
+}
+
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .bg-white,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) [role='menu'],
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .canvas-generation-config-menu {
+  background-color: #141924 !important;
+}
+
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .bg-slate-50,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .bg-slate-50\/80,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .bg-slate-100 {
+  background-color: #1c2330 !important;
+}
+
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .border-slate-200,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .border-slate-300 {
+  border-color: rgba(148, 163, 184, 0.26) !important;
+}
+
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .text-slate-900,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .text-slate-800,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .text-slate-700,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .text-slate-600 {
+  color: #e8edf5 !important;
+}
+
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .text-slate-500,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .text-slate-400,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) .text-slate-300 {
+  color: #aab4c3 !important;
+}
+
+/* Tailwind 的 hover:bg-slate-100 是带前缀的类名，不能被上面的 .bg-slate-100
+ * 覆盖。深色的生成模型、生成模式菜单悬停时保持透明，只用白色内描边标明当前目标。 */
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark)
+  :is(.canvas-model-menu-option, .canvas-generation-mode-menu-option):not(.canvas-menu-option-active):hover {
+  background-color: transparent !important;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 88%);
+}
+
+/* 右键菜单与“添加节点”菜单：深色画布里悬停、焦点都只显示白色内描边，
+ * 不使用浅色整块背景，避免和画布主题割裂。 */
+.adgen-canvas-scope
+  .canvas-theme-dark
+  [role='menu'][aria-label='画布右键菜单']
+  [role='menuitem']:not(:disabled):hover,
+.adgen-canvas-scope
+  .canvas-theme-dark
+  [role='menu'][aria-label='画布右键菜单']
+  [role='menuitem']:not(:disabled):focus,
+.adgen-canvas-scope
+  .canvas-theme-dark
+  [role='menu'][aria-label='添加节点']
+  [role='menuitem']:not(:disabled):hover,
+.adgen-canvas-scope
+  .canvas-theme-dark
+  [role='menu'][aria-label='添加节点']
+  [role='menuitem']:not(:disabled):focus {
+  background-color: transparent !important;
+  color: #fff !important;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 88%) !important;
+}
+
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) select,
+:is(.canvas-quick-settings--dark, .canvas-prompt-expand-panel--dark) option {
+  color-scheme: dark;
+}
+
+.canvas-quick-settings__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+}
+
+.canvas-quick-settings__status {
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.canvas-quick-settings__status[role='alert'] {
+  overflow: visible;
+  max-height: none;
+  line-height: 1.5;
+  text-overflow: unset;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.canvas-quick-settings__generate {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+}
+
+.canvas-quick-settings__generate:focus-visible {
+  outline: 2px solid rgb(167 139 250);
+  outline-offset: 2px;
+}
+
+.canvas-quick-settings__generate:disabled {
+  cursor: not-allowed;
+  background: #e2e8f0;
+  color: #94a3b8;
+}
+
+.canvas-prompt-toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  overflow: visible;
+  padding: 10px 40px 0 8px;
+}
+
+.canvas-prompt-chip-btn,
+.canvas-prompt-ref-chip,
+.canvas-prompt-expand-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  background: transparent;
+  color: var(--canvas-floating-foreground, #0f172a);
+  overflow-wrap: normal;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.canvas-prompt-chip-btn {
+  height: 28px;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.canvas-prompt-chip-btn.is-open,
+.canvas-prompt-chip-btn:hover,
+.canvas-prompt-ref-chip:hover,
+.canvas-prompt-expand-btn:hover {
+  background: rgb(148 163 184 / 16%);
+}
+
+.canvas-prompt-chip-btn__count {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgb(148 163 184 / 18%);
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.canvas-prompt-ref-chip-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.canvas-prompt-ref-chip-wrap.is-dragging {
+  opacity: 0.38;
+}
+
+.canvas-prompt-ref-chip {
+  height: 28px;
+  max-width: 148px;
+  gap: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  padding: 0 8px 0 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.canvas-prompt-ref-chip__remove {
+  position: absolute;
+  top: -5px;
+  left: 14px;
+  z-index: 2;
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 92%);
+  border-radius: 999px;
+  background: rgb(15 23 42 / 86%);
+  color: #fff;
+  opacity: 0.72;
+}
+
+.canvas-prompt-ref-chip-wrap:hover .canvas-prompt-ref-chip__remove,
+.canvas-prompt-ref-chip__remove:focus-visible {
+  opacity: 1;
+}
+
+.canvas-prompt-ref-chip-wrap.is-dragging .canvas-prompt-ref-chip__remove {
+  display: none;
+}
+
+.canvas-prompt-ref-chip--sortable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.canvas-prompt-ref-chip--sortable:active {
+  cursor: grabbing;
+}
+
+.canvas-prompt-ref-chip.is-dragging {
+  opacity: 0.38;
+}
+
+.canvas-prompt-ref-chip.is-drop-before {
+  box-shadow: inset 2px 0 0 currentColor;
+}
+
+.canvas-prompt-ref-chip.is-drop-after {
+  box-shadow: inset -2px 0 0 currentColor;
+}
+
+.canvas-prompt-ref-chip__thumb {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(148 163 184 / 14%);
+}
+
+.canvas-prompt-ref-chip__thumb img,
+.canvas-prompt-ref-chip__thumb video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.canvas-prompt-expand-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  padding: 0;
+  color: var(--canvas-floating-muted, #64748b);
+}
+
+.canvas-prompt-mention-editor {
+  min-height: 128px;
+  max-height: 160px;
+  padding: 10px 40px 12px 12px;
+  overflow-wrap: break-word;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.canvas-prompt-editor--expanded .canvas-prompt-mention-editor {
+  min-height: 140px;
+  max-height: none;
+  flex: 1 1 auto;
+  padding: 10px 40px 16px 12px;
+}
+
+.canvas-prompt-ref-menu {
+  position: fixed;
+  z-index: 260;
+  width: 260px;
+  padding: 6px;
+  overflow: hidden;
+  color: var(--canvas-floating-foreground, #0f172a);
+  background: var(--canvas-floating-background, rgb(255 255 255 / 0.96));
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 16%);
+}
+
+.canvas-prompt-ref-menu--dark {
+  --canvas-floating-background: rgba(14, 18, 27, 0.96);
+  --canvas-floating-border: rgba(148, 163, 184, 0.22);
+  --canvas-floating-foreground: #e8edf5;
+  --canvas-floating-muted: #aab4c3;
+}
+
+.canvas-prompt-ref-menu__empty {
+  margin: 0;
+  padding: 10px 8px;
+  color: var(--canvas-floating-muted, #64748b);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.canvas-prompt-ref-menu__item {
+  display: flex;
+  width: 100%;
+  height: 40px;
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  padding: 0 8px;
+  color: inherit;
+  text-align: left;
+}
+
+.canvas-prompt-ref-menu__item:hover {
+  background: rgb(148 163 184 / 14%);
+}
+
+.canvas-prompt-ref-menu__meta {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.canvas-prompt-ref-menu__meta strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.canvas-prompt-ref-menu__meta em {
+  overflow: hidden;
+  color: var(--canvas-floating-muted, #64748b);
+  font-size: 10px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.canvas-prompt-mention-editor:focus {
+  outline: none;
+}
+
+.adgen-canvas-scope ::selection,
+.canvas-prompt-mention-editor::selection {
+  background: #2563eb;
+  color: #fff;
+}
+
+.adgen-canvas-scope .canvas-theme-dark ::selection,
+.canvas-theme-dark .canvas-prompt-mention-editor::selection {
+  background: #60a5fa;
+  color: #0f172a;
+}
+
+.canvas-prompt-mention-editor:empty::before {
+  color: var(--canvas-floating-muted, #94a3b8);
+}
+
+.canvas-prompt-expand-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(15 23 42 / 42%);
+}
+
+.canvas-prompt-expand-panel {
+  width: min(760px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  overflow: visible;
+  padding: 12px;
+  color: var(--canvas-floating-foreground, #0f172a);
+  background: var(--canvas-floating-background, rgb(255 255 255 / 0.98));
+  border: 1px solid var(--canvas-floating-border, rgb(203 213 225 / 0.82));
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgb(15 23 42 / 22%);
+  --canvas-floating-background: rgba(255, 255, 255, 0.98);
+  --canvas-floating-border: rgba(203, 213, 225, 0.82);
+  --canvas-floating-foreground: #0f172a;
+  --canvas-floating-muted: #64748b;
+}
+
+.canvas-prompt-expand-panel--dark {
+  --canvas-floating-background: rgba(14, 18, 27, 0.98);
+  --canvas-floating-border: rgba(148, 163, 184, 0.22);
+  --canvas-floating-foreground: #e8edf5;
+  --canvas-floating-muted: #aab4c3;
+}
+
+.canvas-image-hover-preview {
+  position: fixed;
+  z-index: 280;
+  box-sizing: border-box;
+  padding: 8px 8px 6px;
+  pointer-events: none;
+  color: var(--canvas-floating-foreground, #e8edf5);
+  background: rgba(14, 18, 27, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgb(2 6 23 / 42%);
+}
+
+.canvas-image-hover-preview img,
+.canvas-image-hover-preview video {
+  display: block;
+  width: 100%;
+  max-height: min(360px, 56vh);
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgb(15 23 42 / 45%);
+}
+
+.canvas-image-hover-preview p {
+  margin: 6px 2px 0;
+  overflow: hidden;
+  color: #aab4c3;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adgen-canvas-scope .canvas-theme-shell {
+    transition: none;
+  }
+
+  .adgen-canvas-scope .canvas-connection-drop-target__path,
+  .adgen-canvas-scope .canvas-connection-pulse-glow,
+  .adgen-canvas-scope .canvas-connection-pulse-core {
+    animation: none;
+  }
+}

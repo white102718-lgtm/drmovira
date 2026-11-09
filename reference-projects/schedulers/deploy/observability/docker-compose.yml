@@ -1,0 +1,60 @@
+services:
+  # OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "${INTERNAL_IP:-172.31.45.252}:4317:4317"   # OTLP gRPC - 内网访问
+      - "${INTERNAL_IP:-172.31.45.252}:4318:4318"   # OTLP HTTP - 内网访问
+    depends_on:
+      - loki
+    networks:
+      - observability
+    restart: unless-stopped
+
+  # Grafana Loki - 日志存储
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    user: root  # 使用 root 用户避免权限问题
+    ports:
+      - "${INTERNAL_IP:-172.31.45.252}:3100:3100"   # 内网访问
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    networks:
+      - observability
+    restart: unless-stopped
+
+  # Grafana - 可视化界面
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "0.0.0.0:3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASS:-changeme}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://${PUBLIC_IP:-13.229.203.162}:3000
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - loki
+    networks:
+      - observability
+    restart: unless-stopped
+
+volumes:
+  loki-data:
+  grafana-data:
+
+networks:
+  observability:
+    driver: bridge

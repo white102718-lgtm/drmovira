@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.feishuorg.mapper.FeishuOrganizationMapper">
+
+    <select id="findApplicationConfig"
+            resultType="com.adpulse.system.feishuorg.model.FeishuApplicationConfig">
+        SELECT id, app_name, app_id, app_secret_ciphertext, updated_by
+        FROM feishu_app_config
+        WHERE deleted_at = 0
+        ORDER BY updated_at DESC, id DESC
+        LIMIT 1
+    </select>
+
+    <select id="findActiveFeishuOpenIds" resultType="string">
+        SELECT feishu_open_id
+        FROM sys_user
+        WHERE status = 1
+          AND deleted_at = 0
+          AND feishu_open_id IS NOT NULL
+          AND feishu_open_id != ''
+          AND id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <select id="findActiveFeishuOpenIdsByPhone" resultType="string">
+        SELECT feishu_open_id
+        FROM sys_user
+        WHERE status = 1
+          AND deleted_at = 0
+          AND phone = #{phone}
+          AND feishu_open_id IS NOT NULL
+          AND feishu_open_id != ''
+        LIMIT 1
+    </select>
+
+    <select id="findActiveUserPhones" resultType="string">
+        SELECT phone
+        FROM sys_user
+        WHERE status = 1
+          AND deleted_at = 0
+          AND phone IS NOT NULL
+          AND phone != ''
+          AND id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <insert id="insertApplicationConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO feishu_app_config (
+            app_name, app_id, app_secret_ciphertext, updated_by
+        ) VALUES (
+            #{appName}, #{appId}, #{appSecretCiphertext}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateApplicationConfig">
+        UPDATE feishu_app_config
+        SET app_name = #{appName},
+            app_id = #{appId},
+            app_secret_ciphertext = #{appSecretCiphertext},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="findLogs"
+            resultType="com.adpulse.system.feishuorg.dto.FeishuOrganizationViews$SyncLog">
+        SELECT CAST(id AS CHAR) AS id,
+               trigger_type AS triggerType,
+               status,
+               department_total AS departmentTotal,
+               department_created AS departmentCreated,
+               department_updated AS departmentUpdated,
+               department_disabled AS departmentDisabled,
+               user_total AS userTotal,
+               user_created AS userCreated,
+               user_updated AS userUpdated,
+               user_disabled AS userDisabled,
+               conflict_count AS conflictCount,
+               error_message AS errorMessage,
+               CAST(started_by AS CHAR) AS startedBy,
+               started_at AS startedAt,
+               ended_at AS endedAt
+        FROM sys_feishu_org_sync_log
+        WHERE deleted_at = 0
+        ORDER BY started_at DESC, id DESC
+        LIMIT 100
+    </select>
+
+    <resultMap id="departmentMap" type="com.adpulse.system.department.model.Department">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="deptCode" column="dept_code"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="path" column="path"/>
+        <result property="level" column="level"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="leaderUserId" column="leader_user_id"/>
+        <result property="status" column="status"/>
+        <result property="sourceType" column="source_type"/>
+        <result property="tenantKey" column="tenant_key"/>
+        <result property="externalId" column="external_id"/>
+    </resultMap>
+
+    <resultMap id="userMap" type="com.adpulse.system.user.model.UserAccount">
+        <id property="id" column="id"/>
+        <result property="phone" column="phone"/>
+        <result property="passwordHash" column="password_hash"/>
+        <result property="displayName" column="display_name"/>
+        <result property="realName" column="real_name"/>
+        <result property="primaryDepartmentId" column="primary_department_id"/>
+        <result property="email" column="email"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="status" column="status"/>
+        <result property="sourceType" column="source_type"/>
+        <result property="tenantKey" column="tenant_key"/>
+        <result property="externalId" column="external_id"/>
+        <result property="feishuOpenId" column="feishu_open_id"/>
+        <result property="feishuUnionId" column="feishu_union_id"/>
+    </resultMap>
+
+    <select id="findDepartments" resultMap="departmentMap">
+        SELECT id, parent_id, dept_code, dept_name, path, level, sort_order,
+               leader_user_id, status, source_type, tenant_key, external_id
+        FROM sys_department
+        WHERE source_type = 'FEISHU'
+          AND tenant_key = #{tenantKey}
+          AND deleted_at = 0
+        ORDER BY level, id
+    </select>
+
+    <select id="findUsers" resultMap="userMap">
+        SELECT id, phone, password_hash, display_name, real_name, primary_department_id,
+               email, avatar_url, status, source_type, tenant_key, external_id,
+               feishu_open_id, feishu_union_id
+        FROM sys_user
+        WHERE source_type = 'FEISHU'
+          AND tenant_key = #{tenantKey}
+          AND deleted_at = 0
+        ORDER BY id
+    </select>
+
+    <insert id="insertDepartment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_department (
+            parent_id, dept_code, dept_name, path, level, sort_order, status,
+            source_type, tenant_key, external_id, last_synced_at, created_by, updated_by
+        ) VALUES (
+            #{parentId}, #{deptCode}, #{deptName}, '/', #{level}, #{sortOrder}, #{status},
+            'FEISHU', #{tenantKey}, #{externalId}, CURRENT_TIMESTAMP(3), #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateDepartment">
+        UPDATE sys_department
+        SET parent_id = #{parentId},
+            dept_name = #{deptName},
+            path = #{path},
+            level = #{level},
+            sort_order = #{sortOrder},
+            status = #{status},
+            last_synced_at = CURRENT_TIMESTAMP(3),
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND source_type = 'FEISHU' AND deleted_at = 0
+    </update>
+
+    <update id="disableMissingDepartments">
+        UPDATE sys_department
+        SET status = 0, updated_by = #{updatedBy}, last_synced_at = CURRENT_TIMESTAMP(3)
+        WHERE source_type = 'FEISHU'
+          AND tenant_key = #{tenantKey}
+          AND deleted_at = 0
+          AND status = 1
+        <if test="externalIds != null and !externalIds.isEmpty()">
+            AND external_id NOT IN
+            <foreach collection="externalIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user (
+            username, phone, password_hash, display_name, real_name, primary_department_id,
+            email, avatar_url, status, ip_access_mode, mfa_status, remark,
+            source_type, tenant_key, external_id, feishu_open_id, feishu_union_id,
+            last_synced_at, created_by, updated_by, password_changed_at
+        ) VALUES (
+            NULL, #{phone}, #{passwordHash}, #{displayName}, #{realName}, #{primaryDepartmentId},
+            #{email}, #{avatarUrl}, #{status}, 0, 0, '飞书组织同步创建',
+            'FEISHU', #{tenantKey}, #{externalId}, #{feishuOpenId}, #{feishuUnionId},
+            CURRENT_TIMESTAMP(3), #{createdBy}, #{updatedBy}, NULL
+        )
+    </insert>
+
+    <update id="updateUser">
+        UPDATE sys_user
+        SET phone = #{phone},
+            display_name = #{displayName},
+            real_name = #{realName},
+            primary_department_id = #{primaryDepartmentId},
+            email = #{email},
+            avatar_url = #{avatarUrl},
+            status = #{status},
+            feishu_open_id = #{feishuOpenId},
+            feishu_union_id = #{feishuUnionId},
+            last_synced_at = CURRENT_TIMESTAMP(3),
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND source_type = 'FEISHU' AND deleted_at = 0
+    </update>
+
+    <update id="updateDepartmentLeader">
+        UPDATE sys_department
+        SET leader_user_id = #{leaderUserId}, updated_by = #{updatedBy}
+        WHERE id = #{departmentId} AND source_type = 'FEISHU' AND deleted_at = 0
+    </update>
+
+    <select id="findMissingActiveUserIds" resultType="java.lang.Long">
+        SELECT id
+        FROM sys_user
+        WHERE source_type = 'FEISHU'
+          AND tenant_key = #{tenantKey}
+          AND deleted_at = 0
+          AND status = 1
+        <if test="externalIds != null and !externalIds.isEmpty()">
+            AND external_id NOT IN
+            <foreach collection="externalIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <update id="disableUsers">
+        UPDATE sys_user
+        SET status = 0, updated_by = #{updatedBy}, last_synced_at = CURRENT_TIMESTAMP(3)
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND source_type = 'FEISHU'
+          AND deleted_at = 0
+    </update>
+
+    <insert id="insertLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_feishu_org_sync_log (
+            trigger_type, status, started_by, snapshot_hash, app_hash, accept_missing, available_at
+        ) VALUES (
+            #{triggerType}, #{status}, #{startedBy}, #{snapshotHash}, #{appHash}, #{acceptMissing}, UTC_TIMESTAMP(3)
+        )
+    </insert>
+
+    <update id="finishLog">
+        UPDATE sys_feishu_org_sync_log
+        SET status = #{status},
+            snapshot_hash = #{snapshotHash},
+            app_hash = #{appHash},
+            department_total = COALESCE(#{result.departmentTotal}, 0),
+            department_created = COALESCE(#{result.departmentCreated}, 0),
+            department_updated = COALESCE(#{result.departmentUpdated}, 0),
+            department_disabled = COALESCE(#{result.departmentDisabled}, 0),
+            user_total = COALESCE(#{result.userTotal}, 0),
+            user_created = COALESCE(#{result.userCreated}, 0),
+            user_updated = COALESCE(#{result.userUpdated}, 0),
+            user_disabled = COALESCE(#{result.userDisabled}, 0),
+            conflict_count = COALESCE(#{result.conflictCount}, 0),
+            error_message = #{errorMessage},
+            ended_at = CURRENT_TIMESTAMP(3)
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+</mapper>

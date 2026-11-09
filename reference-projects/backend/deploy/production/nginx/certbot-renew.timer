@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Let's Encrypt renewal twice daily
+
+[Timer]
+OnCalendar=*-*-* 03,15:15:00
+RandomizedDelaySec=30m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

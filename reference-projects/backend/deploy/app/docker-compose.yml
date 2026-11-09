@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: deploy/app/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    volumes:
+      - ../../env_vault/.${DEPLOY_ENV:-dev}.env:/app/env_vault/.${DEPLOY_ENV:-dev}.env:ro
+    #    ports:
+    #      - "8000:8000"
+    restart: unless-stopped
+    network_mode: "host"

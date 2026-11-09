@@ -1,0 +1,8 @@
+services:
+  fb_material_push:
+    build:
+      context: ../../
+      dockerfile: deploy/fb_material_push/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

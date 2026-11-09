@@ -1,0 +1,14 @@
+# 仅追加加载到连接新测试 172.31.23.105 的 main 服务；不能作为生产配置使用。
+adpulse:
+  asset-migration:
+    enabled: ${ASSET_MIGRATION_ENABLED:false}
+    source-url: ${ASSET_MIGRATION_SOURCE_URL:}
+    source-username: ${ASSET_MIGRATION_SOURCE_USERNAME:}
+    source-password: ${ASSET_MIGRATION_SOURCE_PASSWORD:}
+    source-uuid: 668439ab-d5b1-11f0-a11e-5635bb0443e0
+    source-schema: fbad-suger
+    target-environment: TEST
+    target-uuid: 16903961-99f2-11f1-a1fe-86f52840e8b4
+    target-schema: adpulse_system
+    operator-ids: ${ASSET_MIGRATION_OPERATOR_IDS:0}
+    mapping-cache-enabled: ${ASSET_MIGRATION_MAPPING_CACHE_ENABLED:true}

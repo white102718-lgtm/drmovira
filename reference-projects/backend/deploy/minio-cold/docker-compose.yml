@@ -1,0 +1,15 @@
+services:
+  minio-cold:
+    image: minio/minio
+    container_name: minio-cold
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+    volumes:
+      # 改成你新磁盘的挂载路径
+      - /mnt/colddisk/minio:/data
+    environment:
+      - MINIO_ROOT_USER=Q4mH9xLs
+      - MINIO_ROOT_PASSWORD=Wn3yPq8Lr5mXz2Kc9tRv
+    command: server /data --console-address ":9001"
+    restart: unless-stopped

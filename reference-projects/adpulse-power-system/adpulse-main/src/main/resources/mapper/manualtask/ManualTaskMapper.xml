@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.manualtask.ManualTaskMapper">
+    <sql id="executionColumns">id, task_code, task_name, action_code, action_name, status, triggered_by, triggered_by_name,
+        triggered_at, started_at, finished_at, heartbeat_at, log_content</sql>
+    <insert id="insertExecution" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO manual_task_execution
+            (task_code, task_name, action_code, action_name, status, triggered_by, triggered_by_name,
+             triggered_at, log_content)
+        VALUES (#{taskCode}, #{taskName}, #{actionCode}, #{actionName}, 'PENDING', #{triggeredBy},
+                #{triggeredByName}, CURRENT_TIMESTAMP(3), '')
+    </insert>
+    <select id="findExecutions" resultType="com.adpulse.main.manualtask.ManualTaskModels$Execution">
+        SELECT <include refid="executionColumns"/> FROM manual_task_execution
+        WHERE deleted_at = 0 <if test="taskCode != null and taskCode != ''">AND task_code = #{taskCode}</if>
+        <if test="excludedTaskCodes != null and !excludedTaskCodes.isEmpty()">
+            AND task_code NOT IN
+            <foreach collection="excludedTaskCodes" item="code" open="(" separator="," close=")">#{code}</foreach>
+        </if>
+        ORDER BY triggered_at DESC, id DESC LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countExecutions" resultType="long">
+        SELECT COUNT(*) FROM manual_task_execution WHERE deleted_at = 0
+        <if test="taskCode != null and taskCode != ''">AND task_code = #{taskCode}</if>
+        <if test="excludedTaskCodes != null and !excludedTaskCodes.isEmpty()">
+            AND task_code NOT IN
+            <foreach collection="excludedTaskCodes" item="code" open="(" separator="," close=")">#{code}</foreach>
+        </if>
+    </select>
+    <select id="countActive" resultType="int">
+        SELECT COUNT(*) FROM manual_task_execution
+        WHERE task_code = #{taskCode} AND status IN ('PENDING', 'RUNNING') AND deleted_at = 0
+    </select>
+    <select id="findExecution" resultType="com.adpulse.main.manualtask.ManualTaskModels$Execution">
+        SELECT <include refid="executionColumns"/> FROM manual_task_execution WHERE id = #{id} AND deleted_at = 0
+    </select>
+    <select id="findPending" resultType="com.adpulse.main.manualtask.ManualTaskModels$Execution">
+        SELECT <include refid="executionColumns"/> FROM manual_task_execution
+        WHERE status = 'PENDING'
+          AND task_code IN
+          <foreach collection="taskCodes" item="code" open="(" separator="," close=")">#{code}</foreach>
+          AND deleted_at = 0
+        ORDER BY triggered_at ASC LIMIT #{limit}
+    </select>
+    <update id="claim">
+        UPDATE manual_task_execution SET status = 'RUNNING', started_at = CURRENT_TIMESTAMP(3),
+            heartbeat_at = CURRENT_TIMESTAMP(3) WHERE id = #{id} AND status = 'PENDING' AND deleted_at = 0
+    </update>
+    <update id="appendLog">
+        UPDATE manual_task_execution SET log_content = CONCAT(COALESCE(log_content, ''), #{content}),
+            heartbeat_at = CURRENT_TIMESTAMP(3) WHERE id = #{id} AND deleted_at = 0
+    </update>
+    <update id="complete">
+        UPDATE manual_task_execution SET status = #{status}, finished_at = CURRENT_TIMESTAMP(3),
+            heartbeat_at = CURRENT_TIMESTAMP(3) WHERE id = #{id} AND status = 'RUNNING' AND deleted_at = 0
+    </update>
+    <select id="findStaleRunning" resultType="com.adpulse.main.manualtask.ManualTaskModels$Execution">
+        SELECT <include refid="executionColumns"/> FROM manual_task_execution
+        WHERE status = 'RUNNING' AND heartbeat_at &lt; #{before} AND deleted_at = 0
+    </select>
+    <update id="failStale">
+        UPDATE manual_task_execution
+        SET status = 'FAILED', finished_at = CURRENT_TIMESTAMP(3), heartbeat_at = CURRENT_TIMESTAMP(3),
+            log_content = CONCAT(COALESCE(log_content, ''), #{content})
+        WHERE id = #{id} AND status = 'RUNNING' AND heartbeat_at &lt; #{before} AND deleted_at = 0
+    </update>
+    <select id="findUsersByNames" resultType="com.adpulse.main.manualtask.ManualTaskModels$UserCandidate">
+        SELECT id, username, display_name, real_name FROM sys_user
+        WHERE deleted_at = 0 AND (real_name IN
+        <foreach collection="names" item="name" open="(" separator="," close=")">#{name}</foreach>
+        OR display_name IN
+        <foreach collection="names" item="name" open="(" separator="," close=")">#{name}</foreach>)
+    </select>
+    <select id="lockAssetByAccountId" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT id, account_id, account_name, inventory_status FROM ad_account_asset
+        WHERE account_id = #{accountId} AND deleted_at = 0 LIMIT 1 FOR UPDATE
+    </select>
+    <select id="findActiveAssignments" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAssetAssignment">
+        SELECT id, ad_account_asset_id, user_id, user_name, is_primary, assignment_status,
+               assignment_source, application_id, assigned_at
+        FROM ad_account_asset_assignment
+        WHERE ad_account_asset_id = #{assetId} AND assignment_status = 'ACTIVE' AND deleted_at = 0
+    </select>
+    <insert id="insertAssignment" useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO ad_account_asset_assignment
+            (ad_account_asset_id, user_id, user_name, is_primary, assignment_status,
+             assignment_source, application_id, assigned_at, created_by, updated_by)
+        VALUES (#{adAccountAssetId}, #{userId}, #{userName}, #{isPrimary}, 'ACTIVE',
+                'FEISHU_MANUAL_SYNC', NULL, CURRENT_TIMESTAMP(3), #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="markAssetAssigned">
+        UPDATE ad_account_asset SET inventory_status = 'ASSIGNED', updated_by = #{updatedBy},
+            updated_at = CURRENT_TIMESTAMP(3) WHERE id = #{assetId} AND deleted_at = 0
+    </update>
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.google.mapper.GoogleIntegrationMapper">
+    <sql id="accountColumns">id, google_subject, email, picture, access_token_ciphertext,
+        refresh_token_ciphertext, token_expires_at, auth_status, authorized_at, created_by, updated_by</sql>
+    <select id="findAccounts" resultType="com.adpulse.main.google.model.GoogleModels$Account">
+        SELECT <include refid="accountColumns" /> FROM google_integration_account
+        WHERE deleted_at=0 ORDER BY updated_at DESC, id DESC
+    </select>
+    <select id="findAccount" resultType="com.adpulse.main.google.model.GoogleModels$Account">
+        SELECT <include refid="accountColumns" /> FROM google_integration_account WHERE id=#{id} AND deleted_at=0
+    </select>
+    <select id="findAccountBySubject" resultType="com.adpulse.main.google.model.GoogleModels$Account">
+        SELECT <include refid="accountColumns" /> FROM google_integration_account
+        WHERE google_subject=#{subject} AND deleted_at=0 LIMIT 1
+    </select>
+    <insert id="insertAccount" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO google_integration_account (google_subject, email, picture, access_token_ciphertext,
+            refresh_token_ciphertext, token_expires_at, auth_status, authorized_at, created_by, updated_by)
+        VALUES (#{googleSubject}, #{email}, #{picture}, #{accessTokenCiphertext}, #{refreshTokenCiphertext},
+            #{tokenExpiresAt}, #{authStatus}, #{authorizedAt}, #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="updateAccount">
+        UPDATE google_integration_account SET email=#{email}, picture=#{picture},
+            access_token_ciphertext=#{accessTokenCiphertext},
+            refresh_token_ciphertext=COALESCE(#{refreshTokenCiphertext}, refresh_token_ciphertext),
+            token_expires_at=#{tokenExpiresAt}, auth_status=#{authStatus}, authorized_at=#{authorizedAt},
+            updated_by=#{updatedBy} WHERE id=#{id} AND deleted_at=0
+    </update>
+    <update id="updateAccountStatus">
+        UPDATE google_integration_account SET auth_status=#{status}, updated_by=#{actorId}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <update id="deleteAccount">
+        UPDATE google_integration_account SET deleted_at=#{deletedAt}, updated_by=#{actorId}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <sql id="mappingColumns">id, google_account_id, name, report_type, spreadsheet_id,
+        spreadsheet_name, spreadsheet_modified_time, CAST(sheet_names AS CHAR) AS sheet_names,
+        CAST(field_mappings AS CHAR) AS field_mappings, sync_direction, conflict_strategy,
+        date_range_type, CAST(date_range_config AS CHAR) AS date_range_config,
+        sync_frequency, sync_time, enable_flag, last_sync_time, created_by, updated_by</sql>
+    <select id="findMappingsByAccount" resultType="com.adpulse.main.google.model.GoogleModels$Mapping">
+        SELECT <include refid="mappingColumns" /> FROM google_integration_mapping
+        WHERE google_account_id=#{accountId} AND deleted_at=0 ORDER BY updated_at DESC, id DESC
+    </select>
+    <select id="findMapping" resultType="com.adpulse.main.google.model.GoogleModels$Mapping">
+        SELECT <include refid="mappingColumns" /> FROM google_integration_mapping WHERE id=#{id} AND deleted_at=0
+    </select>
+    <insert id="insertMapping" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO google_integration_mapping (google_account_id, name, report_type, spreadsheet_id,
+            spreadsheet_name, spreadsheet_modified_time, sheet_names, field_mappings, sync_direction,
+            conflict_strategy, date_range_type, date_range_config, sync_frequency, sync_time,
+            enable_flag, created_by, updated_by)
+        VALUES (#{googleAccountId}, #{name}, #{reportType}, #{spreadsheetId}, #{spreadsheetName},
+            #{spreadsheetModifiedTime}, CAST(#{sheetNames} AS JSON), CAST(#{fieldMappings} AS JSON),
+            #{syncDirection}, #{conflictStrategy}, #{dateRangeType}, CAST(#{dateRangeConfig} AS JSON),
+            #{syncFrequency}, #{syncTime}, #{enableFlag}, #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="updateMapping">
+        UPDATE google_integration_mapping SET google_account_id=#{googleAccountId}, name=#{name},
+            report_type=#{reportType}, spreadsheet_id=#{spreadsheetId}, spreadsheet_name=#{spreadsheetName},
+            spreadsheet_modified_time=#{spreadsheetModifiedTime}, sheet_names=CAST(#{sheetNames} AS JSON),
+            field_mappings=CAST(#{fieldMappings} AS JSON), sync_direction=#{syncDirection},
+            conflict_strategy=#{conflictStrategy}, date_range_type=#{dateRangeType},
+            date_range_config=CAST(#{dateRangeConfig} AS JSON), sync_frequency=#{syncFrequency},
+            sync_time=#{syncTime}, updated_by=#{updatedBy} WHERE id=#{id} AND deleted_at=0
+    </update>
+    <update id="updateMappingStatus">
+        UPDATE google_integration_mapping SET enable_flag=#{enableFlag}, updated_by=#{actorId}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <update id="deleteMapping">
+        UPDATE google_integration_mapping SET deleted_at=#{deletedAt}, updated_by=#{actorId}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <update id="deleteMappingsByAccount">
+        UPDATE google_integration_mapping SET deleted_at=#{deletedAt}, updated_by=#{actorId}
+        WHERE google_account_id=#{accountId} AND deleted_at=0
+    </update>
+    <insert id="insertSyncJob">
+        INSERT INTO external_sync_job (provider, job_type, business_id, request_payload, status, requested_by)
+        VALUES ('google', 'MAPPING_SYNC', #{businessId},
+            JSON_OBJECT('fullSync', #{fullSync}), 0, #{requestedBy})
+    </insert>
+    <select id="findPendingSyncJobs" resultType="com.adpulse.main.google.model.GoogleModels$SyncJob">
+        SELECT id, business_id, CAST(request_payload AS CHAR) AS request_payload, requested_by
+        FROM external_sync_job
+        WHERE provider='google' AND job_type='MAPPING_SYNC' AND status=0 AND deleted_at=0
+        ORDER BY created_at ASC, id ASC LIMIT #{limit}
+    </select>
+    <update id="claimSyncJob">
+        UPDATE external_sync_job SET status=1, started_at=NOW(3), error_message=NULL
+        WHERE id=#{id} AND status=0 AND deleted_at=0
+    </update>
+    <update id="completeSyncJob">
+        UPDATE external_sync_job SET status=2, finished_at=NOW(3)
+        WHERE id=#{id} AND status=1 AND deleted_at=0
+    </update>
+    <update id="failSyncJob">
+        UPDATE external_sync_job SET status=3, error_message=#{errorMessage}, finished_at=NOW(3)
+        WHERE id=#{id} AND status=1 AND deleted_at=0
+    </update>
+    <select id="findAutoSyncMappings" resultType="com.adpulse.main.google.model.GoogleModels$Mapping">
+        SELECT <include refid="mappingColumns" /> FROM google_integration_mapping
+        WHERE enable_flag=1 AND sync_frequency IN (2, 3) AND deleted_at=0
+        ORDER BY id ASC
+    </select>
+    <select id="countActiveSyncJobs" resultType="int">
+        SELECT COUNT(*) FROM external_sync_job
+        WHERE provider='google' AND job_type='MAPPING_SYNC' AND business_id=#{businessId}
+          AND status IN (0, 1) AND deleted_at=0
+    </select>
+    <select id="findSyncLogs" resultType="com.adpulse.main.google.model.GoogleModels$SyncJob">
+        SELECT id, business_id, CAST(request_payload AS CHAR) AS request_payload, status,
+            error_message, requested_by, started_at, finished_at, created_at
+        FROM external_sync_job
+        WHERE provider='google' AND job_type='MAPPING_SYNC' AND business_id=#{businessId}
+          AND deleted_at=0
+        ORDER BY created_at DESC, id DESC LIMIT #{offset}, #{limit}
+    </select>
+    <select id="countSyncLogs" resultType="long">
+        SELECT COUNT(*) FROM external_sync_job
+        WHERE provider='google' AND job_type='MAPPING_SYNC' AND business_id=#{businessId}
+          AND deleted_at=0
+    </select>
+    <update id="updateMappingLastSyncTime">
+        UPDATE google_integration_mapping SET last_sync_time=NOW(3)
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <insert id="upsertSyncData">
+        INSERT INTO google_sync_data
+            (mapping_id, start_date, task_name, subtask_name, spend_amount, return_amount,
+             impressions, clicks, registrations, purchases, subscriptions, media_placement)
+        VALUES
+            (#{mappingId}, #{startDate}, #{taskName}, #{subtaskName}, #{spendAmount}, #{returnAmount},
+             #{impressions}, #{clicks}, #{registrations}, #{purchases}, #{subscriptions}, #{mediaPlacement})
+        ON DUPLICATE KEY UPDATE
+            spend_amount=VALUES(spend_amount), return_amount=VALUES(return_amount),
+            impressions=VALUES(impressions), clicks=VALUES(clicks),
+            registrations=VALUES(registrations), purchases=VALUES(purchases),
+            subscriptions=VALUES(subscriptions), media_placement=VALUES(media_placement),
+            updated_at=NOW(3)
+    </insert>
+    <sql id="syncDataFilters">
+        mapping_id=#{mappingId} AND deleted_at=0
+        <if test="startDate != null and startDate != ''">
+            AND start_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND start_date &lt;= #{endDate}
+        </if>
+        <if test="taskName != null and taskName != ''">
+            AND task_name LIKE CONCAT('%', #{taskName}, '%')
+        </if>
+    </sql>
+    <select id="findSyncData" resultType="com.adpulse.main.google.model.GoogleModels$SyncData">
+        SELECT id, mapping_id, start_date, task_name, subtask_name, spend_amount, return_amount,
+            impressions, clicks, registrations, purchases, subscriptions, media_placement, updated_at
+        FROM google_sync_data WHERE <include refid="syncDataFilters" />
+        ORDER BY start_date DESC, id DESC LIMIT #{offset}, #{limit}
+    </select>
+    <select id="countSyncData" resultType="long">
+        SELECT COUNT(*) FROM google_sync_data WHERE <include refid="syncDataFilters" />
+    </select>
+</mapper>

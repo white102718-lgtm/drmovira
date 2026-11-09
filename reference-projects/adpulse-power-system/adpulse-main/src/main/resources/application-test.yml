@@ -1,0 +1,64 @@
+# 本地 SQL 调试只开启 Mapper 日志，业务日志保持 INFO。
+logging:
+  level:
+    com.adpulse.main: info
+    com.adpulse.main.adaccountasset.AccountAttributeMapper: debug
+    com.adpulse.main.adaccountasset.AdAccountAssetMapper: debug
+    com.adpulse.main.adaccountasset.AdAccountAssetAssignmentMapper: debug
+    com.adpulse.main.cardstation.mapper: debug
+    com.adpulse.main.channel.mapper: debug
+    com.adpulse.main.cloak.client.GlobalPwaClient: debug
+    com.adpulse.main.deliveryreport.DeliveryReportMapper: debug
+    com.adpulse.main.feishu.mapper: debug
+    com.adpulse.main.google.mapper: debug
+    com.adpulse.main.project.mapper: debug
+    com.adpulse.main.safeheron.mapper: debug
+    com.adpulse.main.task.mapper: debug
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://44.228.249.36:3306/adpulse_system?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${DB_USERNAME:adpulse}
+    password: ${DB_PASSWORD:A4JIc@dUx#B*}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://qxCDyKjZ:REDACTED_REFERENCE_SECRET@44.228.249.36:27017/plat}
+    redis:
+      host: ${REDIS_HOST:44.228.249.36}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:4&Lzt$tgK5s&}
+      database: ${REDIS_DATABASE:0}
+
+adpulse:
+  doris:
+    enabled: ${DORIS_ENABLED:true}
+    url: ${DORIS_URL:jdbc:mysql://44.228.249.36:9030/ad?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${DORIS_USERNAME:pvstore}
+    password: ${DORIS_PASSWORD:3ddL61d5SBrslWMv}
+    mysql-catalog: ${DORIS_MYSQL_CATALOG:mysql_adpulse_system}
+    mysql-database: ${DORIS_MYSQL_DATABASE:adpulse_system}
+    spend-catalog: ${DORIS_SPEND_CATALOG:internal}
+    spend-database: ${DORIS_SPEND_DATABASE:ad}
+  mongo:
+    account:
+      collection: ${MONGODB_ACCOUNT_COLLECTION:fb_ad_accounts}
+  security:
+    jwt-secret: ${JWT_SECRET:JWT70253NKLGSDAIJ2523AF0UJNFAW0E}
+
+# 仅追加加载到连接新测试 172.31.23.105 的 main 服务；不能作为生产配置使用。
+  asset-migration:
+    enabled: ${ASSET_MIGRATION_ENABLED:true}
+    source-url: ${ASSET_MIGRATION_SOURCE_URL:}
+    source-username: ${ASSET_MIGRATION_SOURCE_USERNAME:}
+    source-password: ${ASSET_MIGRATION_SOURCE_PASSWORD:}
+    source-uuid: 668439ab-d5b1-11f0-a11e-5635bb0443e0
+    source-schema: fbad-suger
+    target-environment: TEST
+    target-uuid: 16903961-99f2-11f1-a1fe-86f52840e8b4
+    target-schema: adpulse_system
+    operator-ids: ${ASSET_MIGRATION_OPERATOR_IDS:1}
+    mapping-cache-enabled: ${ASSET_MIGRATION_MAPPING_CACHE_ENABLED:true}
+
+
+safeheron:
+  master-key: ${SAFEHERON_TEST_MASTER_KEY:LH/fgBSGwtsJsufxdo/49UBjGaJqEfHJJKz0TJwpxPM=}

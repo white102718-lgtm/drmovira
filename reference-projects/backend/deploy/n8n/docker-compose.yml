@@ -1,0 +1,42 @@
+services:
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: unless-stopped
+    networks:
+      - n8n_network
+
+  n8n:
+    image: n8nio/n8n
+    container_name: my-n8n
+    ports:
+      - "5679:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - WEBHOOK_URL=https://n5679.duckdns.org
+      - N8N_HOST=n5679.duckdns.org
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - N8N_LOG_LEVEL=info
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_SECURE_COOKIE=true
+      - N8N_COOKIES_SECURE=true
+    restart: unless-stopped
+    networks:
+      - n8n_network
+
+volumes:
+  n8n_data:
+
+networks:
+  n8n_network:
+    driver: bridge

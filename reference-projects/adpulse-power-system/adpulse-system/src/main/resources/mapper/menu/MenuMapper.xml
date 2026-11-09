@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.menu.mapper.MenuMapper">
+    <select id="isMenuMaintenanceForbidden" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM sys_user
+            WHERE is_super_admin = 1 AND deleted_at = 0
+        ) AND NOT EXISTS (
+            SELECT 1 FROM sys_user
+            WHERE id = #{operatorId}
+              AND is_super_admin = 1
+              AND status = 1
+              AND deleted_at = 0
+        )
+    </select>
+
+    <resultMap id="menuMap" type="com.adpulse.system.menu.model.Menu">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="menuType" column="menu_type"/>
+        <result property="menuCode" column="menu_code"/>
+        <result property="menuName" column="menu_name"/>
+        <result property="routePath" column="route_path"/>
+        <result property="component" column="component"/>
+        <result property="icon" column="icon"/>
+        <result property="permissionCode" column="permission_code"/>
+        <result property="visible" column="visible"/>
+        <result property="cacheable" column="cacheable"/>
+        <result property="externalLink" column="external_link"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        id, parent_id, menu_type, menu_code, menu_name, route_path, component,
+        icon, permission_code, visible, cacheable, external_link, sort_order,
+        status, remark, created_by, updated_by, created_at, updated_at, deleted_at
+    </sql>
+
+    <select id="findAllNotDeleted" resultMap="menuMap">
+        SELECT <include refid="columns"/>
+        FROM sys_menu
+        WHERE deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findAuthorizedNavigationMenus" resultMap="menuMap">
+        WITH RECURSIVE assigned_menu AS (
+            SELECT DISTINCT m.id
+            FROM sys_user u
+            INNER JOIN sys_user_role ur
+                ON ur.user_id = u.id
+               AND ur.deleted_at = 0
+            INNER JOIN sys_role r
+                ON r.id = ur.role_id
+               AND r.status = 1
+               AND r.deleted_at = 0
+            INNER JOIN sys_role_menu rm
+                ON rm.role_id = r.id
+               AND rm.deleted_at = 0
+            INNER JOIN sys_menu m
+                ON m.id = rm.menu_id
+               AND m.status = 1
+               AND m.deleted_at = 0
+            WHERE u.id = #{userId}
+              AND u.status = 1
+              AND u.deleted_at = 0
+            UNION
+            SELECT m.id
+            FROM sys_menu m
+            WHERE m.status = 1
+              AND m.deleted_at = 0
+              AND EXISTS (
+                  SELECT 1 FROM sys_user u
+                  WHERE u.id = #{userId}
+                    AND u.is_super_admin = 1
+                    AND u.status = 1
+                    AND u.deleted_at = 0
+              )
+        ), authorized_tree AS (
+            SELECT m.*
+            FROM sys_menu m
+            INNER JOIN assigned_menu assigned ON assigned.id = m.id
+            WHERE m.status = 1
+              AND m.deleted_at = 0
+            UNION DISTINCT
+            SELECT parent.*
+            FROM sys_menu parent
+            INNER JOIN authorized_tree child ON child.parent_id = parent.id
+            WHERE parent.status = 1
+              AND parent.deleted_at = 0
+        )
+        SELECT DISTINCT <include refid="columns"/>
+        FROM authorized_tree
+        WHERE menu_type IN (1, 2)
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findById" resultMap="menuMap">
+        SELECT <include refid="columns"/>
+        FROM sys_menu
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_menu (
+            parent_id, menu_type, menu_code, menu_name, route_path, component,
+            icon, permission_code, visible, cacheable, external_link, sort_order,
+            status, remark, created_by, updated_by
+        ) VALUES (
+            #{parentId}, #{menuType}, #{menuCode}, #{menuName}, #{routePath}, #{component},
+            #{icon}, #{permissionCode}, #{visible}, #{cacheable}, #{externalLink}, #{sortOrder},
+            #{status}, #{remark}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE sys_menu
+        SET parent_id = #{parentId}, menu_type = #{menuType}, menu_code = #{menuCode},
+            menu_name = #{menuName}, route_path = #{routePath}, component = #{component},
+            icon = #{icon}, permission_code = #{permissionCode}, visible = #{visible},
+            cacheable = #{cacheable}, external_link = #{externalLink}, sort_order = #{sortOrder},
+            status = #{status}, remark = #{remark}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="countChildren" resultType="int">
+        SELECT COUNT(*) FROM sys_menu
+        WHERE parent_id = #{id} AND deleted_at = 0
+    </select>
+
+    <update id="softDelete">
+        UPDATE sys_menu
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="softDeleteRoleRelations">
+        UPDATE sys_role_menu
+        SET deleted_at = #{deletedAt}
+        WHERE menu_id = #{menuId} AND deleted_at = 0
+    </update>
+
+</mapper>

@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.file.mapper.FileMapper">
+    <resultMap id="fileObjectMap" type="com.adpulse.system.file.model.FileObject">
+        <id property="id" column="id"/>
+        <result property="contentHash" column="content_hash"/>
+        <result property="hashAlgorithm" column="hash_algorithm"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="mimeType" column="mime_type"/>
+        <result property="storageProvider" column="storage_provider"/>
+        <result property="bucketName" column="bucket_name"/>
+        <result property="objectKey" column="object_key"/>
+        <result property="storageStatus" column="storage_status"/>
+        <result property="referenceCount" column="reference_count"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <resultMap id="storedFileMap" type="com.adpulse.system.file.model.StoredFile">
+        <id property="id" column="id"/>
+        <result property="fileObjectId" column="file_object_id"/>
+        <result property="originalName" column="original_name"/>
+        <result property="extension" column="extension"/>
+        <result property="uploaderId" column="uploader_id"/>
+        <result property="contentHash" column="content_hash"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="mimeType" column="mime_type"/>
+        <result property="storageProvider" column="storage_provider"/>
+        <result property="bucketName" column="bucket_name"/>
+        <result property="objectKey" column="object_key"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <select id="findAvailableObject" resultMap="fileObjectMap">
+        SELECT
+            id,
+            content_hash,
+            hash_algorithm,
+            file_size,
+            mime_type,
+            storage_provider,
+            bucket_name,
+            object_key,
+            storage_status,
+            reference_count,
+            created_by,
+            updated_by,
+            created_at,
+            updated_at,
+            deleted_at
+        FROM sys_file_object
+        WHERE content_hash = #{contentHash}
+          AND file_size = #{fileSize}
+          AND storage_status = 'AVAILABLE'
+          AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <insert id="insertObject" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_file_object (
+            content_hash,
+            hash_algorithm,
+            file_size,
+            mime_type,
+            storage_provider,
+            bucket_name,
+            object_key,
+            storage_status,
+            reference_count,
+            created_by,
+            updated_by
+        ) VALUES (
+            #{contentHash},
+            #{hashAlgorithm},
+            #{fileSize},
+            #{mimeType},
+            #{storageProvider},
+            #{bucketName},
+            #{objectKey},
+            #{storageStatus},
+            #{referenceCount},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <update id="incrementReference">
+        UPDATE sys_file_object
+        SET reference_count = reference_count + 1,
+            updated_by = #{operatorId}
+        WHERE id = #{id}
+          AND storage_status = 'AVAILABLE'
+          AND deleted_at = 0
+    </update>
+
+    <update id="decrementReference">
+        UPDATE sys_file_object
+        SET reference_count = reference_count - 1,
+            updated_by = #{operatorId}
+        WHERE id = #{id}
+          AND reference_count &gt; 0
+          AND deleted_at = 0
+    </update>
+
+    <insert id="insertFile" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_file (
+            file_object_id,
+            original_name,
+            extension,
+            uploader_id,
+            created_by,
+            updated_by
+        ) VALUES (
+            #{fileObjectId},
+            #{originalName},
+            #{extension},
+            #{uploaderId},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <select id="findOwnedFile" resultMap="storedFileMap">
+        SELECT
+            file.id,
+            file.file_object_id,
+            file.original_name,
+            file.extension,
+            file.uploader_id,
+            object.content_hash,
+            object.file_size,
+            object.mime_type,
+            object.storage_provider,
+            object.bucket_name,
+            object.object_key,
+            file.created_by,
+            file.updated_by,
+            file.created_at,
+            file.updated_at,
+            file.deleted_at
+        FROM sys_file file
+        JOIN sys_file_object object
+          ON object.id = file.file_object_id
+         AND object.deleted_at = 0
+        WHERE file.id = #{id}
+          AND file.uploader_id = #{uploaderId}
+          AND file.deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <select id="findActiveFile" resultMap="storedFileMap">
+        SELECT
+            file.id,
+            file.file_object_id,
+            file.original_name,
+            file.extension,
+            file.uploader_id,
+            object.content_hash,
+            object.file_size,
+            object.mime_type,
+            object.storage_provider,
+            object.bucket_name,
+            object.object_key,
+            file.created_by,
+            file.updated_by,
+            file.created_at,
+            file.updated_at,
+            file.deleted_at
+        FROM sys_file file
+        JOIN sys_file_object object
+          ON object.id = file.file_object_id
+         AND object.deleted_at = 0
+         AND object.storage_status = 'AVAILABLE'
+        WHERE file.id = #{id}
+          AND file.deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <select id="findReadableFile" resultMap="storedFileMap">
+        SELECT
+            file.id,
+            file.file_object_id,
+            file.original_name,
+            file.extension,
+            file.uploader_id,
+            object.content_hash,
+            object.file_size,
+            object.mime_type,
+            object.storage_provider,
+            object.bucket_name,
+            object.object_key,
+            file.created_by,
+            file.updated_by,
+            file.created_at,
+            file.updated_at,
+            file.deleted_at
+        FROM sys_file file
+        JOIN sys_file_object object
+          ON object.id = file.file_object_id
+         AND object.deleted_at = 0
+         AND object.storage_status = 'AVAILABLE'
+        WHERE file.id = #{id}
+          AND file.deleted_at = 0
+          AND (
+              file.uploader_id = #{userId}
+              OR EXISTS (
+                  SELECT 1 FROM biz_delivery_report_attachment binding
+                  JOIN biz_delivery_report report
+                    ON report.id = binding.report_id AND report.deleted_at = 0
+                  WHERE binding.file_id = file.id AND binding.deleted_at = 0
+                    AND (report.reporter_id = #{userId} OR #{canReadAllReports} = TRUE)
+              )
+              OR EXISTS (
+                  SELECT 1
+                  FROM biz_task_file_binding binding
+                  JOIN biz_task task
+                    ON task.id = binding.task_id
+                   AND task.deleted_at = 0
+                  WHERE binding.file_id = file.id
+                    AND binding.deleted_at = 0
+                    AND (task.creator_id = #{userId} OR task.owner_id = #{userId})
+              )
+              OR EXISTS (
+                  SELECT 1
+                  FROM sys_feedback_file_binding binding
+                  JOIN sys_feedback feedback
+                    ON feedback.id = binding.feedback_id
+                   AND feedback.deleted_at = 0
+                  WHERE binding.file_id = file.id
+                    AND binding.deleted_at = 0
+                    AND (
+                        feedback.submitted_by_id = #{userId}
+                        OR #{canManageFeedback} = TRUE
+                    )
+              )
+          )
+        LIMIT 1
+    </select>
+
+    <select id="countActiveTaskBindings" resultType="int">
+        SELECT COUNT(*)
+        FROM biz_task_file_binding
+        WHERE file_id = #{fileId}
+          AND deleted_at = 0
+    </select>
+
+    <select id="countActiveFeedbackBindings" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_feedback_file_binding
+        WHERE file_id = #{fileId}
+          AND deleted_at = 0
+    </select>
+
+    <select id="countActiveDeliveryReportBindings" resultType="int">
+        SELECT COUNT(*) FROM biz_delivery_report_attachment
+        WHERE file_id = #{fileId} AND deleted_at = 0
+    </select>
+    <update id="softDeleteFile">
+        UPDATE sys_file
+        SET deleted_at = #{deletedAt},
+            updated_by = #{operatorId}
+        WHERE id = #{id}
+          AND uploader_id = #{uploaderId}
+          AND deleted_at = 0
+          AND NOT EXISTS (
+              SELECT 1 FROM biz_delivery_report_attachment a
+              WHERE a.file_id = #{id} AND a.deleted_at = 0
+          )
+    </update>
+</mapper>

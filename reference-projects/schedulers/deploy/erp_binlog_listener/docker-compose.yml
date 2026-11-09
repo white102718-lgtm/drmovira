@@ -1,0 +1,8 @@
+services:
+  erp_binlog_listener:
+    build:
+      context: ../../
+      dockerfile: deploy/erp_binlog_listener/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AdPulse System Backend"
+  short_description: "Maintain the AdPulse system backend rules"
+  default_prompt: "Use $adpulse-system-backend to implement or review the AdPulse system backend."

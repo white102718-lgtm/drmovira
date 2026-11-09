@@ -1,0 +1,8 @@
+services:
+  ad_materials_fetch_worker:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_materials_fetch_worker/Dockerfile.fetch
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

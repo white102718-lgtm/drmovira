@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.feedback.mapper.FeedbackMapper">
+    <resultMap id="feedbackMap" type="com.adpulse.system.feedback.model.Feedback">
+        <id property="id" column="id"/>
+        <result property="category" column="category"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="status" column="status"/>
+        <result property="submittedById" column="submitted_by_id"/>
+        <result property="submittedByName" column="submitted_by_name"/>
+        <result property="submittedByUsername" column="submitted_by_username"/>
+        <result property="clientIp" column="client_ip"/>
+        <result property="userAgent" column="user_agent"/>
+        <result property="deviceType" column="device_type"/>
+        <result property="pageUrl" column="page_url"/>
+        <result property="diagnosticJson" column="diagnostic_json"/>
+        <result property="adminReply" column="admin_reply"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="ownerName" column="owner_name"/>
+        <result property="processedById" column="processed_by_id"/>
+        <result property="processedByName" column="processed_by_name"/>
+        <result property="processedAt" column="processed_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="attachmentCount" column="attachment_count"/>
+    </resultMap>
+
+    <sql id="feedbackColumns">
+        id, category, title, content, status, submitted_by_id, submitted_by_name,
+        submitted_by_username, client_ip, user_agent, device_type, page_url,
+        diagnostic_json, admin_reply, owner_id, owner_name, processed_by_id, processed_by_name,
+        processed_at, created_at, updated_at
+    </sql>
+
+    <select id="findUserSnapshot" resultType="com.adpulse.system.feedback.model.FeedbackUserSnapshot">
+        SELECT username, display_name
+        FROM sys_user
+        WHERE id = #{userId}
+          AND status = 1
+          AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <insert id="insertFeedback" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_feedback (
+            category, title, content, status, submitted_by_id, submitted_by_name,
+            submitted_by_username, client_ip, user_agent, device_type, page_url,
+            diagnostic_json, created_by, updated_by
+        ) VALUES (
+            #{category}, #{title}, #{content}, #{status}, #{submittedById},
+            #{submittedByName}, #{submittedByUsername}, #{clientIp}, #{userAgent},
+            #{deviceType}, #{pageUrl}, CAST(#{diagnosticJson} AS JSON),
+            #{submittedById}, #{submittedById}
+        )
+    </insert>
+
+    <select id="findOwnedFileIds" resultType="long">
+        SELECT id
+        FROM sys_file
+        WHERE uploader_id = #{userId}
+          AND deleted_at = 0
+          AND id IN
+          <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+              #{fileId}
+          </foreach>
+    </select>
+
+    <insert id="insertAttachments">
+        INSERT INTO sys_feedback_file_binding (
+            feedback_id, file_id, sort_order, created_by
+        ) VALUES
+        <foreach collection="fileIds" item="fileId" index="index" separator=",">
+            (#{feedbackId}, #{fileId}, #{index}, #{userId})
+        </foreach>
+    </insert>
+
+    <select id="countFeedbacks" resultType="long">
+        SELECT COUNT(*)
+        FROM sys_feedback
+        WHERE deleted_at = 0
+        <if test="category != null">AND category = #{category}</if>
+        <if test="status != null">AND status = #{status}</if>
+        <if test="keyword != null">
+            AND (
+                CAST(id AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                OR title LIKE CONCAT('%', #{keyword}, '%')
+                OR content LIKE CONCAT('%', #{keyword}, '%')
+                OR submitted_by_name LIKE CONCAT('%', #{keyword}, '%')
+                OR submitted_by_username LIKE CONCAT('%', #{keyword}, '%')
+                OR client_ip LIKE CONCAT('%', #{keyword}, '%')
+                OR owner_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </select>
+
+    <select id="findFeedbacks" resultMap="feedbackMap">
+        SELECT
+            <include refid="feedbackColumns"/>,
+            (
+                SELECT COUNT(*)
+                FROM sys_feedback_file_binding binding
+                WHERE binding.feedback_id = sys_feedback.id
+                  AND binding.deleted_at = 0
+            ) AS attachment_count
+        FROM sys_feedback
+        WHERE deleted_at = 0
+        <if test="category != null">AND category = #{category}</if>
+        <if test="status != null">AND status = #{status}</if>
+        <if test="keyword != null">
+            AND (
+                CAST(id AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                OR title LIKE CONCAT('%', #{keyword}, '%')
+                OR content LIKE CONCAT('%', #{keyword}, '%')
+                OR submitted_by_name LIKE CONCAT('%', #{keyword}, '%')
+                OR submitted_by_username LIKE CONCAT('%', #{keyword}, '%')
+                OR client_ip LIKE CONCAT('%', #{keyword}, '%')
+                OR owner_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="findFeedback" resultMap="feedbackMap">
+        SELECT <include refid="feedbackColumns"/>
+        FROM sys_feedback
+        WHERE id = #{id}
+          AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <select id="findAttachments" resultType="com.adpulse.system.feedback.model.FeedbackAttachment">
+        SELECT
+            file.id,
+            file.original_name,
+            object.mime_type,
+            object.file_size,
+            binding.sort_order
+        FROM sys_feedback_file_binding binding
+        JOIN sys_file file
+          ON file.id = binding.file_id
+         AND file.deleted_at = 0
+        JOIN sys_file_object object
+          ON object.id = file.file_object_id
+         AND object.storage_status = 'AVAILABLE'
+         AND object.deleted_at = 0
+        WHERE binding.feedback_id = #{feedbackId}
+          AND binding.deleted_at = 0
+        ORDER BY binding.sort_order, binding.id
+    </select>
+
+    <update id="updateStatus">
+        UPDATE sys_feedback
+        SET status = #{status},
+            admin_reply = #{adminReply},
+            owner_id = #{ownerId},
+            owner_name = #{ownerName},
+            processed_by_id = #{processedById},
+            processed_by_name = #{processedByName},
+            processed_at = NOW(3),
+            updated_by = #{processedById}
+        WHERE id = #{id}
+          AND deleted_at = 0
+    </update>
+</mapper>

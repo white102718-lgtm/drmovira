@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.project.wallet.mpower.LegacyMpowerMappingMapper">
+    <select id="identity"
+            resultType="com.adpulse.main.project.wallet.mpower.LegacyMpowerMappingMapper$SourceIdentity">
+        SELECT @@server_uuid AS serverUuid, DATABASE() AS schemaName
+    </select>
+
+    <select id="findDepartments"
+            resultType="com.adpulse.main.project.wallet.mpower.LegacyMpowerMappingMapper$LegacyDepartment">
+        SELECT CAST(dept_id AS CHAR) AS departmentId,
+               dept_name AS departmentName
+        FROM sys_dept
+        WHERE tenant_id = #{tenantId}
+          AND dept_name = #{departmentName}
+          AND status = '0'
+          AND del_flag = '0'
+        ORDER BY dept_id
+        LIMIT 2
+    </select>
+
+    <select id="findUsers"
+            resultType="com.adpulse.main.project.wallet.mpower.LegacyMpowerMappingMapper$LegacyUser">
+        SELECT CAST(user_id AS CHAR) AS userId,
+               user_name AS userName,
+               nick_name AS nickName
+        FROM sys_user
+        WHERE tenant_id = #{tenantId}
+          AND status = '0'
+          AND del_flag = '0'
+          AND (nick_name IN
+            <foreach collection="names" item="name" open="(" separator="," close=")">
+                #{name}
+            </foreach>
+            OR user_name IN
+            <foreach collection="names" item="name" open="(" separator="," close=")">
+                #{name}
+            </foreach>)
+        ORDER BY user_id
+    </select>
+</mapper>

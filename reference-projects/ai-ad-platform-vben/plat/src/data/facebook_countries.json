@@ -1,0 +1,1237 @@
+[
+  {
+    "code": "AD",
+    "name": "安道尔",
+    "type": "country"
+  },
+  {
+    "code": "AE",
+    "name": "阿联酋",
+    "type": "country"
+  },
+  {
+    "code": "AF",
+    "name": "阿富汗",
+    "type": "country"
+  },
+  {
+    "code": "AG",
+    "name": "安提瓜岛",
+    "type": "country"
+  },
+  {
+    "code": "AI",
+    "name": "安圭拉",
+    "type": "country"
+  },
+  {
+    "code": "AL",
+    "name": "阿尔巴尼亚",
+    "type": "country"
+  },
+  {
+    "code": "AM",
+    "name": "亚美尼亚",
+    "type": "country"
+  },
+  {
+    "code": "AN",
+    "name": "荷属安的列斯群岛",
+    "type": "country"
+  },
+  {
+    "code": "AO",
+    "name": "安哥拉",
+    "type": "country"
+  },
+  {
+    "code": "AQ",
+    "name": "南极洲",
+    "type": "country"
+  },
+  {
+    "code": "AR",
+    "name": "阿根廷",
+    "type": "country"
+  },
+  {
+    "code": "AS",
+    "name": "美属萨摩亚",
+    "type": "country"
+  },
+  {
+    "code": "AT",
+    "name": "奥地利",
+    "type": "country"
+  },
+  {
+    "code": "AU",
+    "name": "澳大利亚",
+    "type": "country"
+  },
+  {
+    "code": "AW",
+    "name": "阿鲁巴",
+    "type": "country"
+  },
+  {
+    "code": "AX",
+    "name": "奥兰群岛",
+    "type": "country"
+  },
+  {
+    "code": "AZ",
+    "name": "阿塞拜疆",
+    "type": "country"
+  },
+  {
+    "code": "BA",
+    "name": "波斯尼亚和黑塞哥维那",
+    "type": "country"
+  },
+  {
+    "code": "BB",
+    "name": "巴巴多斯岛",
+    "type": "country"
+  },
+  {
+    "code": "BD",
+    "name": "孟加拉国",
+    "type": "country"
+  },
+  {
+    "code": "BE",
+    "name": "比利时",
+    "type": "country"
+  },
+  {
+    "code": "BF",
+    "name": "布基纳法索",
+    "type": "country"
+  },
+  {
+    "code": "BG",
+    "name": "保加利亚",
+    "type": "country"
+  },
+  {
+    "code": "BH",
+    "name": "巴林",
+    "type": "country"
+  },
+  {
+    "code": "BI",
+    "name": "布隆迪",
+    "type": "country"
+  },
+  {
+    "code": "BJ",
+    "name": "贝宁",
+    "type": "country"
+  },
+  {
+    "code": "BL",
+    "name": "圣巴泰勒米",
+    "type": "country"
+  },
+  {
+    "code": "BM",
+    "name": "百慕大",
+    "type": "country"
+  },
+  {
+    "code": "BN",
+    "name": "文莱",
+    "type": "country"
+  },
+  {
+    "code": "BO",
+    "name": "玻利维亚",
+    "type": "country"
+  },
+  {
+    "code": "BQ",
+    "name": "博内尔，圣尤斯特歇斯和沙巴",
+    "type": "country"
+  },
+  {
+    "code": "BR",
+    "name": "巴西",
+    "type": "country"
+  },
+  {
+    "code": "BS",
+    "name": "巴哈马",
+    "type": "country"
+  },
+  {
+    "code": "BT",
+    "name": "不丹",
+    "type": "country"
+  },
+  {
+    "code": "BV",
+    "name": "布韦岛",
+    "type": "country"
+  },
+  {
+    "code": "BW",
+    "name": "博茨瓦纳",
+    "type": "country"
+  },
+  {
+    "code": "BY",
+    "name": "白俄罗斯",
+    "type": "country"
+  },
+  {
+    "code": "BZ",
+    "name": "伯利兹",
+    "type": "country"
+  },
+  {
+    "code": "CA",
+    "name": "加拿大",
+    "type": "country"
+  },
+  {
+    "code": "CC",
+    "name": "科科斯（基林）群岛",
+    "type": "country"
+  },
+  {
+    "code": "CD",
+    "name": "刚果民主共和国",
+    "type": "country"
+  },
+  {
+    "code": "CF",
+    "name": "中非共和国",
+    "type": "country"
+  },
+  {
+    "code": "CG",
+    "name": "刚果共和国",
+    "type": "country"
+  },
+  {
+    "code": "CH",
+    "name": "瑞士",
+    "type": "country"
+  },
+  {
+    "code": "CI",
+    "name": "科特迪瓦",
+    "type": "country"
+  },
+  {
+    "code": "CK",
+    "name": "库克群岛",
+    "type": "country"
+  },
+  {
+    "code": "CL",
+    "name": "智利",
+    "type": "country"
+  },
+  {
+    "code": "CM",
+    "name": "喀麦隆",
+    "type": "country"
+  },
+  {
+    "code": "CN",
+    "name": "中国",
+    "type": "country"
+  },
+  {
+    "code": "CO",
+    "name": "哥伦比亚",
+    "type": "country"
+  },
+  {
+    "code": "CR",
+    "name": "哥斯达黎加",
+    "type": "country"
+  },
+  {
+    "code": "CV",
+    "name": "佛得角",
+    "type": "country"
+  },
+  {
+    "code": "CW",
+    "name": "库拉索",
+    "type": "country"
+  },
+  {
+    "code": "CX",
+    "name": "圣诞岛",
+    "type": "country"
+  },
+  {
+    "code": "CY",
+    "name": "塞浦路斯",
+    "type": "country"
+  },
+  {
+    "code": "CZ",
+    "name": "捷克",
+    "type": "country"
+  },
+  {
+    "code": "DE",
+    "name": "德国",
+    "type": "country"
+  },
+  {
+    "code": "DJ",
+    "name": "吉布提",
+    "type": "country"
+  },
+  {
+    "code": "DK",
+    "name": "丹麦",
+    "type": "country"
+  },
+  {
+    "code": "DM",
+    "name": "多米尼克",
+    "type": "country"
+  },
+  {
+    "code": "DO",
+    "name": "多米尼加共和国",
+    "type": "country"
+  },
+  {
+    "code": "DZ",
+    "name": "阿尔及利亚",
+    "type": "country"
+  },
+  {
+    "code": "EC",
+    "name": "厄瓜多尔",
+    "type": "country"
+  },
+  {
+    "code": "EE",
+    "name": "爱沙尼亚",
+    "type": "country"
+  },
+  {
+    "code": "EG",
+    "name": "埃及",
+    "type": "country"
+  },
+  {
+    "code": "EH",
+    "name": "西撒哈拉",
+    "type": "country"
+  },
+  {
+    "code": "ER",
+    "name": "厄立特里亚",
+    "type": "country"
+  },
+  {
+    "code": "ES",
+    "name": "西班牙",
+    "type": "country"
+  },
+  {
+    "code": "ET",
+    "name": "埃塞俄比亚",
+    "type": "country"
+  },
+  {
+    "code": "FI",
+    "name": "芬兰",
+    "type": "country"
+  },
+  {
+    "code": "FJ",
+    "name": "斐济",
+    "type": "country"
+  },
+  {
+    "code": "FK",
+    "name": "福克兰群岛",
+    "type": "country"
+  },
+  {
+    "code": "FM",
+    "name": "密克罗尼西亚联邦",
+    "type": "country"
+  },
+  {
+    "code": "FO",
+    "name": "法罗群岛",
+    "type": "country"
+  },
+  {
+    "code": "FR",
+    "name": "法国",
+    "type": "country"
+  },
+  {
+    "code": "GA",
+    "name": "加蓬",
+    "type": "country"
+  },
+  {
+    "code": "GB",
+    "name": "英国",
+    "type": "country"
+  },
+  {
+    "code": "GD",
+    "name": "格林纳达",
+    "type": "country"
+  },
+  {
+    "code": "GE",
+    "name": "格鲁吉亚",
+    "type": "country"
+  },
+  {
+    "code": "GF",
+    "name": "法属圭亚那",
+    "type": "country"
+  },
+  {
+    "code": "GG",
+    "name": "根西岛",
+    "type": "country"
+  },
+  {
+    "code": "GH",
+    "name": "加纳",
+    "type": "country"
+  },
+  {
+    "code": "GI",
+    "name": "直布罗陀",
+    "type": "country"
+  },
+  {
+    "code": "GL",
+    "name": "格陵兰",
+    "type": "country"
+  },
+  {
+    "code": "GM",
+    "name": "冈比亚",
+    "type": "country"
+  },
+  {
+    "code": "GN",
+    "name": "几内亚",
+    "type": "country"
+  },
+  {
+    "code": "GP",
+    "name": "瓜德罗普岛",
+    "type": "country"
+  },
+  {
+    "code": "GQ",
+    "name": "赤道几内亚",
+    "type": "country"
+  },
+  {
+    "code": "GR",
+    "name": "希腊",
+    "type": "country"
+  },
+  {
+    "code": "GS",
+    "name": "南乔治亚岛和南桑威奇群岛",
+    "type": "country"
+  },
+  {
+    "code": "GT",
+    "name": "危地马拉",
+    "type": "country"
+  },
+  {
+    "code": "GU",
+    "name": "关岛",
+    "type": "country"
+  },
+  {
+    "code": "GW",
+    "name": "几内亚比绍共和国",
+    "type": "country"
+  },
+  {
+    "code": "GY",
+    "name": "圭亚那",
+    "type": "country"
+  },
+  {
+    "code": "HK",
+    "name": "香港",
+    "type": "country"
+  },
+  {
+    "code": "HM",
+    "name": "赫德岛和麦克唐纳群岛",
+    "type": "country"
+  },
+  {
+    "code": "HN",
+    "name": "洪都拉斯",
+    "type": "country"
+  },
+  {
+    "code": "HR",
+    "name": "克罗地亚",
+    "type": "country"
+  },
+  {
+    "code": "HT",
+    "name": "海地",
+    "type": "country"
+  },
+  {
+    "code": "HU",
+    "name": "匈牙利",
+    "type": "country"
+  },
+  {
+    "code": "ID",
+    "name": "印度尼西亚",
+    "type": "country"
+  },
+  {
+    "code": "IE",
+    "name": "爱尔兰",
+    "type": "country"
+  },
+  {
+    "code": "IL",
+    "name": "以色列",
+    "type": "country"
+  },
+  {
+    "code": "IM",
+    "name": "马恩岛",
+    "type": "country"
+  },
+  {
+    "code": "IN",
+    "name": "印度",
+    "type": "country"
+  },
+  {
+    "code": "IO",
+    "name": "英属印度洋领地",
+    "type": "country"
+  },
+  {
+    "code": "IQ",
+    "name": "伊拉克",
+    "type": "country"
+  },
+  {
+    "code": "IS",
+    "name": "冰岛",
+    "type": "country"
+  },
+  {
+    "code": "IT",
+    "name": "意大利",
+    "type": "country"
+  },
+  {
+    "code": "JE",
+    "name": "泽西岛",
+    "type": "country"
+  },
+  {
+    "code": "JM",
+    "name": "牙买加",
+    "type": "country"
+  },
+  {
+    "code": "JO",
+    "name": "约旦",
+    "type": "country"
+  },
+  {
+    "code": "JP",
+    "name": "日本",
+    "type": "country"
+  },
+  {
+    "code": "KE",
+    "name": "肯尼亚",
+    "type": "country"
+  },
+  {
+    "code": "KG",
+    "name": "吉尔吉斯斯坦",
+    "type": "country"
+  },
+  {
+    "code": "KH",
+    "name": "柬埔寨",
+    "type": "country"
+  },
+  {
+    "code": "KI",
+    "name": "基里巴斯",
+    "type": "country"
+  },
+  {
+    "code": "KM",
+    "name": "科摩罗",
+    "type": "country"
+  },
+  {
+    "code": "KN",
+    "name": "圣基茨和尼维斯",
+    "type": "country"
+  },
+  {
+    "code": "KR",
+    "name": "韩国",
+    "type": "country"
+  },
+  {
+    "code": "KW",
+    "name": "科威特",
+    "type": "country"
+  },
+  {
+    "code": "KY",
+    "name": "开曼群岛",
+    "type": "country"
+  },
+  {
+    "code": "KZ",
+    "name": "哈萨克斯坦",
+    "type": "country"
+  },
+  {
+    "code": "LA",
+    "name": "老挝",
+    "type": "country"
+  },
+  {
+    "code": "LB",
+    "name": "黎巴嫩",
+    "type": "country"
+  },
+  {
+    "code": "LC",
+    "name": "圣卢西亚",
+    "type": "country"
+  },
+  {
+    "code": "LI",
+    "name": "列支敦士登",
+    "type": "country"
+  },
+  {
+    "code": "LK",
+    "name": "斯里兰卡",
+    "type": "country"
+  },
+  {
+    "code": "LR",
+    "name": "利比里亚",
+    "type": "country"
+  },
+  {
+    "code": "LS",
+    "name": "莱索托",
+    "type": "country"
+  },
+  {
+    "code": "LT",
+    "name": "立陶宛",
+    "type": "country"
+  },
+  {
+    "code": "LU",
+    "name": "卢森堡",
+    "type": "country"
+  },
+  {
+    "code": "LV",
+    "name": "拉脱维亚",
+    "type": "country"
+  },
+  {
+    "code": "LY",
+    "name": "利比亞",
+    "type": "country"
+  },
+  {
+    "code": "MA",
+    "name": "摩洛哥",
+    "type": "country"
+  },
+  {
+    "code": "MC",
+    "name": "摩纳哥",
+    "type": "country"
+  },
+  {
+    "code": "MD",
+    "name": "摩尔多瓦",
+    "type": "country"
+  },
+  {
+    "code": "ME",
+    "name": "黑山共和国",
+    "type": "country"
+  },
+  {
+    "code": "MF",
+    "name": "法属圣马丁",
+    "type": "country"
+  },
+  {
+    "code": "MG",
+    "name": "马达加斯加",
+    "type": "country"
+  },
+  {
+    "code": "MH",
+    "name": "马绍尔群岛",
+    "type": "country"
+  },
+  {
+    "code": "MK",
+    "name": "北马其顿",
+    "type": "country"
+  },
+  {
+    "code": "ML",
+    "name": "马里",
+    "type": "country"
+  },
+  {
+    "code": "MM",
+    "name": "缅甸",
+    "type": "country"
+  },
+  {
+    "code": "MN",
+    "name": "蒙古",
+    "type": "country"
+  },
+  {
+    "code": "MO",
+    "name": "澳门",
+    "type": "country"
+  },
+  {
+    "code": "MP",
+    "name": "北马里亚纳群岛",
+    "type": "country"
+  },
+  {
+    "code": "MQ",
+    "name": "马提尼克岛",
+    "type": "country"
+  },
+  {
+    "code": "MR",
+    "name": "毛里塔尼亚",
+    "type": "country"
+  },
+  {
+    "code": "MS",
+    "name": "蒙塞拉特岛",
+    "type": "country"
+  },
+  {
+    "code": "MT",
+    "name": "马耳他",
+    "type": "country"
+  },
+  {
+    "code": "MU",
+    "name": "毛里求斯",
+    "type": "country"
+  },
+  {
+    "code": "MV",
+    "name": "马尔代夫",
+    "type": "country"
+  },
+  {
+    "code": "MW",
+    "name": "马拉维",
+    "type": "country"
+  },
+  {
+    "code": "MX",
+    "name": "墨西哥",
+    "type": "country"
+  },
+  {
+    "code": "MY",
+    "name": "马来西亚",
+    "type": "country"
+  },
+  {
+    "code": "MZ",
+    "name": "莫桑比克",
+    "type": "country"
+  },
+  {
+    "code": "NA",
+    "name": "纳米比亚",
+    "type": "country"
+  },
+  {
+    "code": "NC",
+    "name": "新喀里多尼亚",
+    "type": "country"
+  },
+  {
+    "code": "NE",
+    "name": "尼日尔",
+    "type": "country"
+  },
+  {
+    "code": "NF",
+    "name": "诺福克岛",
+    "type": "country"
+  },
+  {
+    "code": "NG",
+    "name": "尼日利亚",
+    "type": "country"
+  },
+  {
+    "code": "NI",
+    "name": "尼加拉瓜",
+    "type": "country"
+  },
+  {
+    "code": "NL",
+    "name": "荷兰",
+    "type": "country"
+  },
+  {
+    "code": "NO",
+    "name": "挪威",
+    "type": "country"
+  },
+  {
+    "code": "NP",
+    "name": "尼泊尔",
+    "type": "country"
+  },
+  {
+    "code": "NR",
+    "name": "瑙鲁",
+    "type": "country"
+  },
+  {
+    "code": "NU",
+    "name": "纽埃",
+    "type": "country"
+  },
+  {
+    "code": "NZ",
+    "name": "新西兰",
+    "type": "country"
+  },
+  {
+    "code": "OM",
+    "name": "阿曼",
+    "type": "country"
+  },
+  {
+    "code": "PA",
+    "name": "巴拿马",
+    "type": "country"
+  },
+  {
+    "code": "PE",
+    "name": "秘鲁",
+    "type": "country"
+  },
+  {
+    "code": "PF",
+    "name": "法属玻利尼西亚",
+    "type": "country"
+  },
+  {
+    "code": "PG",
+    "name": "巴布亚新几内亚",
+    "type": "country"
+  },
+  {
+    "code": "PH",
+    "name": "菲律宾",
+    "type": "country"
+  },
+  {
+    "code": "PK",
+    "name": "巴基斯坦",
+    "type": "country"
+  },
+  {
+    "code": "PL",
+    "name": "波兰",
+    "type": "country"
+  },
+  {
+    "code": "PM",
+    "name": "圣皮埃尔和密克隆",
+    "type": "country"
+  },
+  {
+    "code": "PN",
+    "name": "皮特凯恩",
+    "type": "country"
+  },
+  {
+    "code": "PR",
+    "name": "波多黎各",
+    "type": "country"
+  },
+  {
+    "code": "PS",
+    "name": "巴勒斯坦",
+    "type": "country"
+  },
+  {
+    "code": "PT",
+    "name": "葡萄牙",
+    "type": "country"
+  },
+  {
+    "code": "PW",
+    "name": "帕劳",
+    "type": "country"
+  },
+  {
+    "code": "PY",
+    "name": "巴拉圭",
+    "type": "country"
+  },
+  {
+    "code": "QA",
+    "name": "卡塔尔",
+    "type": "country"
+  },
+  {
+    "code": "RE",
+    "name": "留尼汪",
+    "type": "country"
+  },
+  {
+    "code": "RO",
+    "name": "罗马尼亚",
+    "type": "country"
+  },
+  {
+    "code": "RS",
+    "name": "塞尔维亚",
+    "type": "country"
+  },
+  {
+    "code": "RU",
+    "name": "俄罗斯",
+    "type": "country"
+  },
+  {
+    "code": "RW",
+    "name": "卢旺达",
+    "type": "country"
+  },
+  {
+    "code": "SA",
+    "name": "沙特阿拉伯",
+    "type": "country"
+  },
+  {
+    "code": "SB",
+    "name": "所罗门群岛",
+    "type": "country"
+  },
+  {
+    "code": "SC",
+    "name": "塞舌尔",
+    "type": "country"
+  },
+  {
+    "code": "SE",
+    "name": "瑞典",
+    "type": "country"
+  },
+  {
+    "code": "SG",
+    "name": "新加坡",
+    "type": "country"
+  },
+  {
+    "code": "SH",
+    "name": "圣赫勒拿",
+    "type": "country"
+  },
+  {
+    "code": "SI",
+    "name": "斯洛文尼亚",
+    "type": "country"
+  },
+  {
+    "code": "SJ",
+    "name": "斯瓦尔巴群岛和扬马延岛",
+    "type": "country"
+  },
+  {
+    "code": "SK",
+    "name": "斯洛伐克",
+    "type": "country"
+  },
+  {
+    "code": "SL",
+    "name": "塞拉利昂",
+    "type": "country"
+  },
+  {
+    "code": "SM",
+    "name": "圣马力诺",
+    "type": "country"
+  },
+  {
+    "code": "SN",
+    "name": "塞内加尔",
+    "type": "country"
+  },
+  {
+    "code": "SO",
+    "name": "索马里",
+    "type": "country"
+  },
+  {
+    "code": "SR",
+    "name": "苏里南",
+    "type": "country"
+  },
+  {
+    "code": "SS",
+    "name": "南苏丹",
+    "type": "country"
+  },
+  {
+    "code": "ST",
+    "name": "圣多美和普林西比",
+    "type": "country"
+  },
+  {
+    "code": "SV",
+    "name": "萨尔瓦多",
+    "type": "country"
+  },
+  {
+    "code": "SX",
+    "name": "荷属圣马丁",
+    "type": "country"
+  },
+  {
+    "code": "SY",
+    "name": "叙利亚",
+    "type": "country"
+  },
+  {
+    "code": "SZ",
+    "name": "斯威士兰",
+    "type": "country"
+  },
+  {
+    "code": "TC",
+    "name": "特克斯和凯科斯群岛",
+    "type": "country"
+  },
+  {
+    "code": "TD",
+    "name": "乍得",
+    "type": "country"
+  },
+  {
+    "code": "TF",
+    "name": "法属南部领地",
+    "type": "country"
+  },
+  {
+    "code": "TG",
+    "name": "多哥",
+    "type": "country"
+  },
+  {
+    "code": "TH",
+    "name": "泰国",
+    "type": "country"
+  },
+  {
+    "code": "TJ",
+    "name": "塔吉克斯坦",
+    "type": "country"
+  },
+  {
+    "code": "TK",
+    "name": "托克劳",
+    "type": "country"
+  },
+  {
+    "code": "TL",
+    "name": "东帝汶",
+    "type": "country"
+  },
+  {
+    "code": "TM",
+    "name": "土库曼斯坦",
+    "type": "country"
+  },
+  {
+    "code": "TN",
+    "name": "突尼斯",
+    "type": "country"
+  },
+  {
+    "code": "TO",
+    "name": "汤加",
+    "type": "country"
+  },
+  {
+    "code": "TR",
+    "name": "土耳其",
+    "type": "country"
+  },
+  {
+    "code": "TT",
+    "name": "特立尼达和多巴哥",
+    "type": "country"
+  },
+  {
+    "code": "TV",
+    "name": "图瓦卢",
+    "type": "country"
+  },
+  {
+    "code": "TW",
+    "name": "台湾",
+    "type": "country"
+  },
+  {
+    "code": "TZ",
+    "name": "坦桑尼亚",
+    "type": "country"
+  },
+  {
+    "code": "UA",
+    "name": "乌克兰",
+    "type": "country"
+  },
+  {
+    "code": "UG",
+    "name": "乌干达",
+    "type": "country"
+  },
+  {
+    "code": "UM",
+    "name": "美国本土外小岛屿",
+    "type": "country"
+  },
+  {
+    "code": "US",
+    "name": "美国",
+    "type": "country"
+  },
+  {
+    "code": "UY",
+    "name": "乌拉圭",
+    "type": "country"
+  },
+  {
+    "code": "UZ",
+    "name": "乌兹别克斯坦",
+    "type": "country"
+  },
+  {
+    "code": "VA",
+    "name": "梵蒂冈城",
+    "type": "country"
+  },
+  {
+    "code": "VC",
+    "name": "圣文森特和格林纳丁斯",
+    "type": "country"
+  },
+  {
+    "code": "VE",
+    "name": "委内瑞拉",
+    "type": "country"
+  },
+  {
+    "code": "VG",
+    "name": "英属维尔京群岛",
+    "type": "country"
+  },
+  {
+    "code": "VI",
+    "name": "美属维尔京群岛",
+    "type": "country"
+  },
+  {
+    "code": "VN",
+    "name": "越南",
+    "type": "country"
+  },
+  {
+    "code": "VU",
+    "name": "瓦努阿图",
+    "type": "country"
+  },
+  {
+    "code": "WF",
+    "name": "瓦利斯和富图纳群岛",
+    "type": "country"
+  },
+  {
+    "code": "WS",
+    "name": "萨摩亚",
+    "type": "country"
+  },
+  {
+    "code": "XK",
+    "name": "科索沃",
+    "type": "country"
+  },
+  {
+    "code": "YE",
+    "name": "也门",
+    "type": "country"
+  },
+  {
+    "code": "YT",
+    "name": "马约特",
+    "type": "country"
+  },
+  {
+    "code": "ZA",
+    "name": "南非",
+    "type": "country"
+  },
+  {
+    "code": "ZM",
+    "name": "赞比亚",
+    "type": "country"
+  },
+  {
+    "code": "ZW",
+    "name": "津巴布韦",
+    "type": "country"
+  }
+]

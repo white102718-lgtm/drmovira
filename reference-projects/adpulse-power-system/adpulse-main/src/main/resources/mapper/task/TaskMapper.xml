@@ -1,0 +1,985 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.task.mapper.TaskMapper">
+    <sql id="deliveryAgencyLineColumns">
+        CAST(id AS CHAR) AS id,
+        line_name AS name,
+        delivery_type AS type,
+        pixel_name AS pixelName,
+        pixel_id AS pixelId,
+        token_ciphertext AS tokenCiphertext,
+        NULL AS token,
+        test_code AS testCode,
+        delivery_url AS deliveryUrl,
+        CAST(optimizer_id AS CHAR) AS optimizerId,
+        optimizer_name AS optimizerName,
+        cloak_url AS cloakUrl
+    </sql>
+    <select id="findDeliveryAgencyLines" resultType="com.adpulse.main.task.dto.TaskViews$AgencyLineOption">
+        SELECT <include refid="deliveryAgencyLineColumns"/>
+        FROM pm_agency_line
+        WHERE deleted_at = 0
+        <if test="keyword != ''">AND LOCATE(#{keyword}, line_name) &gt; 0</if>
+        ORDER BY line_name, id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="findDeliveryAgencyLinesByIds" resultType="com.adpulse.main.task.dto.TaskViews$AgencyLineOption">
+        SELECT <include refid="deliveryAgencyLineColumns"/> FROM pm_agency_line
+        WHERE deleted_at = 0 AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <select id="findDeliveryAgencyLinesByNames" resultType="com.adpulse.main.task.dto.TaskViews$AgencyLineOption">
+        SELECT <include refid="deliveryAgencyLineColumns"/> FROM pm_agency_line
+        WHERE deleted_at = 0 AND line_name IN
+        <foreach collection="names" item="name" open="(" separator="," close=")">#{name}</foreach>
+        ORDER BY line_name, id
+    </select>
+
+    <resultMap id="draftMap" type="com.adpulse.main.task.model.TaskModels$Draft">
+        <id property="id" column="id"/>
+        <result property="draftCode" column="draft_code"/>
+        <result property="taskType" column="task_type"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="creatorName" column="creator_name"/>
+        <result property="title" column="title"/>
+        <result property="projectId" column="project_id"/>
+        <result property="payloadJson" column="payload_json"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="activityMap" type="com.adpulse.main.task.model.TaskModels$Activity">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="taskType" column="task_type"/>
+        <result property="projectId" column="project_id"/>
+        <result property="taskTitle" column="task_title"/>
+        <result property="eventType" column="event_type"/>
+        <result property="state" column="state"/>
+        <result property="actorId" column="actor_id"/>
+        <result property="actorName" column="actor_name"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertActivity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_task_activity (
+            task_id, event_type, state, actor_id, actor_name, description
+        ) VALUES (
+            #{taskId}, #{eventType}, #{state}, #{actorId}, #{actorName}, #{description}
+        )
+    </insert>
+
+    <select id="findActivities" resultMap="activityMap">
+        SELECT
+            activity.id,
+            activity.task_id,
+            task.task_type,
+            task.project_id,
+            task.title AS task_title,
+            activity.event_type,
+            activity.state,
+            activity.actor_id,
+            activity.actor_name,
+            activity.description,
+            activity.created_at
+        FROM biz_task_activity activity
+        INNER JOIN biz_task task
+            ON task.id = activity.task_id
+            AND task.deleted_at = 0
+        WHERE activity.deleted_at = 0
+          AND (
+              task.creator_id = #{userId}
+              OR task.owner_id = #{userId}
+              OR task.assigner_id = #{userId}
+              OR EXISTS (
+                  SELECT 1 FROM biz_delivery_task_allocation allocation
+                  WHERE allocation.task_id = task.id
+                    AND allocation.team_owner_id = #{userId}
+                    AND allocation.deleted_at = 0
+              )
+              OR EXISTS (
+                  SELECT 1 FROM biz_task_follow follow_state
+                  WHERE follow_state.task_id = task.id
+                    AND follow_state.user_id = #{userId}
+                    AND follow_state.deleted_at = 0
+              )
+          )
+        ORDER BY activity.created_at DESC, activity.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <sql id="draftColumns">
+        id, draft_code, task_type, creator_id, creator_name, title, project_id,
+        payload_json, created_by, updated_by, created_at, updated_at
+    </sql>
+
+    <select id="findDraft" resultMap="draftMap">
+        SELECT <include refid="draftColumns"/> FROM biz_task_draft
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <select id="findDraftForUpdate" resultMap="draftMap">
+        SELECT <include refid="draftColumns"/> FROM biz_task_draft
+        WHERE id = #{id} AND deleted_at = 0 FOR UPDATE
+    </select>
+
+    <select id="findDrafts" resultMap="draftMap">
+        SELECT <include refid="draftColumns"/> FROM biz_task_draft
+        WHERE creator_id = #{creatorId} AND deleted_at = 0
+        ORDER BY updated_at DESC, id DESC
+    </select>
+
+    <insert id="insertDraft" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_task_draft (
+            draft_code, task_type, creator_id, creator_name, title, project_id,
+            payload_json, created_by, updated_by
+        ) VALUES (
+            #{draftCode}, #{taskType}, #{creatorId}, #{creatorName}, #{title}, #{projectId},
+            #{payloadJson}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateDraft">
+        UPDATE biz_task_draft
+        SET task_type = #{taskType}, title = #{title}, project_id = #{projectId},
+            payload_json = #{payloadJson}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND deleted_at = 0
+    </update>
+
+    <update id="deleteDraft">
+        UPDATE biz_task_draft SET deleted_at = #{deletedAt}, updated_by = #{creatorId}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND deleted_at = 0
+    </update>
+
+    <resultMap id="taskMap" type="com.adpulse.main.task.model.TaskModels$Task">
+        <id property="id" column="id"/>
+        <result property="taskCode" column="task_code"/>
+        <result property="taskType" column="task_type"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="amNames" column="am_names"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="creatorName" column="creator_name"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="ownerName" column="owner_name"/>
+        <result property="assignerId" column="assigner_id"/>
+        <result property="assignerName" column="assigner_name"/>
+        <result property="assignedAt" column="assigned_at"/>
+        <result property="priority" column="priority"/>
+        <result property="status" column="status"/>
+        <result property="dueAt" column="due_at"/>
+        <result property="acceptedAt" column="accepted_at"/>
+        <result property="completedAt" column="completed_at"/>
+        <result property="withdrawnAt" column="withdrawn_at"/>
+        <result property="withdrawReason" column="withdraw_reason"/>
+        <result property="rejectedAt" column="rejected_at"/>
+        <result property="rejectedBy" column="rejected_by"/>
+        <result property="rejectionReason" column="rejection_reason"/>
+        <result property="version" column="version"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="followed" column="followed"/>
+        <result property="deliveryOperator" column="delivery_operator"/>
+    </resultMap>
+
+    <resultMap id="deliveryMap" type="com.adpulse.main.task.model.TaskModels$DeliveryDetail">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="productUrl" column="product_url"/>
+        <result property="regionValue" column="region_value"/>
+        <result property="targetDescription" column="target_description"/>
+        <result property="plannedStartAt" column="planned_start_at"/>
+        <result property="amUserId" column="am_user_id"/>
+        <result property="amUserName" column="am_user_name"/>
+        <result property="itemsCiphertext" column="items_ciphertext"/>
+    </resultMap>
+
+    <resultMap id="allocationMap" type="com.adpulse.main.task.model.TaskModels$Allocation">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="teamCode" column="team_code"/>
+        <result property="teamName" column="team_name"/>
+        <result property="teamOwnerId" column="team_owner_id"/>
+        <result property="teamOwnerName" column="team_owner_name"/>
+        <result property="pwaLineCount" column="pwa_line_count"/>
+        <result property="h5LineCount" column="h5_line_count"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="status" column="status"/>
+        <result property="submittedAt" column="submitted_at"/>
+        <result property="completedAt" column="completed_at"/>
+    </resultMap>
+
+    <resultMap id="materialMap" type="com.adpulse.main.task.model.TaskModels$MaterialDetail">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="demandType" column="demand_type"/>
+        <result property="languageCode" column="language_code"/>
+        <result property="greenMaterial" column="green_material"/>
+        <result property="departmentId" column="department_id"/>
+        <result property="departmentName" column="department_name"/>
+        <result property="productSubName" column="product_sub_name"/>
+        <result property="quantity" column="quantity"/>
+        <result property="addToLibrary" column="add_to_library"/>
+        <result property="countryTags" column="country_tags"/>
+        <result property="themeTags" column="theme_tags"/>
+        <result property="gameplayTags" column="gameplay_tags"/>
+    </resultMap>
+
+    <resultMap id="materialRequirementMap" type="com.adpulse.main.task.model.TaskModels$MaterialRequirement">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="description" column="description"/>
+        <result property="durationText" column="duration_text"/>
+        <result property="quantity" column="quantity"/>
+        <result property="relatedLink" column="related_link"/>
+        <result property="remark" column="remark"/>
+        <result property="complianceRequirement" column="compliance_requirement"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+    </resultMap>
+
+    <resultMap id="deliverySubmissionMap" type="com.adpulse.main.task.model.TaskModels$DeliverySubmission">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="allocationId" column="allocation_id"/>
+        <result property="versionNo" column="version_no"/>
+        <result property="requestId" column="request_id"/>
+        <result property="submittedBy" column="submitted_by"/>
+        <result property="submittedByName" column="submitted_by_name"/>
+        <result property="platformValue" column="platform_value"/>
+        <result property="adAccountId" column="ad_account_id"/>
+        <result property="adAccountName" column="ad_account_name"/>
+        <result property="actualStartAt" column="actual_start_at"/>
+        <result property="actualBudget" column="actual_budget"/>
+        <result property="actualSpend" column="actual_spend"/>
+        <result property="dailyReportSpend" column="daily_report_spend"/>
+        <result property="currency" column="currency"/>
+        <result property="campaignCount" column="campaign_count"/>
+        <result property="adsetCount" column="adset_count"/>
+        <result property="adCount" column="ad_count"/>
+        <result property="deliveryStatus" column="delivery_status"/>
+        <result property="exceptionNote" column="exception_note"/>
+        <result property="submissionNote" column="submission_note"/>
+        <result property="submittedAt" column="submitted_at"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewerName" column="reviewer_name"/>
+        <result property="reviewComment" column="review_comment"/>
+        <result property="reviewedAt" column="reviewed_at"/>
+    </resultMap>
+
+    <resultMap id="materialSubmissionMap" type="com.adpulse.main.task.model.TaskModels$MaterialSubmission">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="versionNo" column="version_no"/>
+        <result property="requestId" column="request_id"/>
+        <result property="submittedBy" column="submitted_by"/>
+        <result property="submittedByName" column="submitted_by_name"/>
+        <result property="deliveredQuantity" column="delivered_quantity"/>
+        <result property="submissionNote" column="submission_note"/>
+        <result property="submittedAt" column="submitted_at"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewerName" column="reviewer_name"/>
+        <result property="reviewComment" column="review_comment"/>
+        <result property="reviewedAt" column="reviewed_at"/>
+        <result property="libraryStatus" column="library_status"/>
+    </resultMap>
+
+    <sql id="taskColumns">
+        id, task_code, task_type, project_id, title, description,
+        creator_id, creator_name, owner_id, owner_name,
+        assigner_id, assigner_name, assigned_at, priority, status,
+        due_at, accepted_at, completed_at, withdrawn_at, withdraw_reason,
+        rejected_at, rejected_by, rejection_reason,
+        version, created_by, updated_by, created_at, updated_at,
+        CASE WHEN task_type = 'DELIVERY' THEN COALESCE(
+            (SELECT GROUP_CONCAT(task_am.user_name ORDER BY task_am.sort_order, task_am.id SEPARATOR '、')
+             FROM biz_delivery_task_am task_am
+             WHERE task_am.task_id = biz_task.id AND task_am.deleted_at = 0),
+            (SELECT delivery.am_user_name FROM biz_delivery_task delivery
+             WHERE delivery.task_id = biz_task.id AND delivery.deleted_at = 0)
+        ) END AS am_names
+    </sql>
+
+    <select id="findTask" resultMap="taskMap">
+        SELECT <include refid="taskColumns"/>
+        FROM biz_task
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <select id="findTaskForUpdate" resultMap="taskMap">
+        SELECT <include refid="taskColumns"/>
+        FROM biz_task
+        WHERE id = #{id} AND deleted_at = 0
+        FOR UPDATE
+    </select>
+
+    <sql id="visibleTaskWhere">
+        WHERE deleted_at = 0
+        <if test="scope != 'ALL'">
+            AND (creator_id = #{userId} OR owner_id = #{userId} OR assigner_id = #{userId}
+                 OR EXISTS (SELECT 1 FROM biz_delivery_task_am task_am
+                            WHERE task_am.task_id = biz_task.id AND task_am.user_id = #{userId}
+                              AND task_am.deleted_at = 0)
+                 OR EXISTS (SELECT 1 FROM biz_delivery_task_allocation allocation
+                            WHERE allocation.task_id = biz_task.id AND allocation.team_owner_id = #{userId}
+                              AND allocation.deleted_at = 0)
+                 OR EXISTS (SELECT 1 FROM biz_task_follow follow_state
+                            WHERE follow_state.task_id = biz_task.id AND follow_state.user_id = #{userId}
+                              AND follow_state.deleted_at = 0))
+        </if>
+        <if test="scope == 'OWNER'">
+            AND (
+                (task_type = 'DELIVERY' AND (owner_id = #{userId} OR EXISTS (
+                    SELECT 1 FROM biz_delivery_task_allocation allocation
+                    WHERE allocation.task_id = biz_task.id
+                      AND allocation.team_owner_id = #{userId}
+                      AND allocation.deleted_at = 0
+                )))
+                OR (task_type != 'DELIVERY' AND owner_id = #{userId})
+            )
+        </if>
+        <if test="scope == 'LEADER'">AND owner_id = #{userId}</if>
+        <if test="scope == 'CREATED'">AND creator_id = #{userId}</if>
+        <if test="scope == 'ASSIGNED'">
+            AND assigner_id = #{userId}
+
+        </if>
+        <if test="scope == 'PENDING_ASSIGNMENT'">
+            AND task_type = 'DELIVERY'
+            AND owner_id = #{userId}
+            AND status = 'PENDING_ASSIGNMENT'
+        </if>
+        <if test="scope == 'FOLLOWED'">
+            AND EXISTS (
+                SELECT 1
+                FROM biz_task_follow follow
+                WHERE follow.task_id = biz_task.id
+                  AND follow.user_id = #{userId}
+                  AND follow.deleted_at = 0
+            )
+        </if>
+        <if test="taskType != null">AND task_type = #{taskType}</if>
+        <choose>
+            <!-- 投放失败标签包含驳回和撤回，列表与总数必须在分页前使用相同条件。 -->
+            <when test="taskType == 'DELIVERY' and status == 'FAILED'">
+                AND status IN ('REJECTED', 'WITHDRAWN')
+            </when>
+            <otherwise>
+                <if test="status != null">AND status = #{status}</if>
+            </otherwise>
+        </choose>
+        <if test="keyword != null">
+            AND (
+                title LIKE CONCAT('%', #{keyword}, '%')
+                OR task_code LIKE CONCAT('%', #{keyword}, '%')
+                <if test="taskType == 'DELIVERY'">
+                    OR owner_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR EXISTS (
+                        SELECT 1 FROM pm_project search_project
+                        WHERE search_project.id = biz_task.project_id
+                          AND search_project.deleted_at = 0
+                          AND search_project.project_name LIKE CONCAT('%', #{keyword}, '%')
+                    )
+                </if>
+            )
+        </if>
+    </sql>
+
+    <select id="findTasks" resultMap="taskMap">
+        SELECT
+            <include refid="taskColumns"/>,
+            (SELECT project.project_name FROM pm_project project
+             WHERE project.id = biz_task.project_id AND project.deleted_at = 0) AS project_name,
+            EXISTS (
+                SELECT 1
+                FROM biz_task_follow follow_state
+                WHERE follow_state.task_id = biz_task.id
+                  AND follow_state.user_id = #{userId}
+                  AND follow_state.deleted_at = 0
+            ) AS followed
+            , EXISTS (
+                SELECT 1
+                FROM biz_delivery_task_allocation allocation_operator
+                WHERE allocation_operator.task_id = biz_task.id
+                  AND allocation_operator.team_owner_id = #{userId}
+                  AND allocation_operator.status = 'ASSIGNED'
+                  AND allocation_operator.deleted_at = 0
+            ) AS delivery_operator
+        FROM biz_task
+        <include refid="visibleTaskWhere"/>
+        ORDER BY updated_at DESC, id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countTasks" resultType="long">
+        SELECT COUNT(*) FROM biz_task
+        <include refid="visibleTaskWhere"/>
+    </select>
+
+    <select id="countFailedTasks" resultType="long">
+        SELECT COUNT(*) FROM biz_task
+        <include refid="visibleTaskWhere"/>
+          AND status IN ('REJECTED', 'WITHDRAWN')
+    </select>
+
+    <select id="findProjectName" resultType="string">
+        SELECT project_name FROM pm_project WHERE id = #{id} AND deleted_at = 0 LIMIT 1
+    </select>
+
+    <select id="findProjectTaskOwners" resultType="com.adpulse.main.task.model.TaskModels$ProjectTaskOwners">
+        SELECT am_user_id AS amUserId, am_name AS amUserName,
+               delivery_leader_id AS deliveryLeaderId, delivery_leader_name AS deliveryLeaderName
+        FROM pm_project
+        WHERE id = #{id} AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <select id="findProjectAms" resultType="com.adpulse.main.task.model.TaskModels$UserSnapshot">
+        SELECT user_id AS userId, user_name AS userName, sort_order AS sortOrder
+        FROM pm_project_am WHERE project_id = #{projectId} AND deleted_at = 0 ORDER BY sort_order, id
+    </select>
+    <select id="findDeliveryTaskAms" resultType="com.adpulse.main.task.model.TaskModels$UserSnapshot">
+        SELECT user_id AS userId, user_name AS userName, sort_order AS sortOrder
+        FROM biz_delivery_task_am WHERE task_id = #{taskId} AND deleted_at = 0 ORDER BY sort_order, id
+    </select>
+    <insert id="insertDeliveryTaskAm">
+        INSERT INTO biz_delivery_task_am (task_id, user_id, user_name, sort_order, created_by, updated_by)
+        VALUES (#{taskId}, #{userId}, #{userName}, #{sortOrder}, #{createdBy}, #{createdBy})
+    </insert>
+    <update id="deleteDeliveryTaskAms">
+        UPDATE biz_delivery_task_am SET deleted_at = #{deletedAt}
+        WHERE task_id = #{taskId} AND deleted_at = 0
+    </update>
+
+    <select id="findActiveUserName" resultType="string">
+        SELECT display_name FROM sys_user WHERE id = #{id} AND status = 1 AND deleted_at = 0 LIMIT 1
+    </select>
+
+    <select id="findUserName" resultType="string">
+        SELECT display_name FROM sys_user WHERE id = #{id} AND deleted_at = 0 LIMIT 1
+    </select>
+
+    <select id="countFollowedTasks" resultType="long">
+        SELECT COUNT(*)
+        FROM biz_task_follow follow
+        INNER JOIN biz_task task
+            ON task.id = follow.task_id
+            AND task.deleted_at = 0
+        WHERE follow.user_id = #{userId}
+          AND follow.deleted_at = 0
+    </select>
+
+    <select id="countAssignedTasks" resultType="long">
+        SELECT COUNT(*)
+        FROM biz_task
+        WHERE assigner_id = #{userId}
+          AND deleted_at = 0
+          AND task_type = 'DELIVERY'
+    </select>
+
+    <select id="countActivities" resultType="long">
+        SELECT COUNT(*)
+        FROM biz_task_activity activity
+        INNER JOIN biz_task task
+            ON task.id = activity.task_id
+            AND task.deleted_at = 0
+            AND (
+                task.creator_id = #{userId}
+                OR task.owner_id = #{userId}
+                OR task.assigner_id = #{userId}
+                OR EXISTS (
+                    SELECT 1 FROM biz_delivery_task_allocation allocation
+                    WHERE allocation.task_id = task.id
+                      AND allocation.team_owner_id = #{userId}
+                      AND allocation.deleted_at = 0
+                )
+                OR EXISTS (
+                    SELECT 1 FROM biz_task_follow follow_state
+                    WHERE follow_state.task_id = task.id
+                      AND follow_state.user_id = #{userId}
+                      AND follow_state.deleted_at = 0
+                )
+            )
+        WHERE activity.deleted_at = 0
+    </select>
+
+    <select id="countDrafts" resultType="long">
+        SELECT COUNT(*)
+        FROM biz_task_draft
+        WHERE creator_id = #{creatorId}
+          AND deleted_at = 0
+    </select>
+
+    <select id="findFollowedTaskIds" resultType="long">
+        SELECT follow.task_id
+        FROM biz_task_follow follow
+        JOIN biz_task task
+          ON task.id = follow.task_id
+         AND task.deleted_at = 0
+        WHERE follow.user_id = #{userId}
+          AND follow.deleted_at = 0
+        ORDER BY follow.created_at DESC, follow.id DESC
+    </select>
+
+    <select id="countTaskFollow" resultType="int">
+        SELECT COUNT(*)
+        FROM biz_task_follow
+        WHERE task_id = #{taskId} AND user_id = #{userId} AND deleted_at = 0
+    </select>
+
+    <insert id="insertTaskFollow">
+        INSERT IGNORE INTO biz_task_follow (task_id, user_id)
+        VALUES (#{taskId}, #{userId})
+    </insert>
+
+    <update id="deleteTaskFollow">
+        UPDATE biz_task_follow
+        SET deleted_at = #{deletedAt}
+        WHERE task_id = #{taskId} AND user_id = #{userId} AND deleted_at = 0
+    </update>
+
+    <select id="findUserDepartment" resultType="com.adpulse.main.task.model.TaskModels$DepartmentSnapshot">
+        SELECT department.id, department.dept_name AS name
+        FROM sys_user user
+        JOIN sys_department department
+          ON department.id = user.primary_department_id
+         AND department.deleted_at = 0
+        WHERE user.id = #{userId} AND user.deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <select id="countEnabledDictionaryValues" resultType="int">
+        SELECT COUNT(DISTINCT item.item_value)
+        FROM sys_dict_type type
+        JOIN sys_dict_item item
+          ON item.dict_type_id = type.id
+         AND item.status = 1
+         AND item.deleted_at = 0
+        WHERE type.dict_code = #{dictCode}
+          AND type.status = 1
+          AND type.deleted_at = 0
+          AND item.item_value IN
+        <foreach collection="values" item="value" open="(" separator="," close=")">#{value}</foreach>
+    </select>
+
+    <select id="countOwnedFiles" resultType="int">
+        SELECT COUNT(*) FROM sys_file
+        WHERE uploader_id = #{uploaderId} AND deleted_at = 0
+          AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
+    <insert id="insertTask" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_task (
+            task_code, task_type, project_id, title, description,
+            creator_id, creator_name, owner_id, owner_name, assigner_id,
+            assigner_name, assigned_at, priority, status, due_at, created_by, updated_by
+        ) VALUES (
+            #{taskCode}, #{taskType}, #{projectId}, #{title}, #{description},
+            #{creatorId}, #{creatorName}, #{ownerId}, #{ownerName}, #{assignerId},
+            #{assignerName}, #{assignedAt}, #{priority}, #{status}, #{dueAt}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <insert id="insertDeliveryDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_delivery_task (
+            task_id, product_url, region_value, target_description, planned_start_at, am_user_id, am_user_name, items_ciphertext
+        ) VALUES (
+            #{taskId}, #{productUrl}, #{regionValue}, #{targetDescription}, #{plannedStartAt}, #{amUserId}, #{amUserName}, #{itemsCiphertext}
+        )
+    </insert>
+
+    <insert id="insertDeliveryPlatform">
+        INSERT INTO biz_delivery_task_platform (task_id, platform_value, sort_order)
+        VALUES (#{taskId}, #{platform}, #{sortOrder})
+    </insert>
+
+    <insert id="insertAllocation" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_delivery_task_allocation (
+            task_id, team_code, team_owner_id, team_owner_name, pwa_line_count, h5_line_count, sort_order
+        ) VALUES (
+            #{taskId}, #{teamCode}, #{teamOwnerId}, #{teamOwnerName}, #{pwaLineCount}, #{h5LineCount}, #{sortOrder}
+        )
+    </insert>
+
+    <update id="deleteUnsubmittedAllocations">
+        UPDATE biz_delivery_task_allocation SET deleted_at = #{deletedAt}
+        WHERE task_id = #{taskId} AND status = 'ASSIGNED' AND deleted_at = 0
+    </update>
+
+    <insert id="insertMaterialDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_material_task (
+            task_id, demand_type, language_code, green_material, department_id,
+            department_name, product_sub_name, quantity, add_to_library,
+            country_tags, theme_tags, gameplay_tags
+        ) VALUES (
+            #{taskId}, #{demandType}, #{languageCode}, #{greenMaterial}, #{departmentId},
+            #{departmentName}, #{productSubName}, #{quantity}, #{addToLibrary},
+            CAST(#{countryTags} AS JSON), CAST(#{themeTags} AS JSON), CAST(#{gameplayTags} AS JSON)
+        )
+    </insert>
+
+    <insert id="insertMaterialRequirement" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_material_task_requirement (
+            task_id, sort_order, description, duration_text, quantity,
+            related_link, remark, compliance_requirement, created_by, updated_by
+        ) VALUES (
+            #{taskId}, #{sortOrder}, #{description}, #{durationText}, #{quantity},
+            #{relatedLink}, #{remark}, #{complianceRequirement}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <insert id="insertMaterialSize">
+        INSERT INTO biz_material_task_size (task_id, size_value, sort_order)
+        VALUES (#{taskId}, #{size}, #{sortOrder})
+    </insert>
+
+    <insert id="insertReferenceLink">
+        INSERT INTO biz_material_task_reference (task_id, reference_name, reference_url, sort_order)
+        VALUES (#{taskId}, #{name}, #{url}, #{sortOrder})
+    </insert>
+
+    <insert id="insertFileBinding">
+        INSERT INTO biz_task_file_binding (
+            task_id, file_id, target_type, target_id, usage_type, sort_order, bound_by
+        ) VALUES (
+            #{taskId}, #{fileId}, #{targetType}, #{targetId}, #{usageType}, #{sortOrder}, #{boundBy}
+        )
+    </insert>
+
+    <select id="findDeliveryDetail" resultMap="deliveryMap">
+        SELECT id, task_id, product_url, region_value, target_description, planned_start_at, am_user_id, am_user_name, items_ciphertext
+        FROM biz_delivery_task WHERE task_id = #{taskId} AND deleted_at = 0
+    </select>
+
+    <select id="findDeliveryPlatforms" resultType="string">
+        SELECT platform_value FROM biz_delivery_task_platform
+        WHERE task_id = #{taskId} AND deleted_at = 0 ORDER BY sort_order, id
+    </select>
+
+    <select id="findActiveDeliveryDepartment" resultType="string">
+        SELECT dept_name
+        FROM sys_department
+        WHERE id = #{id} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findAllocations" resultMap="allocationMap">
+        SELECT allocation.id,
+               allocation.task_id,
+               allocation.team_code,
+               allocation.team_owner_id,
+               allocation.team_owner_name,
+               allocation.pwa_line_count,
+               allocation.h5_line_count,
+               allocation.sort_order,
+               allocation.status,
+               allocation.submitted_at,
+               allocation.completed_at,
+               COALESCE(department.dept_name, allocation.team_code) AS team_name
+        FROM biz_delivery_task_allocation allocation
+        LEFT JOIN sys_department department ON allocation.team_code = CAST(department.id AS CHAR)
+        WHERE allocation.task_id = #{taskId} AND allocation.deleted_at = 0
+        ORDER BY allocation.sort_order, allocation.id
+    </select>
+
+    <select id="findMaterialDetail" resultMap="materialMap">
+        SELECT id, task_id, demand_type, language_code, green_material,
+               department_id, department_name, product_sub_name, quantity, add_to_library,
+               country_tags, theme_tags, gameplay_tags
+        FROM biz_material_task WHERE task_id = #{taskId} AND deleted_at = 0
+    </select>
+
+    <select id="findMaterialRequirements" resultMap="materialRequirementMap">
+        SELECT id, task_id, sort_order, description, duration_text, quantity,
+               related_link, remark, compliance_requirement, created_by, updated_by
+        FROM biz_material_task_requirement
+        WHERE task_id = #{taskId} AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findMaterialSizes" resultType="string">
+        SELECT size_value FROM biz_material_task_size
+        WHERE task_id = #{taskId} AND deleted_at = 0 ORDER BY sort_order, id
+    </select>
+
+    <select id="findReferenceLinks" resultType="com.adpulse.main.task.dto.TaskViews$ReferenceLink">
+        SELECT reference_name AS name, reference_url AS url, sort_order AS sortOrder
+        FROM biz_material_task_reference
+        WHERE task_id = #{taskId} AND deleted_at = 0 ORDER BY sort_order, id
+    </select>
+
+    <select id="findTaskFiles" resultType="com.adpulse.main.task.dto.TaskViews$FileView">
+        SELECT CAST(file.id AS CHAR) AS id, file.original_name AS originalName,
+               file.extension, object.file_size AS fileSize, object.mime_type AS mimeType,
+               binding.target_type AS targetType, CAST(binding.target_id AS CHAR) AS targetId,
+               binding.usage_type AS usageType, binding.sort_order AS sortOrder
+        FROM biz_task_file_binding binding
+        JOIN sys_file file ON file.id = binding.file_id AND file.deleted_at = 0
+        JOIN sys_file_object object ON object.id = file.file_object_id AND object.deleted_at = 0
+        WHERE binding.task_id = #{taskId} AND binding.deleted_at = 0
+        ORDER BY binding.target_type, binding.target_id, binding.sort_order, binding.id
+    </select>
+
+    <select id="findDeliverySubmissions" resultMap="deliverySubmissionMap">
+        SELECT * FROM biz_delivery_task_submission
+        WHERE task_id = #{taskId} AND deleted_at = 0
+        ORDER BY allocation_id, version_no DESC, id DESC
+    </select>
+
+    <select id="findDeliveryObjects" resultType="com.adpulse.main.task.dto.TaskViews$DeliveryObject">
+        SELECT object_type AS objectType,
+               object_id AS objectId,
+               object_name AS objectName,
+               sort_order AS sortOrder
+        FROM biz_delivery_submission_object
+        WHERE submission_id = #{submissionId} AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findMaterialSubmissions" resultMap="materialSubmissionMap">
+        SELECT * FROM biz_material_task_submission
+        WHERE task_id = #{taskId} AND deleted_at = 0 ORDER BY version_no DESC
+    </select>
+
+    <select id="findDeliverySubmissionByRequestId" resultMap="deliverySubmissionMap">
+        SELECT * FROM biz_delivery_task_submission WHERE request_id = #{requestId} AND deleted_at = 0
+    </select>
+
+    <select id="findMaterialSubmissionByRequestId" resultMap="materialSubmissionMap">
+        SELECT * FROM biz_material_task_submission WHERE request_id = #{requestId} AND deleted_at = 0
+    </select>
+
+    <select id="nextDeliveryVersion" resultType="int">
+        SELECT COALESCE(MAX(version_no), 0) + 1 FROM biz_delivery_task_submission
+        WHERE allocation_id = #{allocationId} AND deleted_at = 0
+    </select>
+
+    <select id="findDeliverySubmission" resultMap="deliverySubmissionMap">
+        SELECT * FROM biz_delivery_task_submission
+        WHERE id = #{id} AND task_id = #{taskId} AND deleted_at = 0
+    </select>
+
+    <select id="findActiveAllocationForOperator" resultMap="allocationMap">
+        SELECT allocation.id, allocation.task_id, allocation.team_code, allocation.team_owner_id,
+               allocation.team_owner_name, allocation.pwa_line_count, allocation.h5_line_count,
+               allocation.sort_order, allocation.status, allocation.submitted_at, allocation.completed_at,
+               COALESCE(department.dept_name, allocation.team_code) AS team_name
+        FROM biz_delivery_task_allocation allocation
+        LEFT JOIN sys_department department ON allocation.team_code = CAST(department.id AS CHAR)
+        WHERE allocation.task_id = #{taskId} AND allocation.team_owner_id = #{operatorId}
+          AND allocation.status = 'ASSIGNED' AND allocation.deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <select id="countAllocationForOperator" resultType="int">
+        SELECT COUNT(*) FROM biz_delivery_task_allocation
+        WHERE task_id = #{taskId} AND team_owner_id = #{operatorId} AND deleted_at = 0
+    </select>
+
+    <select id="allAllocationsSubmitted" resultType="boolean">
+        SELECT NOT EXISTS (
+            SELECT 1 FROM biz_delivery_task_allocation
+            WHERE task_id = #{taskId} AND status = 'ASSIGNED' AND deleted_at = 0
+        ) AND EXISTS (
+            SELECT 1 FROM biz_delivery_task_allocation WHERE task_id = #{taskId} AND deleted_at = 0
+        )
+    </select>
+
+    <select id="allAllocationsCompleted" resultType="boolean">
+        SELECT NOT EXISTS (
+            SELECT 1 FROM biz_delivery_task_allocation
+            WHERE task_id = #{taskId} AND status != 'COMPLETED' AND deleted_at = 0
+        ) AND EXISTS (
+            SELECT 1 FROM biz_delivery_task_allocation WHERE task_id = #{taskId} AND deleted_at = 0
+        )
+    </select>
+
+    <select id="nextMaterialVersion" resultType="int">
+        SELECT COALESCE(MAX(version_no), 0) + 1 FROM biz_material_task_submission
+        WHERE task_id = #{taskId} AND deleted_at = 0
+    </select>
+
+    <insert id="insertDeliverySubmission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_delivery_task_submission (
+            task_id, version_no, request_id, submitted_by, submitted_by_name,
+            allocation_id,
+            platform_value, ad_account_id, ad_account_name, actual_start_at, actual_budget,
+            actual_spend, daily_report_spend,
+            currency, campaign_count, adset_count, ad_count, delivery_status,
+            exception_note, submission_note, submitted_at
+        ) VALUES (
+            #{taskId}, #{versionNo}, #{requestId}, #{submittedBy}, #{submittedByName},
+            #{allocationId},
+            #{platformValue}, #{adAccountId}, #{adAccountName}, #{actualStartAt}, #{actualBudget},
+            #{actualSpend}, #{dailyReportSpend},
+            #{currency}, #{campaignCount}, #{adsetCount}, #{adCount}, #{deliveryStatus},
+            #{exceptionNote}, #{submissionNote}, #{submittedAt}
+        )
+    </insert>
+
+    <insert id="insertDeliveryObject">
+        INSERT INTO biz_delivery_submission_object (
+            submission_id, object_type, object_id, object_name, sort_order
+        ) VALUES (#{submissionId}, #{objectType}, #{objectId}, #{objectName}, #{sortOrder})
+    </insert>
+
+    <insert id="insertMaterialSubmission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_material_task_submission (
+            task_id, version_no, request_id, submitted_by, submitted_by_name,
+            delivered_quantity, submission_note, submitted_at, library_status
+        ) VALUES (
+            #{taskId}, #{versionNo}, #{requestId}, #{submittedBy}, #{submittedByName},
+            #{deliveredQuantity}, #{submissionNote}, #{submittedAt}, #{libraryStatus}
+        )
+    </insert>
+
+    <update id="confirmTask">
+        UPDATE biz_task SET status = 'PROCESSING', accepted_at = #{now},
+            version = version + 1, updated_by = #{ownerId}
+        WHERE id = #{id} AND owner_id = #{ownerId} AND version = #{version}
+          AND status = 'PENDING_CONFIRMATION' AND deleted_at = 0
+    </update>
+
+    <update id="assignTask">
+        UPDATE biz_task
+        SET owner_id = #{ownerId}, owner_name = #{ownerName},
+            assigner_id = #{assignerId}, assigner_name = #{assignerName},
+            assigned_at = #{assignedAt},
+            status = 'PENDING_CONFIRMATION', version = version + 1,
+            updated_by = #{creatorId}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND version = #{version}
+          AND status = 'PENDING_ASSIGNMENT' AND deleted_at = 0
+    </update>
+
+    <update id="markPendingAcceptance">
+        UPDATE biz_task SET status = 'PENDING_ACCEPTANCE', version = version + 1, updated_by = #{ownerId}
+        WHERE id = #{id} AND owner_id = #{ownerId} AND version = #{version}
+          AND status = 'PROCESSING' AND deleted_at = 0
+    </update>
+
+    <update id="startDeliveryAssignments">
+        UPDATE biz_task SET status = 'PROCESSING', assigner_id = #{assignerId}, assigner_name = #{assignerName},
+            assigned_at = #{now}, version = version + 1, updated_by = #{assignerId}
+        WHERE id = #{id} AND owner_id = #{ownerId} AND version = #{version}
+          AND task_type = 'DELIVERY' AND status = 'PENDING_ASSIGNMENT' AND deleted_at = 0
+    </update>
+
+    <update id="markAllocationSubmitted">
+        UPDATE biz_delivery_task_allocation SET status = 'SUBMITTED', submitted_at = #{now}
+        WHERE id = #{id} AND team_owner_id = #{operatorId} AND status = 'ASSIGNED' AND deleted_at = 0
+    </update>
+
+    <update id="acceptDeliveryAllocation">
+        UPDATE biz_delivery_task_allocation SET status = 'COMPLETED', completed_at = #{now}
+        WHERE id = #{id} AND task_id = #{taskId} AND status = 'SUBMITTED' AND deleted_at = 0
+    </update>
+
+    <update id="rejectDeliveryAllocation">
+        UPDATE biz_delivery_task_allocation SET status = 'ASSIGNED', submitted_at = NULL, completed_at = NULL
+        WHERE id = #{id} AND task_id = #{taskId} AND status = 'SUBMITTED' AND deleted_at = 0
+    </update>
+
+    <update id="completeTaskByDeliveryLeader">
+        UPDATE biz_task SET status = 'COMPLETED', completed_at = #{now}, version = version + 1, updated_by = #{ownerId}
+        WHERE id = #{id} AND owner_id = #{ownerId} AND version = #{version}
+          AND task_type = 'DELIVERY' AND status = 'PENDING_ACCEPTANCE' AND deleted_at = 0
+    </update>
+
+    <update id="reopenTaskByDeliveryLeader">
+        UPDATE biz_task SET status = 'PROCESSING', completed_at = NULL, version = version + 1, updated_by = #{ownerId}
+        WHERE id = #{id} AND owner_id = #{ownerId} AND version = #{version}
+          AND task_type = 'DELIVERY' AND status = 'PENDING_ACCEPTANCE' AND deleted_at = 0
+    </update>
+
+    <update id="acceptTask">
+        UPDATE biz_task SET status = 'COMPLETED', completed_at = #{now},
+            version = version + 1, updated_by = #{creatorId}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND version = #{version}
+          AND status = 'PENDING_ACCEPTANCE' AND deleted_at = 0
+    </update>
+
+    <update id="rejectTask">
+        UPDATE biz_task SET status = 'PROCESSING', completed_at = NULL,
+            version = version + 1, updated_by = #{creatorId}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND version = #{version}
+          AND status = 'PENDING_ACCEPTANCE' AND deleted_at = 0
+    </update>
+
+    <update id="withdrawTask">
+        UPDATE biz_task SET status = 'WITHDRAWN', owner_id = NULL, owner_name = NULL,
+            withdrawn_at = #{now}, withdraw_reason = #{reason},
+            version = version + 1, updated_by = #{creatorId}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND version = #{version}
+          AND (status = 'PENDING_CONFIRMATION' OR (task_type = 'MATERIAL' AND status = 'PENDING_ASSIGNMENT')) AND deleted_at = 0
+    </update>
+
+    <update id="declineTask">
+        UPDATE biz_task SET status = 'REJECTED', rejected_at = #{now}, rejected_by = #{ownerId},
+            rejection_reason = #{reason}, version = version + 1, updated_by = #{ownerId}
+        WHERE id = #{id} AND owner_id = #{ownerId} AND version = #{version}
+          AND (
+              status = 'PENDING_CONFIRMATION'
+              OR (task_type = 'DELIVERY' AND status = 'PENDING_ASSIGNMENT')
+          )
+          AND deleted_at = 0
+    </update>
+
+    <update id="resubmitTask">
+        UPDATE biz_task
+        SET status = 'PENDING_ASSIGNMENT', owner_id = NULL, owner_name = NULL,
+            assigner_id = NULL, assigner_name = NULL, assigned_at = NULL,
+            accepted_at = NULL, completed_at = NULL,
+            withdrawn_at = NULL, withdraw_reason = NULL,
+            rejected_at = NULL, rejected_by = NULL, rejection_reason = NULL,
+            version = version + 1, updated_by = #{creatorId}, updated_at = #{now}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND version = #{version}
+          AND status IN ('REJECTED', 'WITHDRAWN') AND deleted_at = 0
+    </update>
+
+    <update id="updateDeliveryTaskForResubmit">
+        UPDATE biz_task
+        SET project_id = #{projectId}, title = #{title}, description = #{description},
+            owner_id = #{ownerId}, owner_name = #{ownerName}, priority = #{priority}, due_at = #{dueAt},
+            status = 'PENDING_CONFIRMATION', assigner_id = #{creatorId}, assigner_name = creator_name, assigned_at = #{now},
+            accepted_at = NULL, completed_at = NULL, withdrawn_at = NULL, withdraw_reason = NULL,
+            rejected_at = NULL, rejected_by = NULL, rejection_reason = NULL, version = version + 1, updated_by = #{creatorId}, updated_at = #{now}
+        WHERE id = #{id} AND creator_id = #{creatorId} AND version = #{version}
+          AND task_type = 'DELIVERY' AND status IN ('REJECTED', 'WITHDRAWN') AND deleted_at = 0
+    </update>
+
+    <update id="updateDeliveryDetailForResubmit">
+        UPDATE biz_delivery_task
+        SET product_url = #{productUrl}, region_value = #{regionValue},
+            target_description = #{targetDescription}, planned_start_at = #{plannedStartAt},
+            am_user_id = #{amUserId}, am_user_name = #{amUserName}, items_ciphertext = #{itemsCiphertext}
+        WHERE task_id = #{taskId} AND deleted_at = 0
+    </update>
+
+    <update id="deleteDeliveryPlatforms">UPDATE biz_delivery_task_platform SET deleted_at = #{deletedAt} WHERE task_id = #{taskId} AND deleted_at = 0</update>
+    <update id="deleteAllocations">UPDATE biz_delivery_task_allocation SET deleted_at = #{deletedAt} WHERE task_id = #{taskId} AND deleted_at = 0</update>
+    <update id="deleteTaskFiles">UPDATE biz_task_file_binding SET deleted_at = #{deletedAt} WHERE task_id = #{taskId} AND deleted_at = 0</update>
+
+    <update id="reviewDeliverySubmission">
+        UPDATE biz_delivery_task_submission
+        SET review_status = #{result}, reviewer_id = #{reviewerId}, reviewer_name = #{reviewerName},
+            review_comment = #{comment}, reviewed_at = #{now}
+        WHERE id = #{id} AND task_id = #{taskId} AND review_status = 'PENDING' AND deleted_at = 0
+    </update>
+
+    <update id="reviewMaterialSubmission">
+        UPDATE biz_material_task_submission
+        SET review_status = #{result}, reviewer_id = #{reviewerId}, reviewer_name = #{reviewerName},
+            review_comment = #{comment}, reviewed_at = #{now}, library_status = #{libraryStatus}
+        WHERE id = #{id} AND task_id = #{taskId} AND review_status = 'PENDING' AND deleted_at = 0
+    </update>
+</mapper>

@@ -1,0 +1,39 @@
+{
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "codeLogin": "验证码登录",
+    "qrcodeLogin": "二维码登录",
+    "forgetPassword": "忘记密码",
+    "sendingCode": "正在发送验证码",
+    "codeSentTo": "验证码已发送至{0}"
+  },
+  "dashboard": {
+    "title": "概览",
+    "analytics": "分析页",
+    "workspace": "工作台"
+  },
+  "themeColor": {
+    "trigger": "切换主题色",
+    "options": "主题色选项",
+    "switchTo": "切换为",
+    "softGroup": "柔和色",
+    "darkGroup": "深色",
+    "custom": "自定义颜色",
+    "customPicker": "打开自定义取色器",
+    "hexPlaceholder": "#RRGGBB",
+    "apply": "应用",
+    "invalidHex": "请输入完整的十六进制颜色，例如 #274C77",
+    "colors": {
+      "softBlue": "柔和蓝",
+      "mistyBlue": "雾霾蓝",
+      "sageGreen": "鼠尾草绿",
+      "grayPurple": "灰紫",
+      "terracotta": "陶土橙",
+      "deepSeaBlue": "深海蓝",
+      "inkGreen": "墨绿",
+      "indigoPurple": "靛紫",
+      "darkRedBrown": "暗红棕"
+    }
+  }
+}

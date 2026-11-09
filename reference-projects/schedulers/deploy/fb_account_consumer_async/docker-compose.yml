@@ -1,0 +1,8 @@
+services:
+  fb_account_consumer_async:
+    build:
+      context: ../../
+      dockerfile: deploy/fb_account_consumer_async/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

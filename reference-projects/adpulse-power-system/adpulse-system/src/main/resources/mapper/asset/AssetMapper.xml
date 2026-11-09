@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.asset.mapper.AssetMapper">
+    <resultMap id="assetMap" type="com.adpulse.system.asset.model.MediaAsset">
+        <id property="id" column="id"/><result property="assetType" column="asset_type"/>
+        <result property="assetName" column="asset_name"/><result property="assetCode" column="asset_code"/>
+        <result property="projectId" column="project_id"/><result property="projectName" column="project_name"/>
+        <result property="channelId" column="channel_id"/><result property="channelName" column="channel_name"/>
+        <result property="secretData" column="secret_data"/><result property="status" column="status"/>
+        <result property="assigneeId" column="assignee_id"/><result property="assigneeName" column="assignee_name"/>
+        <result property="usageTeam" column="usage_team"/>
+        <result property="assigneeDepartmentName" column="assignee_department_name"/>
+        <result property="usageUserNames" column="usage_user_names"/>
+        <result property="usageUserIds" column="usage_user_ids"/>
+        <result property="usageDepartmentNames" column="usage_department_names"/>
+        <result property="applicationId" column="application_id"/><result property="remark" column="remark"/>
+        <result property="createdAt" column="created_at"/><result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    <resultMap id="importLogMap" type="com.adpulse.system.asset.model.AssetImportLog">
+        <id property="id" column="id"/>
+        <result property="assetSubtype" column="asset_subtype"/>
+        <result property="fileName" column="file_name"/>
+        <result property="totalCount" column="total_count"/>
+        <result property="successCount" column="success_count"/>
+        <result property="failureCount" column="failure_count"/>
+        <result property="failureDetails" column="failure_details"/>
+        <result property="failedFileCiphertext" column="failed_file_ciphertext"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+    <resultMap id="applicationMap" type="com.adpulse.system.asset.model.AssetApplication">
+        <id property="id" column="id"/><result property="applicationNo" column="application_no"/>
+        <result property="assetType" column="asset_type"/><result property="title" column="title"/>
+        <result property="quantity" column="quantity"/><result property="reason" column="reason"/>
+        <result property="status" column="status"/><result property="requesterId" column="requester_id"/>
+        <result property="requesterName" column="requester_name"/><result property="approverId" column="approver_id"/>
+        <result property="approverName" column="approver_name"/><result property="decisionRemark" column="decision_remark"/>
+        <result property="formData" column="form_data"/><result property="nodesSnapshot" column="nodes_snapshot"/>
+        <result property="decidedAt" column="decided_at"/><result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    <resultMap id="applicationCommentMap" type="com.adpulse.system.asset.model.AssetApplicationComment">
+        <id property="id" column="id"/>
+        <result property="applicationId" column="application_id"/>
+        <result property="actorId" column="actor_id"/>
+        <result property="actorName" column="actor_name"/>
+        <result property="actorRole" column="actor_role"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+    <resultMap id="configMap" type="com.adpulse.system.asset.model.ApprovalConfig">
+        <id property="id" column="id"/><result property="assetType" column="asset_type"/>
+        <result property="approverId" column="approver_id"/><result property="approverName" column="approver_name"/>
+        <result property="ccUserIds" column="cc_user_ids"/><result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    <resultMap id="notificationMap" type="com.adpulse.system.asset.model.SiteNotification">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="targetPath" column="target_path"/>
+        <result property="businessType" column="business_type"/>
+        <result property="businessId" column="business_id"/>
+        <result property="read" column="is_read"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findAssets" resultMap="assetMap">
+        SELECT asset.*,
+               COALESCE(
+                   (
+                       SELECT department.dept_name
+                       FROM sys_user usage_user
+                       LEFT JOIN sys_department department
+                         ON department.id = usage_user.primary_department_id
+                        AND department.deleted_at = 0
+                       WHERE usage_user.id = asset.assignee_id
+                         AND usage_user.deleted_at = 0
+                   ),
+                   ''
+               ) AS assignee_department_name,
+               <!-- 广告户使用人从渠道账户共享分配关系读取；历史记录缺少明细关系时回退到渠道账户的聚合名单。 -->
+               CASE WHEN asset.asset_type = 'PIXEL' THEN (
+                   SELECT GROUP_CONCAT(
+                       DISTINCT CONCAT(
+                               assignment.user_name,
+                               COALESCE(
+                                   CONCAT(' · ', department.dept_name),
+                                   ''
+                               )
+                           )
+                       ORDER BY assignment.assigned_at SEPARATOR '、'
+                   )
+                   FROM media_asset_user_assignment assignment
+                   LEFT JOIN sys_user usage_user
+                     ON usage_user.id = assignment.user_id AND usage_user.deleted_at = 0
+                   LEFT JOIN sys_department department
+                     ON department.id = usage_user.primary_department_id
+                    AND department.deleted_at = 0
+                   WHERE assignment.asset_id = asset.id
+                     AND assignment.deleted_at = 0
+               ) WHEN asset.asset_type = 'AD_ACCOUNT' THEN (
+                   SELECT COALESCE(
+                       NULLIF(
+                           (
+                               SELECT channel_account.operator_name
+                               FROM media_channel_account channel_account
+                               WHERE channel_account.account_id = asset.asset_code
+                                 AND channel_account.deleted_at = 0
+                               LIMIT 1
+                           ),
+                           ''
+                       ),
+                       (
+                   SELECT GROUP_CONCAT(
+                       DISTINCT assignment.assignee_name
+                       ORDER BY assignment.assigned_at SEPARATOR '、'
+                   )
+                   FROM media_channel_account_assignment assignment
+                   LEFT JOIN sys_user usage_user
+                     ON usage_user.id = assignment.assignee_id AND usage_user.deleted_at = 0
+                   LEFT JOIN sys_department department
+                     ON department.id = usage_user.primary_department_id
+                    AND department.deleted_at = 0
+                   WHERE assignment.account_id = asset.asset_code
+                     AND assignment.deleted_at = 0
+                       )
+                   )
+               ) END AS usage_user_names,
+               CASE WHEN asset.asset_type = 'PIXEL' THEN (
+                   SELECT GROUP_CONCAT(DISTINCT assignment.user_id ORDER BY assignment.assigned_at SEPARATOR ',')
+                   FROM media_asset_user_assignment assignment
+                   WHERE assignment.asset_id = asset.id
+                     AND assignment.deleted_at = 0
+               ) WHEN asset.asset_type = 'AD_ACCOUNT' THEN (
+                   SELECT GROUP_CONCAT(DISTINCT assignment.assignee_id ORDER BY assignment.assigned_at SEPARATOR ',')
+                   FROM media_channel_account_assignment assignment
+                   WHERE assignment.account_id = asset.asset_code
+                     AND assignment.deleted_at = 0
+               ) END AS usage_user_ids
+               , CASE WHEN asset.asset_type = 'PIXEL' THEN (
+                   SELECT GROUP_CONCAT(
+                       DISTINCT department.dept_name
+                       ORDER BY assignment.assigned_at SEPARATOR '、'
+                   )
+                   FROM media_asset_user_assignment assignment
+                   LEFT JOIN sys_user usage_user
+                     ON usage_user.id = assignment.user_id AND usage_user.deleted_at = 0
+                   LEFT JOIN sys_department department
+                     ON department.id = usage_user.primary_department_id
+                    AND department.deleted_at = 0
+                   WHERE assignment.asset_id = asset.id
+                     AND assignment.deleted_at = 0
+               ) WHEN asset.asset_type = 'AD_ACCOUNT' THEN (
+                   SELECT GROUP_CONCAT(
+                       DISTINCT department.dept_name
+                       ORDER BY assignment.assigned_at SEPARATOR '、'
+                   )
+                   FROM media_channel_account_assignment assignment
+                   LEFT JOIN sys_user usage_user
+                     ON usage_user.id = assignment.assignee_id AND usage_user.deleted_at = 0
+                   LEFT JOIN sys_department department
+                     ON department.id = usage_user.primary_department_id
+                    AND department.deleted_at = 0
+                   WHERE assignment.account_id = asset.asset_code
+                     AND assignment.deleted_at = 0
+               ) END AS usage_department_names
+        FROM media_asset asset
+        WHERE asset.deleted_at = 0
+        <if test="assetType != null and assetType != ''">AND asset.asset_type = #{assetType}</if>
+        <if test="assigneeId != null">
+            AND (
+                asset.assignee_id = #{assigneeId}
+                OR EXISTS (
+                    SELECT 1
+                    FROM media_channel_account_assignment assignment
+                    WHERE assignment.account_id = asset.asset_code
+                      AND assignment.assignee_id = #{assigneeId}
+                      AND assignment.deleted_at = 0
+                )
+                OR EXISTS (
+                    SELECT 1
+                    FROM media_asset_user_assignment assignment
+                    WHERE asset.asset_type IN ('PIXEL', 'AD_ACCOUNT')
+                      AND assignment.asset_id = asset.id
+                      AND assignment.user_id = #{assigneeId}
+                      AND assignment.deleted_at = 0
+                )
+            )
+        </if>
+        <if test="channelId != null and channelId != ''">
+            AND COALESCE(asset.channel_id, asset.project_id) = #{channelId}
+        </if>
+        ORDER BY asset.created_at DESC, asset.id DESC
+    </select>
+    <select id="findAsset" resultMap="assetMap">
+        SELECT asset.*,
+                COALESCE(
+                   (
+                       SELECT department.dept_name
+                       FROM sys_user usage_user
+                       LEFT JOIN sys_department department
+                         ON department.id = usage_user.primary_department_id
+                        AND department.deleted_at = 0
+                       WHERE usage_user.id = asset.assignee_id
+                         AND usage_user.deleted_at = 0
+                   ),
+                    ''
+                ) AS assignee_department_name,
+                <!-- 单条资产详情与列表必须使用同一套广告户共享分配关系及历史聚合名单回退。 -->
+                CASE WHEN asset.asset_type = 'PIXEL' THEN (
+                    SELECT GROUP_CONCAT(
+                        DISTINCT CONCAT(
+                                assignment.user_name,
+                                COALESCE(
+                                    CONCAT(' 路 ', department.dept_name),
+                                    ''
+                                )
+                            )
+                        ORDER BY assignment.assigned_at SEPARATOR '、'
+                    )
+                    FROM media_asset_user_assignment assignment
+                    LEFT JOIN sys_user usage_user
+                      ON usage_user.id = assignment.user_id AND usage_user.deleted_at = 0
+                    LEFT JOIN sys_department department
+                      ON department.id = usage_user.primary_department_id
+                     AND department.deleted_at = 0
+                    WHERE assignment.asset_id = asset.id
+                      AND assignment.deleted_at = 0
+                ) WHEN asset.asset_type = 'AD_ACCOUNT' THEN (
+                    SELECT COALESCE(
+                        NULLIF(
+                            (
+                                SELECT channel_account.operator_name
+                                FROM media_channel_account channel_account
+                                WHERE channel_account.account_id = asset.asset_code
+                                  AND channel_account.deleted_at = 0
+                                LIMIT 1
+                            ),
+                            ''
+                        ),
+                        (
+                    SELECT GROUP_CONCAT(
+                        DISTINCT assignment.assignee_name
+                        ORDER BY assignment.assigned_at SEPARATOR '、'
+                    )
+                    FROM media_channel_account_assignment assignment
+                    LEFT JOIN sys_user usage_user
+                      ON usage_user.id = assignment.assignee_id AND usage_user.deleted_at = 0
+                    LEFT JOIN sys_department department
+                      ON department.id = usage_user.primary_department_id
+                     AND department.deleted_at = 0
+                    WHERE assignment.account_id = asset.asset_code
+                      AND assignment.deleted_at = 0
+                        )
+                    )
+                ) END AS usage_user_names,
+                CASE WHEN asset.asset_type = 'PIXEL' THEN (
+                    SELECT GROUP_CONCAT(DISTINCT assignment.user_id ORDER BY assignment.assigned_at SEPARATOR ',')
+                    FROM media_asset_user_assignment assignment
+                    WHERE assignment.asset_id = asset.id
+                      AND assignment.deleted_at = 0
+                ) WHEN asset.asset_type = 'AD_ACCOUNT' THEN (
+                    SELECT GROUP_CONCAT(DISTINCT assignment.assignee_id ORDER BY assignment.assigned_at SEPARATOR ',')
+                    FROM media_channel_account_assignment assignment
+                    WHERE assignment.account_id = asset.asset_code
+                      AND assignment.deleted_at = 0
+                ) END AS usage_user_ids,
+                CASE WHEN asset.asset_type = 'PIXEL' THEN (
+                    SELECT GROUP_CONCAT(
+                        DISTINCT department.dept_name
+                        ORDER BY assignment.assigned_at SEPARATOR '、'
+                    )
+                    FROM media_asset_user_assignment assignment
+                    LEFT JOIN sys_user usage_user
+                      ON usage_user.id = assignment.user_id AND usage_user.deleted_at = 0
+                    LEFT JOIN sys_department department
+                      ON department.id = usage_user.primary_department_id
+                     AND department.deleted_at = 0
+                    WHERE assignment.asset_id = asset.id
+                      AND assignment.deleted_at = 0
+                ) WHEN asset.asset_type = 'AD_ACCOUNT' THEN (
+                    SELECT GROUP_CONCAT(
+                        DISTINCT department.dept_name
+                        ORDER BY assignment.assigned_at SEPARATOR '、'
+                    )
+                    FROM media_channel_account_assignment assignment
+                    LEFT JOIN sys_user usage_user
+                      ON usage_user.id = assignment.assignee_id AND usage_user.deleted_at = 0
+                    LEFT JOIN sys_department department
+                      ON department.id = usage_user.primary_department_id
+                     AND department.deleted_at = 0
+                    WHERE assignment.account_id = asset.asset_code
+                      AND assignment.deleted_at = 0
+                ) END AS usage_department_names
+        FROM media_asset asset
+        WHERE asset.id = #{id} AND asset.deleted_at = 0
+    </select>
+    <select id="findAssetByTypeAndCode" resultMap="assetMap">
+        SELECT *
+        FROM media_asset
+        WHERE asset_type = #{assetType}
+          AND asset_code = #{assetCode}
+          AND deleted_at = 0
+    </select>
+    <select id="findAssetsByTypeAndCodes" resultMap="assetMap">
+        SELECT *
+        FROM media_asset
+        WHERE asset_type = #{assetType}
+          AND asset_code IN
+          <foreach collection="assetCodes" item="assetCode" open="(" separator="," close=")">
+              #{assetCode}
+          </foreach>
+          AND deleted_at = 0
+        ORDER BY id
+    </select>
+    <select id="findAssetsByTypeAndName" resultMap="assetMap">
+        SELECT *
+        FROM media_asset
+        WHERE asset_type = #{assetType}
+          AND asset_name = #{assetName}
+          AND deleted_at = 0
+        ORDER BY id
+        LIMIT 2
+    </select>
+    <insert id="insertAsset" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_asset (
+            asset_type, asset_name, asset_code, project_id, project_name,
+            channel_id, channel_name, secret_data, status, application_id,
+            assignee_id, assignee_name, usage_team, remark, created_by, updated_by
+        ) VALUES (
+            #{assetType}, #{assetName}, #{assetCode}, #{projectId}, #{projectName},
+            #{channelId}, #{channelName}, #{secretData}, #{status}, #{applicationId},
+            #{assigneeId}, #{assigneeName}, #{usageTeam}, #{remark}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+    <insert id="insertImportLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_asset_import_log (
+            asset_subtype, file_name, total_count, success_count, failure_count,
+            failure_details, failed_file_ciphertext, operator_id
+        ) VALUES (
+            #{assetSubtype}, #{fileName}, #{totalCount}, #{successCount}, #{failureCount},
+            #{failureDetails}, #{failedFileCiphertext}, #{operatorId}
+        )
+    </insert>
+    <select id="findImportLogsByOperatorId" resultMap="importLogMap">
+        SELECT id, asset_subtype, file_name, total_count, success_count, failure_count,
+               failure_details, operator_id, created_at
+        FROM media_asset_import_log
+        WHERE operator_id = #{operatorId}
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    <select id="countImportLogsByOperatorId" resultType="long">
+        SELECT COUNT(*)
+        FROM media_asset_import_log
+        WHERE operator_id = #{operatorId}
+    </select>
+    <select id="findImportLogByIdAndOperatorId" resultMap="importLogMap">
+        SELECT id, asset_subtype, file_name, total_count, success_count, failure_count,
+               failure_details, failed_file_ciphertext, operator_id, created_at
+        FROM media_asset_import_log
+        WHERE id = #{id}
+          AND operator_id = #{operatorId}
+    </select>
+    <update id="updateAsset">
+        UPDATE media_asset SET asset_name=#{assetName}, asset_code=#{assetCode}, project_id=#{projectId}, project_name=#{projectName}, channel_id=#{channelId}, channel_name=#{channelName}, secret_data=#{secretData},
+        status=#{status}, application_id=#{applicationId}, assignee_id=#{assigneeId}, assignee_name=#{assigneeName}, usage_team=#{usageTeam},
+        remark=#{remark}, updated_by=#{updatedBy} WHERE id=#{id} AND deleted_at=0
+    </update>
+    <update id="softDeleteAsset">
+        UPDATE media_asset SET deleted_at=#{deletedAt}, updated_by=#{operatorId} WHERE id=#{id} AND deleted_at=0 AND status='AVAILABLE'
+    </update>
+    <select id="findConfigs" resultMap="configMap">SELECT * FROM media_approval_config WHERE deleted_at=0 ORDER BY asset_type</select>
+    <select id="findConfig" resultMap="configMap">SELECT * FROM media_approval_config WHERE asset_type=#{assetType} AND deleted_at=0</select>
+    <select id="countActiveUser" resultType="int">SELECT COUNT(*) FROM sys_user WHERE id=#{userId} AND status=1 AND deleted_at=0</select>
+    <select id="findActiveUserName" resultType="string">
+        SELECT COALESCE(NULLIF(display_name, ''), NULLIF(real_name, ''), username)
+        FROM sys_user
+        WHERE id=#{userId} AND status=1 AND deleted_at=0
+    </select>
+    <select id="findActiveUserIdsByName" resultType="long">
+        SELECT id
+        FROM sys_user
+        WHERE status = 1
+          AND deleted_at = 0
+          AND (
+              username = #{name}
+              OR display_name = #{name}
+              OR real_name = #{name}
+          )
+    </select>
+    <select id="countActiveProject" resultType="int">
+        SELECT COUNT(*)
+        FROM pm_project
+        WHERE id = #{projectId}
+          AND project_name = #{projectName}
+          AND deleted_at = 0
+    </select>
+    <select id="findActiveProjectIdsByName" resultType="long">
+        SELECT id
+        FROM pm_project
+        WHERE project_name = #{name}
+          AND deleted_at = 0
+    </select>
+    <select id="findActiveDepartmentIdsByName" resultType="long">
+        SELECT id
+        FROM sys_department
+        WHERE dept_name = #{name}
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+    <select id="findActiveDepartmentName" resultType="string">
+        SELECT dept_name
+        FROM sys_department
+        WHERE id = #{id}
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+    <update id="deactivatePixelUsageUsers">
+        UPDATE media_asset_user_assignment
+        SET deleted_at = #{deletedAt}, updated_at = CURRENT_TIMESTAMP(3), assigned_by = #{operatorId}
+        WHERE asset_id = #{assetId} AND deleted_at = 0
+    </update>
+    <update id="deactivatePixelUsageAssignmentsForProject">
+        UPDATE media_asset_user_assignment assignment
+        JOIN media_asset asset ON asset.id = assignment.asset_id
+        SET assignment.deleted_at = #{deletedAt},
+            assignment.updated_at = CURRENT_TIMESTAMP(3),
+            assignment.assigned_by = #{operatorId}
+        WHERE asset.asset_type = 'PIXEL'
+          AND asset.project_id = #{projectId}
+          AND asset.deleted_at = 0
+          AND assignment.deleted_at = 0
+    </update>
+    <update id="releasePixelsForProject">
+        UPDATE media_asset
+        SET status = 'AVAILABLE',
+            project_id = NULL,
+            project_name = NULL,
+            application_id = NULL,
+            assignee_id = NULL,
+            assignee_name = NULL,
+            usage_team = NULL,
+            updated_by = #{operatorId}
+        WHERE asset_type = 'PIXEL'
+          AND project_id = #{projectId}
+          AND status = 'ASSIGNED'
+          AND deleted_at = 0
+    </update>
+    <select id="findAssignedPixelsByProject" resultMap="assetMap">
+        SELECT asset.*
+        FROM media_asset asset
+        WHERE asset.asset_type = 'PIXEL'
+          AND asset.project_id = #{projectId}
+          AND asset.status = 'ASSIGNED'
+          AND asset.deleted_at = 0
+        FOR UPDATE
+    </select>
+    <insert id="upsertPixelUsageUser">
+        INSERT INTO media_asset_user_assignment (asset_id, user_id, user_name, assigned_by)
+        VALUES (#{assetId}, #{userId}, #{userName}, #{operatorId})
+        ON DUPLICATE KEY UPDATE
+            user_name = VALUES(user_name), assigned_by = VALUES(assigned_by),
+            updated_at = CURRENT_TIMESTAMP(3)
+    </insert>
+    <update id="refreshChannelAccountUsageForDepartingUser">
+        UPDATE media_channel_account account
+        SET usage_status = CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM media_channel_account_assignment assignment
+                    WHERE assignment.channel_id = account.channel_id
+                      AND assignment.account_id = account.account_id
+                      AND assignment.assignee_id != #{userId}
+                      AND assignment.deleted_at = 0
+                ) THEN 1
+                ELSE 0
+            END,
+            operator_id = (
+                SELECT assignment.assignee_id
+                FROM media_channel_account_assignment assignment
+                WHERE assignment.channel_id = account.channel_id
+                  AND assignment.account_id = account.account_id
+                  AND assignment.assignee_id != #{userId}
+                  AND assignment.deleted_at = 0
+                ORDER BY assignment.assigned_at, assignment.id
+                LIMIT 1
+            ),
+            operator_name = (
+                SELECT GROUP_CONCAT(DISTINCT assignment.assignee_name
+                    ORDER BY assignment.assignee_name SEPARATOR '、')
+                FROM media_channel_account_assignment assignment
+                WHERE assignment.channel_id = account.channel_id
+                  AND assignment.account_id = account.account_id
+                  AND assignment.assignee_id != #{userId}
+                  AND assignment.deleted_at = 0
+            ),
+            assign_time = CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM media_channel_account_assignment assignment
+                    WHERE assignment.channel_id = account.channel_id
+                      AND assignment.account_id = account.account_id
+                      AND assignment.assignee_id != #{userId}
+                      AND assignment.deleted_at = 0
+                ) THEN account.assign_time
+                ELSE NULL
+            END,
+            updated_by = #{operatorId}
+        WHERE account.deleted_at = 0
+          AND (
+              account.operator_id = #{userId}
+              OR EXISTS (
+                  SELECT 1
+                  FROM media_channel_account_assignment assignment
+                  WHERE assignment.channel_id = account.channel_id
+                    AND assignment.account_id = account.account_id
+                    AND assignment.assignee_id = #{userId}
+                    AND assignment.deleted_at = 0
+              )
+          )
+    </update>
+    <update id="deactivateChannelAccountAssignmentsForUser">
+        UPDATE ad_account_asset_assignment
+        SET assignment_status = 'RELEASED',
+            released_at = CURRENT_TIMESTAMP(3),
+            deleted_at = #{deletedAt},
+            updated_at = CURRENT_TIMESTAMP(3),
+            updated_by = #{operatorId}
+        WHERE user_id = #{userId}
+          AND assignment_status = 'ACTIVE'
+          AND deleted_at = 0
+    </update>
+    <update id="releaseUnassignedAdAccountAssets">
+        UPDATE ad_account_asset asset
+        SET asset.inventory_status = 'AVAILABLE',
+            asset.updated_by = #{operatorId},
+            asset.updated_at = CURRENT_TIMESTAMP(3)
+        WHERE asset.inventory_status = 'ASSIGNED'
+          AND asset.deleted_at = 0
+          AND NOT EXISTS (
+              SELECT 1
+              FROM ad_account_asset_assignment assignment
+              WHERE assignment.ad_account_asset_id = asset.id
+                AND assignment.assignment_status = 'ACTIVE'
+                AND assignment.deleted_at = 0
+          )
+    </update>
+    <update id="deactivatePixelUsageAssignmentsForUser">
+        UPDATE media_asset_user_assignment
+        SET deleted_at = #{deletedAt}, updated_at = CURRENT_TIMESTAMP(3), assigned_by = #{operatorId}
+        WHERE user_id = #{userId} AND deleted_at = 0
+    </update>
+    <update id="releaseAssetsAssignedToUser">
+        UPDATE media_asset asset
+        SET status = CASE
+                WHEN asset.asset_type = 'PIXEL' AND EXISTS (
+                    SELECT 1
+                    FROM media_asset_user_assignment assignment
+                    WHERE assignment.asset_id = asset.id AND assignment.deleted_at = 0
+                ) THEN 'ASSIGNED'
+                WHEN asset.asset_type = 'AD_ACCOUNT' AND EXISTS (
+                    SELECT 1
+                    FROM media_channel_account_assignment assignment
+                    WHERE assignment.account_id = asset.asset_code AND assignment.deleted_at = 0
+                ) THEN 'ASSIGNED'
+                ELSE 'AVAILABLE'
+            END,
+            application_id = CASE
+                WHEN asset.asset_type = 'PIXEL' AND EXISTS (
+                    SELECT 1
+                    FROM media_asset_user_assignment assignment
+                    WHERE assignment.asset_id = asset.id AND assignment.deleted_at = 0
+                ) THEN asset.application_id
+                WHEN asset.asset_type = 'AD_ACCOUNT' AND EXISTS (
+                    SELECT 1
+                    FROM media_channel_account_assignment assignment
+                    WHERE assignment.account_id = asset.asset_code AND assignment.deleted_at = 0
+                ) THEN asset.application_id
+                ELSE NULL
+            END,
+            assignee_id = NULL,
+            assignee_name = NULL,
+            updated_by = #{operatorId}
+        WHERE asset.assignee_id = #{userId}
+          AND asset.status = 'ASSIGNED'
+          AND asset.deleted_at = 0
+    </update>
+    <insert id="upsertConfig">
+        INSERT INTO media_approval_config (asset_type, approver_id, approver_name, cc_user_ids, created_by, updated_by)
+        VALUES (#{config.assetType}, #{config.approverId}, #{config.approverName}, #{config.ccUserIds}, #{operatorId}, #{operatorId})
+        ON DUPLICATE KEY UPDATE approver_id=VALUES(approver_id), approver_name=VALUES(approver_name),
+        cc_user_ids=VALUES(cc_user_ids), updated_by=VALUES(updated_by)
+    </insert>
+    <update id="softDeleteConfig">
+        UPDATE media_approval_config
+        SET deleted_at=#{deletedAt}, updated_by=#{operatorId}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <insert id="insertApplication" useGeneratedKeys="true" keyProperty="application.id">
+        INSERT INTO media_asset_application (application_no, asset_type, title, quantity, reason, status,
+        requester_id, requester_name, approver_id, approver_name, created_by, updated_by)
+        VALUES (#{application.applicationNo}, #{application.assetType}, #{application.title}, #{application.quantity},
+        #{application.reason}, 'PENDING', #{application.requesterId}, #{application.requesterName},
+        #{application.approverId}, #{application.approverName}, #{operatorId}, #{operatorId})
+    </insert>
+    <select id="findApplication" resultMap="applicationMap">SELECT * FROM media_asset_application WHERE id=#{id} AND deleted_at=0</select>
+    <select id="findApplications" resultMap="applicationMap">
+        SELECT * FROM media_asset_application WHERE deleted_at=0
+        <if test="requesterId != null">AND requester_id=#{requesterId}</if>
+        <if test="approverId != null">AND approver_id=#{approverId}</if>
+        ORDER BY id DESC
+    </select>
+    <select id="findApplicationsByIds" resultMap="applicationMap">
+        SELECT * FROM media_asset_application
+        WHERE deleted_at=0
+          AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="lockAvailableAssets" resultMap="assetMap">
+        SELECT * FROM media_asset WHERE asset_type=#{assetType} AND status='AVAILABLE' AND deleted_at=0
+        ORDER BY id LIMIT #{quantity} FOR UPDATE
+    </select>
+    <update id="assignAsset">
+        UPDATE media_asset SET status='ASSIGNED', application_id=#{applicationId}, assignee_id=#{assigneeId},
+        assignee_name=#{assigneeName}, updated_by=#{operatorId} WHERE id=#{id} AND status='AVAILABLE' AND deleted_at=0
+    </update>
+    <update id="decideApplication">
+        UPDATE media_asset_application SET status=#{status}, decision_remark=#{remark}, decided_at=NOW(), updated_by=#{operatorId}
+        WHERE id=#{id} AND status='PENDING' AND deleted_at=0
+    </update>
+    <insert id="insertApprovalLog">
+        INSERT INTO media_asset_approval_log (application_id, action, actor_id, actor_name, remark)
+        VALUES (#{applicationId}, #{action}, #{actorId}, #{actorName}, #{remark})
+    </insert>
+    <select id="findApplicationComments" resultMap="applicationCommentMap">
+        SELECT id, application_id, actor_id, actor_name, actor_role, content, created_at
+        FROM media_asset_application_comment
+        WHERE application_id = #{applicationId} AND deleted_at = 0
+        ORDER BY created_at, id
+    </select>
+    <select id="findApplicationComment" resultMap="applicationCommentMap">
+        SELECT id, application_id, actor_id, actor_name, actor_role, content, created_at
+        FROM media_asset_application_comment
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+    <insert id="insertApplicationComment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_asset_application_comment
+            (application_id, actor_id, actor_name, actor_role, content, created_by, updated_by)
+        VALUES
+            (#{applicationId}, #{actorId}, #{actorName}, #{actorRole}, #{content}, #{actorId}, #{actorId})
+    </insert>
+    <select id="findNotifications" resultMap="notificationMap">
+        SELECT id, title, content, target_path, business_type, business_id, is_read, created_at
+        FROM system_notification
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    <select id="countNotifications" resultType="long">
+        SELECT COUNT(*)
+        FROM system_notification
+        WHERE user_id = #{userId}
+    </select>
+    <select id="hasUnreadNotification" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM system_notification
+            WHERE user_id = #{userId} AND is_read = 0
+        )
+    </select>
+    <update id="markNotificationRead">
+        UPDATE system_notification
+        SET is_read = 1
+        WHERE id = #{id} AND user_id = #{userId} AND is_read = 0
+    </update>
+    <update id="markAllNotificationsRead">
+        UPDATE system_notification
+        SET is_read = 1
+        WHERE user_id = #{userId} AND is_read = 0
+    </update>
+    <select id="findActiveChannelById" resultType="com.adpulse.system.asset.model.ChannelReference">
+        SELECT id, channel_name AS channelName
+        FROM media_channel
+        WHERE id = #{id}
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+    <select id="findActiveChannelsByName" resultType="com.adpulse.system.asset.model.ChannelReference">
+        SELECT id, channel_name AS channelName
+        FROM media_channel
+        WHERE channel_name = #{name}
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+</mapper>

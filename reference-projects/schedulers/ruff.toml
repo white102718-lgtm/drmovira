@@ -1,0 +1,6 @@
+# tasks/nouse 是废弃代码,不检查
+extend-exclude = ["tasks/nouse"]
+
+[lint.per-file-ignores]
+# conf/__init__.py 是配置 re-export 门面,F401 属正常
+"conf/__init__.py" = ["F401"]

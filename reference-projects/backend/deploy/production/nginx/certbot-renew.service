@@ -1,0 +1,9 @@
+[Unit]
+Description=Renew the ad-mpower.com Let's Encrypt certificate
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker run --rm -v /opt/adpulse/frontend/certbot:/var/www/certbot -v /opt/adpulse/frontend/letsencrypt:/etc/letsencrypt certbot/certbot:v2.11.0 renew --webroot --webroot-path /var/www/certbot --quiet
+ExecStartPost=-/usr/bin/docker kill -s HUP adpulse-frontend

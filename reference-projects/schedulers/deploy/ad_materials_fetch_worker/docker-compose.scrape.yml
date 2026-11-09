@@ -1,0 +1,8 @@
+services:
+  ad_creative_scrape_worker:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_materials_fetch_worker/Dockerfile.scrape
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

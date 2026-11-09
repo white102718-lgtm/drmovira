@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.feishu.mapper.FeishuMapper">
+    <select id="findConfig" resultType="com.adpulse.main.feishu.model.FeishuModels$Config">
+        SELECT id, app_name, app_id, app_secret_ciphertext FROM feishu_app_config
+        WHERE deleted_at = 0 ORDER BY updated_at DESC, id DESC LIMIT 1
+    </select>
+    <select id="findConfigByAppId" resultType="com.adpulse.main.feishu.model.FeishuModels$Config">
+        SELECT id, app_name, app_id, app_secret_ciphertext FROM feishu_app_config
+        WHERE app_id = #{appId} AND deleted_at = 0 LIMIT 1
+    </select>
+    <insert id="insertConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO feishu_app_config (app_name, app_id, app_secret_ciphertext, updated_by)
+        VALUES (#{appName}, #{appId}, #{appSecretCiphertext}, #{updatedBy})
+    </insert>
+    <update id="updateConfig">
+        UPDATE feishu_app_config SET app_name=#{appName}, app_id=#{appId},
+            app_secret_ciphertext=#{appSecretCiphertext}, updated_by=#{updatedBy}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <select id="findTasks" resultType="com.adpulse.main.feishu.model.FeishuModels$Task">
+        SELECT id, task_name, app_id, app_token, table_id, table_name, target_table_name,
+            task_type, status, last_sync_time, created_at
+        FROM feishu_sync_task WHERE deleted_at=0 ORDER BY updated_at DESC, id DESC
+    </select>
+    <select id="findTask" resultType="com.adpulse.main.feishu.model.FeishuModels$Task">
+        SELECT id, task_name, app_id, app_token, table_id, table_name, target_table_name,
+            task_type, status, last_sync_time, created_at
+        FROM feishu_sync_task WHERE id=#{id} AND deleted_at=0
+    </select>
+    <insert id="insertTask" useGeneratedKeys="true" keyProperty="task.id">
+        INSERT INTO feishu_sync_task (task_name, app_id, app_token, table_id, table_name,
+            target_table_name, task_type, status, created_by, updated_by)
+        VALUES (#{task.taskName}, #{task.appId}, #{task.appToken}, #{task.tableId}, #{task.tableName},
+            #{task.targetTableName}, #{task.taskType}, #{task.status}, #{actorId}, #{actorId})
+    </insert>
+    <update id="updateTask">
+        UPDATE feishu_sync_task SET task_name=#{task.taskName}, app_id=#{task.appId},
+            app_token=#{task.appToken}, table_id=#{task.tableId}, table_name=#{task.tableName},
+            target_table_name=#{task.targetTableName}, task_type=#{task.taskType},
+            status=#{task.status}, updated_by=#{actorId}
+        WHERE id=#{task.id} AND deleted_at=0
+    </update>
+    <update id="updateTaskStatus">
+        UPDATE feishu_sync_task SET status=#{status}, updated_by=#{actorId}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <update id="deleteTask">
+        UPDATE feishu_sync_task SET deleted_at=#{deletedAt}, updated_by=#{actorId}
+        WHERE id=#{id} AND deleted_at=0
+    </update>
+    <select id="findMappings" resultType="com.adpulse.main.feishu.model.FeishuModels$Mapping">
+        SELECT id, task_id, system_field_name, feishu_field_name, column_comment,
+            data_type, is_required, is_split
+        FROM feishu_field_mapping WHERE task_id=#{taskId} AND deleted_at=0 ORDER BY id
+    </select>
+    <update id="deleteMappings">
+        UPDATE feishu_field_mapping SET deleted_at=#{deletedAt}
+        WHERE task_id=#{taskId} AND deleted_at=0
+    </update>
+    <insert id="insertMapping" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO feishu_field_mapping (task_id, system_field_name, feishu_field_name,
+            column_comment, data_type, is_required, is_split)
+        VALUES (#{taskId}, #{systemFieldName}, #{feishuFieldName}, #{columnComment},
+            #{dataType}, #{isRequired}, #{isSplit})
+    </insert>
+    <select id="findLogs" resultType="com.adpulse.main.feishu.model.FeishuModels$Log">
+        SELECT id, status, total_count, success_count, fail_count,
+            error_message, started_at, ended_at
+        FROM feishu_sync_log WHERE task_id=#{taskId} AND deleted_at=0
+        ORDER BY started_at DESC, id DESC LIMIT 100
+    </select>
+    <insert id="insertPendingLog">
+        INSERT INTO feishu_sync_log (task_id, status, started_at) VALUES (#{taskId}, 0, CURRENT_TIMESTAMP(3))
+    </insert>
+    <select id="findSystemColumns" resultType="map">
+        SELECT column_name AS columnName, column_comment AS columnComment
+        FROM information_schema.columns
+        WHERE table_schema=DATABASE() AND table_name=#{tableName}
+        ORDER BY ordinal_position
+    </select>
+    <insert id="insertSyncJob">
+        INSERT INTO external_sync_job (provider, job_type, business_id, request_payload, status, requested_by)
+        VALUES (#{provider}, 'FULL_SYNC', #{businessId}, JSON_OBJECT(), 0, #{requestedBy})
+    </insert>
+</mapper>

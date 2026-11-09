@@ -1,0 +1,58 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:30}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT_MS:30000}
+      validation-timeout: 5000
+      max-lifetime: 1800000
+      keepalive-time: 300000
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE:0}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:false}
+server:
+  forward-headers-strategy: framework
+
+mpower:
+  feishu:
+    app-id: ${MPOWER_FEISHU_APP_ID}
+    app-secret: ${MPOWER_FEISHU_APP_SECRET}
+
+adpulse:
+  file:
+    endpoint: ${MINIO_ENDPOINT}
+    access-key: ${MINIO_ACCESS_KEY}
+    secret-key: ${MINIO_SECRET_KEY}
+    bucket: ${MINIO_BUCKET}
+  feishu:
+    oauth:
+      redirect-uri: ${FEISHU_OAUTH_REDIRECT_URI}
+      state-ttl: 5m
+  security:
+    jwt-secret: ${JWT_SECRET}
+  bootstrap-admin:
+    enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
+
+logging:
+  file:
+    name: ${APP_LOG_FILE:/opt/docker/java/system/logs/adpulse-system-server.log}
+  level:
+    root: info
+    com.adpulse.system: info
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+knife4j:
+  enable: false

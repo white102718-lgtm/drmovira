@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.asset.mapper.DynamicAssetFlowMapper">
+    <insert id="upsertApprovalConfig">
+        INSERT INTO media_approval_config
+            (asset_type, category, approver_id, approver_name, cc_user_ids, flow_name,
+             description, icon, visibility, settings, sort_order,
+             form_schema, nodes, enabled, created_by, updated_by)
+        VALUES
+            (#{config.assetType}, #{config.category}, #{config.approverId}, #{config.approverName},
+             #{config.ccUserIds}, #{config.name}, #{config.description}, #{config.icon},
+             #{config.visibility}, #{config.settings},
+             #{config.sortOrder}, #{config.formSchema}, #{config.nodes}, #{config.enabled},
+             #{config.operatorId}, #{config.operatorId})
+        ON DUPLICATE KEY UPDATE
+            approver_id = VALUES(approver_id), approver_name = VALUES(approver_name),
+            cc_user_ids = VALUES(cc_user_ids), flow_name = VALUES(flow_name),
+            form_schema = VALUES(form_schema), nodes = VALUES(nodes), category = VALUES(category),
+            description = VALUES(description), icon = VALUES(icon), visibility = VALUES(visibility),
+            settings = VALUES(settings), sort_order = VALUES(sort_order), enabled = VALUES(enabled),
+            updated_by = VALUES(updated_by)
+    </insert>
+
+    <insert id="insertApplication" useGeneratedKeys="true" keyProperty="application.id">
+        INSERT INTO media_asset_application
+            (application_no, asset_type, title, quantity, reason, status, requester_id,
+             requester_name, department_id, department_name, approver_id, approver_name,
+             form_data, form_schema_snapshot, nodes_snapshot, source_application_id,
+             current_node_index, created_by, updated_by)
+        VALUES
+            (#{application.applicationNo}, #{application.assetType}, #{application.title},
+             #{application.quantity}, #{application.reason}, 'PENDING', #{application.requesterId},
+             #{application.requesterName}, #{application.departmentId}, #{application.departmentName},
+             #{application.approverId}, #{application.approverName}, #{application.formData},
+             #{application.formSchema}, #{application.nodes},
+             #{application.sourceApplicationId}, 0,
+             #{application.operatorId}, #{application.operatorId})
+    </insert>
+
+    <insert id="insertApprovalLog">
+        INSERT INTO media_asset_approval_log
+            (application_id, action, actor_id, actor_name, remark, action_data, node_index, node_name)
+        VALUES
+            (#{log.applicationId}, #{log.action}, #{log.actorId}, #{log.actorName}, #{log.remark},
+             #{log.actionData}, #{log.nodeIndex}, #{log.nodeName})
+    </insert>
+
+    <update id="updateApplication">
+        UPDATE media_asset_application
+        <set>
+            <if test="update.status != null">status = #{update.status},</if>
+            <if test="update.remark != null">decision_remark = #{update.remark},</if>
+            <if test="update.decided == true">decided_at = NOW(),</if>
+            <if test="update.nodeIndex != null">current_node_index = #{update.nodeIndex},</if>
+            <if test="update.approverId != null">approver_id = #{update.approverId},</if>
+            <if test="update.approverName != null">approver_name = #{update.approverName},</if>
+            <if test="update.nodes != null">nodes_snapshot = #{update.nodes},</if>
+            updated_by = #{update.operatorId}
+        </set>
+        WHERE id = #{update.id} AND status = #{update.expectedStatus} AND deleted_at = 0
+    </update>
+
+    <select id="lockApplication" resultType="long">
+        SELECT id FROM media_asset_application WHERE id = #{id} AND deleted_at = 0 FOR UPDATE
+    </select>
+
+    <select id="lockAssets" resultType="map">
+        SELECT id, asset_type assetType, asset_name assetName, asset_code assetCode,
+               channel_id channelId, channel_name channelName, project_id projectId,
+               project_name projectName, secret_data secretData, status,
+               assignee_id assigneeId
+        FROM media_asset
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND deleted_at = 0
+        FOR UPDATE
+    </select>
+
+    <update id="assignAsset">
+        UPDATE media_asset
+        SET status = 'ASSIGNED', application_id = #{assignment.applicationId},
+            assignee_id = #{assignment.assigneeId}, assignee_name = #{assignment.assigneeName},
+            updated_by = #{assignment.operatorId}
+        WHERE id = #{assignment.assetId}
+          AND status = 'AVAILABLE'
+          AND deleted_at = 0
+    </update>
+    <update id="assignPixelAsset">
+        UPDATE media_asset
+        SET status = 'ASSIGNED',
+            application_id = #{assignment.applicationId},
+            project_id = #{assignment.projectId},
+            project_name = #{assignment.projectName},
+            assignee_id = NULL,
+            assignee_name = NULL,
+            usage_team = #{assignment.usageTeam},
+            updated_by = #{assignment.operatorId}
+        WHERE id = #{assignment.assetId}
+          AND asset_type = 'PIXEL'
+          AND status = 'AVAILABLE'
+          AND deleted_at = 0
+    </update>
+    <select id="findConfig" resultType="map">
+        SELECT c.id, c.asset_type assetType, c.category, c.flow_name name, c.description,
+               c.icon, c.visibility, c.settings,
+               c.sort_order sortOrder, c.form_schema formSchema, c.nodes,
+               c.cc_user_ids ccUserIds, c.enabled, c.updated_at updatedAt,
+               (SELECT GROUP_CONCAT(d.id ORDER BY d.sort_order, d.id)
+                  FROM media_application_definition d
+                 WHERE d.approval_config_id = c.id AND d.deleted_at = 0) applicationDefinitionIds
+        FROM media_approval_config c
+        WHERE c.asset_type = #{assetType} AND c.deleted_at = 0
+    </select>
+
+    <select id="findApplications" resultType="map">
+        SELECT id, application_no applicationNo, asset_type assetType, title, quantity, reason,
+               status, requester_id requesterId, requester_name requesterName,
+               department_id departmentId, department_name departmentName,
+               approver_id approverId, approver_name approverName,
+               decision_remark decisionRemark, form_data formData,
+               form_schema_snapshot formSchema, nodes_snapshot nodes,
+               source_application_id sourceApplicationId,
+               current_node_index currentNodeIndex, created_at createdAt, updated_at updatedAt,
+               COALESCE(
+                   NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$._requesterDepartmentId')), ''),
+                   NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.departmentId')), ''),
+                   (
+                       SELECT CAST(requester.primary_department_id AS CHAR)
+                       FROM sys_user requester
+                       WHERE requester.id = media_asset_application.requester_id
+                         AND requester.deleted_at = 0
+                   )
+               ) departmentId,
+               COALESCE(
+                   NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$._requesterDepartmentName')), ''),
+                   NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.departmentName')), ''),
+                   (
+                       SELECT department.dept_name
+                       FROM sys_user requester
+                       JOIN sys_department department
+                         ON department.id = requester.primary_department_id
+                        AND department.deleted_at = 0
+                       WHERE requester.id = media_asset_application.requester_id
+                         AND requester.deleted_at = 0
+                   )
+               ) departmentName
+        FROM media_asset_application
+        WHERE deleted_at = 0
+        <if test="id != null">AND id = #{id}</if>
+        <if test="requesterId != null">AND requester_id = #{requesterId}</if>
+        <if test="activeOnly">AND status IN ('PENDING', 'PROCESSING')</if>
+        ORDER BY id DESC
+    </select>
+
+    <select id="findAccountLifecycleApplications" resultType="map">
+        SELECT
+            id,
+            JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.applicationCode')) applicationCode,
+            title,
+            status,
+            requester_name requesterName,
+            CAST(
+                COALESCE(
+                    NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.amount')), ''),
+                    NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.rechargeAmount')), '')
+                ) AS DECIMAL(18, 2)
+            ) amount,
+            COALESCE(
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.amountType')), ''),
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.currency')), ''),
+                'USD'
+            ) currency,
+            form_data formData,
+            form_schema_snapshot formSchema,
+            created_at createdAt,
+            decided_at decidedAt
+        FROM media_asset_application
+        WHERE deleted_at = 0
+          AND (
+              (
+                  asset_type = 'ACCOUNT_OPERATION'
+                  AND (
+                      JSON_CONTAINS(JSON_EXTRACT(form_data, '$.accountIds'), JSON_QUOTE(#{accountId}))
+                      OR JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.accountId')) = #{accountId}
+                  )
+              )
+              OR EXISTS (
+                  SELECT 1
+                  FROM media_asset asset
+                  WHERE asset.application_id = media_asset_application.id
+                    AND asset.asset_type = 'AD_ACCOUNT'
+                    AND REPLACE(asset.asset_code, 'act_', '') = #{accountId}
+                    AND asset.deleted_at = 0
+              )
+          )
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findAccountLifecycleActions" resultType="map">
+        SELECT
+            log.id,
+            log.application_id applicationId,
+            log.action,
+            log.actor_name actorName,
+            log.node_name nodeName,
+            log.remark,
+            log.created_at createdAt
+        FROM media_asset_approval_log log
+        JOIN media_asset_application application
+          ON application.id = log.application_id
+         AND application.deleted_at = 0
+        WHERE (
+              (
+                  application.asset_type = 'ACCOUNT_OPERATION'
+                  AND (
+                      JSON_CONTAINS(
+                          JSON_EXTRACT(application.form_data, '$.accountIds'),
+                          JSON_QUOTE(#{accountId})
+                      )
+                      OR JSON_UNQUOTE(JSON_EXTRACT(application.form_data, '$.accountId')) = #{accountId}
+                  )
+              )
+              OR EXISTS (
+                  SELECT 1
+                  FROM media_asset asset
+                  WHERE asset.application_id = application.id
+                    AND asset.asset_type = 'AD_ACCOUNT'
+                    AND REPLACE(asset.asset_code, 'act_', '') = #{accountId}
+                    AND asset.deleted_at = 0
+              )
+          )
+          AND log.action IN ('APPROVED', 'REJECTED', 'COMPLETED', 'TRANSFERRED')
+        ORDER BY log.application_id, log.created_at, log.id
+    </select>
+
+    <select id="findProcessedApplications" resultType="map">
+        SELECT a.id, a.application_no applicationNo, a.asset_type assetType, a.title, a.quantity,
+               a.reason, a.status, a.requester_id requesterId, a.requester_name requesterName,
+               a.department_id departmentId, a.department_name departmentName,
+               a.approver_id approverId, a.approver_name approverName,
+               a.decision_remark decisionRemark, a.form_data formData,
+               a.form_schema_snapshot formSchema, a.nodes_snapshot nodes,
+               a.source_application_id sourceApplicationId,
+               a.current_node_index currentNodeIndex, a.created_at createdAt,
+               a.updated_at updatedAt
+        FROM media_asset_application a
+        WHERE a.deleted_at = 0
+          AND EXISTS (
+              SELECT 1
+              FROM media_asset_approval_log l
+              WHERE l.application_id = a.id
+                AND l.actor_id = #{actorId}
+                AND l.action IN ('APPROVED', 'REJECTED', 'TRANSFERRED')
+          )
+        ORDER BY a.updated_at DESC, a.id DESC
+    </select>
+
+    <sql id="approvalDepartmentIdExpression">
+        COALESCE(
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$._requesterDepartmentId')), ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.departmentId')), ''),
+            CAST(requester.primary_department_id AS CHAR)
+        )
+    </sql>
+
+    <sql id="approvalDepartmentNameExpression">
+        COALESCE(
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$._requesterDepartmentName')), ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.departmentName')), ''),
+            requester_department.dept_name
+        )
+    </sql>
+
+    <sql id="approvalPendingPrincipalExpression">
+        (
+            a.status = 'PENDING'
+            AND (
+                (
+                    COALESCE(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(
+                                a.nodes_snapshot,
+                                CONCAT('$[', a.current_node_index, '].approverType')
+                            )
+                        ),
+                        'USERS'
+                    ) = 'USERS'
+                    AND (
+                        a.approver_id = #{query.userId}
+                        OR EXISTS (
+                            SELECT 1
+                            FROM JSON_TABLE(
+                                COALESCE(
+                                    JSON_EXTRACT(
+                                        a.nodes_snapshot,
+                                        CONCAT('$[', a.current_node_index, '].approverIds')
+                                    ),
+                                    JSON_ARRAY()
+                                ),
+                                '$[*]' COLUMNS (principal_id VARCHAR(32) PATH '$')
+                            ) direct_principal
+                            WHERE direct_principal.principal_id = CAST(#{query.userId} AS CHAR)
+                        )
+                    )
+                )
+                OR (
+                    JSON_UNQUOTE(
+                        JSON_EXTRACT(
+                            a.nodes_snapshot,
+                            CONCAT('$[', a.current_node_index, '].approverType')
+                        )
+                    ) = 'ROLES'
+                    AND EXISTS (
+                        SELECT 1
+                        FROM JSON_TABLE(
+                            COALESCE(
+                                JSON_EXTRACT(
+                                    a.nodes_snapshot,
+                                    CONCAT('$[', a.current_node_index, '].roleIds')
+                                ),
+                                JSON_ARRAY()
+                            ),
+                            '$[*]' COLUMNS (role_id VARCHAR(32) PATH '$')
+                        ) role_principal
+                        JOIN sys_user_role user_role
+                          ON CAST(user_role.role_id AS CHAR) = role_principal.role_id
+                         AND user_role.user_id = #{query.userId}
+                         AND user_role.deleted_at = 0
+                        JOIN sys_role role
+                          ON role.id = user_role.role_id
+                         AND role.status = 1
+                         AND role.deleted_at = 0
+                    )
+                )
+                OR (
+                    JSON_UNQUOTE(
+                        JSON_EXTRACT(
+                            a.nodes_snapshot,
+                            CONCAT('$[', a.current_node_index, '].approverType')
+                        )
+                    ) = 'DEPARTMENTS'
+                    AND EXISTS (
+                        SELECT 1
+                        FROM JSON_TABLE(
+                            COALESCE(
+                                JSON_EXTRACT(
+                                    a.nodes_snapshot,
+                                    CONCAT('$[', a.current_node_index, '].departmentIds')
+                                ),
+                                JSON_ARRAY()
+                            ),
+                            '$[*]' COLUMNS (department_id VARCHAR(32) PATH '$')
+                        ) department_principal
+                        JOIN sys_department pending_department
+                          ON CAST(pending_department.id AS CHAR) = department_principal.department_id
+                         AND pending_department.status = 1
+                         AND pending_department.deleted_at = 0
+                        JOIN sys_user pending_department_user
+                          ON pending_department_user.primary_department_id = pending_department.id
+                         AND pending_department_user.id = #{query.userId}
+                         AND pending_department_user.status = 1
+                         AND pending_department_user.deleted_at = 0
+                    )
+                )
+            )
+        )
+    </sql>
+
+    <sql id="approvalQueuePredicate">
+        <choose>
+            <when test="query.queue == 'pending'">
+                AND <include refid="approvalPendingPrincipalExpression"/>
+            </when>
+            <when test="query.queue == 'handling'">
+                AND a.status = 'PROCESSING'
+                AND a.approver_id = #{query.userId}
+            </when>
+            <when test="query.queue == 'processed'">
+                AND EXISTS (
+                    SELECT 1
+                    FROM media_asset_approval_log processed_log
+                    WHERE processed_log.application_id = a.id
+                      AND processed_log.actor_id = #{query.userId}
+                      AND processed_log.action IN ('APPROVED', 'REJECTED')
+                )
+            </when>
+            <when test="query.queue == 'copied'">
+                AND FIND_IN_SET(
+                    CAST(#{query.userId} AS CHAR),
+                    REPLACE(
+                        COALESCE(
+                            JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$._ccUserIds')),
+                            ''
+                        ),
+                        ' ',
+                        ''
+                    )
+                ) &gt; 0
+            </when>
+            <otherwise>
+                AND a.requester_id = #{query.userId}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="approvalAnyVisiblePredicate">
+        AND (
+            <include refid="approvalPendingPrincipalExpression"/>
+            OR (a.status = 'PROCESSING' AND a.approver_id = #{query.userId})
+            OR EXISTS (
+                SELECT 1
+                FROM media_asset_approval_log visible_log
+                WHERE visible_log.application_id = a.id
+                  AND visible_log.actor_id = #{query.userId}
+                  AND visible_log.action IN ('APPROVED', 'REJECTED')
+            )
+            OR FIND_IN_SET(
+                CAST(#{query.userId} AS CHAR),
+                REPLACE(
+                    COALESCE(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$._ccUserIds')), ''),
+                    ' ',
+                    ''
+                )
+            ) &gt; 0
+            OR a.requester_id = #{query.userId}
+        )
+    </sql>
+
+    <sql id="approvalFilterPredicate">
+        <if test="query.keyword != null and query.keyword != ''">
+            <bind name="keywordPattern" value="'%' + query.keyword + '%'"/>
+            AND (
+                CAST(a.id AS CHAR) LIKE #{keywordPattern}
+                OR a.application_no LIKE #{keywordPattern}
+                OR a.title LIKE #{keywordPattern}
+                OR a.requester_name LIKE #{keywordPattern}
+                OR a.reason LIKE #{keywordPattern}
+                OR JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.projectName')) LIKE #{keywordPattern}
+                OR JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.channelName')) LIKE #{keywordPattern}
+            )
+        </if>
+        <if test="query.applicationDefinitionId != null">
+            AND CAST(
+                JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.applicationDefinitionId'))
+                AS UNSIGNED
+            ) = #{query.applicationDefinitionId}
+        </if>
+        <if test="query.assetType != null and query.assetType != ''">
+            AND a.asset_type = #{query.assetType}
+        </if>
+        <if test="query.departmentId != null">
+            AND <include refid="approvalDepartmentIdExpression"/>
+                = CAST(#{query.departmentId} AS CHAR)
+        </if>
+        <if test="query.requesterId != null">
+            AND a.requester_id = #{query.requesterId}
+        </if>
+        <if test="query.queue == 'processed' and query.decisionResult != null and query.decisionResult != ''">
+            AND EXISTS (
+                SELECT 1
+                FROM media_asset_approval_log decision_log
+                WHERE decision_log.application_id = a.id
+                  AND decision_log.actor_id = #{query.userId}
+                  AND decision_log.action = #{query.decisionResult}
+            )
+        </if>
+    </sql>
+
+    <sql id="approvalApplicationFrom">
+        FROM media_asset_application a
+        LEFT JOIN sys_user requester
+          ON requester.id = a.requester_id
+         AND requester.deleted_at = 0
+        LEFT JOIN sys_department requester_department
+          ON requester_department.id = requester.primary_department_id
+         AND requester_department.deleted_at = 0
+        LEFT JOIN media_approval_config approval_config
+          ON approval_config.asset_type = a.asset_type
+         AND approval_config.deleted_at = 0
+        WHERE a.deleted_at = 0
+    </sql>
+
+    <select id="findApprovalPage" resultType="map">
+        SELECT
+            a.id,
+            a.application_no applicationNo,
+            JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.applicationDefinitionId')) applicationDefinitionId,
+            a.asset_type assetType,
+            COALESCE(
+                JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.configCategory')),
+                approval_config.category
+            ) configCategory,
+            a.title,
+            a.quantity,
+            a.reason,
+            a.status,
+            a.requester_id requesterId,
+            a.requester_name requesterName,
+            a.approver_id approverId,
+            a.approver_name approverName,
+            JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$._ccUserIds')) ccUserIds,
+            a.created_at createdAt,
+            a.updated_at updatedAt,
+            <include refid="approvalDepartmentIdExpression"/> departmentId,
+            <include refid="approvalDepartmentNameExpression"/> departmentName,
+            COALESCE(
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.projectName')), ''),
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.channelName')), ''),
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.project')), '')
+            ) projectName
+        <include refid="approvalApplicationFrom"/>
+        <include refid="approvalQueuePredicate"/>
+        <include refid="approvalFilterPredicate"/>
+        ORDER BY a.created_at DESC, a.id DESC
+        LIMIT #{query.pageSize} OFFSET #{query.offset}
+    </select>
+
+    <select id="findApprovalCcUsersByIds" resultType="map">
+        SELECT
+            id,
+            COALESCE(
+                NULLIF(real_name, ''),
+                NULLIF(display_name, ''),
+                NULLIF(username, ''),
+                CONCAT('用户 ', id)
+            ) displayName,
+            status
+        FROM sys_user
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND deleted_at = 0
+    </select>
+
+    <select id="findVisibleApprovalExportRows" resultType="map">
+        SELECT
+            a.id,
+            a.application_no applicationNo,
+            COALESCE(
+                (
+                    SELECT definition.application_name
+                    FROM media_application_definition definition
+                    WHERE definition.id = CAST(
+                        JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.applicationDefinitionId'))
+                        AS UNSIGNED
+                    )
+                      AND definition.deleted_at = 0
+                    LIMIT 1
+                ),
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.applicationName')), ''),
+                a.asset_type
+            ) applicationTypeName,
+            a.asset_type assetType,
+            a.title,
+            a.quantity,
+            a.reason,
+            a.status,
+            a.requester_id requesterId,
+            a.requester_name requesterName,
+            a.approver_id approverId,
+            a.approver_name approverName,
+            a.form_data formData,
+            a.nodes_snapshot nodes,
+            a.created_at createdAt,
+            a.updated_at updatedAt,
+            <include refid="approvalDepartmentIdExpression"/> departmentId,
+            <include refid="approvalDepartmentNameExpression"/> departmentName,
+            COALESCE(
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.projectName')), ''),
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.channelName')), ''),
+                NULLIF(JSON_UNQUOTE(JSON_EXTRACT(a.form_data, '$.project')), '')
+            ) projectName
+        <include refid="approvalApplicationFrom"/>
+        <include refid="approvalAnyVisiblePredicate"/>
+        AND a.id IN
+        <foreach collection="query.applicationIds" item="applicationId" open="(" separator="," close=")">
+            #{applicationId}
+        </foreach>
+    </select>
+
+    <select id="countApprovalPage" resultType="long">
+        SELECT COUNT(*)
+        <include refid="approvalApplicationFrom"/>
+        <include refid="approvalQueuePredicate"/>
+        <include refid="approvalFilterPredicate"/>
+    </select>
+
+    <select id="findApprovalDepartments" resultType="map">
+        SELECT DISTINCT
+            <include refid="approvalDepartmentIdExpression"/> value,
+            <include refid="approvalDepartmentNameExpression"/> label
+        <include refid="approvalApplicationFrom"/>
+        <include refid="approvalAnyVisiblePredicate"/>
+        AND <include refid="approvalDepartmentIdExpression"/> IS NOT NULL
+        AND <include refid="approvalDepartmentNameExpression"/> IS NOT NULL
+        ORDER BY label, value
+    </select>
+
+    <select id="findApprovalRequesters" resultType="map">
+        SELECT DISTINCT
+            CAST(a.requester_id AS CHAR) value,
+            a.requester_name label
+        <include refid="approvalApplicationFrom"/>
+        <include refid="approvalAnyVisiblePredicate"/>
+        ORDER BY label, value
+    </select>
+
+    <select id="findConfigs" resultType="map">
+        SELECT c.id, c.asset_type assetType, c.category, c.flow_name name, c.description,
+               c.icon, c.visibility, c.settings,
+               c.sort_order sortOrder, c.form_schema formSchema, c.nodes,
+               c.cc_user_ids ccUserIds, c.enabled, c.updated_at updatedAt,
+               (SELECT GROUP_CONCAT(d.id ORDER BY d.sort_order, d.id)
+                  FROM media_application_definition d
+                 WHERE d.approval_config_id = c.id AND d.deleted_at = 0) applicationDefinitionIds,
+               (SELECT COUNT(*) FROM media_asset_application a
+                 WHERE a.asset_type = c.asset_type AND a.requester_id = #{userId}
+                   AND a.deleted_at = 0) usageCount
+        FROM media_approval_config c
+        WHERE c.deleted_at = 0
+        <if test="!managementView">
+            AND c.enabled = 1
+            AND (c.visibility = 'all' OR EXISTS (
+                SELECT 1 FROM sys_user_role ur
+                JOIN sys_role r ON r.id = ur.role_id AND r.deleted_at = 0 AND r.status = 1
+                WHERE ur.user_id = #{userId} AND ur.deleted_at = 0
+                  AND UPPER(r.role_code) IN ('ADMIN', 'SUPER_ADMIN', 'SYSTEM_ADMIN')
+            ))
+        </if>
+        ORDER BY c.sort_order, c.id
+    </select>
+
+    <select id="findApprovalLogsByApplicationIds" resultType="map">
+        SELECT application_id applicationId, id, action, actor_id actorId,
+               actor_name actorName, remark, action_data actionData,
+               node_index nodeIndex, node_name nodeName, created_at createdAt
+        FROM media_asset_approval_log
+        WHERE application_id IN
+        <foreach collection="applicationIds" item="applicationId" open="(" separator="," close=")">
+            #{applicationId}
+        </foreach>
+        ORDER BY application_id, id
+    </select>
+
+    <select id="findAllocatedAssetsByApplicationIds" resultType="map">
+        SELECT application_id applicationId, id, asset_type assetType,
+               asset_name assetName, asset_code assetCode,
+               channel_name channelName, project_name projectName
+        FROM media_asset
+        WHERE application_id IN
+        <foreach collection="applicationIds" item="applicationId" open="(" separator="," close=")">
+            #{applicationId}
+        </foreach>
+          AND deleted_at = 0
+        ORDER BY application_id, id
+    </select>
+
+    <select id="findApprovalExportFiles" resultType="map">
+        SELECT f.id, f.original_name originalName, o.file_size fileSize,
+               o.mime_type mimeType, o.bucket_name bucketName, o.object_key objectKey
+        FROM sys_file f
+        JOIN sys_file_object o
+          ON o.id = f.file_object_id
+         AND o.deleted_at = 0
+         AND o.storage_status = 'AVAILABLE'
+        WHERE f.deleted_at = 0
+          AND o.mime_type LIKE 'image/%'
+          AND f.id IN
+        <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </select>
+
+    <select id="findActivePrimaryDepartment" resultType="map">
+        SELECT d.id departmentId,
+               d.dept_name departmentName
+        FROM sys_user u
+        JOIN sys_department d
+          ON d.id = u.primary_department_id
+         AND d.status = 1
+         AND d.deleted_at = 0
+        WHERE u.id = #{userId}
+          AND u.status = 1
+          AND u.deleted_at = 0
+    </select>
+
+    <select id="findActiveUsersByPrimaryDepartment" resultType="map">
+        SELECT u.id,
+               COALESCE(NULLIF(u.real_name, ''), NULLIF(u.display_name, ''), u.username) name,
+               d.id departmentId,
+               d.dept_name departmentName
+        FROM sys_user u
+        JOIN sys_department d
+          ON d.id = u.primary_department_id
+         AND d.status = 1
+         AND d.deleted_at = 0
+        WHERE u.primary_department_id = #{departmentId}
+          AND u.id != #{excludedUserId}
+          AND u.status = 1
+          AND u.deleted_at = 0
+        ORDER BY u.id
+    </select>
+
+    <select id="findChannelPaymentContext" resultType="map">
+        SELECT payment_address paymentAddress
+        FROM media_channel
+        WHERE id = #{channelId} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="sumYesterdayChannelSpend" resultType="object">
+        SELECT COALESCE(SUM(s.spend_amount), 0)
+        FROM media_channel_campaign_spend s
+        JOIN media_channel_account a ON a.account_id = s.account_id AND a.deleted_at = 0
+        WHERE a.channel_id = #{channelId}
+          AND s.spend_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+          AND s.deleted_at = 0
+    </select>
+
+    <select id="summarizeOwnedFiles" resultType="map">
+        SELECT COUNT(*) fileCount, COALESCE(MAX(o.file_size), 0) maxFileSize
+        FROM sys_file f
+        JOIN sys_file_object o ON o.id = f.file_object_id AND o.deleted_at = 0
+        WHERE f.id IN
+        <foreach collection="fileIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND f.uploader_id = #{userId} AND f.deleted_at = 0
+          AND o.storage_status = 'AVAILABLE' AND o.mime_type LIKE 'image/%'
+    </select>
+
+    <select id="countActiveUser" resultType="int">
+        SELECT COUNT(*) FROM sys_user WHERE id = #{userId} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findActiveUsers" resultType="map">
+        SELECT id, display_name displayName FROM sys_user
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findActiveRoles" resultType="map">
+        SELECT id, role_name roleName FROM sys_role
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findActiveRoleMemberIds" resultType="long">
+        SELECT DISTINCT u.id
+        FROM sys_user u
+        JOIN sys_user_role ur ON ur.user_id = u.id AND ur.deleted_at = 0
+        JOIN sys_role r ON r.id = ur.role_id AND r.status = 1 AND r.deleted_at = 0
+        WHERE ur.role_id IN
+        <foreach collection="roleIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND u.status = 1 AND u.deleted_at = 0
+        ORDER BY u.id
+    </select>
+
+    <select id="findActiveDepartments" resultType="map">
+        SELECT id,
+               dept_name departmentName
+        FROM sys_department
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND status = 1
+          AND deleted_at = 0
+        ORDER BY id
+    </select>
+
+    <!-- 主部门等值匹配只解析直属成员；部门 path 不参与查询，因此不会包含下级部门。 -->
+    <select id="findActiveDepartmentMemberIds" resultType="long">
+        SELECT DISTINCT u.id
+        FROM sys_user u
+        JOIN sys_department d
+          ON d.id = u.primary_department_id
+         AND d.status = 1
+         AND d.deleted_at = 0
+        WHERE u.primary_department_id IN
+        <foreach collection="departmentIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND u.status = 1
+          AND u.deleted_at = 0
+        ORDER BY u.id
+    </select>
+
+    <select id="findActiveAccountLabels" resultType="string">
+        SELECT COALESCE(NULLIF(account_name, ''), account_id)
+        FROM ad_account_asset
+        WHERE account_id = #{accountId} AND deleted_at = 0
+    </select>
+
+    <select id="lockActiveChannelAccounts" resultType="map">
+        SELECT account_id AS accountId, COALESCE(channel_name, '') AS channelName
+        FROM ad_account_asset
+        WHERE deleted_at = 0
+          AND id = (
+              SELECT MAX(candidate.id)
+              FROM ad_account_asset candidate
+              WHERE candidate.account_id = ad_account_asset.account_id
+                AND candidate.deleted_at = 0
+          )
+          AND account_id IN
+          <foreach collection="selectedIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+        FOR UPDATE
+    </select>
+
+    <select id="findAssignedChannelAccountIds" resultType="string">
+        SELECT DISTINCT asset.account_id
+        FROM ad_account_asset asset
+        JOIN ad_account_asset_assignment assignment
+          ON assignment.ad_account_asset_id = asset.id
+         AND assignment.user_id = #{assigneeId}
+         AND assignment.assignment_status = 'ACTIVE'
+         AND assignment.deleted_at = 0
+        WHERE asset.account_id IN
+        <foreach collection="accountIds" item="accountId" open="(" separator="," close=")">
+            #{accountId}
+        </foreach>
+          AND asset.deleted_at = 0
+    </select>
+
+    <update id="assignChannelAccounts">
+        UPDATE ad_account_asset asset
+        JOIN (
+            SELECT account_id, MAX(id) AS id
+            FROM ad_account_asset
+            WHERE deleted_at = 0
+            GROUP BY account_id
+        ) latest ON latest.id = asset.id
+        SET asset.inventory_status = 'ASSIGNED',
+            asset.updated_by = #{operatorId},
+            asset.updated_at = CURRENT_TIMESTAMP(3)
+        WHERE asset.account_id IN
+        <foreach collection="accountIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+
+    <insert id="insertChannelAccountAssignments">
+        INSERT INTO ad_account_asset_assignment (
+            ad_account_asset_id, user_id, user_name, is_primary,
+            assignment_status, assignment_source, application_id,
+            assigned_at, created_by, updated_by
+        )
+        SELECT
+            asset.id, #{assigneeId}, #{assigneeName}, 1,
+            'ACTIVE', 'APPLICATION', #{applicationId},
+            CURRENT_TIMESTAMP(3), #{operatorId}, #{operatorId}
+        FROM ad_account_asset asset
+        WHERE asset.account_id IN
+        <foreach collection="accountIds" item="accountId" open="(" separator="," close=")">
+            #{accountId}
+        </foreach>
+          AND asset.deleted_at = 0
+          AND asset.id = (
+              SELECT MAX(candidate.id)
+              FROM ad_account_asset candidate
+              WHERE candidate.account_id = asset.account_id
+                AND candidate.deleted_at = 0
+          )
+        ON DUPLICATE KEY UPDATE
+            user_name = VALUES(user_name),
+            is_primary = 1,
+            assignment_status = 'ACTIVE',
+            assignment_source = 'APPLICATION',
+            application_id = VALUES(application_id),
+            released_at = NULL,
+            updated_by = VALUES(updated_by),
+            updated_at = CURRENT_TIMESTAMP(3)
+    </insert>
+
+    <select id="findActiveReferenceLabels" resultType="string">
+        <choose>
+            <when test="source == 'channels'">
+                SELECT channel_name FROM media_channel WHERE id = #{id} AND status = 1 AND deleted_at = 0
+            </when>
+            <when test="source == 'departments'">
+                SELECT dept_name FROM sys_department WHERE id = #{id} AND status = 1 AND deleted_at = 0
+            </when>
+            <when test="source == 'projects'">
+                SELECT project_name FROM pm_project WHERE id = #{id} AND deleted_at = 0
+            </when>
+            <when test="source == 'roles'">
+                SELECT role_name FROM sys_role WHERE id = #{id} AND status = 1 AND deleted_at = 0
+            </when>
+            <otherwise>
+                SELECT COALESCE(NULLIF(real_name, ''), display_name)
+                FROM sys_user WHERE id = #{id} AND status = 1 AND deleted_at = 0
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

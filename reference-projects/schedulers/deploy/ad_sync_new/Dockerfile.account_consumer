@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+WORKDIR /schedulers
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# 新架构(1 dev / 进程):容器数从 200 降到 ~25,启动峰值 CPU 不再是问题,
+# 不需要原来的随机 sleep 错峰。
+CMD ["python", "-m", "tasks.ad_sync_new.account_consumer"]

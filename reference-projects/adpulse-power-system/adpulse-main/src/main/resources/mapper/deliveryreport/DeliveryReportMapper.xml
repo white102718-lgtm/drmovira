@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.deliveryreport.DeliveryReportMapper">
+    <sql id="readFrom">
+        FROM biz_delivery_report r
+        JOIN sys_user u ON u.id = r.reporter_id AND u.deleted_at = 0
+        LEFT JOIN sys_department d ON d.id = u.primary_department_id AND d.deleted_at = 0
+        WHERE r.deleted_at = 0 AND r.report_date BETWEEN #{startDate} AND #{endDate}
+        <if test="userId != null">AND r.reporter_id = #{userId}</if>
+        <if test="reporter != null and reporter != ''">AND LOCATE(#{reporter}, u.display_name) > 0</if>
+        <if test="project != null and project != ''">AND LOCATE(#{project}, r.project_name) > 0</if>
+        <if test="line != null and line != ''">AND LOCATE(#{line}, r.agency_line_name) > 0</if>
+    </sql>
+    <select id="findReadRecords" resultType="com.adpulse.main.deliveryreport.DeliveryReportRecord">
+        SELECT r.id, r.report_date, r.reporter_id, u.english_nickname AS reporter_english_name,
+            u.display_name AS reporter_name, COALESCE(d.dept_name, '未设置') AS department_name,
+            r.project_id, r.project_name, r.agency_line_id, r.agency_line_name, r.platform, r.metrics_json
+        <include refid="readFrom"/>
+        ORDER BY r.report_date DESC, r.reporter_id, r.id
+        <if test="limit != null">LIMIT #{limit} OFFSET #{offset}</if>
+    </select>
+    <select id="countReadRecords" resultType="long">
+        SELECT COUNT(*) <include refid="readFrom"/>
+    </select>
+    <select id="findReadRecordsByIds" resultType="com.adpulse.main.deliveryreport.DeliveryReportRecord">
+        SELECT r.id,
+            r.report_date,
+            r.reporter_id,
+            u.english_nickname AS reporter_english_name,
+            u.display_name AS reporter_name,
+            COALESCE(d.dept_name, '未设置') AS department_name,
+            r.project_id,
+            r.project_name,
+            r.agency_line_id,
+            r.agency_line_name,
+            r.platform,
+            r.metrics_json,
+            r.account_ids_json,
+            r.campaign_ids_json
+        FROM biz_delivery_report r
+        JOIN sys_user u ON u.id = r.reporter_id AND u.deleted_at = 0
+        LEFT JOIN sys_department d ON d.id = u.primary_department_id AND d.deleted_at = 0
+        WHERE r.deleted_at = 0
+        <if test="userId != null">AND r.reporter_id = #{userId}</if>
+          AND r.id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+        ORDER BY r.report_date, r.project_id, r.id
+    </select>
+    <select id="findReadAttachments" resultType="com.adpulse.main.deliveryreport.DeliveryReportTypes$ReportAttachment">
+        SELECT CAST(a.report_id AS CHAR) AS report_id, CAST(f.id AS CHAR) AS id,
+            f.original_name AS name, o.mime_type
+        FROM biz_delivery_report_attachment a
+        JOIN sys_file f ON f.id = a.file_id AND f.deleted_at = 0
+        JOIN sys_file_object o ON o.id = f.file_object_id AND o.deleted_at = 0
+        WHERE a.deleted_at = 0 AND a.report_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+        ORDER BY a.report_id, a.sort_order, a.id
+    </select>
+    <select id="findOperatorReporters" resultType="com.adpulse.main.deliveryreport.DeliveryReportTypes$Reporter">
+        SELECT CAST(u.id AS CHAR) AS id, u.display_name AS name
+        FROM sys_user u
+        WHERE u.deleted_at = 0
+        <if test="userId != null">AND u.id = #{userId}</if>
+          AND EXISTS (
+              SELECT 1 FROM sys_user_role ur
+              JOIN sys_role r ON r.id = ur.role_id AND r.deleted_at = 0 AND r.status = 1
+              WHERE ur.user_id = u.id AND ur.deleted_at = 0 AND r.role_code = 'OPERATOR'
+          )
+        ORDER BY u.display_name, u.id
+    </select>
+    <select id="findReporters" resultType="com.adpulse.main.deliveryreport.DeliveryReportTypes$Reporter">
+        SELECT CAST(id AS CHAR) AS id, display_name AS name FROM sys_user
+        WHERE deleted_at = 0
+        <if test="userId != null">AND id = #{userId}</if>
+        ORDER BY display_name, id
+    </select>
+    <select id="findReportDates" resultType="java.time.LocalDate">
+        SELECT DISTINCT report_date FROM biz_delivery_report
+        WHERE reporter_id = #{userId} AND deleted_at = 0
+          AND report_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY report_date
+    </select>
+    <select id="findDepartmentName" resultType="string">
+        SELECT d.dept_name FROM sys_user u
+        JOIN sys_department d ON d.id = u.primary_department_id AND d.deleted_at = 0
+        WHERE u.id = #{userId} AND u.deleted_at = 0
+    </select>
+    <select id="sumDailySpendForTask" resultType="java.math.BigDecimal">
+        SELECT COALESCE(
+            SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(metrics_json, '$.dailySpend')) AS DECIMAL(18, 2))),
+            0
+        )
+        FROM biz_delivery_report
+        WHERE reporter_id = #{userId}
+          AND project_id = #{projectId}
+          AND report_date BETWEEN #{startDate} AND #{endDate}
+          AND deleted_at = 0
+          AND agency_line_name IN
+        <foreach collection="agencyLineNames" item="line" open="(" separator="," close=")">
+            #{line}
+        </foreach>
+          AND LOWER(TRIM(platform)) IN
+        <foreach collection="platforms" item="platform" open="(" separator="," close=")">
+            #{platform}
+        </foreach>
+    </select>
+    <select id="findEnglishName" resultType="string">
+        SELECT english_nickname FROM sys_user WHERE id = #{userId} AND status = 1 AND deleted_at = 0
+    </select>
+    <select id="findReadEnglishName" resultType="string">
+        SELECT english_nickname FROM sys_user WHERE id = #{userId} AND deleted_at = 0
+    </select>
+    <select id="lockReporter" resultType="long">
+        SELECT id FROM sys_user WHERE id = #{userId} AND status = 1 AND deleted_at = 0 FOR UPDATE
+    </select>
+    <select id="findLines" resultType="com.adpulse.main.deliveryreport.DeliveryReportTypes$LineOption">
+        SELECT CAST(p.id AS CHAR) AS project_id, p.project_name,
+            CAST(l.id AS CHAR) AS agency_line_id, l.line_name AS agency_line_name
+        FROM pm_agency_line l
+        JOIN pm_project p ON p.id = l.project_id AND p.deleted_at = 0
+        WHERE l.deleted_at = 0
+        ORDER BY p.project_name, l.line_name, l.id
+    </select>
+    <select id="findRecords" resultType="com.adpulse.main.deliveryreport.DeliveryReportRecord">
+        SELECT id, report_date, reporter_id, reporter_english_name,
+            project_id, project_name, agency_line_id, agency_line_name, platform,
+            metrics_json, account_ids_json, campaign_ids_json
+        FROM biz_delivery_report
+        WHERE reporter_id = #{userId} AND report_date = #{date} AND deleted_at = 0
+        ORDER BY id
+    </select>
+    <insert id="upsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_delivery_report (
+            report_date, reporter_id, reporter_english_name, project_id, project_name,
+            agency_line_id, agency_line_name, platform, metrics_json, account_ids_json, campaign_ids_json
+        ) VALUES (
+            #{reportDate}, #{reporterId}, #{reporterEnglishName}, #{projectId}, #{projectName},
+            #{agencyLineId}, #{agencyLineName}, #{platform}, #{metricsJson},
+            COALESCE(#{accountIdsJson}, '[]'), COALESCE(#{campaignIdsJson}, '[]')
+        ) ON DUPLICATE KEY UPDATE
+            id = LAST_INSERT_ID(id),
+            reporter_english_name = VALUES(reporter_english_name),
+            project_name = VALUES(project_name),
+            agency_line_name = VALUES(agency_line_name),
+            metrics_json = VALUES(metrics_json),
+            account_ids_json = COALESCE(#{accountIdsJson}, account_ids_json),
+            campaign_ids_json = COALESCE(#{campaignIdsJson}, campaign_ids_json),
+            updated_at = CURRENT_TIMESTAMP(3)
+    </insert>
+    <select id="findAttachments" resultType="com.adpulse.main.deliveryreport.DeliveryReportTypes$Attachment">
+        SELECT CAST(f.id AS CHAR) AS id, f.original_name AS name, o.mime_type
+        FROM biz_delivery_report_attachment a
+        JOIN sys_file f ON f.id = a.file_id AND f.deleted_at = 0
+        JOIN sys_file_object o ON o.id = f.file_object_id AND o.deleted_at = 0
+        WHERE a.report_id = #{reportId} AND a.deleted_at = 0
+        ORDER BY a.sort_order, a.id
+    </select>
+    <select id="lockOwnedImages" resultType="com.adpulse.main.deliveryreport.DeliveryReportTypes$Attachment">
+        SELECT CAST(f.id AS CHAR) AS id, f.original_name AS name, o.mime_type
+        FROM sys_file f
+        JOIN sys_file_object o ON o.id = f.file_object_id AND o.deleted_at = 0
+        WHERE f.uploader_id = #{userId} AND f.deleted_at = 0
+          AND o.storage_status = 'AVAILABLE'
+          AND o.mime_type IN ('image/png', 'image/jpeg', 'image/webp', 'image/gif')
+          AND f.id IN
+          <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+        ORDER BY f.id
+        FOR UPDATE
+    </select>
+    <update id="clearAttachments">
+        UPDATE biz_delivery_report_attachment
+        SET deleted_at = UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000
+        WHERE report_id = #{reportId} AND deleted_at = 0
+    </update>
+    <insert id="insertAttachment">
+        INSERT INTO biz_delivery_report_attachment (report_id, file_id, sort_order)
+        VALUES (#{reportId}, #{fileId}, #{sortOrder})
+    </insert>
+</mapper>

@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.channel.mapper.ChannelMapper">
+
+    <sql id="assetUsageStatus">
+        CASE WHEN EXISTS (
+            SELECT 1 FROM ad_account_asset_assignment assignment
+            WHERE assignment.ad_account_asset_id = a.id
+              AND assignment.assignment_status = 'ACTIVE'
+              AND assignment.deleted_at = 0
+        ) THEN 1 ELSE 0 END
+    </sql>
+
+    <sql id="assetAccountWhere">
+        a.deleted_at = 0
+        AND NOT EXISTS (
+            SELECT 1 FROM ad_account_asset newer
+            WHERE newer.account_id = a.account_id
+              AND newer.deleted_at = 0
+              AND newer.id &gt; a.id
+        )
+        <if test="query.channelId != null">AND a.channel_id = #{query.channelId}</if>
+        <if test="query.accountType != null and query.accountType != ''">
+            AND a.account_type = #{query.accountType}
+        </if>
+        <if test="query.accountIds != null and !query.accountIds.isEmpty()">
+            AND a.account_id IN
+            <foreach collection="query.accountIds" item="accountId" open="(" separator="," close=")">
+                #{accountId}
+            </foreach>
+        </if>
+        <if test="query.bmId != null and query.bmId != ''">
+            AND a.managed_bm_id LIKE CONCAT('%', #{query.bmId}, '%')
+        </if>
+        <if test="query.subjectName != null and query.subjectName != ''">
+            AND a.account_attribute LIKE CONCAT('%', #{query.subjectName}, '%')
+        </if>
+        <if test="query.timezone != null">AND a.timezone = #{query.timezone}</if>
+        <if test="query.belongTeamId != null">
+            AND EXISTS (
+                SELECT 1
+                FROM ad_account_asset_assignment assignment
+                JOIN sys_user operator ON operator.id = assignment.user_id
+                    AND operator.deleted_at = 0
+                WHERE assignment.ad_account_asset_id = a.id
+                  AND assignment.assignment_status = 'ACTIVE'
+                  AND assignment.deleted_at = 0
+                  AND operator.primary_department_id = #{query.belongTeamId}
+            )
+        </if>
+        <if test="query.status != null">AND a.account_status = #{query.status}</if>
+        <if test="query.usageStatus != null">
+            AND (<include refid="assetUsageStatus"/>) = #{query.usageStatus}
+        </if>
+        <if test="query.operatorName != null and query.operatorName != ''">
+            AND EXISTS (
+                SELECT 1 FROM ad_account_asset_assignment assignment
+                WHERE assignment.ad_account_asset_id = a.id
+                  AND assignment.assignment_status = 'ACTIVE'
+                  AND assignment.deleted_at = 0
+                  AND assignment.user_name LIKE CONCAT('%', #{query.operatorName}, '%')
+            )
+        </if>
+        <if test="query.keyword != null and query.keyword != ''">
+            AND (a.account_id LIKE CONCAT('%', #{query.keyword}, '%')
+                OR a.account_name LIKE CONCAT('%', #{query.keyword}, '%')
+                OR a.managed_bm_id LIKE CONCAT('%', #{query.keyword}, '%')
+                OR a.managed_bm LIKE CONCAT('%', #{query.keyword}, '%'))
+        </if>
+    </sql>
+
+    <select id="findAssetAccounts" resultType="com.adpulse.main.channel.model.ChannelModels$Account">
+        SELECT a.id, a.channel_id, a.account_id, a.account_name, a.account_type,
+            a.account_id AS fb_account_id, a.managed_bm_id AS bm_id,
+            a.managed_bm AS bm_from_feishu, a.account_status AS status,
+            <include refid="assetUsageStatus"/> AS usage_status,
+            (SELECT GROUP_CONCAT(DISTINCT assignment.user_name ORDER BY assignment.assigned_at SEPARATOR '、')
+             FROM ad_account_asset_assignment assignment
+             WHERE assignment.ad_account_asset_id = a.id
+               AND assignment.assignment_status = 'ACTIVE'
+               AND assignment.deleted_at = 0) AS operator_name,
+            a.created_by, a.updated_by, a.created_at, a.updated_at
+        FROM ad_account_asset a
+        WHERE <include refid="assetAccountWhere"/>
+        ORDER BY a.updated_at DESC, a.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countAssetAccounts" resultType="long">
+        SELECT COUNT(*) FROM ad_account_asset a WHERE <include refid="assetAccountWhere"/>
+    </select>
+
+    <select id="summarizeAssetAccounts" resultType="com.adpulse.main.channel.model.ChannelModels$Aggregate">
+        SELECT 0 AS opening_balance, 0 AS by_balance, 0 AS by_balance_u,
+            0 AS consumption, 0 AS balance, 0 AS actual_deduction,
+            0 AS amount_spent, 0 AS remaining_spend_cap
+    </select>
+
+    <select id="findAccountIdsByChannelId" resultType="string">
+        SELECT a.account_id FROM ad_account_asset a
+        WHERE a.channel_id = #{channelId} AND a.deleted_at = 0
+          AND NOT EXISTS (
+              SELECT 1 FROM ad_account_asset newer
+              WHERE newer.account_id = a.account_id
+                AND newer.deleted_at = 0
+                AND newer.id &gt; a.id
+          )
+        ORDER BY a.id
+    </select>
+
+    <sql id="latestAssetAccount">
+        a.deleted_at = 0
+        AND NOT EXISTS (
+            SELECT 1 FROM ad_account_asset newer
+            WHERE newer.account_id = a.account_id
+              AND newer.deleted_at = 0
+              AND newer.id &gt; a.id
+        )
+    </sql>
+
+    <select id="findAccountChannelsByChannelIds"
+            resultType="com.adpulse.main.channel.model.ChannelModels$AccountChannel">
+        SELECT a.account_id, a.channel_id, c.channel_name
+        FROM ad_account_asset a
+        JOIN media_channel c ON c.id = a.channel_id AND c.deleted_at = 0
+        WHERE <include refid="latestAssetAccount"/>
+          AND a.channel_id IN
+        <foreach collection="channelIds" item="channelId" open="(" separator="," close=")">
+            #{channelId}
+        </foreach>
+    </select>
+
+    <select id="findAccountChannelsByChannelQuery"
+            resultType="com.adpulse.main.channel.model.ChannelModels$AccountChannel">
+        SELECT a.account_id, a.channel_id, c.channel_name
+        FROM ad_account_asset a
+        JOIN media_channel c ON c.id = a.channel_id
+        WHERE <include refid="latestAssetAccount"/>
+          AND <include refid="channelWhere"/>
+    </select>
+
+    <sql id="channelColumns">
+        c.id, c.channel_name, c.channel_short_name, c.channel_code, c.channel_type,
+        c.belong_team, c.status, c.putaway_status, c.settlement_method,
+        c.settlement_currency, c.buyout_amount, c.recharge_amount, c.payment_address,
+        c.login_url, c.remark, c.tg_group_id, c.tg_group_name, c.created_by, c.updated_by,
+        c.created_at, c.updated_at,
+        COALESCE((SELECT r.service_fee FROM media_channel_rate r
+            WHERE r.channel_id = c.id AND r.deleted_at = 0
+              AND r.effective_date &lt;= CURDATE()
+              AND (r.expiry_date IS NULL OR r.expiry_date &gt;= CURDATE())
+            ORDER BY r.effective_date DESC, r.id DESC LIMIT 1), 0) AS service_fee,
+        COALESCE((SELECT r.rebate_rate FROM media_channel_rate r
+            WHERE r.channel_id = c.id AND r.deleted_at = 0
+              AND r.effective_date &lt;= CURDATE()
+              AND (r.expiry_date IS NULL OR r.expiry_date &gt;= CURDATE())
+            ORDER BY r.effective_date DESC, r.id DESC LIMIT 1), 0) AS rebate_rate,
+        COALESCE((SELECT SUM(s.spend_amount) FROM media_channel_campaign_spend s
+            WHERE s.deleted_at = 0 AND EXISTS (
+                SELECT 1 FROM ad_account_asset a
+                WHERE a.account_id = s.account_id AND a.channel_id = c.id AND a.deleted_at = 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM ad_account_asset newer
+                      WHERE newer.account_id = a.account_id
+                        AND newer.deleted_at = 0
+                        AND newer.id &gt; a.id
+                  )
+            )), 0) AS total_consumption,
+        0 AS total_balance, 0 AS activation_fee, 0 AS total_by_balance, 0 AS total_by_balance_u,
+        CASE
+            WHEN EXISTS (SELECT 1 FROM ad_account_asset a WHERE a.channel_id = c.id
+                AND a.deleted_at = 0
+                AND NOT EXISTS (
+                    SELECT 1 FROM ad_account_asset newer
+                    WHERE newer.account_id = a.account_id
+                      AND newer.deleted_at = 0
+                      AND newer.id &gt; a.id
+                ) AND EXISTS (
+                    SELECT 1 FROM ad_account_asset_assignment assignment
+                    WHERE assignment.ad_account_asset_id = a.id
+                      AND assignment.assignment_status = 'ACTIVE'
+                      AND assignment.deleted_at = 0
+                )) THEN '使用中'
+            WHEN EXISTS (SELECT 1 FROM ad_account_asset a
+                WHERE a.channel_id = c.id AND a.deleted_at = 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM ad_account_asset newer
+                      WHERE newer.account_id = a.account_id
+                        AND newer.deleted_at = 0
+                        AND newer.id &gt; a.id
+                  )) THEN '未使用'
+            ELSE '无账户'
+        END AS usage_status
+    </sql>
+
+    <sql id="channelWhere">
+        c.deleted_at = 0
+        <if test="query.channelName != null and query.channelName != ''">
+            AND (c.channel_name LIKE CONCAT('%', #{query.channelName}, '%')
+                OR c.channel_short_name LIKE CONCAT('%', #{query.channelName}, '%')
+                OR c.channel_code LIKE CONCAT('%', #{query.channelName}, '%'))
+        </if>
+        <if test="query.status != null and query.status != ''">AND c.status = #{query.status}</if>
+        <if test="query.belongTeam != null and query.belongTeam != ''">
+            AND c.belong_team = #{query.belongTeam}
+        </if>
+    </sql>
+
+    <select id="findChannels" resultType="com.adpulse.main.channel.model.ChannelModels$Channel">
+        SELECT <include refid="channelColumns"/>
+        FROM media_channel c WHERE <include refid="channelWhere"/>
+        ORDER BY c.updated_at DESC, c.id DESC LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countChannels" resultType="long">
+        SELECT COUNT(*) FROM media_channel c WHERE <include refid="channelWhere"/>
+    </select>
+
+    <select id="summarizeChannels" resultType="com.adpulse.main.channel.model.ChannelModels$Aggregate">
+        SELECT COUNT(c.id) AS channel_count,
+            COALESCE(SUM(a.account_count), 0) AS account_count,
+            COALESCE(SUM(spend.total_consumption), 0) AS total_consumption,
+            COALESCE(SUM(c.recharge_amount), 0) AS recharge_amount,
+            0 AS total_balance
+        FROM media_channel c
+        LEFT JOIN (
+            SELECT channel_id, COUNT(*) AS account_count
+            FROM ad_account_asset asset
+            WHERE deleted_at = 0
+              AND NOT EXISTS (
+                  SELECT 1 FROM ad_account_asset newer
+                  WHERE newer.account_id = asset.account_id
+                    AND newer.deleted_at = 0
+                    AND newer.id &gt; asset.id
+              )
+            GROUP BY channel_id
+        ) a ON a.channel_id = c.id
+        LEFT JOIN (
+            SELECT asset.channel_id, SUM(s.spend_amount) AS total_consumption
+            FROM media_channel_campaign_spend s
+            JOIN ad_account_asset asset ON asset.account_id = s.account_id
+                AND asset.deleted_at = 0
+                AND NOT EXISTS (
+                    SELECT 1 FROM ad_account_asset newer
+                    WHERE newer.account_id = asset.account_id
+                      AND newer.deleted_at = 0
+                      AND newer.id &gt; asset.id
+                )
+            WHERE s.deleted_at = 0
+            GROUP BY asset.channel_id
+        ) spend ON spend.channel_id = c.id
+        WHERE <include refid="channelWhere"/>
+    </select>
+
+    <select id="findTypeSummaries" resultType="com.adpulse.main.channel.model.ChannelModels$TypeSummary">
+        SELECT MIN(a.id) AS id, a.account_type, a.account_attribute AS subject_name,
+            c.channel_name, c.channel_type,
+            COALESCE(SUM((SELECT SUM(s.spend_amount) FROM media_channel_campaign_spend s
+                WHERE s.account_id = a.account_id AND s.deleted_at = 0)), 0) AS total_consumption,
+            CASE WHEN SUM(CASE WHEN EXISTS (
+                SELECT 1 FROM ad_account_asset_assignment assignment
+                WHERE assignment.ad_account_asset_id = a.id
+                  AND assignment.assignment_status = 'ACTIVE'
+                  AND assignment.deleted_at = 0
+            ) THEN 1 ELSE 0 END) &gt; 0 THEN '使用中' ELSE '未使用' END AS usage_status
+        FROM ad_account_asset a
+        JOIN media_channel c ON c.id = a.channel_id AND c.deleted_at = 0
+        WHERE a.deleted_at = 0
+          AND NOT EXISTS (
+              SELECT 1 FROM ad_account_asset newer
+              WHERE newer.account_id = a.account_id
+                AND newer.deleted_at = 0
+                AND newer.id &gt; a.id
+          )
+        <if test="query.channelName != null and query.channelName != ''">
+            AND c.channel_name LIKE CONCAT('%', #{query.channelName}, '%')
+        </if>
+        <if test="query.status != null and query.status != ''">AND c.status = #{query.status}</if>
+        GROUP BY a.account_type, a.account_attribute, c.id, c.channel_name, c.channel_type
+        ORDER BY total_consumption DESC, c.id DESC LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countTypeSummaries" resultType="long">
+        SELECT COUNT(*) FROM (
+            SELECT 1 FROM ad_account_asset a
+            JOIN media_channel c ON c.id = a.channel_id AND c.deleted_at = 0
+            WHERE a.deleted_at = 0
+              AND NOT EXISTS (
+                  SELECT 1 FROM ad_account_asset newer
+                  WHERE newer.account_id = a.account_id
+                    AND newer.deleted_at = 0
+                    AND newer.id &gt; a.id
+              )
+            <if test="query.channelName != null and query.channelName != ''">
+                AND c.channel_name LIKE CONCAT('%', #{query.channelName}, '%')
+            </if>
+            <if test="query.status != null and query.status != ''">AND c.status = #{query.status}</if>
+            GROUP BY a.account_type, a.account_attribute, c.id
+        ) grouped
+    </select>
+
+    <select id="findChannel" resultType="com.adpulse.main.channel.model.ChannelModels$Channel">
+        SELECT <include refid="channelColumns"/> FROM media_channel c
+        WHERE c.id = #{id} AND c.deleted_at = 0
+    </select>
+    <select id="findChannelByName" resultType="com.adpulse.main.channel.model.ChannelModels$Channel">
+        SELECT <include refid="channelColumns"/> FROM media_channel c
+        WHERE c.channel_name = #{channelName} AND c.deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <select id="sumChannelSpend" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(s.spend_amount), 0)
+        FROM media_channel_campaign_spend s
+        WHERE EXISTS (
+            SELECT 1 FROM ad_account_asset a
+            WHERE a.account_id = s.account_id
+              AND a.channel_id = #{channelId}
+              AND a.deleted_at = 0
+              AND NOT EXISTS (
+                  SELECT 1 FROM ad_account_asset newer
+                  WHERE newer.account_id = a.account_id
+                    AND newer.deleted_at = 0
+                    AND newer.id &gt; a.id
+              )
+        )
+          AND s.spend_date = #{spendDate}
+          AND s.deleted_at = 0
+    </select>
+
+    <insert id="insertChannel" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_channel (
+            channel_name, channel_short_name, channel_code, channel_type, belong_team,
+            status, putaway_status, settlement_method, settlement_currency, buyout_amount,
+            recharge_amount, payment_address, login_url, remark, tg_group_id, tg_group_name,
+            created_by, updated_by
+        ) VALUES (
+            #{channelName}, #{channelShortName}, #{channelCode}, #{channelType}, #{belongTeam},
+            #{status}, #{putawayStatus}, #{settlementMethod}, #{settlementCurrency}, #{buyoutAmount},
+            #{rechargeAmount}, #{paymentAddress}, #{loginUrl}, #{remark}, #{tgGroupId}, #{tgGroupName},
+            #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateChannel">
+        UPDATE media_channel SET channel_name = #{channelName}, channel_short_name = #{channelShortName},
+            channel_code = #{channelCode}, channel_type = #{channelType}, belong_team = #{belongTeam},
+            status = #{status}, settlement_method = #{settlementMethod},
+            settlement_currency = #{settlementCurrency}, buyout_amount = #{buyoutAmount},
+            recharge_amount = #{rechargeAmount}, payment_address = #{paymentAddress},
+            login_url = #{loginUrl}, remark = #{remark}, tg_group_id = #{tgGroupId},
+            tg_group_name = #{tgGroupName}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="softDeleteChannel">
+        UPDATE media_channel SET deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="findRates" resultType="com.adpulse.main.channel.model.ChannelModels$Rate">
+        SELECT id, channel_id, service_fee, rebate_rate, effective_date, expiry_date,
+            CASE WHEN effective_date &lt;= CURDATE()
+                AND (expiry_date IS NULL OR expiry_date &gt;= CURDATE()) THEN 1 ELSE 0 END AS status,
+            created_by, updated_by, created_at, updated_at
+        FROM media_channel_rate WHERE channel_id = #{channelId} AND deleted_at = 0
+        ORDER BY effective_date DESC, id DESC LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countRates" resultType="long">
+        SELECT COUNT(*) FROM media_channel_rate WHERE channel_id = #{channelId} AND deleted_at = 0
+    </select>
+    <select id="findRate" resultType="com.adpulse.main.channel.model.ChannelModels$Rate">
+        SELECT id, channel_id, service_fee, rebate_rate, effective_date, expiry_date,
+            CASE WHEN effective_date &lt;= CURDATE()
+                AND (expiry_date IS NULL OR expiry_date &gt;= CURDATE()) THEN 1 ELSE 0 END AS status,
+            created_by, updated_by, created_at, updated_at
+        FROM media_channel_rate WHERE id = #{id} AND deleted_at = 0
+    </select>
+    <select id="countRateOverlaps" resultType="int">
+        SELECT COUNT(*) FROM media_channel_rate
+        WHERE channel_id = #{channelId} AND deleted_at = 0
+        <if test="excludedId != null">AND id != #{excludedId}</if>
+        AND effective_date &lt;= COALESCE(#{expiryDate}, '9999-12-31')
+        AND COALESCE(expiry_date, '9999-12-31') &gt;= #{effectiveDate}
+    </select>
+    <insert id="insertRate" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_channel_rate (
+            channel_id, service_fee, rebate_rate, effective_date, expiry_date, created_by, updated_by
+        ) VALUES (
+            #{channelId}, #{serviceFee}, #{rebateRate}, #{effectiveDate}, #{expiryDate},
+            #{createdBy}, #{updatedBy}
+        )
+    </insert>
+    <update id="updateRate">
+        UPDATE media_channel_rate SET service_fee = #{serviceFee}, rebate_rate = #{rebateRate},
+            effective_date = #{effectiveDate}, expiry_date = #{expiryDate}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="findAccountTypes" resultType="com.adpulse.main.channel.model.ChannelModels$AccountType">
+        SELECT id, account_type, created_by, created_at
+        FROM media_channel_account_type WHERE deleted_at = 0 ORDER BY id
+    </select>
+    <select id="findAccountType" resultType="com.adpulse.main.channel.model.ChannelModels$AccountType">
+        SELECT id, account_type, created_by, created_at
+        FROM media_channel_account_type WHERE id = #{id} AND deleted_at = 0
+    </select>
+    <select id="findAccountTypeByName" resultType="com.adpulse.main.channel.model.ChannelModels$AccountType">
+        SELECT id, account_type, created_by, created_at
+        FROM media_channel_account_type WHERE account_type = #{accountType} AND deleted_at = 0
+    </select>
+    <insert id="insertAccountType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_channel_account_type (account_type, created_by)
+        VALUES (#{accountType}, #{createdBy})
+    </insert>
+    <update id="softDeleteAccountType">
+        UPDATE media_channel_account_type SET deleted_at = #{deletedAt}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="countAccountsByChannelId" resultType="long">
+        SELECT COUNT(*)
+        FROM ad_account_asset asset
+        WHERE channel_id = #{channelId} AND deleted_at = 0
+          AND NOT EXISTS (
+              SELECT 1 FROM ad_account_asset newer
+              WHERE newer.account_id = asset.account_id
+                AND newer.deleted_at = 0
+                AND newer.id &gt; asset.id
+          )
+    </select>
+    <select id="findAccount" resultType="com.adpulse.main.channel.model.ChannelModels$Account">
+        SELECT id, channel_id, account_id, account_name, account_type, account_id AS fb_account_id
+        FROM ad_account_asset
+        WHERE account_id = #{accountId} AND deleted_at = 0
+        ORDER BY id DESC LIMIT 1
+    </select>
+
+    <select id="findGoods" resultType="com.adpulse.main.channel.model.ChannelModels$Goods">
+        SELECT id, channel_id, goods_name, launch_region, min_buy_limit, rebate_rate, remark,
+            service_fee_ratio, stock_num, timezone, putaway_status, created_by, updated_by
+        FROM media_channel_goods WHERE channel_id = #{channelId} AND deleted_at = 0
+    </select>
+    <insert id="insertGoods" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_channel_goods (
+            channel_id, goods_name, launch_region, min_buy_limit, rebate_rate, remark,
+            service_fee_ratio, stock_num, timezone, putaway_status, created_by, updated_by
+        ) VALUES (
+            #{channelId}, #{goodsName}, #{launchRegion}, #{minBuyLimit}, #{rebateRate}, #{remark},
+            #{serviceFeeRatio}, #{stockNum}, #{timezone}, #{putawayStatus}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+    <update id="updateGoods">
+        UPDATE media_channel_goods SET goods_name = #{goodsName}, launch_region = #{launchRegion},
+            min_buy_limit = #{minBuyLimit}, rebate_rate = #{rebateRate}, remark = #{remark},
+            service_fee_ratio = #{serviceFeeRatio}, stock_num = #{stockNum}, timezone = #{timezone},
+            updated_by = #{updatedBy}
+        WHERE channel_id = #{channelId} AND deleted_at = 0
+    </update>
+    <update id="updateGoodsPutaway">
+        UPDATE media_channel_goods SET putaway_status = #{putawayStatus}, updated_by = #{updatedBy}
+        WHERE channel_id = #{channelId} AND deleted_at = 0
+    </update>
+    <update id="updateChannelPutaway">
+        UPDATE media_channel SET putaway_status = #{putawayStatus}, updated_by = #{updatedBy}
+        WHERE id = #{channelId} AND deleted_at = 0
+    </update>
+
+    <select id="findCampaigns" resultType="com.adpulse.main.channel.model.ChannelModels$Campaign">
+        SELECT campaign_id, campaign_name, SUM(spend_amount) AS spend_amount,
+            SUM(return_amount) AS return_amount
+        FROM media_channel_campaign_spend
+        WHERE account_id = #{accountId} AND deleted_at = 0
+        <if test="campaignName != null and campaignName != ''">
+            AND campaign_name LIKE CONCAT('%', #{campaignName}, '%')
+        </if>
+        <if test="startDate != null">AND spend_date &gt;= #{startDate}</if>
+        <if test="endDate != null">AND spend_date &lt;= #{endDate}</if>
+        GROUP BY campaign_id, campaign_name
+        ORDER BY spend_amount DESC, campaign_id LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countCampaigns" resultType="long">
+        SELECT COUNT(*) FROM (
+            SELECT campaign_id FROM media_channel_campaign_spend
+            WHERE account_id = #{accountId} AND deleted_at = 0
+            <if test="campaignName != null and campaignName != ''">
+                AND campaign_name LIKE CONCAT('%', #{campaignName}, '%')
+            </if>
+            <if test="startDate != null">AND spend_date &gt;= #{startDate}</if>
+            <if test="endDate != null">AND spend_date &lt;= #{endDate}</if>
+            GROUP BY campaign_id
+        ) campaigns
+    </select>
+
+    <select id="findPitchers" resultType="com.adpulse.main.channel.model.ChannelModels$Pitcher">
+        SELECT id AS user_id, COALESCE(username, phone) AS user_name, display_name AS nick_name
+        FROM sys_user WHERE status = 1 AND deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR username LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY display_name, id LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countPitchers" resultType="long">
+        SELECT COUNT(*) FROM sys_user WHERE status = 1 AND deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR username LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+    <select id="findPitcher" resultType="com.adpulse.main.channel.model.ChannelModels$Pitcher">
+        SELECT id AS user_id, COALESCE(username, phone) AS user_name, display_name AS nick_name
+        FROM sys_user WHERE id = #{id} AND status = 1 AND deleted_at = 0
+    </select>
+    <select id="findDepartments" resultType="com.adpulse.main.channel.model.ChannelModels$Department">
+        SELECT id, parent_id, dept_name AS label, status, sort_order
+        FROM sys_department WHERE deleted_at = 0 ORDER BY parent_id, sort_order, id
+    </select>
+</mapper>

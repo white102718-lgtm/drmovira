@@ -1,0 +1,39 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "codeLogin": "Code Login",
+    "qrcodeLogin": "Qr Code Login",
+    "forgetPassword": "Forget Password",
+    "sendingCode": "SMS Code is sending...",
+    "codeSentTo": "Code has been sent to {0}"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "analytics": "Analytics",
+    "workspace": "Workspace"
+  },
+  "themeColor": {
+    "trigger": "Change theme color",
+    "options": "Theme color options",
+    "switchTo": "Switch to ",
+    "softGroup": "Soft colors",
+    "darkGroup": "Dark colors",
+    "custom": "Custom color",
+    "customPicker": "Open custom color picker",
+    "hexPlaceholder": "#RRGGBB",
+    "apply": "Apply",
+    "invalidHex": "Enter a complete hexadecimal color, such as #274C77",
+    "colors": {
+      "softBlue": "Soft blue",
+      "mistyBlue": "Misty blue",
+      "sageGreen": "Sage green",
+      "grayPurple": "Gray purple",
+      "terracotta": "Terracotta",
+      "deepSeaBlue": "Deep sea blue",
+      "inkGreen": "Ink green",
+      "indigoPurple": "Indigo purple",
+      "darkRedBrown": "Dark red brown"
+    }
+  }
+}

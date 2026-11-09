@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.user.mapper.IpRuleMapper">
+
+    <resultMap id="ipRuleMap" type="com.adpulse.system.user.model.IpRule">
+        <id property="id" column="id"/>
+        <result property="scopeType" column="scope_type"/>
+        <result property="userId" column="user_id"/>
+        <result property="ipCidr" column="ip_cidr"/>
+        <result property="ruleName" column="rule_name"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <select id="findGlobalRules" resultMap="ipRuleMap">
+        SELECT id, scope_type, user_id, ip_cidr, rule_name, status, remark,
+               created_at, updated_at, deleted_at
+        FROM sys_ip_rule
+        WHERE scope_type = 1 AND deleted_at = 0
+        ORDER BY id DESC
+    </select>
+
+    <select id="findGlobalById" resultMap="ipRuleMap">
+        SELECT id, scope_type, user_id, ip_cidr, rule_name, status, remark,
+               created_at, updated_at, deleted_at
+        FROM sys_ip_rule
+        WHERE id = #{id} AND scope_type = 1 AND deleted_at = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_ip_rule (
+            scope_type, user_id, ip_cidr, rule_name, status, remark, created_by, updated_by
+        ) VALUES (1, NULL, #{ipCidr}, #{ruleName}, #{status}, #{remark}, #{createdBy}, #{updatedBy})
+    </insert>
+
+    <update id="update">
+        UPDATE sys_ip_rule
+        SET ip_cidr = #{ipCidr}, rule_name = #{ruleName}, status = #{status},
+            remark = #{remark}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND scope_type = 1 AND deleted_at = 0
+    </update>
+
+    <update id="softDelete">
+        UPDATE sys_ip_rule
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND scope_type = 1 AND deleted_at = 0
+    </update>
+
+</mapper>

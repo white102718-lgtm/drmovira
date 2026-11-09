@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.adaccountasset.AccountAttributeMapper">
+
+    <select id="findAll" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AccountAttribute">
+        SELECT id, account_attribute, created_by, created_at, updated_at
+        FROM ad_account_attribute
+        WHERE deleted_at = 0
+        ORDER BY id
+    </select>
+
+    <select id="findById" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AccountAttribute">
+        SELECT id, account_attribute, created_by, created_at, updated_at
+        FROM ad_account_attribute
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <select id="findByName" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AccountAttribute">
+        SELECT id, account_attribute, created_by, created_at, updated_at
+        FROM ad_account_attribute
+        WHERE account_attribute = #{accountAttribute} AND deleted_at = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ad_account_attribute (account_attribute, created_by)
+        VALUES (#{accountAttribute}, #{createdBy})
+    </insert>
+
+    <update id="update">
+        UPDATE ad_account_attribute
+        SET account_attribute = #{accountAttribute}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="softDelete">
+        UPDATE ad_account_attribute
+        SET deleted_at = #{deletedAt}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+</mapper>

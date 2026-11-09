@@ -1,0 +1,228 @@
+/*
+ * 素材、投放、数据复盘与平台配置页面的共同视觉基线。
+ * 仅通过 adpulse-section-page 作用域生效，避免影响系统管理等其他模块。
+ */
+.adpulse-section-page {
+  --adpulse-page-gap: var(--adpulse-page-gutter);
+  --adpulse-page-radius: var(--adpulse-card-radius);
+
+  box-sizing: border-box;
+  min-width: 0;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+}
+
+.adpulse-section-page :where(button, [role='button'], a):focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+.adpulse-section-page :where(.vxe-grid) {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--adpulse-page-radius);
+}
+
+.adpulse-section-page :where(.vxe-grid--form-wrapper) {
+  padding: var(--adpulse-content-gap) var(--adpulse-card-padding) 4px;
+  background: hsl(var(--card));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.adpulse-section-page :where(.vxe-grid--toolbar-wrapper) {
+  padding: var(--adpulse-action-gap) var(--adpulse-card-padding);
+  background: hsl(var(--muted) / 35%);
+}
+
+.adpulse-section-page
+  :where(.vxe-toolbar, .vxe-buttons--wrapper, .vxe-tools--wrapper) {
+  gap: 8px;
+  min-width: 0;
+}
+
+.adpulse-section-page :where(.vxe-table--empty-block) {
+  min-height: var(--adpulse-table-body-min-height);
+}
+
+/* 开发者表格的选中行保持中性，避免批量操作时重新出现主题色底纹。 */
+.developer-management-page .vxe-grid {
+  --vxe-ui-layout-background-color: hsl(var(--ui-card-hsl));
+  --vxe-ui-table-header-background-color: hsl(var(--ui-canvas-alt-hsl));
+  --vxe-ui-table-border-color: hsl(var(--ui-border-hsl));
+  --vxe-ui-table-row-hover-background-color: hsl(var(--ui-neutral-hover-hsl));
+  --vxe-ui-table-row-striped-background-color: hsl(var(--ui-card-hsl));
+  --vxe-ui-table-row-hover-striped-background-color: hsl(
+    var(--ui-neutral-hover-hsl)
+  );
+  --vxe-ui-table-row-radio-checked-background-color: hsl(var(--ui-card-hsl));
+  --vxe-ui-table-row-hover-radio-checked-background-color: hsl(
+    var(--ui-neutral-hover-hsl)
+  );
+  --vxe-ui-table-row-checkbox-checked-background-color: hsl(var(--ui-card-hsl));
+  --vxe-ui-table-row-hover-checkbox-checked-background-color: hsl(
+    var(--ui-neutral-hover-hsl)
+  );
+  --vxe-ui-table-row-current-background-color: hsl(var(--ui-card-hsl));
+  --vxe-ui-table-row-hover-current-background-color: hsl(
+    var(--ui-neutral-hover-hsl)
+  );
+}
+
+.developer-management-page .vxe-table--header-wrapper {
+  background: hsl(var(--ui-canvas-alt-hsl)) !important;
+}
+
+.developer-management-page .vxe-table--body-wrapper {
+  background: hsl(var(--ui-card-hsl)) !important;
+}
+
+/* 开发者页仅有两项常用筛选，取消默认的双层上下留白以降低查询区高度。 */
+.developer-management-page .vxe-grid--form-wrapper {
+  padding: var(--adpulse-action-gap) var(--adpulse-card-padding);
+}
+
+.developer-management-page .vxe-grid--form-wrapper .relative.rounded {
+  padding-block: 0 !important;
+}
+
+/* 平台资源沿用旧版紧凑查询区，避免通用卡片间距挤占表格可视区域。 */
+.platform-resources-page .vxe-grid--form-wrapper {
+  padding: 0 0 4px;
+  background: transparent;
+  border-bottom: 0;
+}
+
+.platform-resources-page .vxe-grid--form-wrapper .relative.rounded {
+  padding-block: 0 !important;
+}
+
+/* Tab 与内容共用一个连续内容面，避免导航和内容各自形成卡片。 */
+.adpulse-tabs-page {
+  min-height: 0;
+  padding: var(--adpulse-page-gap);
+  overflow: hidden;
+}
+
+/* 素材库以完整工作区呈现，桌面端保持稳定内边距，窄屏自然回流。 */
+.material-library-page.adpulse-section-page {
+  padding: var(--adpulse-page-gap);
+}
+
+.material-library-page .cloud-home > section:first-child {
+  min-height: 40px;
+}
+
+/* 旧高级创建页在常见桌面宽度下允许操作组换行，避免按钮挤压表格。 */
+.adpulse-builder-page .builder-task-row,
+.adpulse-builder-page .builder-batch-actions {
+  flex-wrap: wrap;
+}
+
+.adpulse-builder-page .builder-batch-actions {
+  row-gap: 8px;
+}
+
+/* 报表卡片在中小屏减少并列列数，图表与告警卡不再被压成窄条。 */
+@media (max-width: 1199px) {
+  .adpulse-report-page .grid.grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adpulse-report-page .grid.grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adpulse-report-page .grid.grid-cols-3 > .col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+}
+
+@media (max-width: 1023px) {
+  .adpulse-section-page {
+    --adpulse-page-gap: var(--adpulse-section-gap);
+  }
+
+  .adpulse-dashboard-page {
+    overflow-y: auto;
+  }
+
+  .adpulse-tabs-page {
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .adpulse-section-page {
+    --adpulse-page-gap: 12px;
+    --adpulse-page-radius: var(--adpulse-card-radius);
+  }
+
+  .adpulse-tabs-page {
+    height: auto !important;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  /*
+   * 全高页签在窄屏改为自然页面流，但活动内容仍由单一固定视口承载。
+   * 这样既能让页面纵向滚动，又不会让 VXE 的百分比高度反向撑高 Tabs。
+   */
+  .adpulse-full-height-tabs-page {
+    height: auto !important;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .full-height-tabs-layout {
+    height: auto;
+    overflow: visible;
+  }
+
+  .full-height-tabs-panel {
+    flex: none;
+    overflow: visible;
+  }
+
+  .full-height-tabs-content {
+    height: max(
+      var(--adpulse-table-viewport-height),
+      calc(100dvh - 166px)
+    ) !important;
+  }
+
+  .adpulse-section-page :where(.vxe-grid--toolbar-wrapper) {
+    padding: 10px;
+  }
+
+  .adpulse-section-page
+    :where(.vxe-toolbar, .vxe-buttons--wrapper, .vxe-tools--wrapper) {
+    flex-wrap: wrap;
+  }
+
+  .adpulse-section-page :where(.vxe-toolbar) {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto !important;
+  }
+
+  .adpulse-section-page :where(.vxe-buttons--wrapper, .vxe-tools--wrapper) {
+    flex: none;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .adpulse-report-page .grid.grid-cols-2,
+  .adpulse-report-page .grid.grid-cols-3,
+  .adpulse-report-page .grid.grid-cols-4 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .adpulse-report-page .grid.grid-cols-3 > .col-span-2 {
+    grid-column: auto;
+  }
+
+  .material-library-page.adpulse-section-page {
+    padding: 12px;
+  }
+}

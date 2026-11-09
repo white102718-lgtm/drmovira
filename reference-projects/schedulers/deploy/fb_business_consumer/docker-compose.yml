@@ -1,0 +1,8 @@
+services:
+  fb_asset:
+    build:
+      context: ../../
+      dockerfile: deploy/fb_business_consumer/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

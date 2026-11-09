@@ -1,0 +1,8 @@
+services:
+  consumer:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_sync_c/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

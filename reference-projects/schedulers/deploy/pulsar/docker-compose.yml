@@ -1,0 +1,96 @@
+networks:
+  pulsar:
+    driver: bridge
+
+services:
+  zookeeper:
+    image: apachepulsar/pulsar-all:latest
+    container_name: zookeeper
+    hostname: zookeeper
+    networks:
+      - pulsar
+    ports:
+      - "2181:2181"
+    environment:
+      - metadataStoreUrl=zk:zookeeper:2181
+      - cluster-name=cluster-a
+      - managedLedgerDefaultEnsembleSize=1
+      - managedLedgerDefaultWriteQuorum=1
+      - managedLedgerDefaultAckQuorum=1
+    volumes:
+      - /opt/pulsar/data/zookeeper:/pulsar/data/zookeeper
+    command: bash -c "bin/apply-config-from-env.py conf/zookeeper.conf && bin/generate-zookeeper-config.sh conf/zookeeper.conf && exec bin/pulsar zookeeper"
+
+  init-cluster-metadata:
+    image: apachepulsar/pulsar-all:latest
+    container_name: initialize-pulsar-cluster-metadata
+    networks:
+      - pulsar
+    depends_on:
+      - zookeeper
+    command: >
+      bash -c "bin/pulsar initialize-cluster-metadata
+      --cluster cluster-a
+      --zookeeper zookeeper:2181
+      --configuration-store zookeeper:2181
+      --web-service-url http://broker:8080
+      --broker-service-url pulsar://broker:6650"
+    restart: on-failure
+
+  bookie:
+    image: apachepulsar/pulsar-all:latest
+    container_name: bookie
+    hostname: bookie
+    networks:
+      - pulsar
+    environment:
+      - clusterName=cluster-a
+      - zkServers=zookeeper:2181
+      - metadataServiceUri=metadata-store:zk:zookeeper:2181
+      - allowLoopback=true
+      - allowBookieAddressChange=true
+      - BOOKIE_EXTRA_OPTS=-Dallowloopback=true -DallowBookieAddressChange=true
+    volumes:
+      - /opt/pulsar/data/bookkeeper:/pulsar/data/bookkeeper
+    depends_on:
+      - zookeeper
+      - init-cluster-metadata
+    command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf && sleep 15 && exec bin/pulsar bookie"
+
+  broker:
+    image: apachepulsar/pulsar-all:latest
+    container_name: broker
+    hostname: broker
+    networks:
+      - pulsar
+    ports:
+      - "6650:6650"
+      - "8080:8080"
+    environment:
+      - metadataStoreUrl=zk:zookeeper:2181
+      - zookeeperServers=zookeeper:2181
+      - clusterName=cluster-a
+      - advertisedAddress=13.229.203.162
+      - managedLedgerDefaultEnsembleSize=1
+      - managedLedgerDefaultWriteQuorum=1
+      - managedLedgerDefaultAckQuorum=1
+      # JWT认证相关配置（非对称密钥方式）
+      - authenticationEnabled=true
+      - authorizationEnabled=true
+      - authenticationProviders=org.apache.pulsar.broker.authentication.AuthenticationProviderToken
+      - superUserRoles=admin
+      - proxyRoles=proxy
+      - tokenPublicKey=/pulsar/data/jwt-public.key
+      - brokerClientAuthenticationPlugin=org.apache.pulsar.client.impl.auth.AuthenticationToken
+      - brokerClientAuthenticationParameters={"token":"REDACTED_REFERENCE_SECRET"}
+      # 客户端到Broker的TLS设置（可选）
+      - tlsEnabled=false
+    volumes:
+      - /opt/pulsar/data/broker:/pulsar/data/broker
+      - ./jwt-public.key:/pulsar/data/jwt-public.key
+      - ./jwt-private.key:/pulsar/data/jwt-private.key
+    depends_on:
+      - zookeeper
+      - init-cluster-metadata
+      - bookie
+    command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"

@@ -1,0 +1,8 @@
+app/logs/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.DS_Store 
+.idea
+env_vault/keys.txt

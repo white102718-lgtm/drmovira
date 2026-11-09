@@ -1,0 +1,67 @@
+{
+  "log": {
+    "loglevel": "debug",
+    "access": "/var/log/v2ray/access.log",
+    "error": "/var/log/v2ray/error.log"
+  },
+  "inbounds": [
+    {
+      "port": 3128,
+      "protocol": "http",
+      "settings": {
+        "timeout": 0,
+        "auth": "password",
+        "accounts": [
+          {
+            "user": "SilverDragon91",
+            "pass": "Q7mR4tP9bX2k"
+          }
+        ],
+        "udp": true,
+        "allowTransparent": false
+      },
+      "tag": "http-inbound",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "port": 3129,
+      "protocol": "socks",
+      "settings": {
+        "auth": "password",
+        "accounts": [
+          {
+            "user": "SilverDragon91",
+            "pass": "Q7mR4tP9bX2k"
+          }
+        ],
+        "udp": true
+      },
+      "tag": "socks-inbound"
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {},
+      "tag": "direct"
+    }
+  ],
+  "routing": {
+    "rules": [
+      {
+        "type": "field",
+        "inboundTag": [
+          "http-inbound",
+          "socks-inbound"
+        ],
+        "outboundTag": "direct"
+      }
+    ]
+  }
+}

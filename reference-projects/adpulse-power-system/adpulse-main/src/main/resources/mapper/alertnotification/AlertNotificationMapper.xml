@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.alertnotification.mapper.AlertNotificationMapper">
+    <select id="findConfig" resultType="com.adpulse.main.alertnotification.model.AlertModels$Config">
+        SELECT id, enabled, ban_enabled, ban_threshold, ban_window_value, ban_window_unit,
+            limit_change_enabled, limit_poll_interval_minutes, limit_change_enabled_at,
+            updated_at
+        FROM ad_alert_config WHERE id = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findRecipients" resultType="com.adpulse.main.alertnotification.model.AlertModels$Recipient">
+        SELECT id, recipient_type, recipient_key, recipient_name
+        FROM ad_alert_recipient WHERE deleted_at = 0 ORDER BY id
+    </select>
+
+    <select id="findActiveUserPhone" resultType="string">
+        SELECT phone FROM sys_user
+        WHERE id = #{userId} AND status = 1 AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <update id="updateConfig">
+        UPDATE ad_alert_config SET enabled = #{request.enabled}, ban_enabled = #{request.banEnabled},
+            ban_threshold = #{request.banThreshold}, ban_window_value = #{request.banWindowValue},
+            ban_window_unit = #{request.banWindowUnit}, limit_change_enabled = #{request.limitChangeEnabled},
+            limit_poll_interval_minutes = #{limitPollIntervalMinutes},
+            limit_change_enabled_at = #{limitChangeEnabledAt},
+            updated_by = #{updatedBy}
+        WHERE id = 1 AND deleted_at = 0
+    </update>
+
+    <update id="deleteRecipients">
+        UPDATE ad_alert_recipient SET deleted_at = UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000
+        WHERE deleted_at = 0
+    </update>
+
+    <insert id="insertRecipient">
+        INSERT INTO ad_alert_recipient (recipient_type, recipient_key, recipient_name)
+        VALUES (#{recipientType}, #{recipientKey}, #{recipientName})
+    </insert>
+
+    <insert id="insertNotification">
+        INSERT IGNORE INTO ad_alert_notification
+            (alert_type, dedupe_key, title, content, account_id, account_name, trigger_value,
+             threshold_value, currency, source_event_id, occurred_at)
+        VALUES
+            (#{alertType}, #{dedupeKey}, #{title}, #{content}, #{accountId}, #{accountName},
+             #{triggerValue}, #{thresholdValue}, #{currency}, #{sourceEventId}, #{occurredAt})
+    </insert>
+
+    <select id="findNotificationIdByDedupeKey" resultType="long">
+        SELECT id FROM ad_alert_notification WHERE dedupe_key = #{dedupeKey} LIMIT 1
+    </select>
+
+    <insert id="insertDelivery">
+        INSERT INTO ad_alert_delivery
+            (notification_id, recipient_type, recipient_key, recipient_name, delivery_status,
+             error_message, delivered_at)
+        VALUES
+            (#{notificationId}, #{recipientType}, #{recipientKey}, #{recipientName},
+             #{deliveryStatus}, #{errorMessage}, #{deliveredAt})
+    </insert>
+</mapper>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.deliveryreport.google.DeliveryReportGooglePushMapper">
+    <sql id="templateColumns">
+        t.id,
+        t.project_id,
+        p.project_name,
+        t.template_name,
+        t.spreadsheet_id,
+        t.spreadsheet_name,
+        t.sheet_id,
+        t.sheet_title,
+        t.header_row,
+        CAST(t.field_mappings AS CHAR) AS field_mappings,
+        t.enable_flag,
+        t.created_by,
+        t.updated_by,
+        t.updated_at
+    </sql>
+    <sql id="templateFrom">
+        FROM biz_delivery_report_google_template t
+        JOIN pm_project p ON p.id = t.project_id AND p.deleted_at = 0
+        WHERE t.deleted_at = 0
+    </sql>
+    <select id="findTemplates" resultType="com.adpulse.main.deliveryreport.google.DeliveryReportGooglePushModels$Template">
+        SELECT <include refid="templateColumns" />
+        <include refid="templateFrom" />
+        ORDER BY p.project_name, t.id
+    </select>
+    <select id="findTemplate" resultType="com.adpulse.main.deliveryreport.google.DeliveryReportGooglePushModels$Template">
+        SELECT <include refid="templateColumns" />
+        <include refid="templateFrom" />
+          AND t.id = #{id}
+        LIMIT 1
+    </select>
+    <select id="findTemplateByProject" resultType="com.adpulse.main.deliveryreport.google.DeliveryReportGooglePushModels$Template">
+        SELECT <include refid="templateColumns" />
+        <include refid="templateFrom" />
+          AND t.project_id = #{projectId}
+        LIMIT 1
+    </select>
+    <select id="countActiveProject" resultType="int">
+        SELECT COUNT(*)
+        FROM pm_project
+        WHERE id = #{projectId} AND deleted_at = 0
+    </select>
+    <select id="findProjectDailyReportUrl" resultType="string">
+        SELECT customer_daily_report_url
+        FROM pm_project
+        WHERE id = #{projectId} AND deleted_at = 0
+        LIMIT 1
+    </select>
+    <insert id="insertTemplate" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_delivery_report_google_template (
+            project_id,
+            template_name,
+            spreadsheet_id,
+            spreadsheet_name,
+            sheet_id,
+            sheet_title,
+            header_row,
+            field_mappings,
+            enable_flag,
+            created_by,
+            updated_by
+        ) VALUES (
+            #{projectId},
+            #{templateName},
+            #{spreadsheetId},
+            #{spreadsheetName},
+            #{sheetId},
+            #{sheetTitle},
+            #{headerRow},
+            CAST(#{fieldMappings} AS JSON),
+            #{enableFlag},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+    <update id="updateTemplate">
+        UPDATE biz_delivery_report_google_template
+        SET project_id = #{projectId},
+            template_name = #{templateName},
+            spreadsheet_id = #{spreadsheetId},
+            spreadsheet_name = #{spreadsheetName},
+            sheet_id = #{sheetId},
+            sheet_title = #{sheetTitle},
+            header_row = #{headerRow},
+            field_mappings = CAST(#{fieldMappings} AS JSON),
+            enable_flag = #{enableFlag},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+    <update id="deleteTemplate">
+        UPDATE biz_delivery_report_google_template
+        SET deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_delivery_report_google_push_batch (
+            status, total_count, success_count, failed_count, requested_by
+        ) VALUES (0, #{totalCount}, 0, 0, #{requestedBy})
+    </insert>
+    <insert id="insertItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_delivery_report_google_push_item (
+            batch_id,
+            report_id,
+            project_id,
+            template_id,
+            spreadsheet_id,
+            sheet_id,
+            sheet_title,
+            header_row,
+            field_values,
+            target_headers,
+            unique_key_columns,
+            report_id_column,
+            status
+        ) VALUES (
+            #{batchId},
+            #{reportId},
+            #{projectId},
+            #{templateId},
+            #{spreadsheetId},
+            #{sheetId},
+            #{sheetTitle},
+            #{headerRow},
+            CAST(#{fieldValues} AS JSON),
+            CAST(#{targetHeaders} AS JSON),
+            CAST(#{uniqueKeyColumns} AS JSON),
+            #{reportIdColumn},
+            0
+        )
+    </insert>
+    <select id="findPendingBatchIds" resultType="long">
+        SELECT id
+        FROM biz_delivery_report_google_push_batch
+        WHERE status = 0
+        ORDER BY created_at, id
+        LIMIT #{limit}
+    </select>
+    <update id="claimBatch">
+        UPDATE biz_delivery_report_google_push_batch
+        SET status = 1, started_at = NOW(3), finished_at = NULL, error_message = NULL
+        WHERE id = #{id} AND status = 0
+    </update>
+    <select id="findBatchForUser" resultType="com.adpulse.main.deliveryreport.google.DeliveryReportGooglePushModels$Batch">
+        SELECT id, status, total_count, success_count, failed_count, requested_by,
+            error_message, started_at, finished_at, created_at
+        FROM biz_delivery_report_google_push_batch
+        WHERE id = #{id} AND requested_by = #{userId}
+    </select>
+    <select id="findBatchesForUser" resultType="com.adpulse.main.deliveryreport.google.DeliveryReportGooglePushModels$Batch">
+        SELECT id, status, total_count, success_count, failed_count, requested_by,
+            error_message, started_at, finished_at, created_at
+        FROM biz_delivery_report_google_push_batch
+        WHERE requested_by = #{userId}
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{limit}
+    </select>
+    <select id="findItems" resultType="com.adpulse.main.deliveryreport.google.DeliveryReportGooglePushModels$Item">
+        SELECT id, batch_id, report_id, project_id, template_id,
+            spreadsheet_id, sheet_id, sheet_title, header_row,
+            CAST(field_values AS CHAR) AS field_values,
+            CAST(target_headers AS CHAR) AS target_headers,
+            CAST(unique_key_columns AS CHAR) AS unique_key_columns,
+            report_id_column, status, target_row, attempt_count, error_message,
+            started_at, finished_at
+        FROM biz_delivery_report_google_push_item
+        WHERE batch_id = #{batchId}
+        ORDER BY id
+    </select>
+    <update id="claimItem">
+        UPDATE biz_delivery_report_google_push_item
+        SET status = 1,
+            attempt_count = attempt_count + 1,
+            started_at = NOW(3),
+            finished_at = NULL,
+            error_message = NULL
+        WHERE id = #{id} AND status = 0
+    </update>
+    <update id="completeItem">
+        UPDATE biz_delivery_report_google_push_item
+        SET status = 2, target_row = #{targetRow}, finished_at = NOW(3), error_message = NULL
+        WHERE id = #{id} AND status = 1
+    </update>
+    <update id="failItem">
+        UPDATE biz_delivery_report_google_push_item
+        SET status = 3, error_message = #{errorMessage}, finished_at = NOW(3)
+        WHERE id = #{id} AND status = 1
+    </update>
+    <update id="finishBatch">
+        UPDATE biz_delivery_report_google_push_batch b
+        SET success_count = (
+                SELECT COUNT(*)
+                FROM biz_delivery_report_google_push_item i
+                WHERE i.batch_id = b.id AND i.status = 2
+            ),
+            failed_count = (
+                SELECT COUNT(*)
+                FROM biz_delivery_report_google_push_item i
+                WHERE i.batch_id = b.id AND i.status = 3
+            ),
+            status = CASE
+                WHEN NOT EXISTS (
+                    SELECT 1 FROM biz_delivery_report_google_push_item i
+                    WHERE i.batch_id = b.id AND i.status &lt;&gt; 2
+                ) THEN 2
+                WHEN EXISTS (
+                    SELECT 1 FROM biz_delivery_report_google_push_item i
+                    WHERE i.batch_id = b.id AND i.status = 2
+                ) THEN 3
+                ELSE 4
+            END,
+            error_message = #{errorMessage},
+            finished_at = NOW(3)
+        WHERE b.id = #{id} AND b.status = 1
+    </update>
+    <update id="retryFailedItems">
+        UPDATE biz_delivery_report_google_push_item
+        SET status = 0, error_message = NULL, started_at = NULL, finished_at = NULL
+        WHERE batch_id = #{batchId} AND status = 3
+    </update>
+    <update id="resetBatchForRetry">
+        UPDATE biz_delivery_report_google_push_batch
+        SET status = 0,
+            success_count = 0,
+            failed_count = 0,
+            error_message = NULL,
+            started_at = NULL,
+            finished_at = NULL
+        WHERE id = #{id} AND requested_by = #{userId} AND status IN (3, 4)
+    </update>
+    <update id="recoverStaleItems">
+        UPDATE biz_delivery_report_google_push_item i
+        JOIN biz_delivery_report_google_push_batch b ON b.id = i.batch_id
+        SET i.status = 0, i.started_at = NULL, i.finished_at = NULL,
+            i.error_message = '上次执行中断，已自动重新排队'
+        WHERE b.status = 1 AND b.started_at &lt; DATE_SUB(NOW(3), INTERVAL 10 MINUTE)
+          AND i.status = 1
+    </update>
+    <update id="recoverStaleBatches">
+        UPDATE biz_delivery_report_google_push_batch
+        SET status = 0, started_at = NULL, finished_at = NULL,
+            error_message = '上次执行中断，已自动重新排队'
+        WHERE status = 1 AND started_at &lt; DATE_SUB(NOW(3), INTERVAL 10 MINUTE)
+    </update>
+</mapper>

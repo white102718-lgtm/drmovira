@@ -1,0 +1,8 @@
+services:
+  schduler_main:
+    build:
+      context: ../../
+      dockerfile: deploy/schduler_main/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

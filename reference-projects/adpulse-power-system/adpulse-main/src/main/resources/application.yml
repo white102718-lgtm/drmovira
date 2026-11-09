@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: adpulse-main-server
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:test}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/fbad}
+    redis:
+      timeout: 3s
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.adpulse.main
+  configuration:
+    map-underscore-to-camel-case: true
+    default-statement-timeout: 10
+
+server:
+  port: ${SERVER_PORT:8081}
+  shutdown: graceful
+  servlet:
+    context-path: /api/main
+
+spring.lifecycle.timeout-per-shutdown-phase: 30s
+
+adpulse:
+  global-pwa:
+    base-url: ${GLOBAL_PWA_BASE_URL:https://www.globalpwa.com/prod-api}
+    api-token: ${GLOBAL_PWA_API_TOKEN:}
+    connect-timeout: ${GLOBAL_PWA_CONNECT_TIMEOUT:3s}
+    read-timeout: ${GLOBAL_PWA_READ_TIMEOUT:30s}
+  # 临时兼容旧MPower创建项目钱包；旧系统下线后可整体移除该配置与适配包。
+  mpower-wallet:
+    base-url: ${MPOWER_WALLET_BASE_URL:}
+    secret: ${MPOWER_WALLET_SECRET:}
+    connect-timeout: ${MPOWER_WALLET_CONNECT_TIMEOUT:3s}
+    read-timeout: ${MPOWER_WALLET_READ_TIMEOUT:30s}
+    # 复用 asset-migration 的老系统只读数据源，Redis仅缓存已校验的组织映射。
+    source-url: ${adpulse.asset-migration.source-url:${ASSET_MIGRATION_SOURCE_URL:}}
+    source-username: ${adpulse.asset-migration.source-username:${ASSET_MIGRATION_SOURCE_USERNAME:}}
+    source-password: ${adpulse.asset-migration.source-password:${ASSET_MIGRATION_SOURCE_PASSWORD:}}
+    source-uuid: ${adpulse.asset-migration.source-uuid:668439ab-d5b1-11f0-a11e-5635bb0443e0}
+    source-schema: ${adpulse.asset-migration.source-schema:fbad-suger}
+    mapping-namespace: ${adpulse.asset-migration.target-environment:default}
+    mapping-cache-enabled: ${adpulse.asset-migration.mapping-cache-enabled:${ASSET_MIGRATION_MAPPING_CACHE_ENABLED:true}}
+    mapping-cache-ttl: ${MPOWER_WALLET_MAPPING_CACHE_TTL:24h}
+    mapping-fallback-cache-ttl: ${MPOWER_WALLET_MAPPING_FALLBACK_CACHE_TTL:30m}
+    default-tenant-id: ${MPOWER_WALLET_DEFAULT_TENANT_ID:1}
+    default-department-id: ${MPOWER_WALLET_DEFAULT_DEPARTMENT_ID:100}
+    default-region: ${MPOWER_WALLET_DEFAULT_REGION:美国}
+    default-user-id: ${MPOWER_WALLET_DEFAULT_USER_ID:1}
+  mongo:
+    account:
+      collection: ${MONGODB_ACCOUNT_COLLECTION:fb_ad_accounts}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:}
+    delivery-service-account:
+      credentials-file: ${GOOGLE_DELIVERY_SERVICE_ACCOUNT_CREDENTIALS_FILE:}
+      credentials-base64: ${GOOGLE_DELIVERY_SERVICE_ACCOUNT_CREDENTIALS_BASE64:}
+  security:
+    jwt-secret: ${JWT_SECRET}
+    jwt-issuer: adpulse-system-server
+    session-ttl: 12h
+
+logging:
+  file:
+    name: ${APP_LOG_FILE:logs/adpulse-main-server.log}
+  level:
+    com.adpulse.main: info

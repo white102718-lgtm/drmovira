@@ -1,0 +1,65 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://44.228.249.36:3306/adpulse_system?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${DB_USERNAME:adpulse}
+    password: ${DB_PASSWORD:A4JIc@dUx#B*}
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 30000
+  data:
+    redis:
+      host: ${REDIS_HOST:44.228.249.36}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:4&Lzt$tgK5s&}
+      database: ${REDIS_DATABASE:0}
+
+adpulse:
+  file:
+    endpoint: ${MINIO_ENDPOINT:http://127.0.0.1:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    bucket: ${MINIO_BUCKET:adpulse-files}
+  feishu:
+    oauth:
+      redirect-uri: ${FEISHU_OAUTH_REDIRECT_URI:http://13.115.116.214:5556/auth/feishu/callback}
+      state-ttl: 5m
+    notification:
+      test-recipient-phone: '15362469449'
+      content-prefix: '【测试环境】'
+  security:
+    jwt-secret: ${JWT_SECRET:JWT70253NKLGSDAIJ2523AF0UJNFAW0E}
+    mfa:
+      encryption-key: ${MFA_ENCRYPTION_KEY:W9yvzzpUlo1HZMtvQ3N8zLhYStAEP3F2HfPD1g5I2BQ=}
+  bootstrap-admin:
+    enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
+
+logging:
+  level:
+    com.adpulse.system: info
+    com.adpulse.system.file.mapper: debug
+    org.mybatis: info
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  group-configs:
+    - group: system-management
+      display-name: 系统管理
+      paths-to-match: /**
+      packages-to-scan: com.adpulse.system
+
+knife4j:
+  # Knife4j 4.5增强扩展依赖旧版springdoc API；关闭增强扩展但保留doc.html UI。
+  enable: false
+  setting:
+    language: zh_cn
+    enable-footer: false
+    enable-footer-custom: true
+    footer-custom-content: AdPulse System Server API

@@ -1,0 +1,532 @@
+<style data-app-loading="inject-css">
+  /* 只在 loading 容器内应用重置 */
+  .loading-container,
+  .loading-container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .loading-container {
+    /* margin/padding/box-sizing 已在上面设置 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: hsl(216 20.11% 95.47%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+      Arial, sans-serif;
+    z-index: 9999;
+    pointer-events: none;
+    transition:
+      opacity 0.5s ease-out,
+      visibility 0.5s ease-out;
+  }
+
+  .loading-container.hidden {
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+  }
+  
+  .loading-container.hidden * {
+    animation-play-state: paused;
+  }
+
+  .loading-container.hidden .loading-text {
+    animation: none;
+    transform: translateY(0);
+    transition: transform 0.5s ease-out;
+  }
+
+  /* 加载页背景效果 - 使用主题色 */
+  .loading-background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      154deg,
+      #07070915 30%,
+      hsl(226 80% 55% / 0.33) 48%,
+      #07070915 64%
+    );
+    filter: blur(100px);
+    z-index: 0;
+  }
+
+  /* 3D场景容器 */
+  .scene {
+    width: 300px;
+    height: 300px;
+    perspective: 1000px;
+    position: relative;
+    margin-bottom: 60px;
+    z-index: 1;
+  }
+
+  /* 立方体容器 */
+  .cube-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateCube 12s infinite linear;
+  }
+
+  /* 立方体 */
+  .cube {
+    width: 150px;
+    height: 150px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -75px;
+    margin-top: -75px;
+    transform-style: preserve-3d;
+    animation: innerRotate 8s infinite ease-in-out;
+  }
+
+  /* 立方体的六个面 - 现代渐变色系 */
+  .cube-face {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    opacity: 0.95;
+    box-shadow:
+      inset 0 0 60px rgba(255, 255, 255, 0.15),
+      0 0 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .cube-face.front {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow:
+      inset 0 0 60px rgba(255, 255, 255, 0.2),
+      0 0 30px rgba(102, 126, 234, 0.6);
+    transform: rotateY(0deg) translateZ(75px);
+  }
+
+  .cube-face.back {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow:
+      inset 0 0 60px rgba(255, 255, 255, 0.2),
+      0 0 30px rgba(240, 147, 251, 0.5);
+    transform: rotateY(180deg) translateZ(75px);
+  }
+
+  .cube-face.right {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow:
+      inset 0 0 60px rgba(255, 255, 255, 0.2),
+      0 0 30px rgba(79, 172, 254, 0.5);
+    transform: rotateY(90deg) translateZ(75px);
+  }
+
+  .cube-face.left {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    box-shadow:
+      inset 0 0 60px rgba(255, 255, 255, 0.2),
+      0 0 30px rgba(67, 233, 123, 0.5);
+    transform: rotateY(-90deg) translateZ(75px);
+  }
+
+  .cube-face.top {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    box-shadow:
+      inset 0 0 60px rgba(255, 255, 255, 0.2),
+      0 0 30px rgba(250, 112, 154, 0.5);
+    transform: rotateX(90deg) translateZ(75px);
+  }
+
+  .cube-face.bottom {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    box-shadow:
+      inset 0 0 60px rgba(255, 255, 255, 0.2),
+      0 0 30px rgba(48, 207, 208, 0.5);
+    transform: rotateX(-90deg) translateZ(75px);
+  }
+
+  /* 轨道粒子容器 */
+  .orbit-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  .orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border: 1.5px solid rgba(102, 126, 234, 0.5);
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+  }
+
+  .orbit-1 {
+    width: 250px;
+    height: 250px;
+    margin-left: -125px;
+    margin-top: -125px;
+    animation: orbitRotate1 6s linear infinite;
+  }
+
+  .orbit-2 {
+    width: 280px;
+    height: 280px;
+    margin-left: -140px;
+    margin-top: -140px;
+    animation: orbitRotate2 8s linear infinite;
+    transform: rotateY(60deg);
+  }
+
+  .orbit-3 {
+    width: 220px;
+    height: 220px;
+    margin-left: -110px;
+    margin-top: -110px;
+    animation: orbitRotate3 10s linear infinite;
+    transform: rotateX(60deg);
+  }
+
+  .orbit-particle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(
+      circle,
+      #667eea 0%,
+      rgba(102, 126, 234, 0.6) 100%
+    );
+    border-radius: 50%;
+    box-shadow:
+      0 0 20px rgba(102, 126, 234, 0.9),
+      0 0 40px rgba(102, 126, 234, 0.5);
+    top: 0;
+    left: 50%;
+    margin-left: -6px;
+    animation: particlePulse 2s ease-in-out infinite;
+  }
+
+  /* 阴影 */
+  .loading-shadow {
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 20px;
+    background: radial-gradient(
+      ellipse,
+      rgba(0, 0, 0, 0.4) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    animation: shadowPulse 4s ease-in-out infinite;
+  }
+
+  /* 加载文字 - 增强对比度 */
+  .loading-text {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 20px;
+    animation: textFloat 3s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
+      drop-shadow(0 0 20px rgba(102, 126, 234, 0.6));
+  }
+
+  /* 进度条容器 - 增强对比度 */
+  .progress-container {
+    width: 300px;
+    height: 8px;
+    background: rgba(102, 126, 234, 0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.2),
+      0 1px 2px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      #667eea 0%,
+      #764ba2 25%,
+      #f093fb 50%,
+      #764ba2 75%,
+      #667eea 100%
+    );
+    border-radius: 10px;
+    animation: progressMove 2s ease-in-out infinite;
+    box-shadow:
+      0 0 20px rgba(102, 126, 234, 0.8),
+      0 0 40px rgba(240, 147, 251, 0.4);
+    position: relative;
+    width: 100%;
+    transform-origin: left;
+  }
+
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+    animation: shimmer 4s ease-in-out infinite;
+  }
+
+  .loading-subtitle {
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    /* color: rgba(255, 255, 255, 0.7); */
+    color: #666;
+    /* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); */
+    animation: subtitlePulse 2s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 动画定义 */
+  @keyframes rotateCube {
+    0% {
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+    100% {
+      transform: rotateX(360deg) rotateY(360deg);
+    }
+  }
+
+  @keyframes innerRotate {
+    0%,
+    100% {
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+    25% {
+      transform: rotateX(90deg) rotateY(90deg);
+    }
+    50% {
+      transform: rotateX(180deg) rotateY(180deg);
+    }
+    75% {
+      transform: rotateX(270deg) rotateY(270deg);
+    }
+  }
+
+  @keyframes orbitRotate1 {
+    from {
+      transform: rotateZ(0deg);
+    }
+    to {
+      transform: rotateZ(360deg);
+    }
+  }
+
+  @keyframes orbitRotate2 {
+    from {
+      transform: rotateY(60deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateY(60deg) rotateZ(360deg);
+    }
+  }
+
+  @keyframes orbitRotate3 {
+    from {
+      transform: rotateX(60deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateX(60deg) rotateZ(360deg);
+    }
+  }
+
+  @keyframes particlePulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.5);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes shadowPulse {
+    0%,
+    100% {
+      transform: translateX(-50%) scale(1);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateX(-50%) scale(1.2);
+      opacity: 0.2;
+    }
+  }
+
+  @keyframes textFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes progressMove {
+    0% {
+      transform: scaleX(0.3);
+    }
+    50% {
+      transform: scaleX(0.8);
+    }
+    100% {
+      transform: scaleX(0.3);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-150%);
+    }
+    50% {
+      transform: translateX(150%);
+    }
+    100% {
+      transform: translateX(-150%);
+    }
+  }
+
+  @keyframes subtitlePulse {
+    0%,
+    100% {
+      opacity: 0.7;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+</style>
+<div class="loading-container" id="__app-loading__">
+  <!-- 加载页背景效果 -->
+  <div class="loading-background"></div>
+
+  <!-- 3D场景 -->
+  <div class="scene">
+    <!-- 立方体包装器 -->
+    <div class="cube-wrapper">
+      <!-- 立方体 -->
+      <div class="cube">
+        <div class="cube-face front"></div>
+        <div class="cube-face back"></div>
+        <div class="cube-face right"></div>
+        <div class="cube-face left"></div>
+        <div class="cube-face top"></div>
+        <div class="cube-face bottom"></div>
+      </div>
+    </div>
+
+    <!-- 轨道粒子 -->
+    <div class="orbit-particles">
+      <div class="orbit orbit-1">
+        <div class="orbit-particle"></div>
+      </div>
+      <div class="orbit orbit-2">
+        <div class="orbit-particle"></div>
+      </div>
+      <div class="orbit orbit-3">
+        <div class="orbit-particle"></div>
+      </div>
+    </div>
+
+    <!-- 阴影 -->
+    <div class="loading-shadow"></div>
+  </div>
+
+  <!-- 加载文字 -->
+  <div class="loading-text">Loading...</div>
+
+  <!-- 进度条 -->
+  <div class="progress-container">
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="loading-subtitle">正在加载资源</div>
+</div>
+
+<script>
+  (function () {
+    var WARN_MS = 12000; // 12 秒后提示
+    var RELOAD_MS = 40000; // 40 秒后自动刷新
+
+    function isLoadingVisible() {
+      var el = document.getElementById('__app-loading__');
+      return !!(el && !el.classList.contains('hidden'));
+    }
+
+    var warnTimer = setTimeout(function () {
+      if (!isLoadingVisible()) return;
+      var subtitle = document.querySelector(
+        '#__app-loading__ .loading-subtitle',
+      );
+      if (subtitle) subtitle.textContent = '加载超时，请刷新页面或检查网络';
+    }, WARN_MS);
+
+    var reloadTimer = setTimeout(function () {
+      if (!isLoadingVisible()) return;
+      location.reload();
+    }, RELOAD_MS);
+
+    var observer = new MutationObserver(function () {
+      if (!isLoadingVisible()) {
+        clearTimeout(warnTimer);
+        clearTimeout(reloadTimer);
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  })();
+</script>

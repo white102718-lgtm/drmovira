@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.dailyreport.mapper.DailyReportMapper">
+    <resultMap id="ruleMap" type="com.adpulse.system.dailyreport.model.DailyReportRule">
+        <id property="id" column="id"/>
+        <result property="ruleKey" column="rule_key"/>
+        <result property="name" column="name"/>
+        <result property="configJson" column="config_json"/>
+        <result property="reminderEnabled" column="reminder_enabled"/>
+        <result property="status" column="status"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    <resultMap id="submissionMap" type="com.adpulse.system.dailyreport.model.DailyReportSubmission">
+        <id property="id" column="id"/>
+        <result property="ruleId" column="rule_id"/>
+        <result property="reportDate" column="report_date"/>
+        <result property="periodKey" column="period_key"/>
+        <result property="fieldValuesJson" column="field_values_json"/>
+        <result property="attachmentsJson" column="attachments_json"/>
+        <result property="ruleSnapshotJson" column="rule_snapshot_json"/>
+        <result property="submittedById" column="submitted_by_id"/>
+        <result property="submittedByName" column="submitted_by_name"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findActiveRules" resultMap="ruleMap">
+        SELECT id, rule_key, name, config_json, reminder_enabled, status, created_by, updated_by, created_at, updated_at
+        FROM sys_daily_report_rule WHERE status = 1 AND deleted_at = 0 ORDER BY id DESC
+    </select>
+    <select id="findRuleByKey" resultMap="ruleMap">
+        SELECT id, rule_key, name, config_json, reminder_enabled, status, created_by, updated_by, created_at, updated_at
+        FROM sys_daily_report_rule WHERE rule_key = #{ruleKey} AND deleted_at = 0 LIMIT 1
+    </select>
+    <insert id="insertRule" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_daily_report_rule (rule_key, name, config_json, reminder_enabled, status, created_by, updated_by)
+        VALUES (#{ruleKey}, #{name}, CAST(#{configJson} AS JSON), #{reminderEnabled}, #{status}, #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="updateRule">
+        UPDATE sys_daily_report_rule SET name = #{name}, config_json = CAST(#{configJson} AS JSON),
+            reminder_enabled = #{reminderEnabled}, status = #{status}, updated_by = #{updatedBy}
+        WHERE rule_key = #{ruleKey} AND deleted_at = 0
+    </update>
+    <update id="deleteRule">
+        UPDATE sys_daily_report_rule SET deleted_at = UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000, updated_by = #{updatedBy}
+        WHERE rule_key = #{ruleKey} AND deleted_at = 0
+    </update>
+    <select id="findActiveUserName" resultType="string">
+        SELECT display_name FROM sys_user WHERE id = #{userId} AND status = 1 AND deleted_at = 0
+    </select>
+    <select id="findActiveFeishuOpenIds" resultType="string">
+        SELECT feishu_open_id
+        FROM sys_user
+        WHERE status = 1 AND deleted_at = 0 AND feishu_open_id IS NOT NULL AND feishu_open_id != ''
+          AND id IN
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <select id="findActiveUserIds" resultType="long">
+        SELECT id FROM sys_user WHERE status = 1 AND deleted_at = 0 AND id IN
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <select id="findActiveDepartmentIds" resultType="long">
+        SELECT id FROM sys_department WHERE status = 1 AND deleted_at = 0 AND id IN
+        <foreach collection="departmentIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <select id="findActiveRoleIds" resultType="long">
+        SELECT id FROM sys_role WHERE status = 1 AND deleted_at = 0 AND id IN
+        <foreach collection="roleIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <select id="findActiveUserIdsByDepartments" resultType="long">
+        SELECT DISTINCT u.id FROM sys_user u JOIN sys_department d ON d.id = u.primary_department_id
+        WHERE u.status = 1 AND u.deleted_at = 0 AND d.status = 1 AND d.deleted_at = 0
+          AND u.primary_department_id IN
+          <foreach collection="departmentIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <select id="findActiveUserIdsByRoles" resultType="long">
+        SELECT DISTINCT u.id
+        FROM sys_user u
+        INNER JOIN sys_user_role ur ON ur.user_id = u.id AND ur.deleted_at = 0
+        INNER JOIN sys_role r ON r.id = ur.role_id AND r.status = 1 AND r.deleted_at = 0
+        WHERE u.status = 1 AND u.deleted_at = 0
+          AND ur.role_id IN
+          <foreach collection="roleIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <select id="findOwnedFileIds" resultType="long">
+        SELECT id FROM sys_file WHERE uploader_id = #{userId} AND deleted_at = 0 AND id IN
+        <foreach collection="fileIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <insert id="insertSubmission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_daily_report_submission (
+            rule_id, report_date, period_key, field_values_json, attachments_json,
+            rule_snapshot_json, submitted_by_id, submitted_by_name
+        ) VALUES (
+            #{ruleId}, #{reportDate}, #{periodKey}, CAST(#{fieldValuesJson} AS JSON),
+            CAST(#{attachmentsJson} AS JSON), CAST(#{ruleSnapshotJson} AS JSON),
+            #{submittedById}, #{submittedByName}
+        )
+    </insert>
+    <update id="updateSubmission">
+        UPDATE sys_daily_report_submission
+        SET field_values_json = CAST(#{fieldValuesJson} AS JSON),
+            attachments_json = CAST(#{attachmentsJson} AS JSON),
+            rule_snapshot_json = CAST(#{ruleSnapshotJson} AS JSON)
+        WHERE id = #{id}
+          AND submitted_by_id = #{submittedById}
+    </update>
+    <select id="findSubmissionById" resultMap="submissionMap">
+        SELECT id, rule_id, report_date, period_key, field_values_json, attachments_json,
+            rule_snapshot_json, submitted_by_id, submitted_by_name, created_at
+        FROM sys_daily_report_submission WHERE id = #{id}
+    </select>
+    <insert id="insertFileBindings">
+        INSERT INTO sys_daily_report_file_binding (submission_id, file_id, sort_order, created_by) VALUES
+        <foreach collection="fileIds" item="fileId" index="index" separator=",">(#{submissionId}, #{fileId}, #{index}, #{userId})</foreach>
+    </insert>
+    <update id="deactivateFileBindings">
+        UPDATE sys_daily_report_file_binding
+        SET deleted_at = UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000
+        WHERE submission_id = #{submissionId}
+          AND deleted_at = 0
+    </update>
+    <select id="findSubmissions" resultMap="submissionMap">
+        SELECT id, rule_id, report_date, period_key, field_values_json, attachments_json,
+            rule_snapshot_json, submitted_by_id, submitted_by_name, created_at
+        FROM sys_daily_report_submission ORDER BY id DESC LIMIT 1000
+    </select>
+    <select id="countSubmissions" resultType="int">
+        SELECT COUNT(*) FROM sys_daily_report_submission
+        WHERE rule_id = #{ruleId}
+          AND submitted_by_id = #{userId}
+          AND period_key = #{periodKey}
+    </select>
+    <insert id="insertReminderLog">
+        INSERT IGNORE INTO sys_daily_report_reminder_log (rule_id, user_id, report_date, reminder_time)
+        VALUES (#{ruleId}, #{userId}, #{reportDate}, #{reminderTime})
+    </insert>
+</mapper>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.cardstation.mapper.CardStationMapper">
+    <sql id="cardFilters">
+        c.deleted_at = 0 AND c.platform = #{query.platform}
+        <if test="query.cardId != null and query.cardId != ''">
+            AND c.external_card_id LIKE CONCAT('%', #{query.cardId}, '%')
+        </if>
+        <if test="query.cardName != null and query.cardName != ''">
+            AND (c.card_name LIKE CONCAT('%', #{query.cardName}, '%')
+                OR c.advertisement_account_id LIKE CONCAT('%', #{query.cardName}, '%'))
+        </if>
+        <if test="query.cardNo != null and query.cardNo != ''">
+            AND FIND_IN_SET(c.masked_pan, #{query.cardNo}) &gt; 0
+        </if>
+        <if test="query.status != null and query.status != ''">
+            AND LOWER(c.card_status) = LOWER(#{query.status})
+        </if>
+        <if test="query.periodMaxConsumeAmount != null">
+            AND c.period_max_consume_amount = #{query.periodMaxConsumeAmount}
+        </if>
+        <if test="query.startDate != null">
+            AND COALESCE(c.provider_created_at, c.created_at) &gt;= #{query.startDate}
+        </if>
+        <if test="query.endDate != null">
+            AND COALESCE(c.provider_created_at, c.created_at) &lt; DATE_ADD(#{query.endDate}, INTERVAL 1 DAY)
+        </if>
+    </sql>
+
+    <select id="findCards" resultType="com.adpulse.main.cardstation.model.CardStationModels$Card">
+        SELECT c.id, c.platform, c.external_card_id, c.card_name, c.masked_pan, c.card_status,
+            c.balance, c.currency, c.advertisement_account_id, c.company_entity,
+            c.daily_limit, c.monthly_limit, c.transaction_min_amount, c.transaction_max_amount,
+            c.utilization_limit_amount, c.utilization_limit_preset, c.period_max_consume_amount,
+            c.provider_created_at, c.provider_updated_at, c.created_at, c.updated_at
+        FROM card_station_card c
+        WHERE <include refid="cardFilters" />
+        ORDER BY COALESCE(c.provider_updated_at, c.updated_at) DESC, c.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countCards" resultType="long">
+        SELECT COUNT(*) FROM card_station_card c WHERE <include refid="cardFilters" />
+    </select>
+
+    <select id="findCard" resultType="com.adpulse.main.cardstation.model.CardStationModels$Card">
+        SELECT c.id, c.platform, c.external_card_id, c.card_name, c.masked_pan, c.card_status,
+            c.balance, c.currency, c.advertisement_account_id, c.company_entity,
+            c.daily_limit, c.monthly_limit, c.transaction_min_amount, c.transaction_max_amount,
+            c.utilization_limit_amount, c.utilization_limit_preset, c.period_max_consume_amount,
+            c.provider_created_at, c.provider_updated_at, c.created_at, c.updated_at
+        FROM card_station_card c
+        WHERE c.platform = #{platform} AND c.external_card_id = #{cardId} AND c.deleted_at = 0
+    </select>
+
+    <select id="findBalances" resultType="com.adpulse.main.cardstation.model.CardStationModels$Balance">
+        SELECT product_code, currency, balance, frozen_balance
+        FROM card_station_balance
+        WHERE platform = #{platform} AND deleted_at = 0
+        ORDER BY product_code, currency
+    </select>
+
+    <select id="summarize" resultType="com.adpulse.main.cardstation.model.CardStationModels$Statistics">
+        SELECT COUNT(*) AS total,
+            SUM(CASE WHEN LOWER(card_status) IN ('active', 'normal') THEN 1 ELSE 0 END) AS active,
+            SUM(CASE WHEN LOWER(card_status) IN ('frozen', 'freeze') THEN 1 ELSE 0 END) AS frozen,
+            COALESCE(SUM(balance), 0) AS balance
+        FROM card_station_card
+        WHERE platform = #{platform} AND deleted_at = 0
+    </select>
+
+    <update id="updateLimit">
+        UPDATE card_station_card
+        SET daily_limit = CASE WHEN #{preset} = 'daily' THEN #{amount} ELSE daily_limit END,
+            monthly_limit = CASE WHEN #{preset} = 'monthly' THEN #{amount} ELSE monthly_limit END,
+            utilization_limit_amount = #{amount}, utilization_limit_preset = #{preset}
+        WHERE platform = #{platform} AND external_card_id = #{cardId} AND deleted_at = 0
+    </update>
+
+    <update id="updateStatus">
+        UPDATE card_station_card SET card_status = #{status}
+        WHERE platform = #{platform} AND external_card_id = #{cardId} AND deleted_at = 0
+    </update>
+
+    <insert id="insertLimitRecord">
+        INSERT INTO card_station_limit_record
+            (platform, external_card_id, old_amount, new_amount, preset, status, created_by)
+        VALUES (#{platform}, #{cardId}, #{oldAmount}, #{newAmount}, #{preset}, 0, #{createdBy})
+    </insert>
+
+    <select id="findLimitRecords" resultType="com.adpulse.main.cardstation.model.CardStationModels$LimitRecord">
+        SELECT id, external_card_id, old_amount, new_amount, preset, status, error_message, created_at
+        FROM card_station_limit_record
+        WHERE platform = #{platform} AND external_card_id = #{cardId} AND deleted_at = 0
+        ORDER BY created_at DESC, id DESC LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countLimitRecords" resultType="long">
+        SELECT COUNT(*) FROM card_station_limit_record
+        WHERE platform = #{platform} AND external_card_id = #{cardId} AND deleted_at = 0
+    </select>
+
+    <select id="findLimitRule" resultType="com.adpulse.main.cardstation.model.CardStationModels$LimitRule">
+        SELECT id, daily_period, adjust_amount, min_amount, auto_adjust_enabled,
+            updated_by, created_at, updated_at
+        FROM card_station_limit_rule
+        WHERE scope_key = 'global' AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <insert id="upsertLimitRule">
+        INSERT INTO card_station_limit_rule
+            (scope_key, daily_period, adjust_amount, min_amount, auto_adjust_enabled, updated_by)
+        VALUES
+            ('global', #{dailyPeriod}, #{adjustAmount}, #{minAmount}, #{autoAdjustEnabled}, #{updatedBy})
+        ON DUPLICATE KEY UPDATE
+            daily_period = VALUES(daily_period), adjust_amount = VALUES(adjust_amount),
+            min_amount = VALUES(min_amount), auto_adjust_enabled = VALUES(auto_adjust_enabled),
+            updated_by = VALUES(updated_by)
+    </insert>
+
+    <update id="updateLimitRuleAutoAdjust">
+        UPDATE card_station_limit_rule
+        SET auto_adjust_enabled = #{enabled}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND scope_key = 'global' AND deleted_at = 0
+    </update>
+
+    <insert id="insertSyncJob">
+        INSERT INTO external_sync_job
+            (provider, job_type, business_id, request_payload, status, requested_by)
+        VALUES (#{provider}, #{jobType}, #{businessId}, CAST(#{requestPayload} AS JSON), 0, #{requestedBy})
+    </insert>
+
+    <select id="lastInsertId" resultType="long">SELECT LAST_INSERT_ID()</select>
+</mapper>

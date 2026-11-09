@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.role.mapper.RoleMapper">
+    <select id="hasOtherSuperAdminUser" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM sys_user_role ur
+            INNER JOIN sys_user u ON u.id = ur.user_id
+            WHERE ur.role_id = #{roleId}
+              AND ur.deleted_at = 0
+              AND u.deleted_at = 0
+              AND u.is_super_admin = 1
+              AND u.id &lt;&gt; #{operatorId}
+        )
+    </select>
+
+    <resultMap id="roleMap" type="com.adpulse.system.role.model.Role">
+        <id property="id" column="id"/>
+        <result property="roleCode" column="role_code"/>
+        <result property="roleName" column="role_name"/>
+        <result property="status" column="status"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="remark" column="remark"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <sql id="filters">
+        deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (role_code LIKE CONCAT('%', #{keyword}, '%')
+                OR role_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </sql>
+
+    <select id="findPage" resultMap="roleMap">
+        SELECT id, role_code, role_name, status, sort_order, remark,
+               created_at, updated_at, deleted_at
+        FROM sys_role
+        WHERE <include refid="filters"/>
+        ORDER BY sort_order, id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM sys_role WHERE <include refid="filters"/>
+    </select>
+
+    <select id="findById" resultMap="roleMap">
+        SELECT id, role_code, role_name, status, sort_order, remark,
+               created_at, updated_at, deleted_at
+        FROM sys_role
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_role (
+            role_code, role_name, status, sort_order, remark, created_by, updated_by
+        ) VALUES (
+            #{roleCode}, #{roleName}, #{status}, #{sortOrder}, #{remark},
+            #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE sys_role
+        SET role_code = #{roleCode}, role_name = #{roleName}, status = #{status},
+            sort_order = #{sortOrder}, remark = #{remark}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="findMenuIds" resultType="java.lang.Long">
+        SELECT menu_id FROM sys_role_menu
+        WHERE role_id = #{roleId} AND deleted_at = 0
+    </select>
+
+    <select id="countActiveMenus" resultType="int">
+        SELECT COUNT(*) FROM sys_menu
+        WHERE deleted_at = 0 AND status = 1
+          AND id IN
+          <foreach collection="menuIds" item="menuId" open="(" separator="," close=")">
+              #{menuId}
+          </foreach>
+    </select>
+
+    <update id="softDeleteMenuRelations">
+        UPDATE sys_role_menu SET deleted_at = #{deletedAt}
+        WHERE role_id = #{roleId} AND deleted_at = 0
+    </update>
+
+    <insert id="batchInsertMenus">
+        INSERT INTO sys_role_menu (role_id, menu_id, created_by)
+        VALUES
+        <foreach collection="menuIds" item="menuId" separator=",">
+            (#{roleId}, #{menuId}, #{createdBy})
+        </foreach>
+    </insert>
+
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(*) FROM sys_user_role
+        WHERE role_id = #{roleId} AND deleted_at = 0
+    </select>
+
+    <update id="softDelete">
+        UPDATE sys_role
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+</mapper>

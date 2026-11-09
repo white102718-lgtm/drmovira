@@ -38,12 +38,33 @@ def main():
             problems.append(path.relative_to(root).as_posix() + ": baseline differs")
     if count != 43:
         problems.append("original PRD package must have 43 files")
+    references = root / "reference-projects/SNAPSHOT_MANIFEST.json"
+    reference_count = 0
+    if references.is_file():
+        snapshot = json.loads(references.read_text(encoding="utf-8"))
+        projects = snapshot["projects"]
+        if {p["project"] for p in projects} != {
+            "ai-ad-platform-vben", "adpulse-power-system", "backend", "schedulers"
+        }:
+            problems.append("four historical reference snapshots required")
+        forbidden = {"node_modules", ".git", ".venv", "venv", "__pycache__", ".runtime", "target", "dist", "logs"}
+        for project in projects:
+            for item in project["files"]:
+                path = Path(item["path"])
+                if path.is_absolute() or ".." in path.parts or set(path.parts) & forbidden:
+                    problems.append("forbidden reference artifact path")
+                    continue
+                exported = root / "reference-projects" / project["project"] / path
+                if not exported.is_file() or hashlib.sha256(exported.read_bytes()).hexdigest() != item["sha256"]:
+                    problems.append(str(path) + ": reference snapshot differs")
+                reference_count += 1
     print(json.dumps({
         "result": "FAIL" if problems else "PASS",
         "scope": "handoff material integrity only; not product acceptance",
         "verified_manifest_files": len(manifest["files"]),
         "original_requirement_files": count,
         "line_ending_only_files": line_ending_only,
+        "committed_reference_source_files": reference_count,
         "problems": problems,
     }, ensure_ascii=False))
     return 1 if problems else 0

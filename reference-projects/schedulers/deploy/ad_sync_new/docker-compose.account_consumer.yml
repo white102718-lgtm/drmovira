@@ -1,0 +1,20 @@
+name: ad_sync_new_account_consumer
+services:
+  # hourly 专属池:只 claim 今天的队列,给当天成效预留容器,不被 review 占满
+  account_consumer_hourly:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_sync_new/Dockerfile.account_consumer
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+      - AD_SYNC_LANE=hourly
+    restart: unless-stopped
+  # review 池:只 claim 历史日期的队列,池大小本身就是 review 的并发上限
+  account_consumer_review:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_sync_new/Dockerfile.account_consumer
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+      - AD_SYNC_LANE=review
+    restart: unless-stopped

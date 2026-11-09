@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.asset.mapper.AssetLifecycleMapper">
+    <resultMap id="eventMap" type="com.adpulse.system.asset.model.MediaAssetLifecycleEvent">
+        <id property="id" column="id"/>
+        <result property="assetId" column="asset_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="status" column="status"/>
+        <result property="applicationId" column="application_id"/>
+        <result property="actorId" column="actor_id"/>
+        <result property="actorName" column="actor_name"/>
+        <result property="usageUserId" column="usage_user_id"/>
+        <result property="usageUserName" column="usage_user_name"/>
+        <result property="projectName" column="project_name"/>
+        <result property="teamName" column="team_name"/>
+        <result property="description" column="description"/>
+        <result property="updateSource" column="update_source"/>
+        <result property="changesJson" column="changes_json"/>
+        <result property="occurredAt" column="occurred_at"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_asset_lifecycle_event (
+            asset_id, event_type, status, application_id, actor_id, actor_name,
+            usage_user_id, usage_user_name, project_name, team_name, description,
+            update_source, changes_json, occurred_at
+        ) VALUES (
+            #{assetId}, #{eventType}, #{status}, #{applicationId}, #{actorId}, #{actorName},
+            #{usageUserId}, #{usageUserName}, #{projectName}, #{teamName}, #{description},
+            #{updateSource}, #{changesJson}, #{occurredAt}
+        )
+    </insert>
+
+    <select id="findByAssetId" resultMap="eventMap">
+        SELECT id, asset_id, event_type, status, application_id, actor_id, actor_name,
+               usage_user_id, usage_user_name, project_name, team_name, description,
+               update_source, changes_json, occurred_at
+        FROM media_asset_lifecycle_event
+        WHERE asset_id = #{assetId}
+        ORDER BY occurred_at DESC, id DESC
+    </select>
+</mapper>

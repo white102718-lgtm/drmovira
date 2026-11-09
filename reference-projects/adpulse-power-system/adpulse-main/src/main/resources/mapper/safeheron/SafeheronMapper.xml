@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.safeheron.mapper.SafeheronMapper">
+    <select id="findWalletsByCustomerRefIds" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Wallet">
+        SELECT id, account_key, account_name, customer_ref_id, team_id
+        FROM safeheron_wallet
+        WHERE status = 1 AND deleted_at = 0
+        <choose>
+            <when test="customerRefIds != null and customerRefIds.size() > 0">
+                AND customer_ref_id IN
+                <foreach collection="customerRefIds" item="value" open="(" separator="," close=")">
+                    #{value}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY id
+    </select>
+    <select id="findWalletCoinsByAccountKeys" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Coin">
+        SELECT account_key, coin_key, coin_name, fee_unit, address_ciphertext
+        FROM safeheron_wallet_coin
+        WHERE status = 1 AND deleted_at = 0
+        <choose>
+            <when test="accountKeys != null and accountKeys.size() > 0">
+                AND account_key IN
+                <foreach collection="accountKeys" item="value" open="(" separator="," close=")">
+                    #{value}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY account_key, coin_name, id
+    </select>
+    <sql id="ruleColumns">
+        r.id,
+        r.department_id,
+        d.dept_name AS department_name,
+        r.collect_account_key,
+        r.collect_account_name,
+        r.coin_key,
+        r.threshold_usd,
+        r.frequency_minutes AS frequency,
+        r.gas_station_enabled,
+        r.reserve_gas,
+        r.max_tx_fee,
+        r.signer,
+        r.status,
+        r.effective_status,
+        r.created_by,
+        r.updated_by,
+        r.created_at,
+        r.updated_at
+    </sql>
+
+    <select id="findRules" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Rule">
+        SELECT <include refid="ruleColumns" />
+        FROM safeheron_collection_rule r
+        LEFT JOIN sys_department d ON d.id = r.department_id AND d.deleted_at = 0
+        WHERE r.deleted_at = 0
+        ORDER BY r.updated_at DESC, r.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countRules" resultType="long">
+        SELECT COUNT(*)
+        FROM safeheron_collection_rule
+        WHERE deleted_at = 0
+    </select>
+
+    <select id="findRule" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Rule">
+        SELECT <include refid="ruleColumns" />
+        FROM safeheron_collection_rule r
+        LEFT JOIN sys_department d ON d.id = r.department_id AND d.deleted_at = 0
+        WHERE r.id = #{id} AND r.deleted_at = 0
+    </select>
+
+    <insert id="insertRule" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO safeheron_collection_rule (
+            department_id,
+            collect_account_key,
+            collect_account_name,
+            coin_key,
+            threshold_usd,
+            frequency_minutes,
+            gas_station_enabled,
+            reserve_gas,
+            max_tx_fee,
+            signer,
+            status,
+            effective_status,
+            created_by,
+            updated_by
+        ) VALUES (
+            #{departmentId},
+            #{collectAccountKey},
+            #{collectAccountName},
+            #{coinKey},
+            #{thresholdUsd},
+            #{frequency},
+            #{gasStationEnabled},
+            #{reserveGas},
+            #{maxTxFee},
+            #{signer},
+            #{status},
+            #{effectiveStatus},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateRule">
+        UPDATE safeheron_collection_rule
+        SET department_id = #{departmentId},
+            collect_account_key = #{collectAccountKey},
+            collect_account_name = #{collectAccountName},
+            coin_key = #{coinKey},
+            threshold_usd = #{thresholdUsd},
+            frequency_minutes = #{frequency},
+            gas_station_enabled = #{gasStationEnabled},
+            reserve_gas = #{reserveGas},
+            max_tx_fee = #{maxTxFee},
+            signer = #{signer},
+            status = #{status},
+            effective_status = #{effectiveStatus},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="updateRuleStatus">
+        UPDATE safeheron_collection_rule
+        SET status = #{status},
+            effective_status = #{effectiveStatus},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="softDeleteRule">
+        UPDATE safeheron_collection_rule
+        SET deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="findWallet" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Wallet">
+        SELECT id, account_key, account_name, customer_ref_id, team_id
+        FROM safeheron_wallet
+        WHERE account_key = #{accountKey} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findWalletByCustomerRefId" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Wallet">
+        SELECT id, account_key, account_name, customer_ref_id, team_id
+        FROM safeheron_wallet
+        WHERE customer_ref_id = #{customerRefId} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <insert id="insertWallet" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO safeheron_wallet (
+            account_key,
+            account_name,
+            customer_ref_id,
+            team_id,
+            status
+        ) VALUES (
+            #{accountKey},
+            #{accountName},
+            #{customerRefId},
+            #{teamId},
+            1
+        )
+    </insert>
+
+    <insert id="insertWalletCoin">
+        INSERT INTO safeheron_wallet_coin (
+            account_key,
+            coin_key,
+            coin_name,
+            fee_unit,
+            address_ciphertext,
+            status
+        ) VALUES (
+            #{accountKey},
+            #{coin.coinKey},
+            #{coin.coinName},
+            #{coin.feeUnit},
+            #{coin.addressCiphertext},
+            1
+        )
+    </insert>
+
+    <insert id="upsertWalletCoin">
+        INSERT INTO safeheron_wallet_coin (
+            account_key,
+            coin_key,
+            coin_name,
+            fee_unit,
+            address_ciphertext,
+            status
+        ) VALUES (
+            #{accountKey},
+            #{coin.coinKey},
+            #{coin.coinName},
+            #{coin.feeUnit},
+            #{coin.addressCiphertext},
+            1
+        )
+        ON DUPLICATE KEY UPDATE
+            coin_name = VALUES(coin_name),
+            fee_unit = VALUES(fee_unit),
+            address_ciphertext = VALUES(address_ciphertext),
+            status = 1
+    </insert>
+
+    <select id="findWallets" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Wallet">
+        SELECT id, account_key, account_name, customer_ref_id, team_id
+        FROM safeheron_wallet
+        WHERE status = 1 AND deleted_at = 0
+        ORDER BY account_name, id
+    </select>
+
+    <select id="findWalletCoin" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Coin">
+        SELECT account_key, coin_key, coin_name, fee_unit, address_ciphertext
+        FROM safeheron_wallet_coin
+        WHERE account_key = #{accountKey}
+          AND coin_key = #{coinKey}
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+
+    <select id="findWalletCoins" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Coin">
+        SELECT account_key, coin_key, coin_name, fee_unit, address_ciphertext
+        FROM safeheron_wallet_coin
+        WHERE account_key = #{accountKey} AND status = 1 AND deleted_at = 0
+        ORDER BY coin_name, id
+    </select>
+
+    <select id="findTeams" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Team">
+        SELECT
+            t.team_id,
+            t.team_name,
+            t.approver_id,
+            u.display_name AS approver_name,
+            t.status
+        FROM safeheron_team t
+        LEFT JOIN sys_user u ON u.id = t.approver_id AND u.deleted_at = 0
+        WHERE t.deleted_at = 0
+        ORDER BY t.team_name, t.id
+    </select>
+
+    <select id="findTeam" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Team">
+        SELECT
+            t.team_id,
+            t.team_name,
+            t.approver_id,
+            u.display_name AS approver_name,
+            t.status,
+            t.base_url,
+            t.api_key,
+            t.private_key_ciphertext,
+            t.safeheron_public_key,
+            t.request_timeout
+        FROM safeheron_team t
+        LEFT JOIN sys_user u ON u.id = t.approver_id AND u.deleted_at = 0
+        WHERE t.team_id = #{teamId} AND t.status = 1 AND t.deleted_at = 0
+    </select>
+
+    <select id="countTeam" resultType="int">
+        SELECT COUNT(*)
+        FROM safeheron_team
+        WHERE team_id = #{teamId} AND deleted_at = 0
+    </select>
+
+    <insert id="insertTeam">
+        INSERT INTO safeheron_team (
+            team_id,
+            team_name,
+            status,
+            base_url,
+            api_key,
+            private_key_ciphertext,
+            safeheron_public_key,
+            request_timeout,
+            created_by,
+            updated_by
+        ) VALUES (
+            #{teamId},
+            #{teamName},
+            1,
+            #{baseUrl},
+            #{apiKey},
+            #{privateKeyCiphertext},
+            #{safeheronPublicKey},
+            #{requestTimeout},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateTeamApprover">
+        UPDATE safeheron_team
+        SET approver_id = #{approverId}, updated_by = #{updatedBy}
+        WHERE team_id = #{teamId} AND status = 1 AND deleted_at = 0
+    </update>
+
+    <select id="findUser" resultType="com.adpulse.main.safeheron.model.SafeheronModels$User">
+        SELECT id AS user_id, COALESCE(username, phone) AS user_name, display_name AS nick_name
+        FROM sys_user
+        WHERE id = #{userId} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findUsers" resultType="com.adpulse.main.safeheron.model.SafeheronModels$User">
+        SELECT id AS user_id, COALESCE(username, phone) AS user_name, display_name AS nick_name
+        FROM sys_user
+        WHERE status = 1 AND deleted_at = 0
+        ORDER BY display_name, id
+    </select>
+
+    <select id="findDepartment" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Department">
+        SELECT id, parent_id, dept_name AS label
+        FROM sys_department
+        WHERE id = #{departmentId} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findDepartments" resultType="com.adpulse.main.safeheron.model.SafeheronModels$Department">
+        SELECT id, parent_id, dept_name AS label
+        FROM sys_department
+        WHERE status = 1 AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <sql id="recordFilters">
+        r.deleted_at = 0
+        <if test="query.teamId != null and query.teamId != ''">
+            AND r.team_id = #{query.teamId}
+        </if>
+        <if test="query.deptId != null">
+            AND r.department_id = #{query.deptId}
+        </if>
+        <if test="query.status != null">
+            AND r.status = #{query.status}
+        </if>
+        <if test="query.taskId != null and query.taskId != ''">
+            AND r.task_id = #{query.taskId}
+        </if>
+        <if test="query.startDate != null">
+            AND r.created_at &gt;= #{query.startDate}
+        </if>
+        <if test="query.endDate != null">
+            AND r.created_at &lt; DATE_ADD(#{query.endDate}, INTERVAL 1 DAY)
+        </if>
+    </sql>
+
+    <select id="findRecords" resultType="com.adpulse.main.safeheron.model.SafeheronModels$CollectionRecord">
+        SELECT
+            r.id,
+            r.team_id,
+            r.department_id,
+            d.dept_name AS department_name,
+            r.task_id,
+            r.source_account_name,
+            r.dest_account_name,
+            r.coin_key,
+            r.coin_name,
+            r.amount,
+            r.amount_usd,
+            r.gas_fee,
+            r.status,
+            r.transaction_type,
+            r.approver_id,
+            r.approver_name,
+            r.approve_result,
+            r.tx_hash,
+            r.remark,
+            r.created_at
+        FROM safeheron_collection_record r
+        LEFT JOIN sys_department d ON d.id = r.department_id AND d.deleted_at = 0
+        WHERE <include refid="recordFilters" />
+        ORDER BY r.created_at DESC, r.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countRecords" resultType="long">
+        SELECT COUNT(*)
+        FROM safeheron_collection_record r
+        WHERE <include refid="recordFilters" />
+    </select>
+
+    <select id="summarizeRecords" resultType="com.adpulse.main.safeheron.model.SafeheronModels$RecordAggregate">
+        SELECT
+            COUNT(*) AS total_count,
+            SUM(CASE WHEN r.status = 1 THEN 1 ELSE 0 END) AS success_count,
+            COALESCE(SUM(r.amount_usd), 0) AS amount_usd,
+            COALESCE(SUM(r.gas_fee), 0) AS gas_fee
+        FROM safeheron_collection_record r
+        WHERE <include refid="recordFilters" />
+    </select>
+</mapper>

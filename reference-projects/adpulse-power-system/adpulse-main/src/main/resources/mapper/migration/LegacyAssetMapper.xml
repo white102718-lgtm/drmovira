@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.migration.LegacyAssetMapper">
+    <select id="identity" resultType="com.adpulse.main.migration.AssetMigrationModels$Identity">
+        SELECT @@server_uuid AS serverUuid, DATABASE() AS schemaName
+    </select>
+    <select id="snapshot" resultType="com.adpulse.main.migration.AssetMigrationModels$Source">
+        SELECT account_id AS sourceId, channel_id AS channelId,
+               fb_account_id AS accountId, account_type AS accountType,
+               whitelist_type AS attribute, tenant_id AS tenantId
+        FROM fbad_channel_account
+        ORDER BY account_id
+        LIMIT 100001
+    </select>
+
+    <select id="channels" resultType="com.adpulse.main.migration.ChannelIncrementModels$LegacyChannel">
+        SELECT id AS sourceId,
+               channel_name AS channelName,
+               channel_short_name AS channelShortName,
+               channel_code AS channelCode,
+               channel_type AS channelType,
+               belong_team AS belongTeam,
+               status,
+               settlement_method AS settlementMethod,
+               settlement_currency AS settlementCurrency,
+               buyout_amount AS buyoutAmount,
+               payment_address AS paymentAddress,
+               login_url AS loginUrl,
+               remark,
+               tg_group_id AS tgGroupId,
+               tg_group_name AS tgGroupName,
+               tenant_id AS tenantId,
+               create_time AS createdAt,
+               update_time AS updatedAt
+        FROM fbad_channel
+        ORDER BY id
+        LIMIT 10001
+    </select>
+
+    <select id="rates" resultType="com.adpulse.main.migration.ChannelIncrementModels$LegacyRate">
+        SELECT id AS sourceId,
+               channel_id AS sourceChannelId,
+               service_fee AS serviceFee,
+               rebate_rate AS rebateRate,
+               effective_date AS effectiveDate,
+               expiry_date AS expiryDate,
+               status,
+               damage_rate AS damageRate,
+               opening_fee AS openingFee,
+               opening_fee_unit AS openingFeeUnit,
+               create_time AS createdAt,
+               update_time AS updatedAt
+        FROM fbad_channel_rate
+        ORDER BY id
+        LIMIT 10001
+    </select>
+
+    <select id="payments" resultType="com.adpulse.main.migration.LegacyPaymentMigrationModels$LegacyPayment">
+        SELECT payment.id AS sourceId,
+               payment.order_no AS orderNo,
+               payment.user_id AS requesterSourceId,
+               requester.nick_name AS requesterName,
+               requester.phonenumber AS requesterPhone,
+               requester.tenant_id AS requesterTenantId,
+               department.dept_name AS sourceDepartmentName,
+               payment.channel_id AS sourceChannelId,
+               channel.channel_name AS sourceChannelName,
+               payment.payment_address AS paymentAddress,
+               payment.channel_yesterday_cost AS channelYesterdayCost,
+               payment.amount,
+               payment.remark,
+               payment.comment,
+               payment.audit_status AS auditStatus,
+               payment.source_type AS sourceType,
+               payment.feishu_card_id AS feishuCardId,
+               payment.feishu_notice_status AS feishuNoticeStatus,
+               payment.audit_id AS auditorSourceId,
+               auditor.nick_name AS auditorName,
+               auditor.phonenumber AS auditorPhone,
+               auditor.tenant_id AS auditorTenantId,
+               payment.audit_time AS auditTime,
+               payment.reject_reason AS rejectReason,
+               payment.actual_amount AS actualAmount,
+               payment.receipt_url AS receiptUrl,
+               payment.has_receipt AS hasReceipt,
+               payment.create_by AS createBy,
+               payment.create_time AS createdAt,
+               payment.update_by AS updateBy,
+               payment.update_time AS updatedAt
+        FROM md_payment_apply payment
+        LEFT JOIN sys_user requester ON requester.user_id = payment.user_id
+        LEFT JOIN sys_dept department ON department.dept_id = requester.dept_id
+        LEFT JOIN fbad_channel channel ON channel.id = payment.channel_id
+        LEFT JOIN sys_user auditor ON auditor.user_id = payment.audit_id
+        ORDER BY payment.id
+    </select>
+</mapper>

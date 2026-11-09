@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.user.mapper.UserMapper">
+
+    <resultMap id="userMap" type="com.adpulse.system.user.model.UserAccount">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="superAdmin" column="is_super_admin"/>
+        <result property="phone" column="phone"/>
+        <result property="passwordHash" column="password_hash"/>
+        <result property="displayName" column="display_name"/>
+        <result property="englishNickname" column="english_nickname"/>
+        <result property="realName" column="real_name"/>
+        <result property="primaryDepartmentId" column="primary_department_id"/>
+        <result property="email" column="email"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="status" column="status"/>
+        <result property="ipAccessMode" column="ip_access_mode"/>
+        <result property="mfaStatus" column="mfa_status"/>
+        <result property="mfaBoundAt" column="mfa_bound_at"/>
+        <result property="passwordChangedAt" column="password_changed_at"/>
+        <result property="loginFailedCount" column="login_failed_count"/>
+        <result property="lockedUntil" column="locked_until"/>
+        <result property="lastLoginAt" column="last_login_at"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="remark" column="remark"/>
+        <result property="sourceType" column="source_type"/>
+        <result property="tenantKey" column="tenant_key"/>
+        <result property="externalId" column="external_id"/>
+        <result property="feishuOpenId" column="feishu_open_id"/>
+        <result property="feishuUnionId" column="feishu_union_id"/>
+        <result property="lastSyncedAt" column="last_synced_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        id, username, is_super_admin, phone, password_hash, display_name, english_nickname,
+        real_name, primary_department_id, email, avatar_url, status, ip_access_mode,
+        mfa_status, mfa_bound_at, password_changed_at, login_failed_count,
+        locked_until, last_login_at, last_login_ip, remark, source_type, tenant_key,
+        external_id, feishu_open_id, feishu_union_id, last_synced_at,
+        created_by, updated_by, created_at, updated_at, deleted_at
+    </sql>
+
+    <sql id="filters">
+        deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (
+                phone LIKE CONCAT('%', #{keyword}, '%')
+                OR display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR english_nickname LIKE CONCAT('%', #{keyword}, '%')
+                OR real_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="status != null">AND status = #{status}</if>
+        <if test="departmentId != null">
+            AND EXISTS (
+                SELECT 1
+                FROM sys_department selected_department
+                INNER JOIN sys_department candidate_department
+                    ON candidate_department.path LIKE CONCAT(selected_department.path, '%')
+                    AND candidate_department.deleted_at = 0
+                WHERE selected_department.id = #{departmentId}
+                  AND selected_department.deleted_at = 0
+                  AND candidate_department.id = sys_user.primary_department_id
+            )
+        </if>
+        <if test="roleId != null">
+            AND EXISTS (
+                SELECT 1
+                FROM sys_user_role
+                WHERE sys_user_role.user_id = sys_user.id
+                  AND sys_user_role.role_id = #{roleId}
+                  AND sys_user_role.deleted_at = 0
+            )
+        </if>
+    </sql>
+
+    <select id="findPage" resultMap="userMap">
+        SELECT <include refid="columns"/>
+        FROM sys_user
+        WHERE <include refid="filters"/>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM sys_user WHERE <include refid="filters"/>
+    </select>
+
+    <select id="findById" resultMap="userMap">
+        SELECT <include refid="columns"/>
+        FROM sys_user WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <select id="existsByEnglishNickname" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM sys_user
+            WHERE english_nickname = #{englishNickname}
+              AND deleted_at = 0
+            <if test="excludeId != null">
+              AND id != #{excludeId}
+            </if>
+        )
+    </select>
+
+    <select id="findDepartmentNames" resultType="java.lang.String">
+        SELECT d.dept_name
+        FROM sys_user_department_scope s
+        INNER JOIN sys_department d ON d.id = s.department_id
+        WHERE s.user_id = #{userId}
+          AND s.deleted_at = 0
+          AND d.deleted_at = 0
+          AND d.status = 1
+        ORDER BY d.sort_order, d.id
+    </select>
+
+    <select id="findDepartmentName" resultType="java.lang.String">
+        SELECT dept_name
+        FROM sys_department
+        WHERE id = #{departmentId} AND deleted_at = 0
+    </select>
+
+    <select id="findRoleNames" resultType="java.lang.String">
+        SELECT r.role_name
+        FROM sys_user_role ur
+        INNER JOIN sys_role r ON r.id = ur.role_id
+        WHERE ur.user_id = #{userId}
+          AND ur.deleted_at = 0
+          AND r.deleted_at = 0
+          AND r.status = 1
+        ORDER BY r.id
+    </select>
+
+    <select id="findActiveUserIdsByRoleName" resultType="java.lang.Long">
+        SELECT DISTINCT u.id
+        FROM sys_user u
+        INNER JOIN sys_user_role ur ON ur.user_id = u.id AND ur.deleted_at = 0
+        INNER JOIN sys_role r ON r.id = ur.role_id AND r.status = 1 AND r.deleted_at = 0
+        WHERE u.status = 1
+          AND u.deleted_at = 0
+          AND r.role_name = #{roleName}
+        ORDER BY u.id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user (
+            username, phone, password_hash, display_name, english_nickname, real_name,
+            primary_department_id, email, avatar_url, status, ip_access_mode, remark,
+            created_by, updated_by, password_changed_at, mfa_status
+        ) VALUES (
+            #{username}, #{phone}, #{passwordHash}, #{displayName}, #{englishNickname}, #{realName},
+            #{primaryDepartmentId}, #{email}, #{avatarUrl}, #{status}, #{ipAccessMode}, #{remark},
+            #{createdBy}, #{updatedBy}, CURRENT_TIMESTAMP(3), -1
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE sys_user
+        SET username = #{username}, phone = #{phone}, display_name = #{displayName},
+            english_nickname = #{englishNickname}, real_name = #{realName},
+            primary_department_id = #{primaryDepartmentId}, email = #{email},
+            avatar_url = #{avatarUrl}, status = #{status}, ip_access_mode = #{ipAccessMode},
+            remark = #{remark}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="updateFeishuLocalFields">
+        UPDATE sys_user
+        SET display_name = #{displayName},
+            english_nickname = #{englishNickname},
+            real_name = #{realName},
+            email = #{email},
+            avatar_url = #{avatarUrl},
+            status = #{status},
+            ip_access_mode = #{ipAccessMode},
+            remark = #{remark},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND source_type = 'FEISHU' AND deleted_at = 0
+    </update>
+
+    <update id="updateProfile">
+        UPDATE sys_user
+        SET display_name = #{displayName},
+            english_nickname = #{englishNickname},
+            real_name = #{realName},
+            email = #{email},
+            avatar_url = #{avatarUrl},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0 AND status = 1
+    </update>
+
+    <update id="updatePassword">
+        UPDATE sys_user
+        SET password_hash = #{passwordHash}, password_changed_at = CURRENT_TIMESTAMP(3),
+            login_failed_count = 0, locked_until = NULL, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="resetMfa">
+        UPDATE sys_user
+        SET mfa_status = 0, mfa_secret_ciphertext = NULL, mfa_bound_at = NULL,
+            mfa_last_used_counter = NULL,
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="countActiveDepartment" resultType="int">
+        SELECT COUNT(*) FROM sys_department
+        WHERE id = #{departmentId} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="countActiveRoles" resultType="int">
+        SELECT COUNT(*) FROM sys_role
+        WHERE status = 1 AND deleted_at = 0
+          AND id IN
+          <foreach collection="roleIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
+    <select id="countActiveDepartments" resultType="int">
+        SELECT COUNT(*) FROM sys_department
+        WHERE status = 1 AND deleted_at = 0
+          AND id IN
+          <foreach collection="departmentIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
+    <select id="countActiveGlobalIpRules" resultType="int">
+        SELECT COUNT(*) FROM sys_ip_rule
+        WHERE scope_type = 1 AND status = 1 AND deleted_at = 0
+    </select>
+
+    <select id="findRoleIds" resultType="java.lang.Long">
+        SELECT role_id FROM sys_user_role
+        WHERE user_id = #{userId} AND deleted_at = 0
+    </select>
+
+    <select id="findDepartmentScopes"
+            resultType="com.adpulse.system.user.dto.UserDetail$DepartmentScopeView">
+        SELECT CAST(department_id AS CHAR) AS departmentId,
+               include_children AS includeChildren
+        FROM sys_user_department_scope
+        WHERE user_id = #{userId} AND deleted_at = 0
+    </select>
+
+    <select id="findPersonalIpCidrs" resultType="java.lang.String">
+        SELECT ip_cidr FROM sys_ip_rule
+        WHERE scope_type = 2 AND user_id = #{userId} AND deleted_at = 0
+    </select>
+
+    <update id="softDeleteRoles">
+        UPDATE sys_user_role SET deleted_at = #{deletedAt}
+        WHERE user_id = #{userId} AND deleted_at = 0
+    </update>
+
+    <insert id="batchInsertRoles">
+        INSERT INTO sys_user_role (user_id, role_id, created_by)
+        VALUES
+        <foreach collection="roleIds" item="roleId" separator=",">
+            (#{userId}, #{roleId}, #{createdBy})
+        </foreach>
+    </insert>
+
+    <update id="softDeleteScopes">
+        UPDATE sys_user_department_scope SET deleted_at = #{deletedAt}
+        WHERE user_id = #{userId} AND deleted_at = 0
+    </update>
+
+    <insert id="batchInsertScopes">
+        INSERT INTO sys_user_department_scope (
+            user_id, department_id, include_children, created_by
+        ) VALUES
+        <foreach collection="scopes" item="scope" separator=",">
+            (#{userId}, #{scope.departmentId}, #{scope.includeChildren}, #{createdBy})
+        </foreach>
+    </insert>
+
+    <update id="softDeletePersonalIps">
+        UPDATE sys_ip_rule SET deleted_at = #{deletedAt}
+        WHERE scope_type = 2 AND user_id = #{userId} AND deleted_at = 0
+    </update>
+
+    <insert id="batchInsertPersonalIps">
+        INSERT INTO sys_ip_rule (
+            scope_type, user_id, ip_cidr, rule_name, status, created_by, updated_by
+        ) VALUES
+        <foreach collection="cidrs" item="cidr" separator=",">
+            (2, #{userId}, #{cidr}, '用户个人白名单', 1, #{createdBy}, #{createdBy})
+        </foreach>
+    </insert>
+
+    <update id="softDelete">
+        UPDATE sys_user
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+</mapper>

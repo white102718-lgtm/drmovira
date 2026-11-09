@@ -1,0 +1,20 @@
+[Unit]
+Description=Apache Doris BE
+After=network.target doris-fe.service
+
+[Service]
+Type=forking
+User=root
+Group=root
+LimitCORE=infinity
+LimitNOFILE=200000
+Restart=on-failure
+RestartSec=30
+StartLimitIntervalSec=120
+StartLimitBurst=3
+KillMode=none
+ExecStart=/opt/doris/apache-doris-4.0.1-bin-x64/be/bin/start_be.sh --daemon
+ExecStop=/opt/doris/apache-doris-4.0.1-bin-x64/be/bin/stop_be.sh
+
+[Install]
+WantedBy=multi-user.target

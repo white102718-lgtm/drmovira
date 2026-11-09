@@ -1,0 +1,17 @@
+services:
+  ad_op_consumer:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_operation/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped
+
+  campaign_sync_consumer:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_operation/Dockerfile
+    command: ["python", "-m", "tasks.ad_operation.campaign_sync_consumer"]
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.operationlog.mapper.OperationLogMapper">
+
+    <resultMap id="operationLogMap" type="com.adpulse.system.operationlog.model.OperationLog">
+        <id property="id" column="id"/>
+        <result property="operatorUserId" column="operator_user_id"/>
+        <result property="operatorDisplayName" column="operator_display_name"/>
+        <result property="moduleCode" column="module_code"/>
+        <result property="operationType" column="operation_type"/>
+        <result property="operationName" column="operation_name"/>
+        <result property="targetType" column="target_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="requestMethod" column="request_method"/>
+        <result property="requestPath" column="request_path"/>
+        <result property="clientIp" column="client_ip"/>
+        <result property="userAgent" column="user_agent"/>
+        <result property="operationResult" column="operation_result"/>
+        <result property="failureCode" column="failure_code"/>
+        <result property="failureReason" column="failure_reason"/>
+        <result property="operatedAt" column="operated_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        id,
+        operator_user_id,
+        operator_display_name,
+        module_code,
+        operation_type,
+        operation_name,
+        target_type,
+        target_id,
+        request_method,
+        request_path,
+        client_ip,
+        user_agent,
+        operation_result,
+        failure_code,
+        failure_reason,
+        operated_at
+    </sql>
+
+    <sql id="filters">
+        1 = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                operator_display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR operation_name LIKE CONCAT('%', #{keyword}, '%')
+                OR target_type LIKE CONCAT('%', #{keyword}, '%')
+                OR target_id LIKE CONCAT('%', #{keyword}, '%')
+                OR request_path LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="moduleCode != null and moduleCode != ''">
+            AND module_code = #{moduleCode}
+        </if>
+        <if test="operationType != null and operationType != ''">
+            AND operation_type = #{operationType}
+        </if>
+        <if test="operationResult != null">
+            AND operation_result = #{operationResult}
+        </if>
+        <if test="clientIp != null and clientIp != ''">AND client_ip = #{clientIp}</if>
+        <if test="startedAt != null">AND operated_at &gt;= #{startedAt}</if>
+        <if test="endedAt != null">AND operated_at &lt;= #{endedAt}</if>
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_operation_log (
+            operator_user_id,
+            operator_display_name,
+            module_code,
+            operation_type,
+            operation_name,
+            target_type,
+            target_id,
+            request_method,
+            request_path,
+            client_ip,
+            user_agent,
+            operation_result,
+            failure_code,
+            failure_reason,
+            operated_at
+        ) VALUES (
+            #{operatorUserId},
+            #{operatorDisplayName},
+            #{moduleCode},
+            #{operationType},
+            #{operationName},
+            #{targetType},
+            #{targetId},
+            #{requestMethod},
+            #{requestPath},
+            #{clientIp},
+            #{userAgent},
+            #{operationResult},
+            #{failureCode},
+            #{failureReason},
+            #{operatedAt}
+        )
+    </insert>
+
+    <select id="findPage" resultMap="operationLogMap">
+        SELECT
+            <include refid="columns"/>
+        FROM sys_operation_log
+        WHERE <include refid="filters"/>
+        ORDER BY operated_at DESC, id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM sys_operation_log
+        WHERE <include refid="filters"/>
+    </select>
+
+</mapper>

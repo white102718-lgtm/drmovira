@@ -1,0 +1,8 @@
+services:
+  ad_config_worker:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_config_worker/Dockerfile
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

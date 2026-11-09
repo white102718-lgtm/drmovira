@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.assetreturn.mapper.AssetReturnMapper">
+    <resultMap id="assetReturnMap" type="com.adpulse.system.assetreturn.model.AssetReturn">
+        <id property="id" column="id"/>
+        <result property="returnNo" column="return_no"/>
+        <result property="assetId" column="asset_id"/>
+        <result property="applicationId" column="application_id"/>
+        <result property="assetType" column="asset_type"/>
+        <result property="assetName" column="asset_name"/>
+        <result property="assetCode" column="asset_code"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="channelId" column="channel_id"/>
+        <result property="channelName" column="channel_name"/>
+        <result property="assigneeId" column="assignee_id"/>
+        <result property="assigneeName" column="assignee_name"/>
+        <result property="reason" column="reason"/>
+        <result property="status" column="status"/>
+        <result property="outcome" column="outcome"/>
+        <result property="requestedById" column="requested_by_id"/>
+        <result property="requestedByName" column="requested_by_name"/>
+        <result property="completedById" column="completed_by_id"/>
+        <result property="completedByName" column="completed_by_name"/>
+        <result property="completedAt" column="completed_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="returnableAssetMap" type="com.adpulse.system.assetreturn.model.ReturnableAsset">
+        <id property="id" column="id"/>
+        <result property="assetType" column="asset_type"/>
+        <result property="assetName" column="asset_name"/>
+        <result property="assetCode" column="asset_code"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="channelId" column="channel_id"/>
+        <result property="channelName" column="channel_name"/>
+        <result property="status" column="status"/>
+        <result property="assigneeId" column="assignee_id"/>
+        <result property="assigneeName" column="assignee_name"/>
+        <result property="applicationId" column="application_id"/>
+    </resultMap>
+
+    <sql id="returnColumns">
+        id, return_no, asset_id, application_id, asset_type, asset_name, asset_code,
+        project_id, project_name, channel_id, channel_name, assignee_id, assignee_name,
+        reason, status, outcome, requested_by_id, requested_by_name, completed_by_id,
+        completed_by_name, completed_at, created_at, updated_at
+    </sql>
+
+    <select id="countReturns" resultType="long">
+        SELECT COUNT(*)
+        FROM media_asset_return
+        WHERE deleted_at = 0
+        <if test="status != null">AND status = #{status}</if>
+        <if test="assetType != null">AND asset_type = #{assetType}</if>
+        <if test="assetSubtype != null">
+            AND EXISTS (
+                SELECT 1
+                FROM media_asset asset
+                WHERE asset.id = media_asset_return.asset_id
+                  AND asset.deleted_at = 0
+                  AND COALESCE(
+                      CASE
+                          WHEN JSON_VALID(asset.secret_data) THEN
+                              JSON_UNQUOTE(JSON_EXTRACT(asset.secret_data, '$.inventorySubtype'))
+                          ELSE NULL
+                      END,
+                      CASE WHEN media_asset_return.asset_type = 'PERSONAL' THEN 'personal' END
+                  ) = #{assetSubtype}
+            )
+        </if>
+        <if test="keyword != null">
+            AND (
+                return_no LIKE CONCAT('%', #{keyword}, '%')
+                OR asset_name LIKE CONCAT('%', #{keyword}, '%')
+                OR asset_code LIKE CONCAT('%', #{keyword}, '%')
+                OR project_name LIKE CONCAT('%', #{keyword}, '%')
+                OR assignee_name LIKE CONCAT('%', #{keyword}, '%')
+                OR requested_by_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </select>
+
+    <select id="findReturns" resultMap="assetReturnMap">
+        SELECT <include refid="returnColumns"/>
+        FROM media_asset_return
+        WHERE deleted_at = 0
+        <if test="status != null">AND status = #{status}</if>
+        <if test="assetType != null">AND asset_type = #{assetType}</if>
+        <if test="assetSubtype != null">
+            AND EXISTS (
+                SELECT 1
+                FROM media_asset asset
+                WHERE asset.id = media_asset_return.asset_id
+                  AND asset.deleted_at = 0
+                  AND COALESCE(
+                      CASE
+                          WHEN JSON_VALID(asset.secret_data) THEN
+                              JSON_UNQUOTE(JSON_EXTRACT(asset.secret_data, '$.inventorySubtype'))
+                          ELSE NULL
+                      END,
+                      CASE WHEN media_asset_return.asset_type = 'PERSONAL' THEN 'personal' END
+                  ) = #{assetSubtype}
+            )
+        </if>
+        <if test="keyword != null">
+            AND (
+                return_no LIKE CONCAT('%', #{keyword}, '%')
+                OR asset_name LIKE CONCAT('%', #{keyword}, '%')
+                OR asset_code LIKE CONCAT('%', #{keyword}, '%')
+                OR project_name LIKE CONCAT('%', #{keyword}, '%')
+                OR assignee_name LIKE CONCAT('%', #{keyword}, '%')
+                OR requested_by_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="findReturn" resultMap="assetReturnMap">
+        SELECT <include refid="returnColumns"/>
+        FROM media_asset_return
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <select id="lockReturn" resultMap="assetReturnMap">
+        SELECT <include refid="returnColumns"/>
+        FROM media_asset_return
+        WHERE id = #{id} AND deleted_at = 0
+        FOR UPDATE
+    </select>
+
+    <select id="lockAsset" resultMap="returnableAssetMap">
+        SELECT id, asset_type, asset_name, asset_code, project_id, project_name,
+               channel_id, channel_name, status, assignee_id, assignee_name, application_id
+        FROM media_asset
+        WHERE id = #{id} AND deleted_at = 0
+        FOR UPDATE
+    </select>
+
+    <insert id="insertReturn" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_asset_return (
+            return_no, asset_id, application_id, asset_type, asset_name, asset_code,
+            project_id, project_name, channel_id, channel_name, assignee_id, assignee_name,
+            reason, status, requested_by_id, requested_by_name, created_by, updated_by
+        ) VALUES (
+            #{returnNo}, #{assetId}, #{applicationId}, #{assetType}, #{assetName}, #{assetCode},
+            #{projectId}, #{projectName}, #{channelId}, #{channelName}, #{assigneeId}, #{assigneeName},
+            #{reason}, 'PENDING', #{requestedById}, #{requestedByName}, #{requestedById}, #{requestedById}
+        )
+    </insert>
+
+    <update id="markAssetReturnPending">
+        UPDATE media_asset
+        SET status = 'RETURN_PENDING', updated_by = #{operatorId}
+        WHERE id = #{assetId} AND status = 'ASSIGNED' AND deleted_at = 0
+    </update>
+
+    <update id="completeReturn">
+        UPDATE media_asset_return
+        SET status = 'COMPLETED', outcome = #{outcome}, completed_by_id = #{completedById},
+            completed_by_name = #{completedByName}, completed_at = NOW(), updated_by = #{completedById}
+        WHERE id = #{id} AND status = 'PENDING' AND deleted_at = 0
+    </update>
+
+    <update id="releaseAsset">
+        UPDATE media_asset
+        SET status = #{assetStatus}, assignee_id = NULL, assignee_name = NULL,
+            application_id = NULL, updated_by = #{operatorId}
+        WHERE id = #{assetId} AND status = 'RETURN_PENDING' AND deleted_at = 0
+    </update>
+</mapper>

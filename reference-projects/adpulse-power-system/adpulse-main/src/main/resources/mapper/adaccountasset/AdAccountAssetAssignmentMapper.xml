@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.adaccountasset.AdAccountAssetAssignmentMapper">
+
+    <select id="findActiveByAssetIds"
+            resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAssetAssignment">
+        SELECT
+            id,
+            ad_account_asset_id,
+            user_id,
+            user_name,
+            usage_team_name,
+            is_primary,
+            assignment_status,
+            assignment_source,
+            application_id,
+            assigned_at,
+            released_at,
+            created_by,
+            updated_by,
+            created_at,
+            updated_at
+        FROM ad_account_asset_assignment
+        WHERE deleted_at = 0
+          AND assignment_status = 'ACTIVE'
+          AND ad_account_asset_id IN
+        <foreach collection="assetIds" item="assetId" open="(" separator="," close=")">
+            #{assetId}
+        </foreach>
+        ORDER BY is_primary DESC, assigned_at ASC, id ASC
+    </select>
+
+    <select id="findActiveAssetIdsByUserId" resultType="long">
+        SELECT ad_account_asset_id
+        FROM ad_account_asset_assignment
+        WHERE user_id = #{userId}
+          AND assignment_status = 'ACTIVE'
+          AND deleted_at = 0
+        ORDER BY assigned_at DESC, id DESC
+    </select>
+
+    <select id="findHistoryByAssetId"
+            resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAssetAssignment">
+        SELECT id, ad_account_asset_id, user_id, user_name, usage_team_name, is_primary, assignment_status,
+               assignment_source, application_id, assigned_at, released_at, created_by, updated_by,
+               created_at, updated_at
+        FROM ad_account_asset_assignment
+        WHERE ad_account_asset_id = #{assetId}
+        ORDER BY assigned_at ASC, id ASC
+    </select>
+
+    <insert id="upsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ad_account_asset_assignment (
+            ad_account_asset_id,
+            user_id,
+            user_name,
+            usage_team_name,
+            is_primary,
+            assignment_status,
+            assignment_source,
+            application_id,
+            assigned_at,
+            created_by,
+            updated_by
+        ) VALUES (
+            #{adAccountAssetId},
+            #{userId},
+            #{userName},
+            #{usageTeamName},
+            #{isPrimary},
+            'ACTIVE',
+            #{assignmentSource},
+            #{applicationId},
+            CURRENT_TIMESTAMP(3),
+            #{createdBy},
+            #{updatedBy}
+        )
+        ON DUPLICATE KEY UPDATE
+            user_name = VALUES(user_name),
+            usage_team_name = VALUES(usage_team_name),
+            is_primary = VALUES(is_primary),
+            assignment_status = 'ACTIVE',
+            assignment_source = VALUES(assignment_source),
+            application_id = VALUES(application_id),
+            released_at = NULL,
+            updated_by = VALUES(updated_by),
+            updated_at = CURRENT_TIMESTAMP(3)
+    </insert>
+
+    <update id="release">
+        UPDATE ad_account_asset_assignment
+        SET assignment_status = 'RELEASED',
+            released_at = CURRENT_TIMESTAMP(3),
+            updated_by = #{updatedBy},
+            updated_at = CURRENT_TIMESTAMP(3),
+            deleted_at = #{deletedAt}
+        WHERE ad_account_asset_id = #{assetId}
+          AND user_id = #{userId}
+          AND assignment_status = 'ACTIVE'
+          AND deleted_at = 0
+    </update>
+</mapper>

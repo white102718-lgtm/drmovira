@@ -1,0 +1,15 @@
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - /opt/pvstore/data/mongodb:/data/db
+      - ./mongo.conf:/etc/mongo/mongod.conf
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=ZcTt5CKp
+      - MONGO_INITDB_ROOT_PASSWORD=Wn3yPq8Lr5mXz2Kc9tRv
+    command: --config /etc/mongo/mongod.conf
+    restart: unless-stopped
+    user: "root"

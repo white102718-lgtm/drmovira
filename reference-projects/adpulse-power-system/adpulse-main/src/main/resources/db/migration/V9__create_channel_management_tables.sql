@@ -1,0 +1,153 @@
+CREATE TABLE media_channel (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '渠道ID',
+    channel_name VARCHAR(50) NOT NULL COMMENT '渠道名称',
+    channel_short_name VARCHAR(15) NULL COMMENT '渠道简称',
+    channel_code VARCHAR(10) NOT NULL COMMENT '渠道编码',
+    channel_type TINYINT NOT NULL COMMENT '渠道类型：1代理商，2号商',
+    belong_team VARCHAR(50) NOT NULL COMMENT '所属团队',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：1正常，0停用',
+    putaway_status TINYINT NOT NULL DEFAULT 0 COMMENT '上架状态：0未上架，1已上架，2已下架',
+    settlement_method VARCHAR(50) NOT NULL COMMENT '结算方式',
+    settlement_currency VARCHAR(10) NOT NULL COMMENT '结算币种',
+    buyout_amount DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '买断费',
+    recharge_amount DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '充值金额',
+    payment_address VARCHAR(1000) NOT NULL COMMENT '收款地址',
+    login_url VARCHAR(1000) NOT NULL COMMENT '登录或对接链接',
+    remark VARCHAR(500) NULL COMMENT '备注',
+    tg_group_id VARCHAR(64) NULL COMMENT 'Telegram群组ID',
+    tg_group_name VARCHAR(100) NULL COMMENT 'Telegram群组名称',
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+        ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted_at BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_media_channel_name_deleted (channel_name, deleted_at),
+    UNIQUE KEY uk_media_channel_code_deleted (channel_code, deleted_at),
+    KEY idx_media_channel_team_status (belong_team, status, deleted_at),
+    CONSTRAINT ck_media_channel_type CHECK (channel_type IN (1, 2)),
+    CONSTRAINT ck_media_channel_status CHECK (status IN (0, 1)),
+    CONSTRAINT ck_media_channel_putaway CHECK (putaway_status IN (0, 1, 2))
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '媒体渠道表';
+
+CREATE TABLE media_channel_rate (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '费率ID',
+    channel_id BIGINT UNSIGNED NOT NULL COMMENT '渠道ID',
+    service_fee DECIMAL(7, 2) NOT NULL DEFAULT 0 COMMENT '服务费百分比',
+    rebate_rate DECIMAL(9, 4) NOT NULL DEFAULT 0 COMMENT '返点或折扣',
+    effective_date DATE NOT NULL COMMENT '生效日期',
+    expiry_date DATE NULL COMMENT '失效日期，NULL为长期',
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+        ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted_at BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_media_channel_rate_start_deleted (channel_id, effective_date, deleted_at),
+    KEY idx_media_channel_rate_range (channel_id, effective_date, expiry_date, deleted_at),
+    CONSTRAINT ck_media_channel_rate_service CHECK (service_fee >= 0 AND service_fee <= 100),
+    CONSTRAINT ck_media_channel_rate_range CHECK (expiry_date IS NULL OR expiry_date >= effective_date)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '渠道费率表';
+
+CREATE TABLE media_channel_account_type (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '账户类型ID',
+    account_type VARCHAR(15) NOT NULL COMMENT '账户类型名称',
+    account_type_code VARCHAR(10) NOT NULL COMMENT '账户类型编码',
+    created_by BIGINT UNSIGNED NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+        ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted_at BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_media_account_type_name_deleted (account_type, deleted_at),
+    UNIQUE KEY uk_media_account_type_code_deleted (account_type_code, deleted_at)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '渠道账户类型表';
+
+CREATE TABLE media_channel_account (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '内部ID',
+    channel_id BIGINT UNSIGNED NOT NULL COMMENT '渠道ID',
+    account_id VARCHAR(64) NOT NULL COMMENT '广告账户ID',
+    account_name VARCHAR(255) NULL COMMENT '账户名称',
+    account_type VARCHAR(15) NOT NULL DEFAULT '未分类' COMMENT '账户类型名称快照',
+    fb_account_id VARCHAR(64) NULL COMMENT 'Facebook账户ID',
+    take_time DATETIME(3) NULL COMMENT '花费采集时间',
+    timezone SMALLINT NULL COMMENT '开户时区UTC偏移',
+    bm_id VARCHAR(64) NULL COMMENT 'BM ID',
+    bm_from_feishu VARCHAR(255) NULL COMMENT '管理BM',
+    opening_balance DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '开户费',
+    by_balance DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '买户费人民币',
+    by_balance_u DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '买户费美元',
+    consumption DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '花费金额',
+    balance DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '账户余额',
+    actual_deduction DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '卡扣金额',
+    amount_spent DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '总花费',
+    remaining_spend_cap DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '剩余应付',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '账户状态：1活跃，2封户',
+    usage_status TINYINT NOT NULL DEFAULT 0 COMMENT '使用状态：0未使用，1使用中，2停用，3回收，4闲置',
+    subject_name VARCHAR(255) NULL COMMENT '所属主体',
+    operator_id BIGINT UNSIGNED NULL COMMENT '使用人ID',
+    operator_name VARCHAR(100) NULL COMMENT '使用人姓名快照',
+    belong_team VARCHAR(100) NULL COMMENT '使用团队名称快照',
+    belong_team_id BIGINT UNSIGNED NULL COMMENT '使用团队ID',
+    open_date DATE NULL COMMENT '开户日期',
+    assign_time DATETIME(3) NULL COMMENT '分配时间',
+    remark VARCHAR(500) NULL COMMENT '备注',
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+        ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted_at BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_media_channel_account_deleted (account_id, deleted_at),
+    KEY idx_media_account_channel (channel_id, status, usage_status, deleted_at),
+    KEY idx_media_account_operator (operator_id, deleted_at),
+    KEY idx_media_account_team (belong_team_id, deleted_at),
+    KEY idx_media_account_type (account_type, deleted_at),
+    CONSTRAINT ck_media_account_status CHECK (status IN (1, 2)),
+    CONSTRAINT ck_media_account_usage CHECK (usage_status IN (0, 1, 2, 3, 4))
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '渠道广告账户表';
+
+CREATE TABLE media_channel_goods (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '商品ID',
+    channel_id BIGINT UNSIGNED NOT NULL COMMENT '渠道ID',
+    goods_name VARCHAR(100) NOT NULL COMMENT '商品名称',
+    launch_region VARCHAR(500) NULL COMMENT '适用地区，逗号分隔',
+    min_buy_limit INT UNSIGNED NOT NULL DEFAULT 1 COMMENT '最低购买数量',
+    rebate_rate DECIMAL(9, 4) NOT NULL DEFAULT 0 COMMENT '返点',
+    remark VARCHAR(500) NULL COMMENT '商品说明',
+    service_fee_ratio DECIMAL(7, 2) NOT NULL DEFAULT 0 COMMENT '服务费百分比',
+    stock_num INT UNSIGNED NOT NULL DEFAULT 9999 COMMENT '库存',
+    timezone VARCHAR(500) NULL COMMENT '适用时区，逗号分隔',
+    putaway_status TINYINT NOT NULL DEFAULT 0 COMMENT '上架状态：0未上架，1上架，2下架',
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+        ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted_at BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_media_channel_goods_deleted (channel_id, deleted_at),
+    CONSTRAINT ck_media_goods_putaway CHECK (putaway_status IN (0, 1, 2))
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '渠道上架商品表';
+
+CREATE TABLE media_channel_campaign_spend (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '广告系列花费ID',
+    account_id VARCHAR(64) NOT NULL COMMENT '广告账户ID',
+    campaign_id VARCHAR(64) NOT NULL COMMENT '广告系列ID',
+    campaign_name VARCHAR(255) NOT NULL COMMENT '广告系列名称',
+    spend_date DATE NOT NULL COMMENT '花费日期',
+    spend_amount DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '花费金额',
+    return_amount DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '回流金额',
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+        ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted_at BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_media_campaign_day_deleted (account_id, campaign_id, spend_date, deleted_at),
+    KEY idx_media_campaign_account_date (account_id, spend_date, deleted_at)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '渠道账户广告系列花费表';

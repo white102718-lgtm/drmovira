@@ -1,0 +1,14 @@
+name: adpulse-backend
+
+services:
+  app:
+    build:
+      context: ../../../
+      dockerfile: deploy/app/Dockerfile
+    environment:
+      DEPLOY_ENV: prod
+    volumes:
+      - ../../../env_vault/.prod.env:/app/env_vault/.prod.env:ro
+    network_mode: host
+    command: ["uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"]
+    restart: unless-stopped

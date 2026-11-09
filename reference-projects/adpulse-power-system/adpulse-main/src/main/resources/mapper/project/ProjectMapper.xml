@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.project.mapper.ProjectMapper">
+    <select id="findPlatformsByProjectIds" resultType="com.adpulse.main.project.model.ProjectReadRows$Value">
+        SELECT project_id AS projectId, platform_value AS value
+        FROM pm_project_platform
+        WHERE deleted_at = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY project_id, id
+    </select>
+
+    <select id="findRegionsByProjectIds" resultType="com.adpulse.main.project.model.ProjectReadRows$Value">
+        SELECT project_id AS projectId, country_code AS value
+        FROM pm_project_region
+        WHERE deleted_at = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY project_id, id
+    </select>
+
+    <select id="findProductLinksByProjectIds" resultType="com.adpulse.main.project.model.ProjectReadRows$Value">
+        SELECT project_id AS projectId, product_url AS value
+        FROM pm_project_product_link
+        WHERE deleted_at = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY project_id, sort_order, id
+    </select>
+
+    <select id="findOutsourcingTeamsByProjectIds" resultType="com.adpulse.main.project.model.ProjectReadRows$Value">
+        SELECT project_id AS projectId, team_name AS value
+        FROM pm_project_outsourcing_team
+        WHERE deleted_at = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY project_id, id
+    </select>
+
+    <select id="findKpisByProjectIds" resultType="com.adpulse.main.project.model.ProjectReadRows$Kpi">
+        SELECT project_id AS projectId, metric_value AS metric, comparator, target_value AS target, target_max_value AS targetMax
+        FROM pm_project_kpi
+        WHERE deleted_at = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY project_id, sort_order, id
+    </select>
+
+    <select id="findProjectAmsByProjectIds" resultType="com.adpulse.main.project.model.ProjectReadRows$User">
+        SELECT project_id AS projectId, user_id AS userId, user_name AS userName
+        FROM pm_project_am
+        WHERE deleted_at = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY project_id, sort_order, id
+    </select>
+
+    <select id="findProjectDataSpecialistsByProjectIds" resultType="com.adpulse.main.project.model.ProjectReadRows$User">
+        SELECT project_id AS projectId, user_id AS userId, user_name AS userName
+        FROM pm_project_data_specialist
+        WHERE deleted_at = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY project_id, sort_order, id
+    </select>
+    <resultMap id="projectMap" type="com.adpulse.main.project.model.Project">
+        <id property="id" column="id"/>
+        <result property="projectCode" column="project_code"/>
+        <result property="walletCustomerRefId" column="wallet_customer_ref_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="projectType" column="project_type"/>
+        <result property="responsibleTeam" column="responsible_team"/>
+        <result property="amUserId" column="am_user_id"/>
+        <result property="amName" column="am_name"/>
+        <result property="deliveryLeaderId" column="delivery_leader_id"/>
+        <result property="deliveryLeaderName" column="delivery_leader_name"/>
+        <result property="dataSpecialistId" column="data_specialist_id"/>
+        <result property="dataSpecialist" column="data_specialist"/>
+        <result property="outsourced" column="is_outsourced"/>
+        <result property="priority" column="priority"/>
+        <result property="serviceFeePercent" column="service_fee_percent"/>
+        <result property="status" column="status"/>
+        <result property="productInfo" column="product_info"/>
+        <result property="customerDailyReportUrl" column="customer_daily_report_url"/>
+        <result property="agencyLineUrl" column="agency_line_url"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="agencyLineMap" type="com.adpulse.main.project.model.AgencyLine">
+        <id property="id" column="id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="requestId" column="request_id"/>
+        <result property="lineName" column="line_name"/>
+        <result property="status" column="status"/>
+        <result property="platformValue" column="platform_value"/>
+        <result property="type" column="delivery_type"/>
+        <result property="deliveryUrl" column="delivery_url"/>
+        <result property="pageId" column="page_id"/>
+        <result property="pixelName" column="pixel_name"/>
+        <result property="pixelId" column="pixel_id"/>
+        <result property="tokenCiphertext" column="token_ciphertext"/>
+        <result property="testCode" column="test_code"/>
+        <result property="cloakUrl" column="cloak_url"/>
+        <result property="optimizerId" column="optimizer_id"/>
+        <result property="optimizerName" column="optimizer_name"/>
+        <result property="optimizerStatus" column="optimizer_status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="projectColumns">
+        p.id, p.project_code, p.wallet_customer_ref_id, p.project_name, p.project_type,
+        p.responsible_team,
+        p.am_user_id, p.am_name, p.delivery_leader_id, p.delivery_leader_name,
+        p.data_specialist_id, p.data_specialist,
+        p.is_outsourced, p.priority, p.service_fee_percent, p.status,
+        p.product_info, p.customer_daily_report_url, p.agency_line_url,
+        p.created_at, p.updated_at
+    </sql>
+
+    <select id="countProjectStatuses" resultType="com.adpulse.main.project.model.ProjectStatisticsRow">
+        SELECT
+            COUNT(*) AS total,
+            COALESCE(SUM(status = 'active'), 0) AS active,
+            COALESCE(SUM(status IN ('draft', 'pending')), 0) AS draftOrPending,
+            COALESCE(SUM(status IN ('ended', 'archived')), 0) AS endedOrArchived
+        FROM pm_project
+        WHERE deleted_at = 0
+    </select>
+
+    <select id="findProjectOptionRows" resultType="com.adpulse.main.project.model.ProjectOptionRow">
+        SELECT
+            p.id,
+            p.project_code,
+            p.project_name,
+            p.status,
+            pp.platform_value
+        FROM pm_project p
+        LEFT JOIN pm_project_platform pp
+            ON pp.project_id = p.id
+            AND pp.deleted_at = 0
+        WHERE p.deleted_at = 0
+        ORDER BY p.project_name, p.id, pp.id
+    </select>
+
+    <select id="findProjectSearchOptions"
+            resultType="com.adpulse.main.project.dto.ProjectViews$ProjectSearchOption">
+        SELECT
+            CAST(p.id AS CHAR) AS id,
+            p.project_name AS name
+        FROM pm_project p
+        WHERE p.deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (LOCATE(#{keyword}, p.project_name) &gt; 0
+                OR LOCATE(#{keyword}, p.project_code) &gt; 0)
+        </if>
+        <if test="scopeUserId != null">
+            AND (
+                p.delivery_leader_id = #{scopeUserId}
+                OR EXISTS (
+                    SELECT 1
+                    FROM sys_user scope_user
+                    INNER JOIN sys_department scope_department
+                        ON scope_department.id = scope_user.primary_department_id
+                        AND scope_department.deleted_at = 0
+                    INNER JOIN sys_user creator_user
+                        ON creator_user.id = p.created_by
+                    INNER JOIN sys_department creator_department
+                        ON creator_department.id = creator_user.primary_department_id
+                        AND creator_department.deleted_at = 0
+                    WHERE scope_user.id = #{scopeUserId}
+                        AND scope_user.deleted_at = 0
+                        AND creator_department.path LIKE CONCAT(scope_department.path, '%')
+                )
+            )
+        </if>
+        ORDER BY p.updated_at DESC, p.id DESC
+    </select>
+
+    <select id="findProjectAgencyLineDeliveryOptions"
+            resultType="com.adpulse.main.project.dto.ProjectViews$ProjectAgencyLineDeliveryOption">
+        SELECT
+            CAST(line.id AS CHAR) AS id,
+            line.line_name AS name,
+            line.platform_value AS platform,
+            COALESCE(line.delivery_url, '') AS deliveryUrl
+        FROM pm_agency_line line
+        INNER JOIN pm_project p
+            ON p.id = line.project_id
+            AND p.deleted_at = 0
+        WHERE line.project_id = #{projectId}
+            AND line.deleted_at = 0
+        <if test="scopeUserId != null">
+            AND EXISTS (
+                SELECT 1
+                FROM sys_user scope_user
+                INNER JOIN sys_department scope_department
+                    ON scope_department.id = scope_user.primary_department_id
+                    AND scope_department.deleted_at = 0
+                INNER JOIN sys_user creator_user
+                    ON creator_user.id = p.created_by
+                INNER JOIN sys_department creator_department
+                    ON creator_department.id = creator_user.primary_department_id
+                    AND creator_department.deleted_at = 0
+                WHERE scope_user.id = #{scopeUserId}
+                    AND scope_user.deleted_at = 0
+                    AND creator_department.path LIKE CONCAT(scope_department.path, '%')
+            )
+        </if>
+        ORDER BY line.updated_at DESC, line.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findProjects" resultMap="projectMap">
+        SELECT <include refid="projectColumns"/>
+        FROM pm_project p
+        WHERE p.deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (p.project_code LIKE CONCAT('%', #{keyword}, '%')
+                OR p.project_name LIKE CONCAT('%', #{keyword}, '%')
+                OR p.product_info LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">AND p.status = #{status}</if>
+        <if test="platform != null and platform != ''">
+            AND EXISTS (
+                SELECT 1 FROM pm_project_platform pp
+                WHERE pp.project_id = p.id AND pp.platform_value = #{platform}
+                    AND pp.deleted_at = 0
+            )
+        </if>
+        <if test="scopeUserId != null">
+            AND (
+                p.delivery_leader_id = #{scopeUserId}
+                OR EXISTS (
+                    SELECT 1
+                    FROM sys_user scope_user
+                    INNER JOIN sys_department scope_department
+                        ON scope_department.id = scope_user.primary_department_id
+                        AND scope_department.deleted_at = 0
+                    INNER JOIN sys_user creator_user
+                        ON creator_user.id = p.created_by
+                    INNER JOIN sys_department creator_department
+                        ON creator_department.id = creator_user.primary_department_id
+                        AND creator_department.deleted_at = 0
+                    WHERE scope_user.id = #{scopeUserId}
+                        AND scope_user.deleted_at = 0
+                        AND creator_department.path LIKE CONCAT(scope_department.path, '%')
+                )
+            )
+        </if>
+        ORDER BY p.updated_at DESC, p.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countProjects" resultType="long">
+        SELECT COUNT(*) FROM pm_project p
+        WHERE p.deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (p.project_code LIKE CONCAT('%', #{keyword}, '%')
+                OR p.project_name LIKE CONCAT('%', #{keyword}, '%')
+                OR p.product_info LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">AND p.status = #{status}</if>
+        <if test="platform != null and platform != ''">
+            AND EXISTS (
+                SELECT 1 FROM pm_project_platform pp
+                WHERE pp.project_id = p.id AND pp.platform_value = #{platform}
+                    AND pp.deleted_at = 0
+            )
+        </if>
+        <if test="scopeUserId != null">
+            AND (
+                p.delivery_leader_id = #{scopeUserId}
+                OR EXISTS (
+                    SELECT 1
+                    FROM sys_user scope_user
+                    INNER JOIN sys_department scope_department
+                        ON scope_department.id = scope_user.primary_department_id
+                        AND scope_department.deleted_at = 0
+                    INNER JOIN sys_user creator_user
+                        ON creator_user.id = p.created_by
+                    INNER JOIN sys_department creator_department
+                        ON creator_department.id = creator_user.primary_department_id
+                        AND creator_department.deleted_at = 0
+                    WHERE scope_user.id = #{scopeUserId}
+                        AND scope_user.deleted_at = 0
+                        AND creator_department.path LIKE CONCAT(scope_department.path, '%')
+                )
+            )
+        </if>
+    </select>
+
+    <select id="findProject" resultMap="projectMap">
+        SELECT <include refid="projectColumns"/>
+        FROM pm_project p WHERE p.id = #{id} AND p.deleted_at = 0
+    </select>
+
+    <select id="countActiveProjectName" resultType="int">
+        SELECT COUNT(*)
+        FROM pm_project
+        WHERE project_name = #{projectName} AND deleted_at = 0
+        <if test="excludedId != null">AND id != #{excludedId}</if>
+    </select>
+
+    <insert id="insertProject" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO pm_project (
+            project_code, project_name, project_type, responsible_team, am_user_id, am_name,
+            delivery_leader_id, delivery_leader_name, is_outsourced, priority,
+            data_specialist_id, data_specialist,
+            service_fee_percent, status, product_info, customer_daily_report_url, agency_line_url,
+            created_by, updated_by
+        ) VALUES (
+            #{projectCode}, #{projectName}, #{projectType}, #{responsibleTeam}, #{amUserId}, #{amName},
+            #{deliveryLeaderId}, #{deliveryLeaderName}, #{outsourced}, #{priority},
+            #{dataSpecialistId}, #{dataSpecialist},
+            #{serviceFeePercent}, #{status}, #{productInfo}, #{customerDailyReportUrl},
+            #{agencyLineUrl},
+            #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateProject">
+        UPDATE pm_project SET
+            project_name = #{projectName}, project_type = #{projectType},
+            responsible_team = #{responsibleTeam},
+            am_user_id = #{amUserId}, am_name = #{amName},
+            delivery_leader_id = #{deliveryLeaderId}, delivery_leader_name = #{deliveryLeaderName},
+            data_specialist_id = #{dataSpecialistId}, data_specialist = #{dataSpecialist},
+            is_outsourced = #{outsourced}, priority = #{priority},
+            service_fee_percent = #{serviceFeePercent}, status = #{status},
+            product_info = #{productInfo}, customer_daily_report_url = #{customerDailyReportUrl},
+            agency_line_url = #{agencyLineUrl},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="updateWalletCustomerRefId">
+        UPDATE pm_project
+        SET wallet_customer_ref_id = #{walletCustomerRefId}
+        WHERE id = #{id}
+          AND deleted_at = 0
+          AND (wallet_customer_ref_id IS NULL
+            OR wallet_customer_ref_id = #{walletCustomerRefId})
+    </update>
+
+    <select id="countActiveUser" resultType="int">
+        SELECT COUNT(*) FROM sys_user WHERE id = #{id} AND status = 1 AND deleted_at = 0
+    </select>
+    <select id="findUserReference" resultType="com.adpulse.main.project.model.ProjectUserReference">
+        SELECT id, display_name AS displayName, status
+        FROM sys_user WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <select id="countEnabledDictionaryValue" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_dict_item i
+        JOIN sys_dict_type t ON t.id = i.dict_type_id
+        WHERE t.dict_code = #{dictCode} AND t.status = 1 AND t.deleted_at = 0
+            AND UPPER(i.item_value) = UPPER(#{value}) AND i.status = 1 AND i.deleted_at = 0
+    </select>
+
+    <select id="findEnabledRegionCountries"
+            resultType="com.adpulse.main.project.model.RegionCountry">
+        SELECT
+            region_code AS regionCode,
+            region_name AS regionName,
+            country_code AS countryCode,
+            country_name AS countryName
+        FROM pm_region_country
+        WHERE status = 1 AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findEnabledRegionCountry"
+            resultType="com.adpulse.main.project.model.RegionCountry">
+        SELECT
+            region_code AS regionCode,
+            region_name AS regionName,
+            country_code AS countryCode,
+            country_name AS countryName
+        FROM pm_region_country
+        WHERE country_code = #{countryCode} AND status = 1 AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <update id="softDeletePlatforms">
+        UPDATE pm_project_platform SET deleted_at = #{deletedAt}
+        WHERE project_id = #{projectId} AND deleted_at = 0
+    </update>
+    <update id="softDeleteRegions">
+        UPDATE pm_project_region SET deleted_at = #{deletedAt}
+        WHERE project_id = #{projectId} AND deleted_at = 0
+    </update>
+    <update id="softDeleteKpis">
+        UPDATE pm_project_kpi SET deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE project_id = #{projectId} AND deleted_at = 0
+    </update>
+    <insert id="insertPlatform">
+        INSERT INTO pm_project_platform (project_id, platform_value, created_by)
+        VALUES (#{projectId}, #{value}, #{createdBy})
+    </insert>
+    <insert id="insertRegion">
+        INSERT INTO pm_project_region (
+            project_id, region_code, region_name, country_code, country_name, created_by
+        ) VALUES (
+            #{projectId}, #{regionCountry.regionCode}, #{regionCountry.regionName},
+            #{regionCountry.countryCode}, #{regionCountry.countryName}, #{createdBy}
+        )
+    </insert>
+    <insert id="insertKpi">
+        INSERT INTO pm_project_kpi (
+            project_id, metric_value, comparator, target_value, target_max_value, sort_order,
+            created_by, updated_by
+        ) VALUES (
+            #{projectId}, #{metric}, #{comparator}, #{target}, #{targetMax}, #{sortOrder},
+            #{operatorId}, #{operatorId}
+        )
+    </insert>
+    <select id="findPlatforms" resultType="string">
+        SELECT platform_value FROM pm_project_platform
+        WHERE project_id = #{projectId} AND deleted_at = 0 ORDER BY id
+    </select>
+    <select id="findRegions" resultType="string">
+        SELECT country_code FROM pm_project_region
+        WHERE project_id = #{projectId} AND deleted_at = 0 ORDER BY id
+    </select>
+
+    <select id="findProductLinks" resultType="string">
+        SELECT product_url
+        FROM pm_project_product_link
+        WHERE project_id = #{projectId} AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findOutsourcingTeams" resultType="string">
+        SELECT team_name
+        FROM pm_project_outsourcing_team
+        WHERE project_id = #{projectId} AND deleted_at = 0
+        ORDER BY id
+    </select>
+
+    <update id="softDeleteProductLinks">
+        UPDATE pm_project_product_link SET deleted_at = #{deletedAt}
+        WHERE project_id = #{projectId} AND deleted_at = 0
+    </update>
+
+    <insert id="insertProductLink">
+        INSERT INTO pm_project_product_link (project_id, product_url, sort_order, created_by)
+        VALUES (#{projectId}, #{url}, #{sortOrder}, #{createdBy})
+    </insert>
+
+    <update id="softDeleteOutsourcingTeams">
+        UPDATE pm_project_outsourcing_team SET deleted_at = #{deletedAt}
+        WHERE project_id = #{projectId} AND deleted_at = 0
+    </update>
+
+    <insert id="insertOutsourcingTeam">
+        INSERT INTO pm_project_outsourcing_team (project_id, team_name, created_by)
+        VALUES (#{projectId}, #{teamName}, #{createdBy})
+    </insert>
+    <select id="findKpis" resultType="com.adpulse.main.project.dto.ProjectViews$Kpi">
+        SELECT metric_value AS metric, comparator, target_value AS target,
+            target_max_value AS targetMax
+        FROM pm_project_kpi
+        WHERE project_id = #{projectId} AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findProjectAms" resultType="com.adpulse.main.project.model.ProjectUserAssignment">
+        SELECT user_id AS userId, user_name AS userName, sort_order AS sortOrder
+        FROM pm_project_am WHERE project_id = #{projectId} AND deleted_at = 0 ORDER BY sort_order, id
+    </select>
+
+    <select id="findProjectDataSpecialists" resultType="com.adpulse.main.project.model.ProjectUserAssignment">
+        SELECT user_id AS userId, user_name AS userName, sort_order AS sortOrder
+        FROM pm_project_data_specialist WHERE project_id = #{projectId} AND deleted_at = 0 ORDER BY sort_order, id
+    </select>
+
+    <update id="softDeleteProjectAms">
+        UPDATE pm_project_am SET deleted_at = #{deletedAt} WHERE project_id = #{projectId} AND deleted_at = 0
+    </update>
+    <update id="softDeleteProjectDataSpecialists">
+        UPDATE pm_project_data_specialist SET deleted_at = #{deletedAt} WHERE project_id = #{projectId} AND deleted_at = 0
+    </update>
+    <insert id="insertProjectAm">
+        INSERT INTO pm_project_am (project_id, user_id, user_name, sort_order, created_by, updated_by)
+        VALUES (#{projectId}, #{userId}, #{userName}, #{sortOrder}, #{createdBy}, #{createdBy})
+    </insert>
+    <insert id="insertProjectDataSpecialist">
+        INSERT INTO pm_project_data_specialist (project_id, user_id, user_name, sort_order, created_by, updated_by)
+        VALUES (#{projectId}, #{userId}, #{userName}, #{sortOrder}, #{createdBy}, #{createdBy})
+    </insert>
+
+    <sql id="optimizerStatus">
+        (SELECT u.status FROM sys_user u
+            WHERE u.id = pm_agency_line.optimizer_id AND u.deleted_at = 0) AS optimizer_status
+    </sql>
+    <select id="findUnboundAgencyLineOptions"
+            resultType="com.adpulse.main.project.dto.ProjectViews$AgencyLineOption">
+        SELECT CAST(id AS CHAR) AS id,
+            line_name AS name
+        FROM pm_agency_line
+        WHERE deleted_at = 0
+            AND project_id IS NULL
+        <if test="keyword != null and keyword != ''">
+            AND LOCATE(#{keyword}, line_name) &gt; 0
+        </if>
+        ORDER BY updated_at DESC, id DESC
+        LIMIT 50
+    </select>
+
+    <select id="findAgencyLines" resultMap="agencyLineMap">
+        SELECT id, project_id, line_name, status, platform_value, delivery_type, delivery_url,
+            page_id, pixel_name, pixel_id, token_ciphertext, test_code, cloak_url,
+            optimizer_id, optimizer_name, created_at, updated_at, <include refid="optimizerStatus"/>
+        FROM pm_agency_line
+        WHERE deleted_at = 0
+        <if test="lineName != null and lineName != ''">
+            AND LOCATE(#{lineName}, line_name) &gt; 0
+        </if>
+        <if test="keywords != null and !keywords.isEmpty()">
+            AND
+            <foreach collection="keywords" item="keyword" open="(" separator=" OR " close=")">
+                (LOCATE(#{keyword}, line_name) &gt; 0
+                    OR LOCATE(#{keyword}, delivery_type) &gt; 0
+                    OR LOCATE(#{keyword}, delivery_url) &gt; 0
+                    OR LOCATE(#{keyword}, pixel_name) &gt; 0
+                    OR LOCATE(#{keyword}, pixel_id) &gt; 0
+                    OR LOCATE(#{keyword}, test_code) &gt; 0
+                    OR LOCATE(#{keyword}, cloak_url) &gt; 0
+                    OR LOCATE(#{keyword}, optimizer_name) &gt; 0)
+            </foreach>
+        </if>
+        <if test="platform != null and platform != ''">AND platform_value = #{platform}</if>
+        <if test="projectId != null">AND project_id = #{projectId}</if>
+        <if test="optimizerId != null">AND optimizer_id = #{optimizerId}</if>
+        <if test="scopeUserId != null">
+            AND EXISTS (
+                SELECT 1
+                FROM sys_user scope_user
+                INNER JOIN sys_department scope_department
+                    ON scope_department.id = scope_user.primary_department_id
+                    AND scope_department.deleted_at = 0
+                INNER JOIN sys_user creator_user
+                    ON creator_user.id = pm_agency_line.created_by
+                INNER JOIN sys_department creator_department
+                    ON creator_department.id = creator_user.primary_department_id
+                    AND creator_department.deleted_at = 0
+                WHERE scope_user.id = #{scopeUserId}
+                    AND scope_user.deleted_at = 0
+                    AND creator_department.path LIKE CONCAT(scope_department.path, '%')
+            )
+        </if>
+        ORDER BY created_at DESC, id DESC LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countAgencyLines" resultType="long">
+        SELECT COUNT(*) FROM pm_agency_line
+        WHERE deleted_at = 0
+        <if test="lineName != null and lineName != ''">
+            AND LOCATE(#{lineName}, line_name) &gt; 0
+        </if>
+        <if test="keywords != null and !keywords.isEmpty()">
+            AND
+            <foreach collection="keywords" item="keyword" open="(" separator=" OR " close=")">
+                (LOCATE(#{keyword}, line_name) &gt; 0
+                    OR LOCATE(#{keyword}, delivery_type) &gt; 0
+                    OR LOCATE(#{keyword}, delivery_url) &gt; 0
+                    OR LOCATE(#{keyword}, pixel_name) &gt; 0
+                    OR LOCATE(#{keyword}, pixel_id) &gt; 0
+                    OR LOCATE(#{keyword}, test_code) &gt; 0
+                    OR LOCATE(#{keyword}, cloak_url) &gt; 0
+                    OR LOCATE(#{keyword}, optimizer_name) &gt; 0)
+            </foreach>
+        </if>
+        <if test="platform != null and platform != ''">AND platform_value = #{platform}</if>
+        <if test="projectId != null">AND project_id = #{projectId}</if>
+        <if test="optimizerId != null">AND optimizer_id = #{optimizerId}</if>
+        <if test="scopeUserId != null">
+            AND EXISTS (
+                SELECT 1
+                FROM sys_user scope_user
+                INNER JOIN sys_department scope_department
+                    ON scope_department.id = scope_user.primary_department_id
+                    AND scope_department.deleted_at = 0
+                INNER JOIN sys_user creator_user
+                    ON creator_user.id = pm_agency_line.created_by
+                INNER JOIN sys_department creator_department
+                    ON creator_department.id = creator_user.primary_department_id
+                    AND creator_department.deleted_at = 0
+                WHERE scope_user.id = #{scopeUserId}
+                    AND scope_user.deleted_at = 0
+                    AND creator_department.path LIKE CONCAT(scope_department.path, '%')
+            )
+        </if>
+    </select>
+    <select id="findAgencyLine" resultMap="agencyLineMap">
+        SELECT id, project_id, request_id, line_name, status, platform_value, delivery_type,
+            delivery_url, page_id, pixel_name, pixel_id, token_ciphertext, test_code, cloak_url,
+            optimizer_id, optimizer_name, created_at, updated_at, <include refid="optimizerStatus"/>
+        FROM pm_agency_line WHERE id = #{id} AND deleted_at = 0
+    </select>
+    <select id="findAgencyLineByRequestId" resultMap="agencyLineMap">
+        SELECT id, project_id, request_id, line_name, status, platform_value, delivery_type,
+            delivery_url, page_id, pixel_name, pixel_id, token_ciphertext, test_code, cloak_url,
+            optimizer_id, optimizer_name, created_at, updated_at, <include refid="optimizerStatus"/>
+        FROM pm_agency_line WHERE request_id = #{requestId} AND deleted_at = 0
+    </select>
+    <select id="findAgencyLineByNameForUpdate" resultMap="agencyLineMap">
+        SELECT id, project_id, request_id, line_name, status, platform_value, delivery_type,
+            delivery_url, page_id, pixel_name, pixel_id, token_ciphertext, test_code, cloak_url,
+            optimizer_id, optimizer_name, created_at, updated_at, <include refid="optimizerStatus"/>
+        FROM pm_agency_line
+        WHERE line_name = #{lineName} AND deleted_at = 0
+        FOR UPDATE
+    </select>
+    <insert id="insertAgencyLine" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO pm_agency_line (
+            project_id, request_id, line_name, platform_value, delivery_type, delivery_url,
+            page_id, pixel_name, pixel_id, token_ciphertext, test_code, cloak_url,
+            optimizer_id, optimizer_name, created_by, updated_by
+        ) VALUES (
+            #{projectId}, #{requestId}, #{lineName}, #{platformValue}, #{type}, #{deliveryUrl},
+            #{pageId}, #{pixelName}, #{pixelId}, #{tokenCiphertext}, #{testCode}, #{cloakUrl},
+            #{optimizerId}, #{optimizerName}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+    <update id="updateAgencyLine">
+        UPDATE pm_agency_line SET project_id = #{projectId}, line_name = #{lineName},
+            platform_value = #{platformValue}, delivery_type = #{type}, delivery_url = #{deliveryUrl},
+            page_id = #{pageId}, pixel_name = #{pixelName}, pixel_id = #{pixelId},
+            token_ciphertext = #{tokenCiphertext}, test_code = #{testCode}, cloak_url = #{cloakUrl},
+            optimizer_id = #{optimizerId},
+            optimizer_name = #{optimizerName}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+    <select id="findAgencyLineDeliveryUrlHistory" resultType="com.adpulse.main.project.dto.ProjectViews$AgencyLineDeliveryUrlHistory">
+        SELECT CAST(id AS CHAR) AS id,
+            CAST(agency_line_id AS CHAR) AS agencyLineId,
+            version_no AS versionNo,
+            COALESCE(delivery_url, '') AS deliveryUrl,
+            CAST(changed_by AS CHAR) AS changedBy,
+            changed_by_name AS changedByName,
+            changed_at AS changedAt
+        FROM pm_agency_line_delivery_url_history
+        WHERE agency_line_id = #{agencyLineId} AND deleted_at = 0
+        ORDER BY version_no DESC, id DESC
+    </select>
+    <select id="nextAgencyLineDeliveryUrlVersion" resultType="int">
+        SELECT COALESCE(MAX(version_no), 0) + 1
+        FROM pm_agency_line_delivery_url_history
+        WHERE agency_line_id = #{agencyLineId} AND deleted_at = 0
+    </select>
+    <insert id="insertAgencyLineDeliveryUrlHistory">
+        INSERT INTO pm_agency_line_delivery_url_history (
+            agency_line_id, version_no, delivery_url, changed_by, changed_by_name
+        ) VALUES (
+            #{agencyLineId}, #{versionNo}, #{deliveryUrl}, #{changedBy}, #{changedByName}
+        )
+    </insert>
+    <update id="bindAgencyLine">
+        UPDATE pm_agency_line SET project_id = #{projectId}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0 AND (project_id IS NULL OR project_id = #{projectId})
+    </update>
+    <update id="unbindAgencyLine">
+        UPDATE pm_agency_line SET project_id = NULL, updated_by = #{updatedBy}
+        WHERE id = #{id} AND project_id = #{projectId} AND deleted_at = 0
+    </update>
+    <update id="softDeleteAgencyLine">
+        UPDATE pm_agency_line SET deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+    <update id="updateAgencyLineStatus">
+        UPDATE pm_agency_line
+        SET status = #{status}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND project_id &lt;=> #{projectId} AND deleted_at = 0
+            AND (#{projectId} IS NULL OR EXISTS (
+                SELECT 1 FROM pm_project p
+                WHERE p.id = #{projectId} AND p.deleted_at = 0
+                    AND p.status NOT IN ('ended', 'archived')
+            ))
+    </update>
+
+    <update id="updateAgencyLineOptimizer">
+        UPDATE pm_agency_line
+        SET optimizer_id = #{optimizerId}, optimizer_name = #{optimizerName}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND project_id &lt;=> #{projectId} AND deleted_at = 0
+            AND (#{projectId} IS NULL OR EXISTS (
+                SELECT 1 FROM pm_project p
+                WHERE p.id = #{projectId} AND p.deleted_at = 0
+                    AND p.status NOT IN ('ended', 'archived')
+            ))
+    </update>
+
+    <!-- 项目可见摘要仅包含投放与素材任务；不扩大任务详情及附件权限。 -->
+    <sql id="projectTaskWhere">
+        WHERE project_id = #{projectId}
+            AND deleted_at = 0
+            AND task_type IN ('DELIVERY', 'MATERIAL')
+    </sql>
+    <select id="findCompletedProjectTasks" resultType="com.adpulse.main.project.dto.ProjectViews$CompletedTask">
+        SELECT
+            CAST(id AS CHAR) AS id,
+            task_code AS taskCode,
+            title,
+            LOWER(task_type) AS kind,
+            owner_name AS ownerName,
+            completed_at AS completedAt
+        FROM biz_task
+        <include refid="projectTaskWhere"/>
+            AND status = 'COMPLETED'
+        ORDER BY completed_at DESC, id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countProjectTasks" resultType="int">
+        SELECT COUNT(*) FROM biz_task
+        <include refid="projectTaskWhere"/>
+        <if test="completedOnly">AND status = 'COMPLETED'</if>
+    </select>
+    <!-- APPROVED 表示业务办理已完成；PROCESSING 仅审批通过，不能计入已结算。 -->
+    <select id="findClosureSettlements" resultType="com.adpulse.main.project.dto.ProjectViews$ClosureSettlement">
+        SELECT
+            JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.settlementCurrency')) AS currency,
+            JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.settlementAmount')) AS amount
+        FROM media_asset_application
+        WHERE deleted_at = 0
+            AND asset_type = 'PROJECT_CLOSURE'
+            AND status = 'APPROVED'
+            AND JSON_UNQUOTE(JSON_EXTRACT(form_data, '$.projectId')) = CAST(#{projectId} AS CHAR)
+        ORDER BY id
+    </select>
+
+</mapper>

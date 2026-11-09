@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.auth.mapper.AuthMapper">
+
+    <resultMap id="userAccountMap" type="com.adpulse.system.user.model.UserAccount">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="superAdmin" column="is_super_admin"/>
+        <result property="phone" column="phone"/>
+        <result property="passwordHash" column="password_hash"/>
+        <result property="displayName" column="display_name"/>
+        <result property="englishNickname" column="english_nickname"/>
+        <result property="realName" column="real_name"/>
+        <result property="primaryDepartmentId" column="primary_department_id"/>
+        <result property="email" column="email"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="status" column="status"/>
+        <result property="ipAccessMode" column="ip_access_mode"/>
+        <result property="mfaStatus" column="mfa_status"/>
+        <result property="mfaSecretCiphertext" column="mfa_secret_ciphertext"/>
+        <result property="mfaBoundAt" column="mfa_bound_at"/>
+        <result property="mfaLastUsedCounter" column="mfa_last_used_counter"/>
+        <result property="lockedUntil" column="locked_until"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <sql id="loginUserColumns">
+        id,
+        username,
+        is_super_admin,
+        phone,
+        password_hash,
+        display_name,
+        english_nickname,
+        real_name,
+        primary_department_id,
+        email,
+        avatar_url,
+        status,
+        ip_access_mode,
+        mfa_status,
+        mfa_secret_ciphertext,
+        mfa_bound_at,
+        mfa_last_used_counter,
+        locked_until,
+        deleted_at
+    </sql>
+
+    <select id="findLoginUser" resultMap="userAccountMap">
+        SELECT
+            <include refid="loginUserColumns"/>
+        FROM sys_user
+        WHERE deleted_at = 0
+          AND phone = #{phone}
+        LIMIT 1
+    </select>
+
+    <select id="findFeishuLoginUser" resultMap="userAccountMap">
+        SELECT
+            <include refid="loginUserColumns"/>
+        FROM sys_user
+        WHERE tenant_key = #{tenantKey}
+          AND deleted_at = 0
+          AND (
+              feishu_open_id = #{openId}
+              <if test="unionId != null and unionId != ''">
+                  OR feishu_union_id = #{unionId}
+              </if>
+          )
+        ORDER BY CASE WHEN feishu_open_id = #{openId} THEN 0 ELSE 1 END
+        LIMIT 1
+    </select>
+
+    <select id="findActiveUserById" resultMap="userAccountMap">
+        SELECT
+            <include refid="loginUserColumns"/>
+        FROM sys_user
+        WHERE id = #{userId}
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+
+    <select id="findPermissionCodes" resultType="java.lang.String">
+        SELECT DISTINCT m.permission_code
+        FROM sys_user_role ur
+        INNER JOIN sys_role r
+            ON r.id = ur.role_id
+           AND r.status = 1
+           AND r.deleted_at = 0
+        INNER JOIN sys_role_menu rm
+            ON rm.role_id = r.id
+           AND rm.deleted_at = 0
+        INNER JOIN sys_menu m
+            ON m.id = rm.menu_id
+           AND m.status = 1
+           AND m.deleted_at = 0
+        WHERE ur.user_id = #{userId}
+          AND ur.deleted_at = 0
+          AND m.permission_code IS NOT NULL
+          AND m.permission_code &lt;&gt; ''
+        UNION
+        SELECT DISTINCT m.permission_code
+        FROM sys_menu m
+        WHERE m.status = 1
+          AND m.deleted_at = 0
+          AND m.permission_code IS NOT NULL
+          AND m.permission_code &lt;&gt; ''
+          AND EXISTS (
+              SELECT 1 FROM sys_user u
+              WHERE u.id = #{userId}
+                AND u.is_super_admin = 1
+                AND u.status = 1
+                AND u.deleted_at = 0
+          )
+    </select>
+
+    <select id="findMenuCodes" resultType="java.lang.String">
+        WITH RECURSIVE assigned_menu AS (
+            SELECT DISTINCT m.id
+            FROM sys_user u
+            INNER JOIN sys_user_role ur
+                ON ur.user_id = u.id
+               AND ur.deleted_at = 0
+            INNER JOIN sys_role r
+                ON r.id = ur.role_id
+               AND r.status = 1
+               AND r.deleted_at = 0
+            INNER JOIN sys_role_menu rm
+                ON rm.role_id = r.id
+               AND rm.deleted_at = 0
+            INNER JOIN sys_menu m
+                ON m.id = rm.menu_id
+               AND m.status = 1
+               AND m.deleted_at = 0
+            WHERE u.id = #{userId}
+              AND u.status = 1
+              AND u.deleted_at = 0
+            UNION
+            SELECT m.id
+            FROM sys_menu m
+            WHERE m.status = 1
+              AND m.deleted_at = 0
+              AND EXISTS (
+                  SELECT 1 FROM sys_user u
+                  WHERE u.id = #{userId}
+                    AND u.is_super_admin = 1
+                    AND u.status = 1
+                    AND u.deleted_at = 0
+              )
+        ), authorized_tree AS (
+            SELECT m.*
+            FROM sys_menu m
+            INNER JOIN assigned_menu assigned ON assigned.id = m.id
+            WHERE m.status = 1
+              AND m.deleted_at = 0
+            UNION DISTINCT
+            SELECT parent.*
+            FROM sys_menu parent
+            INNER JOIN authorized_tree child ON child.parent_id = parent.id
+            WHERE parent.status = 1
+              AND parent.deleted_at = 0
+        )
+        SELECT DISTINCT menu_code
+        FROM authorized_tree
+        ORDER BY menu_code
+    </select>
+
+    <select id="findPrimaryDepartmentName" resultType="java.lang.String">
+        SELECT dept_name
+        FROM sys_department
+        WHERE id = #{departmentId}
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+
+    <select id="findActiveRoles" resultType="com.adpulse.system.auth.mapper.AuthMapper$UserRoleView">
+        SELECT DISTINCT
+            r.id,
+            r.role_code AS roleCode,
+            r.role_name AS roleName
+        FROM sys_user_role ur
+        INNER JOIN sys_role r
+            ON r.id = ur.role_id
+           AND r.status = 1
+           AND r.deleted_at = 0
+        WHERE ur.user_id = #{userId}
+          AND ur.deleted_at = 0
+        ORDER BY r.id
+    </select>
+
+    <select id="findAllowedIpCidrs" resultType="java.lang.String">
+        SELECT ip_cidr
+        FROM sys_ip_rule
+        WHERE status = 1
+          AND deleted_at = 0
+          AND (
+              scope_type = 1
+              OR (scope_type = 2 AND user_id = #{userId})
+          )
+    </select>
+
+    <update id="recordLoginSuccess">
+        UPDATE sys_user
+        SET last_login_at = #{loginAt},
+            last_login_ip = #{loginIp},
+            login_failed_count = 0
+        WHERE id = #{userId}
+          AND deleted_at = 0
+    </update>
+
+    <update id="incrementLoginFailure">
+        UPDATE sys_user
+        SET login_failed_count = login_failed_count + 1
+        WHERE id = #{userId}
+          AND deleted_at = 0
+    </update>
+
+    <update id="bindMfa">
+        UPDATE sys_user
+        SET mfa_status = 1,
+            mfa_secret_ciphertext = #{secretCiphertext},
+            mfa_bound_at = #{boundAt},
+            mfa_last_used_counter = #{counter}
+        WHERE id = #{userId}
+          AND mfa_status = 0
+          AND deleted_at = 0
+    </update>
+
+    <update id="recordMfaCounter">
+        UPDATE sys_user
+        SET mfa_last_used_counter = #{counter}
+        WHERE id = #{userId}
+          AND mfa_status = 1
+          AND (mfa_last_used_counter IS NULL OR mfa_last_used_counter &lt; #{counter})
+          AND deleted_at = 0
+    </update>
+
+</mapper>

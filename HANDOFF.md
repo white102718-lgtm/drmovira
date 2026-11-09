@@ -28,7 +28,7 @@ python tools/verify_handoff.py
 | Python替换与容量设计 | 同目录`PYTHON_BACKEND_MIGRATION.md` | 当前框架、大数据量要求、历史与新实现的边界 |
 | 真实验收回执与截图 | 同目录`evidence/` | 有限通过和失败都保留；先核源码及适用范围 |
 | 近期前端定向回执/日志 | `docs/handoff/evidence/` | 原本只在旧机.runtime内的有限回执，本次补入 |
-| 历史参考项目索引 | `docs/handoff/REFERENCE_SOURCES.json` | 四个独立参考项目的来源与固定提交，详见第7节 |
+| 历史参考项目源码及索引 | `reference-projects/`、`docs/handoff/REFERENCE_SOURCES.json` | 四份已提交源码只读快照及来源，详见第7节 |
 
 阅读顺序：根`AGENTS.md` → 本文 → 实施计划第七节/末尾 → 当前规则闭环 → `PROGRESS.md`/`progress.json` → `MODULE_LOGIC.md` → 本次要做的原合同及字段 → 对应源码/证据。文档按时间追加，较早节点的“待实现”可能已有后续进展，不能只看文件开头。
 
@@ -130,9 +130,9 @@ python -m venv .venv
 
 ## 7. 需要负责人单独交接的外部依赖
 
-四个ad-mpower历史参考项目是独立代码库，来源/原分支/固定提交见`docs/handoff/REFERENCE_SOURCES.json`。本仓库含完整ORBIT需求包中的`reference/`及ORBIT自身实现、来源设计与迁移文档；**四个外部参考仓库的整库源码没有复制进这个公开仓库**。若某个不明确的逻辑确实需参考原实现，由负责人给同事相应仓库读取权限，按记录提交读取，不改写参考项目，也不把其配置带入ORBIT。缺参考权限只阻对应比对，不阻原合同明确的其他功能。
+四个ad-mpower历史参考项目的已提交源码现已附在`reference-projects/`，不再要求同事有原仓库权限才能查看这些快照。来源/原分支/固定提交见`docs/handoff/REFERENCE_SOURCES.json`，逐文件指纹、排除项及脱敏次数见`reference-projects/SNAPSHOT_MANIFEST.json`。只导出Git提交对象，不含本地改动、node_modules、虚拟环境、构建运行数据或真实凭据；原项目工作区未改动。若需要快照之后的远端新版本才需另申请原仓库权限，不把快照等同于远端持续同步。
 
-同事还需目标仓库写权限、开发工具及隔离数据库、必要的私有配置/外部服务授权。Codex不会继承本聊天记忆、旧agent、浏览器登录、临时账号或机器文件。当前`orbit-10`已按用户要求暂停，不重建定时器来代替开发。
+同事仍需目标仓库写权限、开发工具及隔离数据库、必要的私有配置/外部服务授权。参考快照仅用于查阅历史逻辑，不执行其中部署/广告脚本，不采用其框架替代ORBIT技术栈。Codex不会继承本聊天记忆、旧agent、浏览器登录、临时账号或机器文件。当前`orbit-10`已按用户要求暂停，不重建定时器来代替开发。
 
 ## 8. 直接发给接手同事Codex的指令
 

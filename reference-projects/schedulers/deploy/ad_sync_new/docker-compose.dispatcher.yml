@@ -1,0 +1,9 @@
+name: ad_sync_new_dispatcher
+services:
+  dispatcher:
+    build:
+      context: ../../
+      dockerfile: deploy/ad_sync_new/Dockerfile.dispatcher
+    environment:
+      - DEPLOY_ENV=${DEPLOY_ENV:-dev}
+    restart: unless-stopped

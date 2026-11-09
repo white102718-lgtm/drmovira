@@ -3,6 +3,7 @@
 # 产品原文与历史执行回执保留原始字节，不对原件作空白格式修订。
 data/** -text -whitespace
 docs/handoff/evidence/** -text -whitespace
+reference-projects/** -text -whitespace
 *.jpg binary
 *.jpeg binary
 *.png binary

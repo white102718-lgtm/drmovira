@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.cloak.mapper.CloakMapper">
+    <resultMap id="batchMap" type="com.adpulse.main.cloak.model.CloakBatch">
+        <id property="id" column="id"/>
+        <result property="requestId" column="request_id"/>
+        <result property="requestFingerprint" column="request_fingerprint"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="status" column="status"/>
+        <result property="totalCount" column="total_count"/>
+        <result property="successCount" column="success_count"/>
+        <result property="providerMessage" column="provider_message"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="requestedBy" column="requested_by"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="finishedAt" column="finished_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="recordMap" type="com.adpulse.main.cloak.model.CloakRecord">
+        <id property="id" column="id"/>
+        <result property="batchId" column="batch_id"/>
+        <result property="providerCloakId" column="provider_cloak_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="agencyLineId" column="agency_line_id"/>
+        <result property="agencyLineName" column="agency_line_name"/>
+        <result property="name" column="name"/>
+        <result property="reallyUrl" column="really_url"/>
+        <result property="virtualUrl" column="virtual_url"/>
+        <result property="adUrl" column="ad_url"/>
+        <result property="genId" column="gen_id"/>
+        <result property="genDomain" column="gen_domain"/>
+        <result property="promotionUrl" column="promotion_url"/>
+        <result property="type" column="type"/>
+        <result property="country" column="country"/>
+        <result property="countryLabel" column="country_label"/>
+        <result property="langStatus" column="lang_status"/>
+        <result property="pcStatus" column="pc_status"/>
+        <result property="vpnStatus" column="vpn_status"/>
+        <result property="providerLinkId" column="provider_link_id"/>
+        <result property="status" column="status"/>
+        <result property="sheetWritebackStatus" column="sheet_writeback_status"/>
+        <result property="sheetWritebackMessage" column="sheet_writeback_message"/>
+        <result property="sheetRowNumber" column="sheet_row_number"/>
+        <result property="sheetWritebackAt" column="sheet_writeback_at"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findBatchByRequestId" resultMap="batchMap">
+        SELECT *
+        FROM biz_cloak_batch
+        WHERE request_id = #{requestId}
+            AND deleted_at = 0
+    </select>
+
+    <select id="findSuccessfulBatchById" resultMap="batchMap">
+        SELECT *
+        FROM biz_cloak_batch
+        WHERE id = #{id}
+            AND status = 2
+            AND deleted_at = 0
+    </select>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_cloak_batch (
+            request_id, request_fingerprint, project_id, project_name, status,
+            total_count, success_count, requested_by, started_at
+        ) VALUES (
+            #{requestId}, #{requestFingerprint}, #{projectId}, #{projectName}, #{status},
+            #{totalCount}, 0, #{requestedBy}, CURRENT_TIMESTAMP(3)
+        )
+    </insert>
+
+    <update id="resetBatch">
+        UPDATE biz_cloak_batch
+        SET status = 1,
+            success_count = 0,
+            provider_message = NULL,
+            error_message = NULL,
+            requested_by = #{requestedBy},
+            started_at = CURRENT_TIMESTAMP(3),
+            finished_at = NULL
+        WHERE id = #{id}
+            AND status IN (3, 4)
+            AND deleted_at = 0
+    </update>
+
+    <insert id="insertRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO biz_cloak (
+            batch_id, project_id, project_name, agency_line_id, agency_line_name,
+            name, really_url, virtual_url, ad_url, gen_id, gen_domain, promotion_url,
+            type, country, country_label, lang_status, pc_status, vpn_status,
+            status, created_by, updated_by
+        ) VALUES (
+            #{batchId}, #{projectId}, #{projectName}, #{agencyLineId}, #{agencyLineName},
+            #{name}, #{reallyUrl}, #{virtualUrl}, #{adUrl}, #{genId}, #{genDomain},
+            #{promotionUrl}, #{type}, #{country}, #{countryLabel}, #{langStatus},
+            #{pcStatus}, #{vpnStatus}, #{status}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="resetRecords">
+        UPDATE biz_cloak
+        SET status = 0,
+            updated_by = #{updatedBy}
+        WHERE batch_id = #{batchId}
+            AND status IN (2, 3)
+            AND deleted_at = 0
+    </update>
+
+    <update id="markBatchSuccess">
+        UPDATE biz_cloak_batch
+        SET status = 2,
+            success_count = #{successCount},
+            provider_message = #{providerMessage},
+            error_message = NULL,
+            finished_at = CURRENT_TIMESTAMP(3)
+        WHERE id = #{id}
+            AND deleted_at = 0
+    </update>
+
+    <update id="markBatchFailed">
+        UPDATE biz_cloak_batch
+        SET status = #{status},
+            success_count = 0,
+            error_message = #{errorMessage},
+            finished_at = CURRENT_TIMESTAMP(3)
+        WHERE id = #{id}
+            AND deleted_at = 0
+    </update>
+
+    <update id="updateRecordStatus">
+        UPDATE biz_cloak
+        SET status = #{status},
+            updated_by = #{updatedBy}
+        WHERE batch_id = #{batchId}
+            AND deleted_at = 0
+    </update>
+
+    <update id="updateAgencyLineCloakUrlsByBatch">
+        UPDATE pm_agency_line agency_line
+        INNER JOIN biz_cloak cloak
+            ON cloak.agency_line_id = agency_line.id
+            AND cloak.project_id = agency_line.project_id
+            AND cloak.batch_id = #{batchId}
+            AND cloak.status = 1
+            AND cloak.deleted_at = 0
+        SET agency_line.cloak_url = cloak.promotion_url,
+            agency_line.updated_by = #{updatedBy}
+        WHERE agency_line.deleted_at = 0
+    </update>
+
+    <sql id="recordFilters">
+        WHERE status = 1
+            AND deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (
+                project_name LIKE CONCAT('%', #{keyword}, '%')
+                OR really_url LIKE CONCAT('%', #{keyword}, '%')
+                OR promotion_url LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="country != null and country != ''">
+            AND country = #{country}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND created_at &gt;= CONCAT(#{startDate}, ' 00:00:00')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND created_at &lt; DATE_ADD(CONCAT(#{endDate}, ' 00:00:00'), INTERVAL 1 DAY)
+        </if>
+    </sql>
+
+    <select id="findRecords" resultMap="recordMap">
+        SELECT *
+        FROM biz_cloak
+        <include refid="recordFilters"/>
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countRecords" resultType="long">
+        SELECT COUNT(*)
+        FROM biz_cloak
+        <include refid="recordFilters"/>
+    </select>
+
+    <select id="findRecordsByIds" resultMap="recordMap">
+        SELECT *
+        FROM biz_cloak
+        WHERE status = 1
+            AND deleted_at = 0
+            AND id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        ORDER BY id
+    </select>
+
+    <select id="findRecordsByBatchId" resultMap="recordMap">
+        SELECT *
+        FROM biz_cloak
+        WHERE batch_id = #{batchId}
+            AND status = 1
+            AND deleted_at = 0
+        ORDER BY id
+    </select>
+
+    <select id="findOccupiedAgencyLineIds" resultType="long">
+        SELECT DISTINCT cloak.agency_line_id
+        FROM biz_cloak cloak
+        INNER JOIN biz_cloak_batch batch
+            ON batch.id = cloak.batch_id
+            AND batch.deleted_at = 0
+        WHERE cloak.status = 1
+            AND cloak.deleted_at = 0
+            AND cloak.agency_line_id IN
+            <foreach collection="agencyLineIds" item="agencyLineId" open="(" separator="," close=")">
+                #{agencyLineId}
+            </foreach>
+        <if test="requestId != null and requestId != ''">
+            AND batch.request_id != #{requestId}
+        </if>
+        ORDER BY cloak.agency_line_id
+    </select>
+
+    <update id="updateSheetWriteback">
+        UPDATE biz_cloak
+        SET sheet_writeback_status = #{status},
+            sheet_writeback_message = #{message},
+            sheet_row_number = #{rowNumber},
+            sheet_writeback_at = CURRENT_TIMESTAMP(3),
+            updated_by = #{updatedBy}
+        WHERE id = #{id}
+            AND status = 1
+            AND deleted_at = 0
+    </update>
+
+    <update id="softDeleteRecords">
+        UPDATE biz_cloak
+        SET deleted_at = #{deletedAt},
+            updated_by = #{updatedBy}
+        WHERE status = 1
+            AND deleted_at = 0
+            AND id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>
+</mapper>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.migration.LegacyPaymentMigrationMapper">
+    <select id="schemaReady" resultType="int">
+        SELECT (SELECT COUNT(*) FROM information_schema.tables
+                WHERE table_schema = DATABASE()
+                  AND table_name IN ('media_asset_application', 'media_asset_approval_log',
+                                     'media_application_definition', 'media_approval_config',
+                                     'mig_legacy_payment_application')) = 5
+          AND (SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema = DATABASE()
+                 AND table_name = 'manual_task_execution'
+                 AND column_name IN ('action_code', 'action_name')) = 2
+    </select>
+
+    <select id="migrationUsers"
+            resultType="com.adpulse.main.migration.LegacyPaymentMigrationModels$TargetUser">
+        SELECT system_user.id,
+               system_user.username,
+               system_user.display_name AS displayName,
+               system_user.real_name AS realName,
+               system_user.phone,
+               system_user.status,
+               system_user.primary_department_id AS departmentId,
+               department.dept_name AS departmentName
+        FROM sys_user system_user
+        LEFT JOIN sys_department department
+          ON department.id = system_user.primary_department_id
+         AND department.status = 1
+         AND department.deleted_at = 0
+        WHERE system_user.deleted_at = 0
+        ORDER BY system_user.id
+    </select>
+
+    <select id="activeChannels"
+            resultType="com.adpulse.main.migration.LegacyPaymentMigrationModels$TargetChannel">
+        SELECT id, channel_name AS channelName
+        FROM media_channel
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+          AND status = 1
+          AND deleted_at = 0
+    </select>
+
+    <select id="paymentDefinition"
+            resultType="com.adpulse.main.migration.LegacyPaymentMigrationModels$PaymentDefinition">
+        SELECT definition.id AS definitionId,
+               definition.application_name AS applicationName,
+               config.id AS configId,
+               CAST(config.form_schema AS CHAR CHARACTER SET utf8mb4) AS formSchema,
+               CAST(config.nodes AS CHAR CHARACTER SET utf8mb4) AS nodes,
+               config.approver_id AS configuredApproverId,
+               config.approver_name AS configuredApproverName
+        FROM media_application_definition definition
+        INNER JOIN media_approval_config config
+                ON config.id = definition.approval_config_id
+               AND config.asset_type = 'PAYMENT'
+               AND config.enabled = 1
+               AND config.deleted_at = 0
+        WHERE definition.application_code = 'PAYMENT'
+          AND definition.status = 1
+          AND definition.deleted_at = 0
+        ORDER BY definition.id
+        LIMIT 1
+    </select>
+
+    <select id="ledgers"
+            resultType="com.adpulse.main.migration.LegacyPaymentMigrationModels$Ledger">
+        SELECT source_payment_id AS sourcePaymentId,
+               target_application_id AS targetApplicationId,
+               source_hash AS sourceHash
+        FROM mig_legacy_payment_application
+        WHERE environment = #{environment}
+          AND source_uuid = #{sourceUuid}
+          AND source_schema = #{sourceSchema}
+          AND target_uuid = #{targetUuid}
+          AND target_schema = #{targetSchema}
+          AND deleted_at = 0
+        FOR SHARE
+    </select>
+
+    <select id="applicationByNo"
+            resultType="com.adpulse.main.migration.LegacyPaymentMigrationModels$ExistingApplication">
+        SELECT id, application_no AS applicationNo
+        FROM media_asset_application
+        WHERE application_no = #{applicationNo}
+          AND deleted_at = 0
+        LIMIT 1
+    </select>
+
+    <insert id="insertApplication" useGeneratedKeys="true" keyProperty="candidate.targetApplicationId">
+        INSERT INTO media_asset_application (
+            application_no, asset_type, title, quantity, reason, status,
+            requester_id, requester_name, department_id, department_name,
+            approver_id, approver_name, decision_remark, decided_at,
+            form_data, form_schema_snapshot, nodes_snapshot, current_node_index,
+            created_by, updated_by, created_at, updated_at
+        ) VALUES (
+            #{candidate.applicationNo}, 'PAYMENT', '打款申请（历史迁移）', 1,
+            LEFT(COALESCE(NULLIF(TRIM(#{candidate.source.remark}), ''), '旧系统打款申请'), 1000),
+            #{candidate.targetStatus},
+            #{candidate.requester.id}, #{candidate.requesterName},
+            #{candidate.requester.departmentId}, #{candidate.requester.departmentName},
+            #{candidate.auditor.id}, #{candidate.auditorName},
+            CASE WHEN #{candidate.targetStatus} = 'REJECTED'
+                 THEN LEFT(COALESCE(NULLIF(TRIM(#{candidate.source.rejectReason}), ''), '旧系统已驳回'), 1000)
+                 ELSE NULL END,
+            #{candidate.source.auditTime},
+            #{candidate.formData}, #{candidate.definition.formSchema}, #{candidate.definition.nodes},
+            #{candidate.currentNodeIndex},
+            #{candidate.requester.id}, #{candidate.auditor.id},
+            #{candidate.source.createdAt},
+            COALESCE(#{candidate.source.updatedAt}, #{candidate.source.auditTime})
+        )
+    </insert>
+
+    <insert id="insertLog">
+        INSERT INTO media_asset_approval_log (
+            application_id, action, actor_id, actor_name, remark,
+            action_data, node_index, node_name, created_at
+        ) VALUES (
+            #{applicationId}, #{action}, #{actorId}, #{actorName}, #{remark},
+            #{actionData}, #{nodeIndex}, #{nodeName}, #{createdAt}
+        )
+    </insert>
+
+    <insert id="insertLedger">
+        INSERT INTO mig_legacy_payment_application (
+            environment, source_uuid, source_schema, target_uuid, target_schema,
+            source_payment_id, target_application_id, source_hash,
+            execution_id, operator_id
+        ) VALUES (
+            #{environment}, #{sourceUuid}, #{sourceSchema}, #{targetUuid}, #{targetSchema},
+            #{candidate.source.sourceId}, #{candidate.targetApplicationId}, #{candidate.sourceHash},
+            #{executionId}, #{operatorId}
+        )
+    </insert>
+</mapper>

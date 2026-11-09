@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.adaccountasset.AdAccountAssetMapper">
+
+    <resultMap id="importLogMap" type="com.adpulse.main.adaccountasset.AdAccountImportLog">
+        <id property="id" column="id" />
+        <result property="fileName" column="file_name" />
+        <result property="totalCount" column="total_count" />
+        <result property="successCount" column="success_count" />
+        <result property="failureCount" column="failure_count" />
+        <result property="failureDetails" column="failure_details" />
+        <result property="failedFileCiphertext" column="failed_file_ciphertext" />
+        <result property="operatorId" column="operator_id" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <select id="countEnabledDictionaryValue" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_dict_item item
+        JOIN sys_dict_type type
+          ON type.id = item.dict_type_id
+        WHERE type.dict_code = #{dictCode}
+          AND type.status = 1
+          AND type.deleted_at = 0
+          AND UPPER(item.item_value) = UPPER(#{value})
+          AND item.status = 1
+          AND item.deleted_at = 0
+    </select>
+
+    <sql id="columns">
+        id, account_id, account_name, account_status, inventory_status, account_type, account_attribute,
+        channel_id, channel_name,
+        managed_bm, managed_bm_id, backup_managed_bm, backup_managed_bm_id,
+        timezone, card_station, card_number, remark, delivery_date, is_manually_updated,
+        manually_updated_at, manually_updated_by, last_mongo_sync_at,
+        last_feishu_sync_at, update_source,
+        created_by, updated_by, created_at, updated_at
+    </sql>
+
+    <select id="findByAccountIds" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT <include refid="columns" />
+        FROM ad_account_asset
+        WHERE deleted_at = 0
+          AND account_id IN
+        <foreach collection="accountIds" item="accountId" open="(" separator="," close=")">
+            #{accountId}
+        </foreach>
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findAll" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT <include refid="columns" />
+        FROM ad_account_asset
+        WHERE deleted_at = 0
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <sql id="pageKeywordCondition">
+        <if test="keyword != null and keyword != ''">
+            AND (
+                account_id LIKE CONCAT('%', #{keyword}, '%')
+                OR account_name LIKE CONCAT('%', #{keyword}, '%')
+                OR COALESCE(inventory_status, 'AVAILABLE') LIKE CONCAT('%', #{keyword}, '%')
+                OR account_type LIKE CONCAT('%', #{keyword}, '%')
+                OR account_attribute LIKE CONCAT('%', #{keyword}, '%')
+                OR managed_bm LIKE CONCAT('%', #{keyword}, '%')
+                OR managed_bm_id LIKE CONCAT('%', #{keyword}, '%')
+                OR channel_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </sql>
+
+    <sql id="pageFieldCondition">
+        <if test="filter.accountNames != null">
+            AND (
+            <foreach collection="filter.accountNames" item="accountName" separator=" OR ">
+                account_name LIKE CONCAT('%', #{accountName}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.accountIds != null">
+            AND (
+            <foreach collection="filter.accountIds" item="accountId" separator=" OR ">
+                account_id LIKE CONCAT('%', #{accountId}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.accountStatuses != null">
+            AND account_status IN
+            <foreach collection="filter.accountStatuses" item="accountStatus" open="(" separator="," close=")">
+                #{accountStatus}
+            </foreach>
+        </if>
+        <if test="filter.accountTypes != null">
+            AND account_type IN
+            <foreach collection="filter.accountTypes" item="accountType" open="(" separator="," close=")">
+                #{accountType}
+            </foreach>
+        </if>
+        <if test="filter.accountAttributes != null">
+            AND account_attribute IN
+            <foreach collection="filter.accountAttributes" item="accountAttribute" open="(" separator="," close=")">
+                #{accountAttribute}
+            </foreach>
+        </if>
+        <if test="filter.channelNames != null">
+            AND channel_name IN
+            <foreach collection="filter.channelNames" item="channelName" open="(" separator="," close=")">
+                #{channelName}
+            </foreach>
+        </if>
+        <if test="filter.managedBms != null">
+            AND (
+            <foreach collection="filter.managedBms" item="managedBm" separator=" OR ">
+                managed_bm LIKE CONCAT('%', #{managedBm}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.managedBmIds != null">
+            AND (
+            <foreach collection="filter.managedBmIds" item="managedBmId" separator=" OR ">
+                managed_bm_id LIKE CONCAT('%', #{managedBmId}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.backupManagedBms != null">
+            AND (
+            <foreach collection="filter.backupManagedBms" item="backupManagedBm" separator=" OR ">
+                backup_managed_bm LIKE CONCAT('%', #{backupManagedBm}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.backupManagedBmIds != null">
+            AND (
+            <foreach collection="filter.backupManagedBmIds" item="backupManagedBmId" separator=" OR ">
+                backup_managed_bm_id LIKE CONCAT('%', #{backupManagedBmId}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.timezones != null">
+            AND (
+            <foreach collection="filter.timezones" item="timezone" separator=" OR ">
+                timezone LIKE CONCAT('%', #{timezone}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.cardStations != null">
+            AND (
+            <foreach collection="filter.cardStations" item="cardStation" separator=" OR ">
+                card_station LIKE CONCAT('%', #{cardStation}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.cardNumbers != null">
+            AND (
+            <foreach collection="filter.cardNumbers" item="cardNumber" separator=" OR ">
+                card_number LIKE CONCAT('%', #{cardNumber}, '%')
+            </foreach>
+            )
+        </if>
+        <if test="filter.inventoryStatuses != null">
+            AND COALESCE(inventory_status, 'AVAILABLE') IN
+            <foreach collection="filter.inventoryStatuses" item="inventoryStatus" open="(" separator="," close=")">
+                #{inventoryStatus}
+            </foreach>
+        </if>
+        <if test="filter.usageUsers != null">
+            AND EXISTS (
+                SELECT 1
+                FROM ad_account_asset_assignment usage_assignment
+                WHERE usage_assignment.ad_account_asset_id = ad_account_asset.id
+                  AND usage_assignment.assignment_status = 'ACTIVE'
+                  AND usage_assignment.deleted_at = 0
+                  AND (
+                  <foreach collection="filter.usageUsers" item="usageUser" separator=" OR ">
+                      usage_assignment.user_name LIKE CONCAT('%', #{usageUser}, '%')
+                  </foreach>
+                  )
+            )
+        </if>
+        <if test="filter.inventoryAssigneeNames != null">
+            AND EXISTS (
+                SELECT 1
+                FROM ad_account_asset_assignment inventory_assignment
+                WHERE inventory_assignment.ad_account_asset_id = ad_account_asset.id
+                  AND inventory_assignment.assignment_status = 'ACTIVE'
+                  AND inventory_assignment.deleted_at = 0
+                  AND (
+                  <foreach collection="filter.inventoryAssigneeNames" item="inventoryAssigneeName" separator=" OR ">
+                      inventory_assignment.user_name LIKE CONCAT('%', #{inventoryAssigneeName}, '%')
+                  </foreach>
+                  )
+            )
+        </if>
+        <if test="filter.usageDepartments != null">
+            AND EXISTS (
+                SELECT 1
+                FROM ad_account_asset_assignment department_assignment
+                JOIN sys_user usage_user
+                  ON usage_user.id = department_assignment.user_id
+                 AND usage_user.deleted_at = 0
+                LEFT JOIN sys_department department
+                  ON department.id = usage_user.primary_department_id
+                 AND department.deleted_at = 0
+                WHERE department_assignment.ad_account_asset_id = ad_account_asset.id
+                  AND department_assignment.assignment_status = 'ACTIVE'
+                  AND department_assignment.deleted_at = 0
+                  AND (
+                  <foreach collection="filter.usageDepartments" item="usageDepartment" separator=" OR ">
+                      department.dept_name LIKE CONCAT('%', #{usageDepartment}, '%')
+                  </foreach>
+                  )
+            )
+        </if>
+    </sql>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM ad_account_asset
+        WHERE deleted_at = 0
+        <include refid="pageKeywordCondition" />
+        <include refid="pageFieldCondition" />
+    </select>
+
+    <select id="findPage" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT <include refid="columns" />
+        FROM ad_account_asset
+        WHERE deleted_at = 0
+        <include refid="pageKeywordCondition" />
+        <include refid="pageFieldCondition" />
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="findAllByFilter" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT <include refid="columns" />
+        FROM ad_account_asset
+        WHERE deleted_at = 0
+        <include refid="pageKeywordCondition" />
+        <include refid="pageFieldCondition" />
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findByIds" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT <include refid="columns" />
+        FROM ad_account_asset
+        WHERE deleted_at = 0
+          AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findByChannelName" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT <include refid="columns" />
+        FROM ad_account_asset
+        WHERE channel_name = #{channelName}
+          AND deleted_at = 0
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findByAccountId" resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAsset">
+        SELECT <include refid="columns" />
+        FROM ad_account_asset
+        WHERE account_id = #{accountId} AND deleted_at = 0
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <insert id="upsert">
+        INSERT INTO ad_account_asset (
+            account_id, account_name, account_status, account_type, account_attribute,
+            channel_id, channel_name,
+            managed_bm, managed_bm_id, backup_managed_bm, backup_managed_bm_id,
+            timezone, card_station, card_number, remark, delivery_date, is_manually_updated,
+            manually_updated_at, manually_updated_by, last_mongo_sync_at,
+            last_feishu_sync_at, update_source,
+            created_by, updated_by
+        ) VALUES (
+            #{accountId}, #{accountName}, #{accountStatus}, #{accountType}, #{accountAttribute},
+            #{channelId}, #{channelName},
+            #{managedBm}, #{managedBmId}, #{backupManagedBm}, #{backupManagedBmId},
+            #{timezone}, #{cardStation}, #{cardNumber}, #{remark}, #{deliveryDate}, #{isManuallyUpdated},
+            #{manuallyUpdatedAt}, #{manuallyUpdatedBy}, #{lastMongoSyncAt},
+            #{lastFeishuSyncAt}, #{updateSource},
+            #{createdBy}, #{updatedBy}
+        )
+        ON DUPLICATE KEY UPDATE
+            account_name = VALUES(account_name),
+            account_status = VALUES(account_status),
+            account_type = VALUES(account_type),
+            account_attribute = VALUES(account_attribute),
+            channel_id = VALUES(channel_id),
+            channel_name = VALUES(channel_name),
+            managed_bm = VALUES(managed_bm),
+            managed_bm_id = VALUES(managed_bm_id),
+            backup_managed_bm = VALUES(backup_managed_bm),
+            backup_managed_bm_id = VALUES(backup_managed_bm_id),
+            timezone = VALUES(timezone),
+            card_station = VALUES(card_station),
+            card_number = VALUES(card_number),
+            remark = VALUES(remark),
+            delivery_date = COALESCE(VALUES(delivery_date), delivery_date),
+            is_manually_updated = VALUES(is_manually_updated),
+            manually_updated_at = VALUES(manually_updated_at),
+            manually_updated_by = VALUES(manually_updated_by),
+            last_mongo_sync_at = VALUES(last_mongo_sync_at),
+            last_feishu_sync_at = VALUES(last_feishu_sync_at),
+            update_source = VALUES(update_source),
+            updated_by = VALUES(updated_by),
+            updated_at = CURRENT_TIMESTAMP(3)
+    </insert>
+
+    <insert id="upsertFromFeishu">
+        INSERT INTO ad_account_asset (
+            account_id, account_name, account_type, account_attribute,
+            channel_id, channel_name, managed_bm, managed_bm_id,
+            backup_managed_bm, backup_managed_bm_id, timezone,
+            card_station, card_number, delivery_date, is_manually_updated,
+            last_feishu_sync_at, update_source
+        ) VALUES (
+            #{accountId}, #{accountName}, #{accountType}, #{accountAttribute},
+            #{channelId}, #{channelName}, #{managedBm}, #{managedBmId},
+            #{backupManagedBm}, #{backupManagedBmId}, #{timezone},
+            #{cardStation}, #{cardNumber}, #{deliveryDate}, 0,
+            CURRENT_TIMESTAMP(3), 'FEISHU_SYNC'
+        )
+        ON DUPLICATE KEY UPDATE
+            account_type = IF(is_manually_updated = 0, COALESCE(VALUES(account_type), account_type), account_type),
+            account_attribute = IF(is_manually_updated = 0, COALESCE(VALUES(account_attribute), account_attribute), account_attribute),
+            channel_id = IF(is_manually_updated = 0, COALESCE(VALUES(channel_id), channel_id), channel_id),
+            channel_name = IF(is_manually_updated = 0, COALESCE(VALUES(channel_name), channel_name), channel_name),
+            managed_bm = IF(is_manually_updated = 0, COALESCE(VALUES(managed_bm), managed_bm), managed_bm),
+            managed_bm_id = IF(is_manually_updated = 0, COALESCE(VALUES(managed_bm_id), managed_bm_id), managed_bm_id),
+            backup_managed_bm = IF(is_manually_updated = 0, COALESCE(VALUES(backup_managed_bm), backup_managed_bm), backup_managed_bm),
+            backup_managed_bm_id = IF(is_manually_updated = 0, COALESCE(VALUES(backup_managed_bm_id), backup_managed_bm_id), backup_managed_bm_id),
+            timezone = IF(is_manually_updated = 0, COALESCE(VALUES(timezone), timezone), timezone),
+            card_station = IF(is_manually_updated = 0, COALESCE(VALUES(card_station), card_station), card_station),
+            card_number = IF(is_manually_updated = 0, COALESCE(VALUES(card_number), card_number), card_number),
+            delivery_date = IF(is_manually_updated = 0, VALUES(delivery_date), delivery_date),
+            last_feishu_sync_at = CURRENT_TIMESTAMP(3),
+            update_source = IF(is_manually_updated = 0, 'FEISHU_SYNC', update_source),
+            updated_at = CURRENT_TIMESTAMP(3)
+    </insert>
+
+    <insert id="upsertPlatformSnapshot">
+        INSERT INTO ad_account_asset (
+            account_id, account_name, account_status, is_manually_updated,
+            last_mongo_sync_at, update_source
+        ) VALUES (
+            #{accountId}, #{accountName}, #{accountStatus}, 0,
+            CURRENT_TIMESTAMP(3), 'MONGO_SYNC'
+        )
+        ON DUPLICATE KEY UPDATE
+            account_name = VALUES(account_name),
+            account_status = VALUES(account_status),
+            last_mongo_sync_at = CURRENT_TIMESTAMP(3),
+            updated_at = CURRENT_TIMESTAMP(3)
+    </insert>
+
+    <update id="updatePlatformSnapshotByAccountId">
+        UPDATE ad_account_asset asset
+        JOIN (
+            SELECT id
+            FROM ad_account_asset
+            WHERE account_id = #{accountId}
+              AND deleted_at = 0
+            ORDER BY id DESC
+            LIMIT 1
+        ) latest ON latest.id = asset.id
+        SET asset.account_name = #{accountName},
+            asset.account_status = #{accountStatus},
+            asset.last_mongo_sync_at = CURRENT_TIMESTAMP(3),
+            asset.updated_at = CURRENT_TIMESTAMP(3)
+    </update>
+
+    <update id="resetManualUpdate">
+        UPDATE ad_account_asset
+        SET is_manually_updated = 0,
+            manually_updated_at = NULL,
+            manually_updated_by = NULL,
+            updated_by = #{updatedBy},
+            updated_at = CURRENT_TIMESTAMP(3)
+        WHERE account_id = #{accountId}
+          AND deleted_at = 0
+    </update>
+
+    <update id="clearChannel">
+        UPDATE ad_account_asset
+        SET channel_id = NULL,
+            channel_name = NULL,
+            is_manually_updated = 1,
+            manually_updated_at = CURRENT_TIMESTAMP(3),
+            manually_updated_by = #{updatedBy},
+            update_source = 'CHANNEL_MANUAL',
+            updated_by = #{updatedBy},
+            updated_at = CURRENT_TIMESTAMP(3)
+        WHERE account_id = #{accountId}
+          AND deleted_at = 0
+    </update>
+
+    <update id="updateInventoryStatus">
+        UPDATE ad_account_asset
+        SET inventory_status = #{inventoryStatus},
+            updated_by = #{updatedBy},
+            updated_at = CURRENT_TIMESTAMP(3)
+        WHERE id = #{assetId}
+          AND deleted_at = 0
+    </update>
+
+    <update id="detachAccountType">
+        UPDATE ad_account_asset
+        SET account_type = '未分类',
+            is_manually_updated = 1,
+            manually_updated_at = CURRENT_TIMESTAMP(3),
+            manually_updated_by = #{updatedBy},
+            update_source = 'MANUAL_EDIT',
+            updated_by = #{updatedBy},
+            updated_at = CURRENT_TIMESTAMP(3)
+        WHERE account_type = #{accountType}
+          AND deleted_at = 0
+    </update>
+
+    <insert id="insertChangeEvent" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ad_account_asset_change_event (
+            ad_account_asset_id, account_id, event_type, update_source,
+            actor_id, actor_name, changes_json, occurred_at
+        ) VALUES (
+            #{adAccountAssetId}, #{accountId}, #{eventType}, #{updateSource},
+            #{actorId}, #{actorName}, #{changesJson}, CURRENT_TIMESTAMP(3)
+        )
+    </insert>
+
+    <select id="findChangeEventsByAssetId"
+            resultType="com.adpulse.main.adaccountasset.AdAccountAssetModels$AdAccountAssetChangeEvent">
+        SELECT id, ad_account_asset_id, account_id, event_type, update_source,
+               actor_id, actor_name, changes_json, occurred_at
+        FROM ad_account_asset_change_event
+        WHERE ad_account_asset_id = #{adAccountAssetId}
+        ORDER BY occurred_at DESC, id DESC
+    </select>
+
+    <select id="countChangeEventsByAssetIdAndType" resultType="int">
+        SELECT COUNT(*)
+        FROM ad_account_asset_change_event
+        WHERE ad_account_asset_id = #{adAccountAssetId}
+          AND event_type = #{eventType}
+    </select>
+
+    <insert id="insertImportLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ad_account_asset_import_log (
+            file_name, total_count, success_count, failure_count,
+            failure_details, failed_file_ciphertext, operator_id
+        ) VALUES (
+            #{fileName}, #{totalCount}, #{successCount}, #{failureCount},
+            CAST(#{failureDetails} AS JSON), #{failedFileCiphertext}, #{operatorId}
+        )
+    </insert>
+
+    <select id="findImportLogsByOperatorId" resultMap="importLogMap">
+        SELECT id, file_name, total_count, success_count, failure_count,
+               failure_details, failed_file_ciphertext, operator_id, created_at
+        FROM ad_account_asset_import_log
+        WHERE operator_id = #{operatorId}
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findImportLogByIdAndOperatorId" resultMap="importLogMap">
+        SELECT id, file_name, total_count, success_count, failure_count,
+               failure_details, failed_file_ciphertext, operator_id, created_at
+        FROM ad_account_asset_import_log
+        WHERE id = #{id}
+          AND operator_id = #{operatorId}
+    </select>
+</mapper>

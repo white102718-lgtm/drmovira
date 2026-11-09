@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+WORKDIR /schedulers
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir playwright \
+    && playwright install --with-deps chromium
+
+COPY . .
+
+CMD ["python", "-m", "tasks.ad_materials.ad_creative_scrape_worker"]

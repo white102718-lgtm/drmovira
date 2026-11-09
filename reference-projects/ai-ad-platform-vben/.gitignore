@@ -1,0 +1,83 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+dist.zip
+dist.tar
+dist.war
+.nitro
+.output
+*-dist.zip
+*-dist.tar
+*-dist.war
+coverage
+*.local
+vben-admin.code-workspace
+**/.vitepress/cache
+.cache
+.claude
+.turbo
+.temp
+dev-dist
+.stylelintcache
+yarn.lock
+package-lock.json
+.VSCodeCounter
+**/backend-mock/data
+
+# local env files
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+*.pem
+.eslintcache
+
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+vite.config.mts.*
+vite.config.mjs.*
+vite.config.js.*
+vite.config.ts.*
+
+# Editor directories and files
+.idea
+# .vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.history
+/.changeset/
+/.github/
+/.husky/
+/.vscode/
+.claude
+/.pnpm-store/
+
+# Local archive and runtime files
+/plat.zip
+/plat/src 2.zip
+/plat/adpulse-test-*.tar.gz
+/.codex-dev-*.pid
+/.codex-*.log
+/.codex_patch_probe.txt
+/.deploy-frontend-dist.tgz
+
+# Generated audit artifacts
+/responsive-audit-*.json
+/ui-captures/
+/outputs/
+/test-evidence/
+
+# Temporary frontend build-verification snapshots
+/plat/build-verify-*/
+/plat/test-results/adpulse-business/
+/.codex-runtime/

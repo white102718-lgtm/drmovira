@@ -1,0 +1,275 @@
+<!-- Four-dot loading page preview. This file is not used by the app yet. -->
+<style data-app-loading="inject-css">
+  .loading-container,
+  .loading-container * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .loading-container {
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: #172033;
+    background: #ffffff;
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+      Arial, sans-serif;
+    transition:
+      opacity 0.28s ease,
+      visibility 0.28s ease;
+  }
+
+  .dark .loading-container {
+    color: #f3f6fb;
+    background: #141821;
+  }
+
+  .loading-container.hidden {
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .loading-container.hidden * {
+    animation-play-state: paused !important;
+  }
+
+  .loading-content {
+    display: flex;
+    width: min(280px, calc(100vw - 48px));
+    flex-direction: column;
+    align-items: center;
+    transform: translateY(-2vh);
+    text-align: center;
+  }
+
+  .loading-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: currentColor;
+    font-size: 29px;
+    font-weight: 750;
+    line-height: 1;
+  }
+
+  .loading-brand-logo {
+    display: block;
+    width: 40px;
+    height: 40px;
+    flex: none;
+  }
+
+  .loading-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 18px;
+    margin-top: 24px;
+  }
+
+  .loading-dots i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #c9d2e1;
+    animation: loading-dot 1.2s ease-in-out infinite;
+  }
+
+  .loading-dots i:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .loading-dots i:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .loading-dots i:nth-child(4) {
+    animation-delay: 0.45s;
+  }
+
+  .loading-subtitle {
+    min-height: 20px;
+    margin-top: 16px;
+    color: #7b8596;
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  .dark .loading-subtitle {
+    color: #9aa5b6;
+  }
+
+  .loading-subtitle.is-warning {
+    color: #b7791f;
+  }
+
+  .loading-subtitle.is-error {
+    color: #c2413b;
+  }
+
+  @keyframes loading-dot {
+    0%,
+    100% {
+      transform: translateY(0) scale(0.9);
+      background: #c9d2e1;
+      opacity: 0.72;
+    }
+    50% {
+      transform: translateY(-4px) scale(1.08);
+      background: #356ae6;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loading-dots i {
+      animation-duration: 2.4s;
+      transform: none;
+    }
+  }
+</style>
+
+<div class="loading-container" id="__app-loading__" role="status" aria-live="polite">
+  <div class="loading-content">
+    <div class="loading-brand">
+      <img
+        class="loading-brand-logo"
+        src="/logo.svg"
+        width="40"
+        height="40"
+        alt=""
+        aria-hidden="true"
+      />
+      <span>Mpower</span>
+    </div>
+    <div class="loading-dots" aria-hidden="true">
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+    <div class="loading-subtitle">正在加载中</div>
+  </div>
+</div>
+
+<script data-app-loading="inject-runtime">
+  (function () {
+    var WARN_MS = 8000;
+    var TIMEOUT_MS = 15000;
+    var RELOAD_MS = 40000;
+    var resourceFailed = false;
+
+    function getLoadingElement() {
+      return document.getElementById('__app-loading__');
+    }
+
+    function isLoadingVisible() {
+      var element = getLoadingElement();
+      return !!(element && !element.classList.contains('hidden'));
+    }
+
+    function setStatus(text, state) {
+      if (!isLoadingVisible()) return;
+      var subtitle = document.querySelector(
+        '#__app-loading__ .loading-subtitle',
+      );
+      if (!subtitle) return;
+      subtitle.textContent = text;
+      subtitle.classList.toggle('is-warning', state === 'warning');
+      subtitle.classList.toggle('is-error', state === 'error');
+    }
+
+    function isNetworkSlow() {
+      if (!navigator.onLine) return true;
+      var connection =
+        navigator.connection ||
+        navigator.mozConnection ||
+        navigator.webkitConnection;
+      if (!connection) return false;
+      return (
+        connection.effectiveType === 'slow-2g' ||
+        connection.effectiveType === '2g' ||
+        (typeof connection.rtt === 'number' && connection.rtt > 1200) ||
+        (typeof connection.downlink === 'number' && connection.downlink < 0.8)
+      );
+    }
+
+    function handleResourceError(event) {
+      var target = event.target;
+      if (
+        target &&
+        (target.tagName === 'SCRIPT' || target.tagName === 'LINK')
+      ) {
+        resourceFailed = true;
+      }
+    }
+
+    function handleOffline() {
+      setStatus('网络连接异常，请检查网络', 'error');
+    }
+
+    function handleOnline() {
+      setStatus('网络已恢复，正在加载中');
+    }
+
+    window.addEventListener('error', handleResourceError, true);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+
+    if (!navigator.onLine) {
+      handleOffline();
+    }
+
+    var warnTimer = setTimeout(function () {
+      if (isNetworkSlow()) {
+        setStatus('网络卡顿，正在尝试继续加载', 'warning');
+      } else if (resourceFailed) {
+        setStatus('网页资源加载异常，正在重试', 'warning');
+      } else {
+        setStatus('加载时间较长，请稍候', 'warning');
+      }
+    }, WARN_MS);
+
+    var timeoutTimer = setTimeout(function () {
+      if (isNetworkSlow()) {
+        setStatus('网络卡顿，请检查网络连接', 'error');
+      } else {
+        setStatus('资源加载超时，请刷新页面', 'error');
+      }
+    }, TIMEOUT_MS);
+
+    var reloadTimer = setTimeout(function () {
+      if (isLoadingVisible()) location.reload();
+    }, RELOAD_MS);
+
+    function cleanup() {
+      clearTimeout(warnTimer);
+      clearTimeout(timeoutTimer);
+      clearTimeout(reloadTimer);
+      window.removeEventListener('error', handleResourceError, true);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    }
+
+    var observer = new MutationObserver(function () {
+      if (!isLoadingVisible()) {
+        cleanup();
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+      childList: true,
+      subtree: true,
+    });
+  })();
+</script>

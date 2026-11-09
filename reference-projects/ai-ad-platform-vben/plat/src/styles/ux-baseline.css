@@ -1,0 +1,1218 @@
+:root {
+  /* Keep existing semantic utility classes readable while the UI is consolidated on Ant Design Vue. */
+  --background: 216 33% 97%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 217 80% 65%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 216 30% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 216 30% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 216 45% 95%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 216 27% 91%;
+  --input: 216 27% 91%;
+  --ring: var(--primary);
+  --sidebar: 0 0% 100%;
+  --sidebar-deep: 216 33% 98%;
+  --menu: var(--sidebar);
+  --header: 0 0% 100%;
+  --adpulse-primary: hsl(var(--primary));
+  --adpulse-primary-hover: hsl(var(--primary) / 88%);
+  --adpulse-primary-soft: hsl(var(--primary) / 10%);
+  --adpulse-focus-ring: hsl(var(--primary) / 24%);
+  --adpulse-surface: #fff;
+  --adpulse-surface-muted: #f5f7fa;
+  --adpulse-surface-subtle: #f8fafc;
+  --adpulse-table-row-hover: #edf2f7;
+  --adpulse-border: #e4eaf2;
+  --adpulse-text: #0f172a;
+  --adpulse-text-muted: #64748b;
+  --adpulse-danger: #dc2626;
+  --adpulse-radius: 9px;
+  --adpulse-card-radius: 12px;
+  --adpulse-card-shadow: 0 4px 14px rgb(42 58 82 / 5%);
+  --adpulse-elevated-shadow: 0 12px 30px rgb(42 58 82 / 9%);
+  --adpulse-control-height: 32px;
+  --adpulse-control-font-size: 14px;
+  --adpulse-control-line-height: 20px;
+  --adpulse-form-label-width: 112px;
+  --adpulse-table-header-height: 40px;
+  --adpulse-table-row-height: 44px;
+  --adpulse-table-cell-padding-inline: 12px;
+  --adpulse-table-cell-padding-block: 4px;
+  --adpulse-table-viewport-height: 480px;
+  --adpulse-table-body-min-height: calc(var(--adpulse-table-row-height) * 6);
+  --adpulse-filter-field-width: 220px;
+  --adpulse-filter-wide-field-width: calc(
+    var(--adpulse-filter-field-width) + 60px
+  );
+  --adpulse-filter-search-width: var(--adpulse-filter-field-width);
+  --adpulse-filter-column-gap: 24px;
+  --adpulse-filter-row-gap: 12px;
+  --adpulse-page-gutter: 12px;
+  --adpulse-section-gap: 12px;
+  --adpulse-content-gap: 10px;
+  --adpulse-action-gap: 8px;
+  --adpulse-page-header-min-height: 60px;
+  --adpulse-page-header-padding-block: 9px;
+  --adpulse-page-title-size: 17px;
+  --adpulse-card-head-height: 42px;
+  --adpulse-card-padding: 16px;
+  --adpulse-menu-item-height: 36px;
+  --adpulse-menu-icon-size: 16px;
+  --adpulse-tag-height: 22px;
+  --adpulse-popup-width: 520px;
+  --adpulse-popup-table-height: 320px;
+  --adpulse-overlay-height: min(720px, calc(100dvh - 48px));
+}
+
+/*
+ * 弹窗统一建立固定视口高度链：标题、页脚保持可见，只有正文区域滚动。
+ * Modal 正文使用 flex，允许工作表、表格等子视口通过 flex: 1 获取真实可用高度。
+ */
+.ux-fixed-modal .ant-modal {
+  top: 24px;
+  padding-bottom: 0;
+}
+
+.ux-fixed-modal .ant-modal-content {
+  display: flex;
+  height: var(--adpulse-overlay-height);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ux-fixed-modal .ant-modal-header,
+.ux-fixed-modal .ant-modal-footer {
+  flex: 0 0 auto;
+}
+
+.ux-fixed-modal .ant-modal-body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: auto;
+}
+
+html[data-ui-scale='xsmall'] {
+  --adpulse-control-height: 24px;
+  --adpulse-control-font-size: 12px;
+  --adpulse-control-line-height: 18px;
+  --adpulse-table-header-height: 36px;
+  --adpulse-table-row-height: 38px;
+  --adpulse-table-cell-padding-inline: 9px;
+  --adpulse-table-viewport-height: 440px;
+  --adpulse-filter-field-width: 220px;
+  --adpulse-filter-search-width: var(--adpulse-filter-field-width);
+  --adpulse-filter-column-gap: 16px;
+  --adpulse-filter-row-gap: 10px;
+  --adpulse-page-gutter: 8px;
+  --adpulse-section-gap: 8px;
+  --adpulse-content-gap: 8px;
+  --adpulse-page-header-min-height: 52px;
+  --adpulse-page-header-padding-block: 6px;
+  --adpulse-page-title-size: 15px;
+  --adpulse-card-head-height: 36px;
+  --adpulse-card-padding: 10px;
+  --adpulse-menu-item-height: 32px;
+  --adpulse-menu-icon-size: 14px;
+  --adpulse-tag-height: 19px;
+  --adpulse-popup-width: 480px;
+  --adpulse-popup-table-height: 260px;
+}
+
+html[data-ui-scale='small'] {
+  --adpulse-control-height: 28px;
+  --adpulse-control-font-size: 13px;
+  --adpulse-control-line-height: 20px;
+  --adpulse-table-header-height: 38px;
+  --adpulse-table-row-height: 41px;
+  --adpulse-table-cell-padding-inline: 10px;
+  --adpulse-table-viewport-height: 460px;
+  --adpulse-filter-field-width: 220px;
+  --adpulse-filter-search-width: var(--adpulse-filter-field-width);
+  --adpulse-filter-column-gap: 20px;
+  --adpulse-filter-row-gap: 10px;
+  --adpulse-page-gutter: 10px;
+  --adpulse-section-gap: 10px;
+  --adpulse-content-gap: 9px;
+  --adpulse-page-header-min-height: 56px;
+  --adpulse-page-header-padding-block: 7px;
+  --adpulse-page-title-size: 16px;
+  --adpulse-card-head-height: 39px;
+  --adpulse-card-padding: 12px;
+  --adpulse-menu-item-height: 34px;
+  --adpulse-menu-icon-size: 15px;
+  --adpulse-tag-height: 20px;
+  --adpulse-popup-width: 500px;
+  --adpulse-popup-table-height: 290px;
+}
+
+html[data-ui-scale='large'] {
+  --adpulse-control-height: 36px;
+  --adpulse-control-font-size: 15px;
+  --adpulse-control-line-height: 22px;
+  --adpulse-table-header-height: 44px;
+  --adpulse-table-row-height: 50px;
+  --adpulse-table-cell-padding-inline: 16px;
+  --adpulse-table-viewport-height: 520px;
+  --adpulse-filter-field-width: 240px;
+  --adpulse-filter-search-width: var(--adpulse-filter-field-width);
+  --adpulse-filter-column-gap: 24px;
+  --adpulse-filter-row-gap: 14px;
+  --adpulse-page-gutter: 16px;
+  --adpulse-section-gap: 16px;
+  --adpulse-content-gap: 12px;
+  --adpulse-page-header-min-height: 68px;
+  --adpulse-page-header-padding-block: 12px;
+  --adpulse-page-title-size: 18px;
+  --adpulse-card-head-height: 46px;
+  --adpulse-card-padding: 16px;
+  --adpulse-menu-item-height: 40px;
+  --adpulse-menu-icon-size: 18px;
+  --adpulse-tag-height: 24px;
+  --adpulse-popup-width: 560px;
+  --adpulse-popup-table-height: 360px;
+}
+
+html[data-ui-scale='xlarge'] {
+  --adpulse-control-height: 40px;
+  --adpulse-control-font-size: 16px;
+  --adpulse-control-line-height: 24px;
+  --adpulse-table-header-height: 48px;
+  --adpulse-table-row-height: 56px;
+  --adpulse-table-cell-padding-inline: 18px;
+  --adpulse-table-viewport-height: 560px;
+  --adpulse-filter-field-width: 260px;
+  --adpulse-filter-search-width: var(--adpulse-filter-field-width);
+  --adpulse-filter-column-gap: 28px;
+  --adpulse-filter-row-gap: 16px;
+  --adpulse-page-gutter: 18px;
+  --adpulse-section-gap: 18px;
+  --adpulse-content-gap: 14px;
+  --adpulse-page-header-min-height: 76px;
+  --adpulse-page-header-padding-block: 15px;
+  --adpulse-page-title-size: 20px;
+  --adpulse-card-head-height: 52px;
+  --adpulse-card-padding: 20px;
+  --adpulse-menu-item-height: 44px;
+  --adpulse-menu-icon-size: 20px;
+  --adpulse-tag-height: 28px;
+  --adpulse-popup-width: 600px;
+  --adpulse-popup-table-height: 400px;
+}
+
+html,
+body,
+#app {
+  min-width: 0;
+  min-height: 100%;
+}
+
+html {
+  background: var(--adpulse-surface-muted);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-variant-numeric: tabular-nums;
+  color: var(--adpulse-text);
+  overflow-wrap: anywhere;
+  text-rendering: optimizelegibility;
+  background: var(--adpulse-surface-muted);
+}
+
+/* 路由页面的主标题统一随五档尺寸缩放，页面局部硬编码不再放大首屏页头。 */
+.adpulse-app-layout :where(main, .vben-page, .adpulse-section-page) h1 {
+  font-size: var(--adpulse-page-title-size) !important;
+  line-height: 1.35 !important;
+}
+
+button,
+[role='button'],
+a,
+label[for],
+select,
+summary {
+  cursor: pointer;
+}
+
+::selection {
+  color: var(--adpulse-text);
+  background: var(--adpulse-primary-soft);
+}
+
+/* 五档页面尺寸共同驱动 Ant Design 的常用结构，避免只缩放输入框。 */
+
+:where(button, a).inline-flex:not([class*='h-']) {
+  align-items: center;
+  min-height: var(--adpulse-control-height);
+  vertical-align: middle;
+}
+
+:where(button, a).inline-flex > :where(svg, .anticon) {
+  flex: 0 0 auto;
+}
+
+/*
+ * 图标文字组合统一由 Flex 交叉轴对齐，避免 SVG 依赖字体基线后在不同字号、
+ * 行高和浏览器中上下漂移。这里只收口布局关系，不覆盖 Ant 组件的尺寸与状态。
+ */
+:where(button, a, [role='button']):has(
+    > :where(svg, .iconify, .anticon, [class*='icon-['])
+  ) {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Ant 默认 display 的特异性高于上方零特异性共享规则，需要在同一基线内显式收口。 */
+
+/*
+ * 所有筛选字段使用当前密度档位的统一宽度；空间不足时换行，不压缩控件。
+ * 页面只需添加 ux-filter-form 和对应字段类即可；共享 Flex 必须覆盖遗留页面的固定 Grid，避免标签左置后发生重叠。
+ */
+.ux-filter-form {
+  display: flex !important;
+  min-width: 0;
+  flex-wrap: wrap !important;
+  gap: var(--adpulse-filter-row-gap) var(--adpulse-filter-column-gap);
+  align-items: flex-end;
+}
+
+/* 旧页面的内联表单也使用同一条基线；显式设置宽度的字段保持其业务需要。 */
+
+/*
+ * Ant Form 的 label 默认跟随组件库 40px 行高；页面密度缩小时，控件已经变矮，
+ * 标签仍停在旧基线。所有内联筛选表单都用当前密度的控件高度，保持文字与输入内容居中对齐。
+ */
+
+/*
+ * Vben/VXE 查询表单使用与 Ant 筛选条相同的固定字段宽度和换行节奏。
+ * 默认三等分网格会拉伸字段并把操作区单独挤到下一行，显式筛选类改用紧凑 Flex。
+ */
+.ux-vben-filter-form {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: var(--adpulse-filter-row-gap) var(--adpulse-filter-column-gap) !important;
+  align-items: center;
+}
+
+.ux-vben-filter-form > .flex-row.items-center {
+  flex: 0 0 auto;
+  padding-bottom: 0 !important;
+}
+
+.adpulse-app-layout
+  form
+  > .ux-vben-filter-form
+  > .flex-row.items-center
+  > label {
+  display: flex;
+  flex: 0 0 var(--adpulse-form-label-width) !important;
+  justify-content: flex-end;
+  width: var(--adpulse-form-label-width) !important;
+  min-width: var(--adpulse-form-label-width) !important;
+  text-align: right;
+}
+
+.ux-vben-filter-form > .flex-row.items-center > .flex-auto {
+  flex: 0 0 var(--adpulse-filter-field-width);
+  width: var(--adpulse-filter-field-width);
+}
+
+.ux-vben-filter-form > .ux-vben-filter-actions {
+  display: flex;
+  width: auto !important;
+  min-height: var(--adpulse-control-height);
+  padding-bottom: 0 !important;
+  gap: var(--adpulse-action-gap);
+  align-items: center;
+  margin-left: 0 !important;
+  text-align: left;
+}
+
+.ux-vben-filter-form > .ux-vben-filter-actions > button {
+  margin-left: 0 !important;
+}
+
+/*
+ * VXE 查询表单的 wrapperClass 经常带固定网格列，容易把输入控件压缩到不可用宽度。
+ * 筛选项统一按 220px 起步并自然换行，操作按钮保持内容宽度，不参与字段拉伸。
+ */
+.vxe-grid--form-wrapper form > .grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: var(--adpulse-filter-row-gap) var(--adpulse-filter-column-gap) !important;
+  align-items: center;
+}
+
+/* 自定义筛选条沿用同一字段组间距，避免前一个控件贴近下一个字段标签。 */
+:where(
+  .report-filter-bar,
+  .project-daily-report-filters,
+  .pca-filter-form,
+  .material-filter-toolbar,
+  .platform-filter-bar,
+  .task-filter-toolbar
+) {
+  column-gap: var(--adpulse-filter-column-gap) !important;
+  row-gap: var(--adpulse-filter-row-gap) !important;
+}
+
+.vxe-grid--form-wrapper form > .grid > .flex-row.items-center {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  padding-bottom: 0 !important;
+}
+
+.vxe-grid--form-wrapper form > .grid > .flex-row.items-center > .flex-auto {
+  flex: 0 0 var(--adpulse-filter-field-width);
+  width: var(--adpulse-filter-field-width);
+  min-width: var(--adpulse-filter-field-width);
+  max-width: var(--adpulse-filter-field-width);
+}
+
+.vxe-grid--form-wrapper form > .grid > .col-span-full {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--adpulse-action-gap);
+  align-items: center;
+  width: auto !important;
+  padding-bottom: 0 !important;
+  margin-left: 0 !important;
+  text-align: left;
+}
+
+.ux-filter-form .ux-filter-field {
+  flex: 0 0 var(--adpulse-filter-field-width);
+  width: var(--adpulse-filter-field-width) !important;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+/* 日期范围等复合控件使用完整宽字段占位，避免子控件溢出后覆盖相邻操作。 */
+.ux-filter-form .ux-filter-field-wide {
+  flex-basis: var(--adpulse-filter-wide-field-width);
+  width: var(--adpulse-filter-wide-field-width) !important;
+}
+
+.ux-filter-form .ux-filter-search {
+  flex: 0 0 var(--adpulse-filter-search-width);
+  width: var(--adpulse-filter-search-width) !important;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+/*
+ * 筛选表单统一采用“标签在左、控件在右”的紧凑结构。
+ * 仅匹配显式筛选容器，避免改变新增、编辑和详情表单的纵向布局。
+ */
+
+/* 自定义筛选条与 Ant/Vben 表单使用相同的标签阅读方向。 */
+:where(
+  .ux-filter-label,
+  .pca-filter-label,
+  .pdr-filter-label,
+  .material-filter-toolbar > .material-filter-field > .material-filter-label
+) {
+  text-align: right;
+}
+
+.ux-filter-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: var(--adpulse-action-gap);
+  align-items: center;
+  min-height: var(--adpulse-control-height);
+  margin-inline-start: 0 !important;
+}
+
+.ux-filter-form .ux-filter-actions {
+  align-self: flex-end;
+}
+
+.ux-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--adpulse-action-gap);
+  min-width: 0;
+}
+
+.ux-actions > * {
+  flex: 0 0 auto;
+  margin-inline: 0 !important;
+}
+
+/*
+ * 表单默认采用“标签在左、控件在右”的紧凑结构；确需纵向标签时可添加 ux-form-label-top。
+ * 窄屏在下方媒体查询中统一切回标签在上，避免压缩控件的可用宽度。
+ */
+
+/* Horizontal forms use the same label column and let each field occupy the remaining row width. */
+
+/* 个人资料页含四字字段和必填标识，设置安全下限以避免标签列在窄计算结果下裁切。 */
+
+/* VbenForm horizontal rows: keep one label column and a shared control start line. */
+form > .grid > .flex-row.items-center > label {
+  display: flex;
+  flex: 0 0 var(--adpulse-form-label-width) !important;
+  justify-content: flex-end;
+  width: var(--adpulse-form-label-width) !important;
+  min-width: var(--adpulse-form-label-width) !important;
+  text-align: right;
+  white-space: nowrap !important;
+}
+
+form > .grid > .flex-row.items-center > label + .flex-auto {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.table-summary-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  min-height: var(--adpulse-table-row-height);
+  padding: 6px var(--adpulse-table-cell-padding-inline);
+  font-weight: 500;
+  color: var(--adpulse-text);
+}
+
+/*
+ * 尚未迁移的复杂业务组件沿用行为内核，但卡片、分隔和页签统一为
+ * Ant Design 的中性表面、边框和紧凑层级，避免同一页面出现两套视觉语言。
+ */
+
+/*
+ * 表格内容区至少保留六行信息空间，并随页面大小档位的共享行高同步变化。
+ * 空数据、加载中与少量数据不再退化成一条窄带；内容较多时仍由原有滚动视窗接管。
+ */
+
+/* 宽表仅在表格视口内部滚动，页面根容器始终保持稳定。 */
+
+/*
+ * 表格行高使用当前页面大小的共享令牌作为下限；多行内容仍可自然增高。
+ * Ant、VXE 与原生表格统一由这里收口，避免紧凑档位被组件默认尺寸撑高。
+ */
+
+/*
+ * 固定列的后续行会覆盖前一行内就地挂载的浮层。仅在浮层触发状态存在时
+ * 提升对应固定单元格，避免长期抬高整行而干扰表头和横向滚动层级。
+ */
+
+/* 表格内操作按钮同步当前密度，防止 Ant 默认 40px 高度撑平前三档行高。 */
+/*
+ * 表格交互统一使用当前主题色。数据链接常驻下划线，避免仅靠颜色表达
+ * “可点击”；操作按钮保留按钮形态，删除等危险操作继续使用红色语义。
+ */
+
+/*
+ * 固定列必须形成独立且不透明的覆盖层。Ant 默认给固定列表头的层级低于
+ * 下方共享 sticky 表头，横向滚动时普通列标题会压到固定列上方。
+ */
+
+/*
+ * 浮层挂载在触发控件父节点时会跟随局部滚动，但表格后续单元格（尤其固定列）
+ * 可能建立更高的绘制层。仅在浮层打开期间提升当前行，避免菜单、选择器、
+ * 日期面板和气泡被相邻列或下一行遮挡，同时不改变关闭状态下的表格层叠顺序。
+ */
+
+/*
+ * VXE remains the data engine for virtual scrolling, fixed columns and large
+ * datasets. Its public surface follows the same Ant Design table contract as the
+ * native table above, so users never encounter a second table visual language.
+ */
+.vxe-grid {
+  --vxe-ui-layout-background-color: var(--ant-color-bg-container);
+  --vxe-ui-font-color: var(--ant-color-text);
+  --vxe-ui-font-lighten-color: var(--ant-color-text-secondary);
+  --vxe-ui-table-border-color: var(--ant-color-border-secondary);
+  --vxe-ui-table-header-background-color: transparent;
+  --vxe-ui-table-row-background-color: var(--ant-color-bg-container);
+  --vxe-ui-table-row-hover-background-color: var(
+    --adpulse-table-row-hover
+  ) !important;
+  --vxe-ui-table-row-striped-background-color: var(--ant-color-bg-container);
+  --vxe-ui-table-row-hover-striped-background-color: var(
+    --adpulse-table-row-hover
+  ) !important;
+  --vxe-ui-table-row-current-background-color: var(--ant-color-fill-tertiary);
+  --vxe-ui-table-row-checkbox-checked-background-color: var(
+    --ant-color-bg-container
+  );
+  --vxe-ui-table-row-hover-checkbox-checked-background-color: var(
+    --adpulse-table-row-hover
+  ) !important;
+  --vxe-ui-table-row-radio-checked-background-color: var(
+    --ant-color-bg-container
+  );
+  --vxe-ui-table-row-hover-radio-checked-background-color: var(
+    --adpulse-table-row-hover
+  ) !important;
+  --vxe-ui-table-row-hover-current-background-color: var(
+    --adpulse-table-row-hover
+  ) !important;
+  --vxe-ui-table-row-line-height: 20px;
+  min-height: var(--adpulse-table-viewport-height);
+}
+
+/*
+ * VXE 空表会把 body 内联压成单行高度。为表格根节点和内部布局链同时设置下限，
+ * 让空状态真正占据内容区，同时不覆盖有数据表格的虚拟滚动高度。
+ */
+.vxe-table--render-default {
+  min-height: calc(
+    var(--adpulse-table-header-height) + var(--adpulse-table-body-min-height)
+  );
+}
+
+.adpulse-app-layout .vxe-grid .vxe-table--body-wrapper {
+  background: hsl(var(--card));
+}
+
+/* 分页器与表格内容共用底层卡片，不再单独铺设背景色。 */
+.adpulse-app-layout .vxe-grid .vxe-pager {
+  background: transparent;
+}
+
+/* 工具栏沿用表格卡片底色，避免操作按钮区域出现独立灰色条带。 */
+.adpulse-app-layout .vxe-grid .vxe-toolbar {
+  background: transparent;
+}
+
+.vxe-table--render-default
+  :is(
+    .vxe-table--render-wrapper,
+    .vxe-table--layout-wrapper,
+    .vxe-table--viewport-wrapper,
+    .vxe-table--main-wrapper
+  ) {
+  min-height: calc(
+    var(--adpulse-table-header-height) + var(--adpulse-table-body-min-height)
+  );
+}
+
+.vxe-table--render-default
+  :is(
+    .vxe-table--body-wrapper,
+    .vxe-table--body-inner-wrapper,
+    .vxe-table--empty-block
+  ) {
+  min-height: var(--adpulse-table-body-min-height) !important;
+}
+
+.vxe-table--render-default .vxe-header--column {
+  font-weight: 500;
+  color: var(--ant-color-text-secondary);
+}
+
+.vxe-table--render-default .vxe-header--column > .vxe-cell,
+.vxe-table--render-default .vxe-body--column > .vxe-cell,
+.vxe-table--render-default .vxe-footer--column > .vxe-cell {
+  padding-inline: var(--adpulse-table-cell-padding-inline);
+}
+
+.vxe-grid .vxe-pager {
+  padding: var(--adpulse-content-gap) var(--adpulse-table-cell-padding-inline);
+  border-top: 1px solid var(--ant-color-border-secondary);
+}
+
+/*
+ * 整页主表格沿 Page 的确定高度向下传递，数据区在表格内部滚动。
+ * 仅匹配直接承载 VXE Grid 的 h-full 卡片，避免分析页中的小型表格被拉满。
+ */
+.adpulse-app-layout
+  .vben-page__content
+  > :where(.bg-card.h-full:has(> .vxe-grid)),
+.adpulse-app-layout
+  .ux-fill-grid-host
+  > :where(.bg-card.h-full:has(> .vxe-grid)) {
+  display: flex;
+  flex: 1 1 0%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.adpulse-app-layout
+  .vben-page__content
+  > :where(.bg-card.h-full:has(> .vxe-grid))
+  > .vxe-grid,
+.adpulse-app-layout
+  .ux-fill-grid-host
+  > :where(.bg-card.h-full:has(> .vxe-grid))
+  > .vxe-grid {
+  flex: 1 1 0%;
+  width: 100%;
+  height: 100% !important;
+  min-height: 0;
+}
+
+/*
+ * 填充式表格由外层剩余高度决定视口，必须覆盖 VXE 的六行空态下限。
+ * 否则在筛选区较高或小视口下，表体会越过 Grid 边界并被外层裁切。
+ */
+.adpulse-app-layout .ux-fill-grid-host .vxe-table--render-default,
+.adpulse-app-layout .ux-fill-grid-host .vxe-grid,
+.adpulse-app-layout
+  .ux-fill-grid-host
+  :is(
+    .vxe-grid--layout-body-wrapper,
+    .vxe-grid--layout-body-content-wrapper,
+    .vxe-grid--table-container,
+    .vxe-grid--table-wrapper
+  ),
+.adpulse-app-layout
+  .ux-fill-grid-host
+  .vxe-table--render-default
+  :is(
+    .vxe-table--layout-wrapper,
+    .vxe-table--viewport-wrapper,
+    .vxe-table--main-wrapper,
+    .vxe-table--body-wrapper,
+    .vxe-table--body-inner-wrapper,
+    .vxe-table--empty-block
+  ) {
+  min-height: 0 !important;
+}
+
+/* 无标题弹窗没有 header 承担占位，正文需主动避开右上角关闭按钮。 */
+
+/* 固定弹窗高度，标题和底部操作常驻，仅正文区域承担纵向滚动。 */
+
+/* 复杂双栏或表格工作区由内部区域滚动，正文仅负责提供稳定的可用高度。 */
+
+/* Drawer 本身占满固定视口高度，正文滚动时不带走页头和底部操作。 */
+
+.vben-modal-content,
+.vben-drawer-content {
+  color: var(--adpulse-text);
+  background: rgb(255 255 255 / 98%);
+  border: 1px solid var(--adpulse-border);
+  box-shadow: var(--adpulse-elevated-shadow);
+}
+
+.vben-modal-header,
+.vben-modal-footer,
+.vben-drawer-header,
+.vben-drawer-footer {
+  border-color: var(--adpulse-border);
+}
+
+.ux-page-shell {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin-inline: 0;
+}
+
+/*
+ * 路由页面统一铺满主内容区。Page 组件默认的 p-4 即项目标准页面留白；
+ * 显式使用 p-0 的画布、编辑器等沉浸式页面不受影响。
+ */
+:is(#main-content, [id='__vben_main_content']) > * {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+:is(#main-content, [id='__vben_main_content']) > .relative.h-full > * {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+:is(#main-content, [id='__vben_main_content'])
+  > .relative.h-full
+  > .relative
+  > :where(.h-full.p-4) {
+  padding: var(--adpulse-page-gutter) !important;
+}
+
+.ux-section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--adpulse-section-gap);
+  width: 100%;
+  min-width: 0;
+}
+
+.ux-content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--adpulse-content-gap);
+  min-width: 0;
+}
+
+.ux-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.ux-toolbar > * {
+  min-width: 0;
+}
+
+.ux-scroll-x {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+
+/* Ant 浮层挂到实际滚动宿主后，需要由宿主建立绝对定位包含块。 */
+.vben-popup-scroll-host {
+  position: relative;
+}
+
+.ux-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+}
+
+/*
+ * 全系统轻量拟态基线：由布局统一作用于所有动态路由页面，确保现有页面与
+ * 后续新增页面共享同一套表面、密度、交互状态和主题色，而不侵入业务逻辑。
+ */
+.adpulse-app-layout {
+  color: var(--adpulse-text);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 76%), transparent 220px),
+    var(--adpulse-surface-muted);
+}
+
+.adpulse-app-layout :is(#main-content, [id='__vben_main_content']) {
+  min-width: 0;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      hsl(var(--primary) / 5%),
+      transparent 28rem
+    ),
+    var(--adpulse-surface-muted);
+}
+
+.adpulse-app-layout :where(aside.bg-sidebar) {
+  border-color: var(--adpulse-border);
+  box-shadow: 4px 0 18px rgb(42 58 82 / 4%);
+}
+
+.adpulse-app-layout :where(header.bg-header) {
+  background: rgb(255 255 255 / 92%);
+  border-color: var(--adpulse-border);
+  box-shadow: 0 3px 14px rgb(42 58 82 / 4%);
+  backdrop-filter: blur(14px);
+}
+
+.adpulse-app-layout :where(section.bg-background) {
+  background: rgb(255 255 255 / 82%);
+  border-color: var(--adpulse-border);
+}
+
+/* 系统管理统一使用白色内容面；表头与交互态继续沿用各组件语义色。 */
+.adpulse-app-layout .system-management-page {
+  background: hsl(var(--background));
+}
+
+.adpulse-app-layout .system-management-page.vben-page > .vben-page__header {
+  background: hsl(var(--card));
+}
+
+.adpulse-app-layout
+  .system-management-page
+  :where(
+    .vxe-grid--toolbar-wrapper,
+    .vxe-grid--bottom-wrapper,
+    .vxe-toolbar,
+    .vxe-pager
+  ) {
+  background: transparent;
+}
+
+/* Page 是全系统一级、二级业务页面的结构锚点。 */
+.adpulse-app-layout :where(.vben-page) {
+  width: 100%;
+  min-height: 100%;
+  color: var(--adpulse-text);
+  background: transparent !important;
+}
+
+.adpulse-app-layout :where(.vben-page__header) {
+  min-height: var(--adpulse-page-header-min-height);
+  margin: var(--adpulse-page-gutter) var(--adpulse-page-gutter) 0;
+  padding: var(--adpulse-page-header-padding-block) var(--adpulse-page-gutter);
+  background: rgb(255 255 255 / 92%);
+  border: 1px solid var(--adpulse-border);
+  border-radius: var(--adpulse-card-radius);
+  box-shadow: var(--adpulse-card-shadow);
+}
+
+.adpulse-app-layout :where(.vben-page__title) {
+  margin-bottom: 2px;
+  font-size: var(--adpulse-page-title-size);
+  color: var(--adpulse-text);
+  letter-spacing: -0.01em;
+}
+
+.adpulse-app-layout :where(.vben-page__description) {
+  max-width: 72ch;
+  color: var(--adpulse-text-muted);
+}
+
+.adpulse-app-layout :where(.vben-page__extra) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--adpulse-action-gap);
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.adpulse-app-layout :where(.vben-page__content) {
+  padding: var(--adpulse-page-gutter);
+}
+
+/* 顶层页签已经提供连续卡片表面，内部 Page 页头保持同一平面，避免重复套卡。 */
+.adpulse-app-layout .adpulse-tabs-page :where(.vben-page__header) {
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--adpulse-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/*
+ * 页面级页签承载的是整页主模块，必须与页面背景建立清晰的表面层级。
+ * 仅匹配页面根节点的直属 Tabs，避免给卡片、抽屉或业务面板内部页签重复套卡。
+ */
+
+/* 路由根背景统一交给布局，避免同一系统混用 gray/slate/white 三套底色。 */
+.adpulse-app-layout
+  :is(#main-content, [id='__vben_main_content'])
+  > .relative.h-full
+  > :where(.bg-white, .bg-gray-50, .bg-slate-50, [class~='bg-muted/40']) {
+  background: transparent !important;
+}
+
+/* 共享页头与少量历史自定义页头使用同一紧凑层级。 */
+
+/*
+ * 自定义页头由自身直接承载标题和操作，不经过 Ant Card body；统一补足四向
+ * 内容留白，避免页面 gutter 存在时误以为页头内部也已有 padding。
+ */
+.adpulse-app-layout
+  :where(.channel-page-header, .task-page-header, .asset-page-header) {
+  padding: var(--adpulse-page-header-padding-block) var(--adpulse-page-gutter);
+  border: 1px solid var(--adpulse-border);
+}
+
+/* 旧页面常见的 14–32px 内联卡片留白统一回收到五档密度令牌；0 保留给表格壳。 */
+
+/* Ant Table 无论是否显式配置 scroll.y，都保持固定视窗和吸顶表头。 */
+
+/* 原生业务表格与 Ant/VXE 共用固定视口、表头和行高。 */
+:where(.ux-native-table-viewport) {
+  width: 100%;
+  height: var(--adpulse-table-viewport-height);
+  min-height: var(--adpulse-table-viewport-height);
+  overflow: auto;
+  scrollbar-width: thin;
+  background: var(--adpulse-surface);
+  border: 1px solid var(--adpulse-border);
+  border-radius: var(--adpulse-radius);
+}
+
+:where(.ux-native-table-viewport > table) {
+  width: max-content;
+  min-width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+}
+
+:where(.ux-native-table-viewport > table thead th) {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: var(--adpulse-table-header-height);
+  padding: var(--adpulse-table-cell-padding-block)
+    var(--adpulse-table-cell-padding-inline);
+  font-size: var(--adpulse-control-font-size);
+  font-weight: 600;
+  color: var(--adpulse-text-muted);
+  background: var(--adpulse-surface-subtle);
+  border-bottom: 1px solid var(--adpulse-border);
+}
+
+:where(.ux-native-table-viewport > table tbody td) {
+  height: var(--adpulse-table-row-height);
+  min-height: var(--adpulse-table-row-height);
+  padding: var(--adpulse-table-cell-padding-block)
+    var(--adpulse-table-cell-padding-inline);
+  border-bottom: 1px solid #edf1f6;
+}
+
+:where(.ux-native-table-viewport > table tbody > tr, .ux-table-row) {
+  height: var(--adpulse-table-row-height);
+  min-height: var(--adpulse-table-row-height);
+}
+
+:where(
+  .ux-native-table-viewport > table tbody > tr:hover > td,
+  .ux-table-row:hover > td
+) {
+  background: var(--adpulse-table-row-hover) !important;
+}
+
+/*
+ * 原生横向表格的固定列必须是不透明覆盖层。否则横向滚动时，普通列内容会从
+ * 固定操作列下方透出；左右分隔阴影同时提示用户该列仍固定在视口边缘。
+ */
+:where(
+  .ux-native-table-viewport > table thead > tr > th.sticky,
+  .ux-native-table-viewport > table tbody > tr > td.sticky
+) {
+  z-index: 4;
+  background: var(--adpulse-surface);
+  background-clip: padding-box;
+}
+
+:where(.ux-native-table-viewport > table thead > tr > th.sticky) {
+  z-index: 6;
+  background: var(--adpulse-surface-subtle);
+}
+
+:where(
+  .ux-native-table-viewport > table thead > tr > th.sticky.right-0,
+  .ux-native-table-viewport > table tbody > tr > td.sticky.right-0
+) {
+  box-shadow: -8px 0 12px -12px hsl(var(--foreground) / 28%);
+}
+
+:where(
+  .ux-native-table-viewport > table thead > tr > th.sticky.left-0,
+  .ux-native-table-viewport > table tbody > tr > td.sticky.left-0
+) {
+  box-shadow: 8px 0 12px -12px hsl(var(--foreground) / 28%);
+}
+
+:where(.vxe-grid) {
+  overflow: hidden;
+}
+
+:where(.vxe-table--header-wrapper, .vxe-table--footer-wrapper) {
+  background: var(--adpulse-surface-subtle);
+}
+
+/* VXE 使用独立固定列容器；提高其层级并保持表面不透明，语义与 Ant 表格一致。 */
+:where(
+  .vxe-table--render-default .vxe-table--fixed-left-wrapper,
+  .vxe-table--render-default .vxe-table--fixed-right-wrapper
+) {
+  z-index: 6 !important;
+  background: var(--adpulse-surface) !important;
+}
+
+:where(
+  .vxe-table--fixed-left-wrapper .vxe-table--header-wrapper,
+  .vxe-table--fixed-right-wrapper .vxe-table--header-wrapper
+) {
+  background: var(--adpulse-surface-subtle) !important;
+}
+
+:where(.vxe-header--column) {
+  font-weight: 600;
+  color: #475569;
+}
+
+:where(.vxe-table--render-default .vxe-header--row) {
+  height: var(--adpulse-table-header-height) !important;
+  min-height: var(--adpulse-table-header-height) !important;
+}
+
+:where(.vxe-table--render-default .vxe-body--row) {
+  height: var(--adpulse-table-row-height) !important;
+  min-height: var(--adpulse-table-row-height) !important;
+}
+
+:where(
+  .vxe-table--render-default .vxe-header--column,
+  .vxe-table--render-default .vxe-body--column
+) {
+  height: inherit !important;
+  min-height: inherit !important;
+}
+
+/* Teleport 到 body 的弹窗控件也必须继承与页面完全相同的表面、圆角和状态。 */
+:where(.vxe-body--row.row--hover) {
+  background: hsl(var(--primary) / 5%);
+}
+
+/* 菜单图标统一为单色；默认使用中性文字色，激活与悬停状态跟随主题色。 */
+.adpulse-app-layout :where(.vben-menu__icon) {
+  color: inherit !important;
+  filter: none !important;
+}
+
+.adpulse-app-layout :where(.vben-menu-item__content, .vben-sub-menu-content) {
+  height: var(--adpulse-menu-item-height);
+  min-height: var(--adpulse-menu-item-height);
+  border-radius: 9px;
+}
+
+/* 折叠菜单常态不单独铺底色，悬停与选中反馈仍由菜单组件负责。 */
+.adpulse-app-layout :where(.vben-sub-menu, .vben-sub-menu-content) {
+  background: transparent;
+}
+
+/* 菜单项由自身容器绘制悬浮背景，避免与内部 content 叠成两块颜色。 */
+.adpulse-app-layout :where(.vben-menu) {
+  --menu-item-hover-background-color: var(--adpulse-surface-muted);
+  --menu-submenu-hover-background-color: var(--adpulse-surface-muted);
+}
+
+.adpulse-app-layout :where(.vben-menu__icon svg) {
+  width: var(--adpulse-menu-icon-size);
+  height: var(--adpulse-menu-icon-size);
+}
+
+.adpulse-app-layout :where(.layout-utility-button) {
+  width: var(--adpulse-control-height) !important;
+  min-width: var(--adpulse-control-height) !important;
+  height: var(--adpulse-control-height) !important;
+  min-height: var(--adpulse-control-height) !important;
+}
+
+.adpulse-app-layout :where(.vben-menu__icon img) {
+  width: var(--adpulse-menu-icon-size);
+  height: var(--adpulse-menu-icon-size);
+  filter: grayscale(1) saturate(0) opacity(0.72);
+}
+
+.adpulse-app-layout :where(.vben-menu__icon svg [fill]:not([fill='none'])) {
+  fill: currentcolor !important;
+}
+
+.adpulse-app-layout :where(.vben-menu__icon svg [stroke]:not([stroke='none'])) {
+  stroke: currentcolor !important;
+}
+
+.adpulse-app-layout
+  :where(.vben-menu-item.is-active, .vben-sub-menu.is-active) {
+  color: hsl(var(--primary));
+}
+
+.adpulse-app-layout :where(.vben-menu-item.is-active) {
+  background: hsl(var(--primary) / 10%) !important;
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 10%);
+}
+
+/*
+ * 自定义选择按钮与树节点统一使用当前主题的柔和选择态。
+ * 排除 Switch、主按钮和图标色板，避免覆盖组件结构或业务语义色。
+ */
+
+@media (max-width: 767px) {
+  :root {
+    --adpulse-control-height: 44px;
+    --adpulse-page-gutter: 12px;
+    --adpulse-section-gap: 12px;
+    --adpulse-menu-item-height: 44px;
+    --adpulse-menu-icon-size: 18px;
+  }
+
+  .ux-filter-form .ux-filter-field,
+  .ux-filter-form .ux-filter-search {
+    flex: 1 1 100%;
+    width: 100% !important;
+  }
+
+  .ux-filter-form .ux-filter-actions {
+    flex: 1 1 100%;
+  }
+
+  .ux-vben-filter-form > .flex-row.items-center {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .ux-vben-filter-form > .flex-row.items-center > .flex-auto {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  .ux-vben-filter-form > .ux-vben-filter-actions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+
+  .vxe-grid--form-wrapper form > .grid > .flex-row.items-center {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .vxe-grid--form-wrapper form > .grid > .flex-row.items-center > .flex-auto {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .vxe-grid--form-wrapper form > .grid > .col-span-full {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+
+  .ux-actions {
+    align-items: stretch;
+  }
+
+  .adpulse-app-layout :where(.vben-page__header) {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    min-height: 0;
+  }
+
+  .adpulse-app-layout :where(.vben-page__heading, .vben-page__extra) {
+    flex: 1 1 100%;
+  }
+
+  .adpulse-app-layout :where(.vben-page__extra) {
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

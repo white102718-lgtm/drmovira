@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.loginlog.mapper.LoginLogMapper">
+
+    <resultMap id="loginLogMap" type="com.adpulse.system.loginlog.model.LoginLog">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="loginIdentifier" column="login_identifier"/>
+        <result property="username" column="username"/>
+        <result property="displayName" column="display_name"/>
+        <result property="authStage" column="auth_stage"/>
+        <result property="loginResult" column="login_result"/>
+        <result property="failureCode" column="failure_code"/>
+        <result property="failureReason" column="failure_reason"/>
+        <result property="clientIp" column="client_ip"/>
+        <result property="userAgent" column="user_agent"/>
+        <result property="loginAt" column="login_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        id,
+        user_id,
+        login_identifier,
+        username,
+        display_name,
+        auth_stage,
+        login_result,
+        failure_code,
+        failure_reason,
+        client_ip,
+        user_agent,
+        login_at
+    </sql>
+
+    <sql id="filters">
+        1 = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                login_identifier LIKE CONCAT('%', #{keyword}, '%')
+                OR username LIKE CONCAT('%', #{keyword}, '%')
+                OR display_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="loginResult != null">AND login_result = #{loginResult}</if>
+        <if test="authStage != null">AND auth_stage = #{authStage}</if>
+        <if test="clientIp != null and clientIp != ''">AND client_ip = #{clientIp}</if>
+        <if test="startedAt != null">AND login_at &gt;= #{startedAt}</if>
+        <if test="endedAt != null">AND login_at &lt;= #{endedAt}</if>
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_login_log (
+            user_id,
+            login_identifier,
+            username,
+            display_name,
+            auth_stage,
+            login_result,
+            failure_code,
+            failure_reason,
+            client_ip,
+            user_agent,
+            login_at
+        ) VALUES (
+            #{userId},
+            #{loginIdentifier},
+            #{username},
+            #{displayName},
+            #{authStage},
+            #{loginResult},
+            #{failureCode},
+            #{failureReason},
+            #{clientIp},
+            #{userAgent},
+            #{loginAt}
+        )
+    </insert>
+
+    <select id="findPage" resultMap="loginLogMap">
+        SELECT
+            <include refid="columns"/>
+        FROM sys_login_log
+        WHERE <include refid="filters"/>
+        ORDER BY login_at DESC, id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM sys_login_log
+        WHERE <include refid="filters"/>
+    </select>
+
+</mapper>

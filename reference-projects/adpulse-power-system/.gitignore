@@ -1,0 +1,17 @@
+target/
+.idea/
+.vscode/
+*.iml
+*.log
+.env
+application-local.yml
+data/
+logs/
+
+# Codex 本地发布副本与开发工具链
+/.codex-release-backend/
+/.codex-toolchain/
+/.codex-tmp/
+# 本地服务启动的私有连接凭据
+.env.local
+.env.mpower.local

@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+
+WORKDIR /schedulers
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# dispatcher 容器数极少(~3-5),启动峰值 CPU 不是问题,不需要随机 sleep 错峰。
+CMD ["python", "-m", "tasks.ad_sync_new.dispatcher"]

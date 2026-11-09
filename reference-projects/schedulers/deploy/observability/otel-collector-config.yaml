@@ -1,0 +1,62 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+  
+  # 内存限制处理器
+  memory_limiter:
+    limit_mib: 512
+    check_interval: 1s
+
+  # 资源处理器 - 不硬编码服务名
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: production
+        action: upsert
+      - key: cluster.name
+        value: pvstore
+        action: upsert
+
+exporters:
+  # 使用OTLP HTTP导出器到Loki的原生OTLP端点 (2025推荐方式)
+  otlphttp:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+    
+# Prometheus metrics导出 - 已禁用 (没有Prometheus服务)
+  # prometheus:
+  #   endpoint: "0.0.0.0:8889"
+    
+  # 调试用的debug导出器
+  debug:
+    verbosity: normal
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp, debug]
+    
+    # metrics:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, resource, batch]
+    #   exporters: [prometheus]
+    
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [debug]
+
+  extensions: []

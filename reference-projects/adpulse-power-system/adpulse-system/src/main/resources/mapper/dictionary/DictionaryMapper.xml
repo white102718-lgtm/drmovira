@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.dictionary.mapper.DictionaryMapper">
+
+    <resultMap id="typeMap" type="com.adpulse.system.dictionary.model.DictionaryType">
+        <id property="id" column="id"/>
+        <result property="dictCode" column="dict_code"/>
+        <result property="dictName" column="dict_name"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <resultMap id="itemMap" type="com.adpulse.system.dictionary.model.DictionaryItem">
+        <id property="id" column="id"/>
+        <result property="dictTypeId" column="dict_type_id"/>
+        <result property="itemValue" column="item_value"/>
+        <result property="itemLabel" column="item_label"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <select id="findTypes" resultMap="typeMap">
+        SELECT id, dict_code, dict_name, status, remark, created_at, updated_at, deleted_at
+        FROM sys_dict_type
+        WHERE deleted_at = 0
+        <if test="keyword != null and keyword != ''">
+            AND (dict_code LIKE CONCAT('%', #{keyword}, '%')
+                OR dict_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <select id="findTypeById" resultMap="typeMap">
+        SELECT id, dict_code, dict_name, status, remark, created_at, updated_at, deleted_at
+        FROM sys_dict_type
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <select id="findEnabledTypeByCode" resultMap="typeMap">
+        SELECT id, dict_code, dict_name, status, remark, created_at, updated_at, deleted_at
+        FROM sys_dict_type
+        WHERE dict_code = #{dictCode} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <insert id="insertType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_dict_type (
+            dict_code, dict_name, status, remark, created_by, updated_by
+        ) VALUES (
+            #{dictCode}, #{dictName}, #{status}, #{remark}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateType">
+        UPDATE sys_dict_type
+        SET dict_code = #{dictCode}, dict_name = #{dictName}, status = #{status},
+            remark = #{remark}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="softDeleteType">
+        UPDATE sys_dict_type
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <select id="findItems" resultMap="itemMap">
+        SELECT id, dict_type_id, item_value, item_label, sort_order, status, remark,
+               created_at, updated_at, deleted_at
+        FROM sys_dict_item
+        WHERE dict_type_id = #{dictTypeId} AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findEnabledItems" resultMap="itemMap">
+        SELECT id, dict_type_id, item_value, item_label, sort_order, status, remark,
+               created_at, updated_at, deleted_at
+        FROM sys_dict_item
+        WHERE dict_type_id = #{dictTypeId} AND status = 1 AND deleted_at = 0
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="findItemById" resultMap="itemMap">
+        SELECT id, dict_type_id, item_value, item_label, sort_order, status, remark,
+               created_at, updated_at, deleted_at
+        FROM sys_dict_item
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <insert id="insertItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_dict_item (
+            dict_type_id, item_value, item_label, sort_order, status, remark,
+            created_by, updated_by
+        ) VALUES (
+            #{dictTypeId}, #{itemValue}, #{itemLabel}, #{sortOrder}, #{status}, #{remark},
+            #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateItem">
+        UPDATE sys_dict_item
+        SET item_value = #{itemValue}, item_label = #{itemLabel},
+            sort_order = #{sortOrder}, status = #{status}, remark = #{remark},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="softDeleteItem">
+        UPDATE sys_dict_item
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="softDeleteItemsByType">
+        UPDATE sys_dict_item
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE dict_type_id = #{dictTypeId} AND deleted_at = 0
+    </update>
+
+</mapper>

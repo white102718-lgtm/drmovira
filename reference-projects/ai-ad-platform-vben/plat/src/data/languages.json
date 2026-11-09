@@ -1,0 +1,13 @@
+[
+  { "label": "英语",    "value": "en" },
+  { "label": "印地语",  "value": "hi" },
+  { "label": "葡萄牙语","value": "pt" },
+  { "label": "印尼语",  "value": "id" },
+  { "label": "孟加拉语","value": "bn" },
+  { "label": "西班牙语","value": "es" },
+  { "label": "越南语",  "value": "vi" },
+  { "label": "马来语",  "value": "ms" },
+  { "label": "泰语",    "value": "th" },
+  { "label": "乌尔都语","value": "ur" },
+  { "label": "菲律宾语","value": "fil" }
+]

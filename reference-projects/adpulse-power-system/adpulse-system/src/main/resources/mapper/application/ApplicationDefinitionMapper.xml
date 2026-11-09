@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.application.mapper.ApplicationDefinitionMapper">
+    <resultMap id="definitionMap" type="com.adpulse.system.application.model.ApplicationDefinition">
+        <id property="id" column="id"/>
+        <result property="applicationCode" column="application_code"/>
+        <result property="applicationName" column="application_name"/>
+        <result property="applicationTypeId" column="application_type_id"/>
+        <result property="applicationTypeName" column="application_type_name"/>
+        <result property="description" column="description"/>
+        <result property="icon" column="icon"/>
+        <result property="approvalConfigId" column="approval_config_id"/>
+        <result property="visibility" column="visibility"/>
+        <result property="showInResourceApplication" column="show_in_resource_application"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="approvalConfigName" column="approval_config_name"/>
+        <result property="approvalAssetType" column="approval_asset_type"/>
+        <result property="approvalConfigEnabled" column="approval_config_enabled"/>
+    </resultMap>
+    <sql id="selectDefinition">
+        SELECT definition.id, definition.application_code, definition.application_name,
+               definition.application_type_id, application_type.type_name AS application_type_name,
+               definition.description, definition.icon,
+               definition.approval_config_id,
+               definition.visibility, definition.show_in_resource_application,
+               definition.sort_order, definition.status,
+               definition.created_at, definition.updated_at, definition.deleted_at,
+               config.flow_name AS approval_config_name,
+               config.asset_type AS approval_asset_type,
+               config.enabled AS approval_config_enabled
+        FROM media_application_definition definition
+        JOIN media_application_type application_type
+          ON application_type.id = definition.application_type_id
+         AND application_type.deleted_at = 0
+        LEFT JOIN media_approval_config config
+          ON config.id = definition.approval_config_id AND config.deleted_at = 0
+    </sql>
+    <select id="findAll" resultMap="definitionMap">
+        <include refid="selectDefinition"/>
+        WHERE definition.deleted_at = 0
+        <if test="enabledOnly">
+            AND definition.status = 1 AND config.enabled = 1
+            AND (definition.visibility = 'all' OR EXISTS (
+                SELECT 1 FROM sys_user_role user_role
+                JOIN sys_role role
+                  ON role.id = user_role.role_id AND role.deleted_at = 0 AND role.status = 1
+                WHERE user_role.user_id = #{viewerId} AND user_role.deleted_at = 0
+                  AND UPPER(role.role_code) IN ('ADMIN', 'SUPER_ADMIN', 'SYSTEM_ADMIN')
+            ))
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (definition.application_code LIKE CONCAT('%', #{keyword}, '%')
+                OR definition.application_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null">AND definition.status = #{status}</if>
+        <if test="approvalConfigId != null">AND definition.approval_config_id = #{approvalConfigId}</if>
+        ORDER BY definition.sort_order, definition.id
+    </select>
+    <select id="findById" resultMap="definitionMap">
+        <include refid="selectDefinition"/>
+        WHERE definition.id = #{id} AND definition.deleted_at = 0
+    </select>
+    <select id="countByCode" resultType="int">
+        SELECT COUNT(*) FROM media_application_definition
+        WHERE application_code = #{applicationCode} AND deleted_at = 0
+    </select>
+    <select id="countByIds" resultType="int">
+        SELECT COUNT(*)
+        FROM media_application_definition
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND deleted_at = 0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO media_application_definition (
+            application_code, application_name, application_type_id, description, icon,
+            visibility, show_in_resource_application, sort_order, status,
+            created_by, updated_by
+        ) VALUES (
+            #{applicationCode}, #{applicationName}, #{applicationTypeId}, #{description}, #{icon},
+            #{visibility}, #{showInResourceApplication}, #{sortOrder}, #{status},
+            #{createdBy}, #{updatedBy}
+        )
+    </insert>
+    <update id="update">
+        UPDATE media_application_definition
+        SET application_name = #{applicationName}, application_type_id = #{applicationTypeId},
+            description = #{description}, icon = #{icon},
+            visibility = #{visibility},
+            show_in_resource_application = #{showInResourceApplication},
+            sort_order = #{sortOrder}, status = #{status},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+    <update id="softDelete">
+        UPDATE media_application_definition
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+    <update id="clearApprovalConfig">
+        UPDATE media_application_definition
+        SET approval_config_id = NULL, updated_by = #{updatedBy}
+        WHERE approval_config_id = #{approvalConfigId} AND deleted_at = 0
+    </update>
+    <update id="assignApprovalConfig">
+        UPDATE media_application_definition
+        SET approval_config_id = #{approvalConfigId}, updated_by = #{updatedBy}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND deleted_at = 0
+    </update>
+</mapper>

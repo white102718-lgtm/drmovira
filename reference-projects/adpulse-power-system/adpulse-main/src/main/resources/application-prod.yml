@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/fbad}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE:0}
+
+server:
+  forward-headers-strategy: framework
+
+adpulse:
+  doris:
+    enabled: ${DORIS_ENABLED:true}
+    url: ${DORIS_URL:}
+    username: ${DORIS_USERNAME:}
+    password: ${DORIS_PASSWORD:}
+    mysql-catalog: ${DORIS_MYSQL_CATALOG:mysql_adpulse_system}
+    mysql-database: ${DORIS_MYSQL_DATABASE:adpulse_system}
+    spend-catalog: ${DORIS_SPEND_CATALOG:internal}
+    spend-database: ${DORIS_SPEND_DATABASE:ad}
+  mongo:
+    account:
+      collection: ${MONGODB_ACCOUNT_COLLECTION:fb_ad_accounts}
+  security:
+    jwt-secret: ${JWT_SECRET}
+
+  # 老Mpower渠道数据同步到新系统，同步完成后续可以移除
+  asset-migration:
+    enabled: ${ASSET_MIGRATION_ENABLED:true}
+    source-url: ${ASSET_MIGRATION_SOURCE_URL:}
+    source-username: ${ASSET_MIGRATION_SOURCE_USERNAME:}
+    source-password: ${ASSET_MIGRATION_SOURCE_PASSWORD:}
+    source-uuid: 668439ab-d5b1-11f0-a11e-5635bb0443e0
+    source-schema: fbad-suger
+    target-environment: PRODUCTION
+    target-uuid: 17c4f6b3-a2cc-11f1-99a8-ea697aa9ac3a
+    target-schema: adpulse_system
+    operator-ids: ${ASSET_MIGRATION_OPERATOR_IDS:1}
+    mapping-cache-enabled: ${ASSET_MIGRATION_MAPPING_CACHE_ENABLED:true}
+
+safeheron:
+  master-key: ${SAFEHERON_PROD_MASTER_KEY}
+
+logging:
+  file:
+    name: ${APP_LOG_FILE:/opt/docker/java/main/logs/adpulse-main-server.log}

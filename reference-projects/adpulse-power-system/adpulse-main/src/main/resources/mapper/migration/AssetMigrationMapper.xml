@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.migration.AssetMigrationMapper">
+    <select id="lockMutex" resultType="int">
+        SELECT id FROM mig_asset_mutex WHERE id = 1 FOR UPDATE
+    </select>
+    <select id="identity" resultType="com.adpulse.main.migration.AssetMigrationModels$Identity">
+        SELECT @@server_uuid AS serverUuid, DATABASE() AS schemaName
+    </select>
+    <select id="activeOperator" resultType="int">
+        SELECT COUNT(*) FROM sys_user
+        WHERE id = #{operatorId} AND status = 1 AND deleted_at = 0
+    </select>
+    <select id="schemaReady" resultType="int">
+        SELECT (
+            SELECT COUNT(*) FROM information_schema.columns
+            WHERE table_schema = DATABASE() AND table_name = 'ad_account_asset'
+              AND ((column_name = 'account_name' AND column_default = '')
+                OR (column_name = 'inventory_status' AND column_default = 'AVAILABLE')
+                OR (column_name = 'is_manually_updated' AND column_default = '0'))
+        ) = 3 AND (
+            SELECT COUNT(*) FROM information_schema.tables
+            WHERE table_schema = DATABASE() AND engine = 'InnoDB'
+              AND table_name IN ('ad_account_asset', 'media_channel', 'mig_asset_job', 'mig_asset_item', 'mig_asset_mutex')
+        ) = 5
+    </select>
+    <sql id="ledgerTable">
+        <choose>
+            <when test="environment == 'TEST'">mig_channel_prod_test_batch</when>
+            <when test="environment == 'PRODUCTION'">mig_channel_prod_prod_batch</when>
+            <otherwise>mig_asset_invalid_environment</otherwise>
+        </choose>
+    </sql>
+    <sql id="mappingProjection">
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT('sourceId', item.source_id, 'targetId', item.target_id))
+                    OVER (ORDER BY item.ordinal ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+         FROM JSON_TABLE(payload_json, '$.items[*]' COLUMNS (
+             ordinal FOR ORDINALITY,
+             table_name VARCHAR(64) PATH '$.table',
+             source_id BIGINT PATH '$.source_id',
+             target_id BIGINT PATH '$.target_id'
+         )) AS item WHERE item.table_name = 'media_channel' LIMIT 1)
+    </sql>
+    <select id="ledgerExists" resultType="int">
+        SELECT COUNT(*) FROM information_schema.tables
+        WHERE table_schema = DATABASE() AND table_name =
+        <choose>
+            <when test="environment == 'TEST'">'mig_channel_prod_test_batch'</when>
+            <when test="environment == 'PRODUCTION'">'mig_channel_prod_prod_batch'</when>
+            <otherwise>'mig_asset_invalid_environment'</otherwise>
+        </choose>
+    </select>
+    <select id="channelLedger" resultType="com.adpulse.main.migration.AssetMigrationModels$ChannelLedger">
+        SELECT JSON_UNQUOTE(JSON_EXTRACT(source_json, '$.fingerprint')) AS sourceFingerprint,
+               JSON_UNQUOTE(JSON_EXTRACT(payload_json, '$.target_fingerprint')) AS targetFingerprint,
+               SHA2(payload_json, 256) AS payloadHash,
+               SHA2(CAST(<include refid="mappingProjection"/> AS CHAR CHARACTER SET utf8mb4), 256) AS mappingHash
+        FROM <include refid="ledgerTable"/>
+        WHERE batch_key = #{batchKey} AND state = 'applied'
+        FOR SHARE
+    </select>
+    <select id="channelMapping" resultType="string">
+        SELECT CAST(<include refid="mappingProjection"/> AS CHAR CHARACTER SET utf8mb4)
+        FROM <include refid="ledgerTable"/>
+        WHERE batch_key = #{batchKey} AND state = 'applied'
+    </select>
+    <select id="channelIncrementSchemaReady" resultType="int">
+        SELECT COUNT(*) = 2
+        FROM information_schema.tables
+        WHERE table_schema = DATABASE()
+          AND table_name IN ('mig_channel_increment_batch', 'mig_channel_increment_mapping')
+          AND engine = 'InnoDB'
+    </select>
+    <select id="channelWriteSchemaReady" resultType="int">
+        SELECT (SELECT COUNT(*) FROM information_schema.columns
+            WHERE table_schema = DATABASE() AND table_name = 'media_channel'
+              AND column_name = 'channel_code' AND is_nullable = 'YES') = 1
+          AND (SELECT COUNT(*) FROM information_schema.tables
+            WHERE table_schema = DATABASE() AND table_name IN ('media_channel', 'media_channel_rate')
+              AND engine = 'InnoDB') = 2
+    </select>
+    <select id="appliedChannelIncrement" resultType="com.adpulse.main.migration.ChannelIncrementModels$ExecuteResult">
+        SELECT batch_key, environment,
+               CAST(JSON_UNQUOTE(JSON_EXTRACT(plan_json, '$.channelCount')) AS UNSIGNED) AS channelCount,
+               CAST(JSON_UNQUOTE(JSON_EXTRACT(plan_json, '$.rateCount')) AS UNSIGNED) AS rateCount
+        FROM mig_channel_increment_batch
+        WHERE environment = #{environment} AND state = 'applied'
+          AND source_uuid = #{sourceUuid} AND target_uuid = #{targetUuid}
+          AND source_schema = #{sourceSchema} AND target_schema = #{targetSchema}
+          AND operator_id = #{operatorId} AND plan_hash = #{planHash}
+          AND JSON_EXTRACT(plan_json, '$.selectedIds') = CAST(#{selectedJson} AS JSON)
+        ORDER BY applied_at DESC LIMIT 1
+    </select>
+    <select id="incrementalMappings"
+            resultType="com.adpulse.main.migration.ChannelIncrementModels$ExistingMapping">
+        SELECT mapping.source_channel_id AS sourceId,
+               mapping.target_channel_id AS targetId
+        FROM mig_channel_increment_mapping mapping
+        INNER JOIN mig_channel_increment_batch batch
+                ON batch.batch_key = mapping.batch_key
+               AND batch.state = 'applied'
+               AND batch.environment = mapping.environment
+               AND batch.source_uuid = mapping.source_uuid
+               AND batch.source_schema = mapping.source_schema
+               AND batch.target_uuid = mapping.target_uuid
+               AND batch.target_schema = mapping.target_schema
+        WHERE mapping.environment = #{environment}
+          AND mapping.source_uuid = #{sourceUuid}
+          AND mapping.source_schema = #{sourceSchema}
+          AND mapping.target_uuid = #{targetUuid}
+          AND mapping.target_schema = #{targetSchema}
+          AND mapping.deleted_at = 0
+        ORDER BY mapping.source_channel_id
+        FOR SHARE
+    </select>
+    <select id="channelConflict"
+            resultType="com.adpulse.main.migration.ChannelIncrementModels$TargetConflict">
+        SELECT id, channel_name AS channelName, channel_code AS channelCode
+        FROM media_channel
+        WHERE deleted_at = 0
+          AND (channel_name = #{channelName}
+            OR (#{channelCode} IS NOT NULL AND #{channelCode} != '' AND channel_code = #{channelCode}))
+        ORDER BY id
+        LIMIT 1
+    </select>
+    <insert id="insertIncrementChannel"
+            useGeneratedKeys="true"
+            keyProperty="candidate.targetId">
+        INSERT INTO media_channel (
+            channel_name,
+            channel_short_name,
+            channel_code,
+            channel_type,
+            belong_team,
+            status,
+            putaway_status,
+            settlement_method,
+            settlement_currency,
+            buyout_amount,
+            recharge_amount,
+            payment_address,
+            login_url,
+            remark,
+            tg_group_id,
+            tg_group_name,
+            created_by,
+            updated_by,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{candidate.source.channelName},
+            #{candidate.source.channelShortName},
+            NULLIF(TRIM(#{candidate.source.channelCode}), ''),
+            #{candidate.source.channelType},
+            #{candidate.source.belongTeam},
+            #{candidate.source.status},
+            0,
+            #{candidate.source.settlementMethod},
+            COALESCE(NULLIF(TRIM(#{candidate.source.settlementCurrency}), ''), 'USD'),
+            COALESCE(#{candidate.source.buyoutAmount}, 0),
+            0,
+            #{candidate.source.paymentAddress},
+            #{candidate.source.loginUrl},
+            #{candidate.source.remark},
+            #{candidate.source.tgGroupId},
+            #{candidate.source.tgGroupName},
+            #{operatorId},
+            #{operatorId},
+            #{candidate.source.createdAt},
+            #{candidate.source.updatedAt}
+        )
+    </insert>
+    <insert id="insertIncrementRate">
+        INSERT INTO media_channel_rate (
+            channel_id,
+            service_fee,
+            rebate_rate,
+            effective_date,
+            expiry_date,
+            created_by,
+            updated_by,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{targetChannelId},
+            #{rate.serviceFee},
+            #{rate.rebateRate},
+            #{rate.effectiveDate},
+            #{rate.expiryDate},
+            #{operatorId},
+            #{operatorId},
+            #{rate.createdAt},
+            COALESCE(#{rate.updatedAt}, #{rate.createdAt})
+        )
+    </insert>
+    <insert id="insertIncrementMapping">
+        INSERT INTO mig_channel_increment_mapping (
+            environment,
+            source_uuid,
+            source_schema,
+            target_uuid,
+            target_schema,
+            source_channel_id,
+            target_channel_id,
+            batch_key,
+            operator_id
+        ) VALUES (
+            #{environment},
+            #{sourceUuid},
+            #{sourceSchema},
+            #{targetUuid},
+            #{targetSchema},
+            #{sourceChannelId},
+            #{targetChannelId},
+            #{batchKey},
+            #{operatorId}
+        )
+    </insert>
+    <insert id="insertIncrementBatch">
+        INSERT INTO mig_channel_increment_batch (
+            batch_key,
+            environment,
+            state,
+            plan_hash,
+            source_uuid,
+            source_schema,
+            target_uuid,
+            target_schema,
+            plan_json,
+            operator_id
+        ) VALUES (
+            #{batchKey},
+            #{environment},
+            'applied',
+            #{planHash},
+            #{sourceUuid},
+            #{sourceSchema},
+            #{targetUuid},
+            #{targetSchema},
+            #{planJson},
+            #{operatorId}
+        )
+    </insert>
+    <select id="channels" resultType="com.adpulse.main.migration.AssetMigrationModels$Channel">
+        SELECT id, channel_name FROM media_channel WHERE deleted_at = 0 ORDER BY id
+        <if test="lock">FOR UPDATE</if>
+    </select>
+    <select id="attributes" resultType="string">
+        SELECT account_attribute FROM ad_account_attribute WHERE deleted_at = 0
+    </select>
+    <insert id="insertJob">
+        INSERT INTO mig_asset_job (id, state, operator_id)
+        VALUES (#{id}, #{state}, #{operatorId})
+    </insert>
+    <select id="job" resultType="com.adpulse.main.migration.AssetMigrationModels$Job">
+        SELECT * FROM mig_asset_job WHERE id = #{id}
+    </select>
+    <select id="recentJobs" resultType="com.adpulse.main.migration.AssetMigrationModels$Job">
+        SELECT * FROM mig_asset_job WHERE operator_id = #{operatorId}
+        ORDER BY created_at DESC, id DESC LIMIT 20
+    </select>
+    <select id="nextJob" resultType="com.adpulse.main.migration.AssetMigrationModels$Job">
+        SELECT * FROM mig_asset_job WHERE state IN ('QUEUED', 'VALIDATING', 'APPLYING')
+        ORDER BY created_at, id LIMIT 1
+    </select>
+    <update id="saveJob">
+        UPDATE mig_asset_job SET state = #{state}, plan_hash = #{planHash},
+            source_count = #{sourceCount}, total = #{total}, completed = #{completed},
+            isolated = #{isolated}, duplicates = #{duplicates}, error = #{error},
+            source_hash = #{sourceHash}, channel_hash = #{channelHash}
+        WHERE id = #{id}
+    </update>
+    <insert id="insertItems">
+        INSERT INTO mig_asset_item
+            (job_id, account_id, target_id, action, state, reason, source_json, before_json, desired_json)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.jobId}, #{item.accountId}, #{item.targetId}, #{item.action}, #{item.state},
+             #{item.reason}, #{item.sourceJson}, #{item.beforeJson}, #{item.desiredJson})
+        </foreach>
+    </insert>
+    <select id="items" resultType="com.adpulse.main.migration.AssetMigrationModels$Item">
+        SELECT * FROM mig_asset_item WHERE job_id = #{jobId} AND id &gt; #{afterId}
+        <if test="state != null">AND state = #{state}</if>
+        ORDER BY id LIMIT 250
+    </select>
+    <select id="assets" resultType="com.adpulse.main.migration.AssetMigrationModels$Asset">
+        SELECT id, account_id, channel_id, channel_name, account_type, account_attribute,
+               is_manually_updated AS manual,
+               DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s.%f') AS updatedAt
+        FROM ad_account_asset
+        WHERE account_id IN
+        <foreach collection="accountIds" item="accountId" open="(" close=")" separator=",">#{accountId}</foreach>
+        AND deleted_at = 0
+        ORDER BY account_id, id
+        <if test="lock">FOR UPDATE</if>
+    </select>
+    <update id="updateAssets">
+        UPDATE ad_account_asset a JOIN mig_asset_item i ON i.target_id = a.id
+        SET a.channel_id = CAST(JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.channelId')) AS UNSIGNED),
+            a.channel_name = JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.channelName')),
+            a.account_type = CASE WHEN JSON_TYPE(JSON_EXTRACT(i.desired_json, '$.accountType')) = 'NULL'
+                THEN NULL ELSE JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.accountType')) END,
+            a.account_attribute = CASE WHEN JSON_TYPE(JSON_EXTRACT(i.desired_json, '$.accountAttribute')) = 'NULL'
+                THEN NULL ELSE JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.accountAttribute')) END
+        WHERE a.deleted_at = 0 AND i.state = 'PENDING' AND i.action = 'UPDATE'
+          AND i.id IN
+        <foreach collection="items" item="item" open="(" close=")" separator=",">#{item.id}</foreach>
+    </update>
+    <insert id="insertAssets">
+        INSERT INTO ad_account_asset
+            (account_id, channel_id, channel_name, account_type, account_attribute,
+             update_source, created_by, updated_by)
+        SELECT i.account_id,
+               CAST(JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.channelId')) AS UNSIGNED),
+               JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.channelName')),
+               CASE WHEN JSON_TYPE(JSON_EXTRACT(i.desired_json, '$.accountType')) = 'NULL'
+                   THEN NULL ELSE JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.accountType')) END,
+               CASE WHEN JSON_TYPE(JSON_EXTRACT(i.desired_json, '$.accountAttribute')) = 'NULL'
+                   THEN NULL ELSE JSON_UNQUOTE(JSON_EXTRACT(i.desired_json, '$.accountAttribute')) END,
+               'LEGACY_MIGRATION', #{operatorId}, #{operatorId}
+        FROM mig_asset_item i WHERE i.state = 'PENDING' AND i.action = 'INSERT' AND i.id IN
+        <foreach collection="items" item="item" open="(" close=")" separator=",">#{item.id}</foreach>
+    </insert>
+    <update id="finishItems">
+        UPDATE mig_asset_item SET state = 'DONE',
+            target_id = CASE id
+            <foreach collection="items" item="item">WHEN #{item.id} THEN #{item.targetId}</foreach>
+            END,
+            after_json = CASE id
+            <foreach collection="items" item="item">WHEN #{item.id} THEN #{item.afterJson}</foreach>
+            END
+        WHERE id IN
+        <foreach collection="items" item="item" open="(" close=")" separator=",">#{item.id}</foreach>
+    </update>
+</mapper>

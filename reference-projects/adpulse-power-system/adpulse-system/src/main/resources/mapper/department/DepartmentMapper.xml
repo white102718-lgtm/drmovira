@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.system.department.mapper.DepartmentMapper">
+
+    <resultMap id="departmentMap" type="com.adpulse.system.department.model.Department">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="deptCode" column="dept_code"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="path" column="path"/>
+        <result property="level" column="level"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="leaderUserId" column="leader_user_id"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="sourceType" column="source_type"/>
+        <result property="tenantKey" column="tenant_key"/>
+        <result property="externalId" column="external_id"/>
+        <result property="lastSyncedAt" column="last_synced_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        id, parent_id, dept_code, dept_name, path, level, sort_order,
+        leader_user_id, status, remark, source_type, tenant_key, external_id,
+        last_synced_at, created_by, updated_by,
+        created_at, updated_at, deleted_at
+    </sql>
+
+    <select id="findAllActive" resultMap="departmentMap">
+        SELECT <include refid="columns"/>
+        FROM sys_department
+        WHERE deleted_at = 0
+        ORDER BY level, sort_order, id
+    </select>
+
+    <select id="findById" resultMap="departmentMap">
+        SELECT <include refid="columns"/>
+        FROM sys_department
+        WHERE id = #{id} AND deleted_at = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_department (
+            parent_id, dept_code, dept_name, path, level, sort_order,
+            leader_user_id, status, remark, created_by, updated_by
+        ) VALUES (
+            #{parentId}, #{deptCode}, #{deptName}, '/', #{level}, #{sortOrder},
+            #{leaderUserId}, #{status}, #{remark}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE sys_department
+        SET parent_id = #{parentId},
+            dept_code = #{deptCode},
+            dept_name = #{deptName},
+            path = #{path},
+            level = #{level},
+            sort_order = #{sortOrder},
+            leader_user_id = #{leaderUserId},
+            status = #{status},
+            remark = #{remark},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted_at = 0
+    </update>
+
+    <update id="updateSubtreePath">
+        UPDATE sys_department
+        SET path = CONCAT(#{newPrefix}, SUBSTRING(path, CHAR_LENGTH(#{oldPrefix}) + 1)),
+            level = level + #{levelDelta},
+            updated_by = #{updatedBy}
+        WHERE deleted_at = 0
+          AND path LIKE CONCAT(#{oldPrefix}, '%')
+    </update>
+
+    <select id="countSubtreeUsers" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_user u
+        INNER JOIN sys_department d ON d.id = u.primary_department_id
+        WHERE d.path LIKE CONCAT(#{path}, '%')
+          AND d.deleted_at = 0
+          AND u.deleted_at = 0
+    </select>
+
+    <select id="countSubtreeScopes" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_user_department_scope s
+        INNER JOIN sys_department d ON d.id = s.department_id
+        WHERE d.path LIKE CONCAT(#{path}, '%')
+          AND d.deleted_at = 0
+          AND s.deleted_at = 0
+    </select>
+
+    <select id="countActiveUser" resultType="int">
+        SELECT COUNT(*) FROM sys_user
+        WHERE id = #{userId} AND status = 1 AND deleted_at = 0
+    </select>
+
+    <update id="softDeleteSubtree">
+        UPDATE sys_department
+        SET status = 0, deleted_at = #{deletedAt}, updated_by = #{updatedBy}
+        WHERE path LIKE CONCAT(#{path}, '%')
+          AND deleted_at = 0
+    </update>
+
+</mapper>

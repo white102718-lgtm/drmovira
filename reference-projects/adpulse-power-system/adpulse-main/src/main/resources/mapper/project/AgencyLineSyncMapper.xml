@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.adpulse.main.project.sync.AgencyLineSyncMapper">
+    <resultMap id="batchMap" type="com.adpulse.main.project.sync.AgencyLineSyncModels$Batch">
+        <id property="id" column="id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="status" column="status"/>
+        <result property="linkSnapshot" column="link_snapshot"/>
+        <result property="spreadsheetId" column="spreadsheet_id"/>
+        <result property="sheetGid" column="sheet_gid"/>
+        <result property="sheetTitle" column="sheet_title"/>
+        <result property="totalRows" column="total_rows"/>
+        <result property="successRows" column="success_rows"/>
+        <result property="failedRows" column="failed_rows"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="triggeredBy" column="triggered_by"/>
+        <result property="triggeredByName" column="triggered_by_name"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="finishedAt" column="finished_at"/>
+    </resultMap>
+
+    <resultMap id="failureMap" type="com.adpulse.main.project.sync.AgencyLineSyncModels$Failure">
+        <id property="id" column="id"/>
+        <result property="batchId" column="batch_id"/>
+        <result property="sheetRowNumber" column="sheet_row_number"/>
+        <result property="agencyLineName" column="agency_line_name"/>
+        <result property="failureReason" column="failure_reason"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findProjectsForAutomaticSync"
+            resultType="com.adpulse.main.project.model.Project">
+        SELECT
+            id,
+            project_code AS projectCode,
+            project_name AS projectName,
+            status,
+            agency_line_url AS agencyLineUrl
+        FROM pm_project
+        WHERE deleted_at = 0
+            AND agency_line_url IS NOT NULL
+            AND agency_line_url != ''
+            AND status NOT IN ('ended', 'archived')
+        ORDER BY id
+    </select>
+
+    <select id="findActiveUsersByName"
+            resultType="com.adpulse.main.project.model.ProjectUserReference">
+        SELECT
+            id,
+            COALESCE(NULLIF(real_name, ''), NULLIF(display_name, ''), username) AS displayName,
+            status
+        FROM sys_user
+        WHERE deleted_at = 0
+            AND status = 1
+            AND (real_name = #{name} OR display_name = #{name} OR username = #{name})
+        ORDER BY id
+    </select>
+
+    <update id="failRunningBatches">
+        UPDATE pm_agency_line_sync_batch
+        SET status = 'failed',
+            error_message = '上一次同步进程已结束，本次同步已自动接管',
+            finished_at = CURRENT_TIMESTAMP(3)
+        WHERE project_id = #{projectId}
+            AND status = 'running'
+            AND deleted_at = 0
+    </update>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO pm_agency_line_sync_batch (
+            project_id,
+            trigger_type,
+            status,
+            link_snapshot,
+            triggered_by,
+            triggered_by_name
+        ) VALUES (
+            #{projectId},
+            #{triggerType},
+            #{status},
+            #{linkSnapshot},
+            #{triggeredBy},
+            #{triggeredByName}
+        )
+    </insert>
+
+    <update id="finishBatch">
+        UPDATE pm_agency_line_sync_batch
+        SET status = #{status},
+            spreadsheet_id = #{spreadsheetId},
+            sheet_gid = #{sheetGid},
+            sheet_title = #{sheetTitle},
+            total_rows = #{totalRows},
+            success_rows = #{successRows},
+            failed_rows = #{failedRows},
+            error_message = #{errorMessage},
+            finished_at = CURRENT_TIMESTAMP(3)
+        WHERE id = #{id} AND status = 'running' AND deleted_at = 0
+    </update>
+
+    <insert id="insertFailure" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO pm_agency_line_sync_failure (
+            batch_id,
+            sheet_row_number,
+            agency_line_name,
+            failure_reason
+        ) VALUES (
+            #{batchId},
+            #{sheetRowNumber},
+            #{agencyLineName},
+            #{failureReason}
+        )
+    </insert>
+
+    <select id="findBatch" resultMap="batchMap">
+        SELECT *
+        FROM pm_agency_line_sync_batch
+        WHERE id = #{batchId} AND project_id = #{projectId} AND deleted_at = 0
+    </select>
+
+    <select id="findBatches" resultMap="batchMap">
+        SELECT *
+        FROM pm_agency_line_sync_batch
+        WHERE project_id = #{projectId} AND deleted_at = 0
+        ORDER BY started_at DESC, id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countBatches" resultType="long">
+        SELECT COUNT(*)
+        FROM pm_agency_line_sync_batch
+        WHERE project_id = #{projectId} AND deleted_at = 0
+    </select>
+
+    <select id="findFailures" resultMap="failureMap">
+        SELECT *
+        FROM pm_agency_line_sync_failure
+        WHERE batch_id = #{batchId} AND deleted_at = 0
+        ORDER BY sheet_row_number, id
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countFailures" resultType="long">
+        SELECT COUNT(*)
+        FROM pm_agency_line_sync_failure
+        WHERE batch_id = #{batchId} AND deleted_at = 0
+    </select>
+</mapper>
