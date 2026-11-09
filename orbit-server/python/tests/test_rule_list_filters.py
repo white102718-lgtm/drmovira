@@ -233,3 +233,74 @@ def test_repeatable_read_is_refused_before_business_authorization(monkeypatch):
     with pytest.raises(ValueError, match="READ_COMMITTED_REQUIRED"):
         asyncio.run(store.options(session, 12, "session", RuleListFilterQuery("OPERATOR")))
     auth.assert_not_awaited()
+
+
+def test_static_filter_route_is_registered_before_dynamic_rule_id():
+    from pathlib import Path
+
+    source = (Path(__file__).parents[1] / "orbit_api/application.py").read_text()
+    assert source.index("app.include_router(rule_list_filter_router)") < source.index(
+        "app.include_router(rule_router)"
+    )
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {"date_from": "2026-01-01"},
+        {"date_to": "2026-12-31"},
+        {"date_from": "2026-02-28", "date_to": "2026-02-28"},
+    ],
+)
+def test_confirmed_effective_start_date_filters(values):
+    from orbit_api.rule_store import parse_rule_query
+
+    parsed = parse_rule_query(values)
+    assert all(getattr(parsed, key) == value for key, value in values.items())
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {"date_from": "2026-02-30"},
+        {"date_from": "2026-11-10", "date_to": "2026-11-09"},
+        {"date_to": "2026-1-2"},
+        {"date_from": 123},
+    ],
+)
+def test_effective_date_rejects_invalid_and_reversed_windows(values):
+    from orbit_api.rule_store import parse_rule_query
+
+    with pytest.raises(OrbitError) as error:
+        parse_rule_query(values)
+    assert error.value.status == 422
+
+
+async def test_effective_date_sql_targets_schedule_start_not_created_at(monkeypatch):
+    import orbit_api.rule_store as rule_store
+    from orbit_api.rule_store import RuleQuery
+
+    current = access()
+    monkeypatch.setattr(rule_store, "authorize_rule", AsyncMock(return_value=current))
+    monkeypatch.setattr(
+        rule_store.RuleStore,
+        "_clock",
+        AsyncMock(return_value={"revision": 7, "now": datetime(2026, 11, 9, tzinfo=UTC)}),
+    )
+    captured = []
+
+    async def execute(sql, params):
+        captured.append((str(sql), params))
+        return SimpleNamespace(mappings=lambda: [])
+
+    store = rule_store.RuleStore(Tokens())
+    await store.list(
+        SimpleNamespace(execute=execute),
+        12,
+        RuleQuery(date_from="2026-01-01", date_to="2026-12-31"),
+    )
+    sql, params = captured[0]
+    assert "JSON_EXTRACT(v.payload_json, '$.schedule.start_date')" in sql
+    assert ">= :date_from" in sql and "<= :date_to" in sql
+    assert params["date_from"] == "2026-01-01" and params["date_to"] == "2026-12-31"
+    assert "created_at>=:date_from" not in sql

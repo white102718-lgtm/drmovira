@@ -229,7 +229,7 @@ async def test_duplicate_headers_and_target_tenant_fail_before_store(harness, ex
         ("unexpected=yes", 400, "/unexpected"),
         ("q=" + "x" * 101, 422, "/q"),
         ("page_size=500", 422, "/page_size"),
-        ("date_from=2026-01-01", 422, "/date_from"),
+        ("date_from=2026-02-30", 422, "/date_from"),
     ],
 )
 async def test_list_original_query_boundaries(harness, query, status, path):

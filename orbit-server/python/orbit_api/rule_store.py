@@ -4,7 +4,7 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from uuid import uuid4
 
 from sqlalchemy import bindparam, text
@@ -79,6 +79,9 @@ class RuleQuery:
     operator_user_id: str | None = None
     metric_profile_id: str | None = None
     entity_type: str | None = None
+    channel_id: str | None = None
+    date_from: str | None = None
+    date_to: str | None = None
     page_size: int = 50
     cursor: str | None = None
 
@@ -91,10 +94,26 @@ def parse_rule_query(values):
         raise OrbitError(
             400, "UNKNOWN_FIELD", "查询包含未知字段", pointer((sorted(set(values) - allowed)[0],))
         )
-    for field in ("date_from", "date_to", "channel_id"):
-        if values.get(field) is not None and values.get(field) != "":
-            invalid("/" + field, "该过滤语义尚未接入，不能静默忽略")
     result = {key: value for key, value in values.items() if key in RuleQuery.__dataclass_fields__}
+    # 用户2026-11-09确认：按schedule.start_date生效日，含端点；不是创建日/生效区间重叠。
+    for field in ("date_from", "date_to"):
+        value = result.get(field)
+        if value is not None:
+            try:
+                if (
+                    type(value) is not str
+                    or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value) is None
+                ):
+                    raise ValueError
+                date.fromisoformat(value)
+            except ValueError:
+                invalid("/" + field, "请输入真实生效日期")
+    if (
+        result.get("date_from")
+        and result.get("date_to")
+        and result["date_from"] > result["date_to"]
+    ):
+        invalid("/date_from", "生效日筛选开始不能晚于结束")
     page = result.get("page_size", 50)
     if isinstance(page, str) and len(page) <= 32 and re.fullmatch(r"[0-9]+", page):
         page = int(page)
@@ -108,7 +127,7 @@ def parse_rule_query(values):
     if result.get("q") is not None:
         # 原GET合同限定100个字符；与规则名称80字符的写入限制分别校验。
         result["q"] = _text(result["q"], "/q", 100, trim=True)
-    for key in ("operator_user_id", "metric_profile_id"):
+    for key in ("operator_user_id", "metric_profile_id", "channel_id"):
         if result.get(key) is not None:
             result[key] = identifier(result[key], "/" + key)
     if result.get("status") is not None and result["status"] not in {
@@ -239,7 +258,13 @@ class RuleStore:
         )
         access = await authorize_rule(session, actor, "rules.read")
         filters = {k: getattr(query, k) for k in RuleQuery.__dataclass_fields__ if k != "cursor"}
-        binding = digest([access.current.tenant_id, actor, access.auth_fingerprint, filters])
+        from orbit_api.rule_current_channels import channel_exists, channel_watermark
+
+        versions = await channel_watermark(session, access) if query.channel_id else None
+        binding = digest(
+            [access.current.tenant_id, actor, access.auth_fingerprint, filters]
+            + ([versions] if versions else [])
+        )
         claims = self.tokens.verify("RULE_CURSOR_V1", query.cursor) if query.cursor else None
         if claims is not None and claims.get("binding") != binding:
             raise OrbitError(409, "SCOPE_CHANGED", "规则分页授权或过滤已变化")
@@ -250,6 +275,9 @@ class RuleStore:
             "limit": query.page_size + 1,
         }
         clauses = ["h.tenant_id=:tenant"]
+        if query.channel_id:
+            clauses.append(channel_exists(access))
+            params.update(channel_id=query.channel_id, actor=actor)
         if access.current.data_role != "SUPER_ADMIN":
             visible = "h.owner_user_id=:subject"
             if access.current.data_role == "TEAM_ADMIN" and access.managed_team_ids:
@@ -264,6 +292,15 @@ class RuleStore:
         ):
             if getattr(query, field) is not None:
                 clauses.append("h." + column + "=:" + field)
+                params[field] = getattr(query, field)
+        for field, comparison in (("date_from", ">="), ("date_to", "<=")):
+            if getattr(query, field) is not None:
+                clauses.append(
+                    "JSON_UNQUOTE(JSON_EXTRACT(v.payload_json, '$.schedule.start_date')) "
+                    + comparison
+                    + " :"
+                    + field
+                )
                 params[field] = getattr(query, field)
         if query.q is not None:
             clauses.append("h.name LIKE :search ESCAPE '!'")

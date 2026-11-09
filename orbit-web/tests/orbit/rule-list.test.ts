@@ -938,3 +938,24 @@ it('101码点本地拒绝不发HTTP、不改已提交q和cursor；清空按原�
   expect(rulesApi.list).toHaveBeenLastCalledWith({ page_size: 50 }, expect.any(AbortSignal))
   expect(wrapper.text()).not.toContain('最多100字符（/q）')
 })
+it('当前渠道查询使用UUID，续页保留筛选，清空后不沿用旧渠道', async () => {
+  vi.mocked(rulesApi.list).mockResolvedValue(page([row()], 'next-channel-page'))
+  await render({ filters: { channel_id: id(8) } })
+  await choose('渠道', id(9))
+  await button('查询').trigger('click')
+  await flushPromises()
+  expect(rulesApi.list).toHaveBeenLastCalledWith(
+    { channel_id: id(9), page_size: 50 },
+    expect.any(AbortSignal),
+  )
+  await button('下一页').trigger('click')
+  await flushPromises()
+  expect(rulesApi.list).toHaveBeenLastCalledWith(
+    { channel_id: id(9), page_size: 50, cursor: 'next-channel-page' },
+    expect.any(AbortSignal),
+  )
+  await choose('渠道', '')
+  await button('查询').trigger('click')
+  await flushPromises()
+  expect(rulesApi.list).toHaveBeenLastCalledWith({ page_size: 50 }, expect.any(AbortSignal))
+})

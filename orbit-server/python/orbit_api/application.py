@@ -157,6 +157,7 @@ def create_app() -> FastAPI:
     from orbit_api.rule_editor_routes import router as rule_editor_router
     from orbit_api.rule_editor_scope_routes import router as rule_editor_scope_router
     from orbit_api.rule_recovery_context_routes import router as rule_recovery_context_router
+    from orbit_api.rule_list_filter_routes import router as rule_list_filter_router
     from orbit_api.rule_routes import router as rule_router
     from orbit_api.rule_schedule_preview_routes import router as rule_schedule_preview_router
     from orbit_api.rule_scope_options_routes import router as rule_scope_options_router
@@ -169,6 +170,9 @@ def create_app() -> FastAPI:
     app.include_router(rule_scope_options_router)
     app.include_router(rule_display_metadata_router)
     app.include_router(rule_recovery_context_router)
+    from orbit_api.account_channel_routes import router as account_channel_router
+    app.include_router(account_channel_router)
+    app.include_router(rule_list_filter_router)
     app.include_router(rule_router)
     app.include_router(template_recipient_router)
     app.include_router(template_router)

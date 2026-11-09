@@ -23,6 +23,7 @@ def run_rules_internal_browser_checkpoint(admin, database, password):
     credential = control / "fixture-login.json"
     completed = control / "completed.json"
     log_path = ROOT / ".runtime/rules-internal-browser-vite.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     child = None
     try:
         # 是本轮随机夹具密码，不是用户环境配置；绝不打印或写进工作区。

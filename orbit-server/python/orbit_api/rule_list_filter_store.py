@@ -68,6 +68,9 @@ class RuleListFilterStore:
         if await isolation() != "READ COMMITTED":
             raise ValueError("RULE_LIST_FILTER_READ_COMMITTED_REQUIRED")
         access = await authorize_rule(session, actor, "rules.read")
+        from orbit_api.rule_current_channels import channel_watermark, current_clause, joins
+
+        versions = await channel_watermark(session, access) if query.kind == "CHANNEL" else None
         clock = await RuleStore(None)._clock(session, access)
         binding = digest(
             [
@@ -78,6 +81,7 @@ class RuleListFilterStore:
                 self.tokens.session_binding(authorization, actor, access.current.tenant_id),
                 query.kind,
                 query.page_size,
+                *([versions] if versions else []),
             ]
         )
         after, as_of = cursor_claims(self.tokens, query.cursor, binding, clock["revision"])
@@ -86,17 +90,29 @@ class RuleListFilterStore:
             raise OrbitError(400, "TOKEN_INVALID", "规则候选分页游标无效")
         column = "owner_user_id" if query.kind == "OPERATOR" else "metric_profile_id"
         clause, values = visible_clause(access)
-        sql = text(
-            "SELECT DISTINCT h."
-            + column
-            + " AS id FROM orbit_rule_head h WHERE "
-            + clause
-            + " AND h."
-            + column
-            + ">:after ORDER BY h."
-            + column
-            + " LIMIT :limit"
-        )
+        if query.kind == "CHANNEL":
+            values["actor"] = actor
+            sql = text(
+                "SELECT DISTINCT c.id AS id FROM orbit_rule_head h "
+                + joins()
+                + "WHERE "
+                + clause
+                + " AND "
+                + current_clause(access)
+                + " AND c.id>:after ORDER BY c.id LIMIT :limit"
+            )
+        else:
+            sql = text(
+                "SELECT DISTINCT h."
+                + column
+                + " AS id FROM orbit_rule_head h WHERE "
+                + clause
+                + " AND h."
+                + column
+                + ">:after ORDER BY h."
+                + column
+                + " LIMIT :limit"
+            )
         if "teams" in values:
             sql = sql.bindparams(bindparam("teams", expanding=True))
         found = list(
@@ -128,6 +144,15 @@ class RuleListFilterStore:
                 if row["id"] not in shown or row["id"] in labels:
                     unavailable()
                 labels[row["id"]] = row["display_name"]
+        if query.kind == "CHANNEL" and shown:
+            names = text(
+                "SELECT id,COALESCE(NULLIF(name,''),code) AS label FROM orbit_channel "
+                "WHERE tenant_id=:tenant AND id IN :ids FOR SHARE"
+            ).bindparams(bindparam("ids", expanding=True))
+            for row in (
+                await session.execute(names, {"tenant": access.current.tenant_id, "ids": shown})
+            ).mappings():
+                labels[row["id"]] = row["label"]
         cursor = None
         as_of = as_of or now
         if len(ids) > query.page_size:

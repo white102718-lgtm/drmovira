@@ -754,7 +754,17 @@ def main() -> int:
         action="store_true",
         help="仅五万范围创建与250页诊断，不替代原百万事实并发容量验收",
     )
+    parser.add_argument(
+        "--include-account-current-channel",
+        action="store_true",
+        help="附064账户当前渠道与规则筛选真实专项",
+    )
     args = parser.parse_args()
+    if args.include_account_current_channel and (
+        not args.rules_definition_browser
+        or "064_account_current_channel.sql" not in args.migration_extra
+    ):
+        parser.error("账户渠道专项须规则定义流程与显式064迁移")
     if args.rules_definition_browser and not (
         args.rules_only
         and args.migration_through == 62
@@ -767,6 +777,7 @@ def main() -> int:
                 "rules_definition_browser",
                 "include_rule_display_metadata",
                 "include_rule_recovery_context",
+                "include_account_current_channel",
             }
             for key, value in vars(args).items()
         )
@@ -879,6 +890,7 @@ def main() -> int:
                 "rules_definition_browser",
                 "include_rule_display_metadata",
                 "include_rule_recovery_context",
+                "include_account_current_channel",
             }
             for key, value in vars(args).items()
         )
@@ -3088,6 +3100,13 @@ def main() -> int:
         result["scope"] = result["scope"].replace(
             "指定三视口浏览器", "指定单视口浏览器诊断，非三视口验收"
         )
+    if args.include_account_current_channel:
+        from account_current_channel_checks import CASES as CHANNEL_CASES
+        from account_current_channel_checks import run_checks as run_channel_checks
+
+        planned[-1:-1] = CHANNEL_CASES
+        result["command"] += " --include-account-current-channel"
+        result["scope"] += "；附当前账户渠道真实写入与规则筛选（技术账户/profile）"
     cases = CheckedCases(planned)
     child = None
     idp = None
@@ -5117,6 +5136,21 @@ app.add_middleware(DiagnosticProfile)
                         database,
                         cases,
                         keys=values["ORBIT_PYTHON_SECRETS_KEYS"],
+                    )
+                if args.include_account_current_channel:
+                    result["account_current_channel"] = run_channel_checks(
+                        client,
+                        admin,
+                        headers,
+                        database,
+                        cases,
+                        result["rule_browser_fixture"],
+                        password,
+                        cache,
+                    )
+                    print(
+                        json.dumps({"account_current_channel": result["account_current_channel"]}),
+                        flush=True,
                     )
                 if args.rules_internal_browser:
                     result["rules_internal_browser"] = run_rules_internal_browser_checkpoint(

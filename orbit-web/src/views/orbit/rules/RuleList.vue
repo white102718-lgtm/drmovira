@@ -15,6 +15,44 @@
       <el-select v-model="entity" aria-label="对象层级" clearable placeholder="全部层级"
         ><el-option v-for="s in ['CAMPAIGN', 'ADSET', 'AD']" :key="s" :value="s" :label="s"
       /></el-select>
+      <el-date-picker
+        v-model="effectiveFrom"
+        type="date"
+        aria-label="规则生效日起"
+        placeholder="生效日从"
+        value-format="YYYY-MM-DD"
+      />
+      <el-date-picker
+        v-model="effectiveTo"
+        type="date"
+        aria-label="规则生效日止"
+        placeholder="生效日到"
+        value-format="YYYY-MM-DD"
+      />
+      <RuleListFilterSelect
+        v-model="operatorFilter"
+        kind="OPERATOR"
+        :context-key="context()"
+        :disabled="!allowed('SIMULATE')"
+        :refresh-key="filterRefresh"
+        @denied="denyRead"
+      />
+      <RuleListFilterSelect
+        v-model="profileFilter"
+        kind="METRIC_PROFILE"
+        :context-key="context()"
+        :disabled="!allowed('SIMULATE')"
+        :refresh-key="filterRefresh"
+        @denied="denyRead"
+      />
+      <RuleListFilterSelect
+        v-model="channelFilter"
+        kind="CHANNEL"
+        :context-key="context()"
+        :disabled="!allowed('SIMULATE')"
+        :refresh-key="filterRefresh"
+        @denied="denyRead"
+      />
       <el-button :disabled="!allowed('SIMULATE') || loading" @click="search">查询</el-button>
       <el-button
         v-if="allowed('CREATE')"
@@ -323,6 +361,7 @@ import {
 import { refreshCookieCsrfForRecovery } from '@/api/orbit/authentication'
 
 import RuleRuns from './RuleRuns.vue'
+import RuleListFilterSelect from './RuleListFilterSelect.vue'
 import { ruleDisplayMetadataApi, type RuleDisplayMetadata } from '@/api/orbit/rule-display-metadata'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
@@ -405,6 +444,12 @@ const allowed = (a: RuleAction) =>
   props.permissionCodes.includes('*:*:*') || props.permissionCodes.includes(permission[a])
 // 未知业务意图绑定actor生命周期；无关权限变动不改原payload身份。
 const context = () => props.contextKey
+const effectiveFrom = ref(props.filters.date_from ?? ''),
+  effectiveTo = ref(props.filters.date_to ?? '')
+const operatorFilter = ref(props.filters.operator_user_id ?? ''),
+  profileFilter = ref(props.filters.metric_profile_id ?? ''),
+  channelFilter = ref(props.filters.channel_id ?? ''),
+  filterRefresh = ref(0)
 const queryError = ref('')
 const q = ref(''),
   status = ref<RuleState | ''>(''),
@@ -611,6 +656,7 @@ async function loadList() {
 }
 // 配置写入改变列表clock：回到第一页，保留已提交查询及尚未提交的表单输入。
 async function refresh() {
+  ++filterRefresh.value
   cursor.value = undefined
   history.value = []
   await loadList()
@@ -630,8 +676,21 @@ function search() {
   }
   queryError.value = ''
   // 游标必须绑定已提交的筛选，不受尚未点击查询的输入变化影响。
+  const {
+    operator_user_id: _operator,
+    metric_profile_id: _profile,
+    channel_id: _channel,
+    date_from: _from,
+    date_to: _to,
+    ...otherFilters
+  } = props.filters
   appliedQuery.value = {
-    ...props.filters,
+    ...otherFilters,
+    ...(effectiveFrom.value ? { date_from: effectiveFrom.value } : {}),
+    ...(effectiveTo.value ? { date_to: effectiveTo.value } : {}),
+    ...(operatorFilter.value ? { operator_user_id: operatorFilter.value } : {}),
+    ...(profileFilter.value ? { metric_profile_id: profileFilter.value } : {}),
+    ...(channelFilter.value ? { channel_id: channelFilter.value } : {}),
     ...(normalizedQ ? { q: normalizedQ } : {}),
     ...(status.value ? { status: status.value } : {}),
     ...(entity.value ? { entity_type: entity.value } : {}),
@@ -667,6 +726,12 @@ function closeDetail(force = false) {
 }
 // 读端明确撤权立即收起旧详情/列表；不把普通503当撤权，原写意图不改键或正文。
 function denyRead(error: RuleApiError) {
+  effectiveFrom.value = ''
+  effectiveTo.value = ''
+  operatorFilter.value = ''
+  profileFilter.value = ''
+  channelFilter.value = ''
+  ++filterRefresh.value
   readDenied.value = true
   ++listEpoch
   listAbort?.abort()
@@ -887,6 +952,12 @@ async function confirmAction() {
   }
 }
 function resetContext() {
+  effectiveFrom.value = ''
+  effectiveTo.value = ''
+  operatorFilter.value = ''
+  profileFilter.value = ''
+  channelFilter.value = ''
+  ++filterRefresh.value
   ++listEpoch
   ++detailEpoch
   ++operationEpoch
@@ -925,7 +996,18 @@ watch(
     }
   },
 )
-watch(() => props.filters, search, { deep: true })
+watch(
+  () => props.filters,
+  () => {
+    effectiveFrom.value = props.filters.date_from ?? ''
+    effectiveTo.value = props.filters.date_to ?? ''
+    operatorFilter.value = props.filters.operator_user_id ?? ''
+    profileFilter.value = props.filters.metric_profile_id ?? ''
+    channelFilter.value = props.filters.channel_id ?? ''
+    search()
+  },
+  { deep: true },
+)
 onMounted(() => {
   search()
   clockTimer = setInterval(() => {

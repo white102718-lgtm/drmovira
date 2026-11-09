@@ -8,7 +8,7 @@ from orbit_api.errors import OrbitError
 from orbit_api.reference_contract import StrictInput
 from orbit_api.rule_contract import MAX_SAFE, _utc, identifier
 
-KINDS = frozenset({"OPERATOR", "METRIC_PROFILE"})
+KINDS = frozenset({"OPERATOR", "METRIC_PROFILE", "CHANNEL"})
 SIZES = frozenset({20, 50, 100, 200})
 PURPOSE = "RULE_CURSOR_V1"
 DOMAIN = "RULE_LIST_FILTER_OPTIONS_V1"

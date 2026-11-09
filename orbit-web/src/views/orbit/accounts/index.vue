@@ -83,11 +83,12 @@
           <template v-else>{{ cell(row, column.id) }}</template>
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right" width="140"
+      <el-table-column label="操作" fixed="right" width="180"
         ><template #default="{ row }"
           ><el-button link type="primary" @click="details?.open(row.account.id, windowQuery())"
             >详情</el-button
           >
+          <el-button link type="primary" @click="channelDialog?.open(row.account)">渠道</el-button>
           <el-dropdown
             v-if="can('accounts.assign') || can('accounts.sync') || can('accounts.unbind')"
             trigger="click"
@@ -127,6 +128,11 @@
     </p>
     <ImportAccounts ref="importer" @accepted="reload" />
     <AccountDetailsDrawer ref="details" />
+    <AccountChannelDialog
+      ref="channelDialog"
+      :context-key="JSON.stringify([user.id, user.permissions])"
+      @accepted="reload"
+    />
     <AccountActionDialog ref="actionDialog" @accepted="reload" />
     <AccountAssignmentDialog ref="assignmentDialog" @accepted="reload" />
     <el-dialog
@@ -198,6 +204,7 @@ import ImportAccounts from './ImportAccounts.vue'
 import AccountDetailsDrawer from './AccountDetailsDrawer.vue'
 import AccountActionDialog from './AccountActionDialog.vue'
 import AccountAssignmentDialog from './AccountAssignmentDialog.vue'
+import AccountChannelDialog from './AccountChannelDialog.vue'
 const router = useRouter()
 const user = useUserStore()
 // 若依当前权限仅控制入口展示；打开弹窗/提交时仍由Python当前动作和对象范围复验。
@@ -205,6 +212,7 @@ const can = (permission: string) =>
   user.permissions.includes('*:*:*') || user.permissions.includes(permission)
 const actionDialog = ref<InstanceType<typeof AccountActionDialog>>()
 const assignmentDialog = ref<InstanceType<typeof AccountAssignmentDialog>>()
+const channelDialog = ref<InstanceType<typeof AccountChannelDialog>>()
 function openAction(account: OrbitAccount, kind: string) {
   const permission = (
     { ASSIGNMENT: 'accounts.assign', SYNC: 'accounts.sync', UNBIND: 'accounts.unbind' } as Record<

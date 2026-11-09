@@ -529,8 +529,8 @@ async def test_no_provider_enable_simulate_runs_explicit_unavailable_no_success(
         ({"status": "RUNNING"}, "/status"),
         ({"entity_type": "ACCOUNT"}, "/entity_type"),
         ({"page_size": 500}, "/page_size"),
-        ({"date_from": "2026-01-01"}, "/date_from"),
-        ({"channel_id": ID}, "/channel_id"),
+        ({"date_from": "2026-02-30"}, "/date_from"),
+        ({"channel_id": "invalid"}, "/channel_id"),
         ({"operator_user_id": "native-1"}, "/operator_user_id"),
     ],
 )

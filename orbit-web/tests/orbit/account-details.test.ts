@@ -6,6 +6,7 @@ import Accounts from '@/views/orbit/accounts/index.vue'
 import Drawer from '@/views/orbit/accounts/AccountDetailsDrawer.vue'
 import type { ExtendedAccount } from '@/api/orbit/account-details'
 import { ReferenceApiError } from '@/api/orbit/references'
+import { accountChannelApi } from '@/api/orbit/account-channel'
 import { ElDropdown, ElDropdownItem } from 'element-plus'
 
 const api = vi.hoisted(() => ({
@@ -356,4 +357,23 @@ describe('账户18列与详情，组件服务替身范围', () => {
     expect(actions.reason.mock.calls[1][0]).toEqual(original)
     expect(api.list).toHaveBeenCalledTimes(2)
   })
+})
+
+it('账户只读列表保留渠道查看入口，不借分配权限', async () => {
+  const get = vi
+    .spyOn(accountChannelApi, 'get')
+    .mockResolvedValue({ account_id: 'account', channel_id: null, revision: 1, csrf_token: null })
+  currentUser.permissions = ['accounts.read']
+  const wrapper = await render()
+  button('渠道')
+  await flushPromises()
+  expect(get).toHaveBeenCalledWith('account')
+  expect(document.body.textContent).toContain('当前仅可查看')
+  expect(
+    wrapper
+      .findAllComponents({ name: 'ElButton' })
+      .find((b) => b.text() === '保存关联')!
+      .props('disabled'),
+  ).toBe(true)
+  get.mockRestore()
 })
