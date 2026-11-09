@@ -1,0 +1,11 @@
+{
+  "name": "frontend-identity-summary055-collector-first-failed",
+  "phase": "evidence_collection",
+  "result": "FAIL",
+  "scope": "主线本地证据包装脚本失败；不是前端功能测试失败，也不构成完整检查通过",
+  "completed_subcommand": {"command": "pnpm test:orbit", "exit_code": 0, "elapsed_seconds": 61.07},
+  "failure_type": "UnicodeEncodeError",
+  "failure_reason": "Windows GBK控制台不能直接打印测试输出中的勾号，包装脚本在首命令后中断，未保存完整回执",
+  "not_run": ["pnpm check:orbit", "pnpm exec prettier --check", "pnpm build:prod"],
+  "correction": "先保存UTF8子命令日志，再以ASCII JSON打印控制台尾部；按同一冻结前端源码重新完成四项检查，不冒称首轮全通过"
+}

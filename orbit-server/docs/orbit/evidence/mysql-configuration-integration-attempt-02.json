@@ -1,0 +1,45 @@
+{
+  "name": "mysql-configuration-integration",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-system -am -Porbit-mysql-it verify",
+  "executed_at": "2026-11-07T02:13:30+08:00",
+  "environment": "本地开发验证；模拟传输/Mapper的测试不代表真实平台或MySQL集成",
+  "summary": {
+    "tests": 8,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "concurrentRevisionUpdatesCommitExactlyOnce",
+      "auditInsertFailureRollsBackConfigurationAndIdempotencyTogether",
+      "historyPaginatesAndConnectsPersistedStateDigests",
+      "originalAndUpgradeScriptsPreserveNativeMenusAndUnknownLegacyHashes",
+      "concurrentSameIdempotencyKeyProducesOneConfigurationAndAudit",
+      "failedValidationRollsBackIdempotencyReservation",
+      "foreignTenantAndRevokedScopeCannotReadConfigurationOrHistory",
+      "savesEncryptedCredentialReadsAllMappedFieldsAndReplaysSanitizedResponse"
+    ]
+  },
+  "scope": "真实MySQL8、本工作区13306独立实例；原若依SQL与V001-003、MyBatis映射、Spring事务回滚、幂等并发、版本CAS、租户与历史；不包含HTTP/Redis/浏览器/真实平台验收",
+  "phase": "testing",
+  "item_ids": [],
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationCatalog.java": "89c363c3a76bf1fd702da044d57fb725e532626ff77eb7c602fd79f3f16ee565",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationException.java": "cab5edeb91bd5c66923f6ec315317151bcd8802096306139de75def0063c113a",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationFingerprint.java": "f869e2b4327211ef52bcc8f4b5246319906f1bb59b7b9725d385d362f4488822",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationMapper.java": "66901d1e4e375f2cee584d3805191c2d9643090b4a0eaee5d0f8a29a7cf3d6b2",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationModels.java": "007c2fb1191ec0f4e2b0e57c976a3509027bf3e99c2fbaec8d606c195cac0c8e",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationService.java": "9ddb830b1df68780b0b759c6074333d30f03bc0d033cf0b4ddddf6902c25061a",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConnectionProbe.java": "75ed38f3b3a5e558e54b3611619ee9a0434c8eac7036ad17c2e3eae600f81bd8",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/SecretCipher.java": "02192a8790063a267ca50492fcf291a9cab9fae6c5bb90368e2a0cbc1fa4a299",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/SecretConfiguration.java": "565552ba2a2522068d71f1b1d866c5de8cdcf34db0857db8655ace3c97d218e4",
+    "sql/orbit/V001__system_configuration.sql": "bb90eb7645a0474519ba92ead07d69ed3fbc2bb6139f12540480b92657afb798",
+    "sql/orbit/V002__configuration_history_cursor.sql": "441ffdb1dd76e6e92da215a36b4e2715797702f59ec6285c0ffad2c81a3b4501",
+    "sql/orbit/V003__configuration_audit_fingerprints.sql": "82cbdb1554388455e055932a363abf1217970969930bd348a2eef39d5116eae9",
+    "ruoyi-system/src/main/resources/mapper/orbit/ConfigurationMapper.xml": "ca3409bae3aa032121da9a4489b4446d5f7af7fd4e525fb575e40a8bd85dde83",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/config/ConfigurationMySqlIT.java": "3b5b32228cef5f722ddbacfaeab0b51854cbdd75234fc57684220ace4c927c56",
+    "ruoyi-admin/src/main/resources/mybatis/mybatis-config.xml": "1f5fc4b6308f2586bf163b9e9ffead9cb92e852a35c5b348563e23001a81c9dc",
+    "ruoyi-system/pom.xml": "388de66f5adc3943094475ca99a489438e10d68a42b33d9049a3c356e313830f"
+  }
+}

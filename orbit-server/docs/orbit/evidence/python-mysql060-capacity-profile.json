@@ -1,0 +1,27 @@
+{
+  "executed_at": "2026-11-08T22:42:44.285811+00:00",
+  "scope": "ORBIT-owned local test fixture only; no production or preview process restart",
+  "before": {
+    "buffer_pool_bytes": 134217728,
+    "redo_capacity_bytes": 104857600,
+    "flush_log_at_commit": 1,
+    "chunk_bytes": 134217728,
+    "instances": 1
+  },
+  "target_buffer_pool_bytes": 1073741824,
+  "target_redo_capacity_bytes": 1073741824,
+  "available_memory_bytes": 8203685888,
+  "workspace_disk_free_bytes": 177368838144,
+  "applied_settings": [
+    "innodb_buffer_pool_size",
+    "innodb_redo_log_capacity"
+  ],
+  "result": "APPLIED",
+  "after": {
+    "buffer_pool_bytes": 1073741824,
+    "redo_capacity_bytes": 1073741824,
+    "flush_log_at_commit": 1,
+    "chunk_bytes": 134217728,
+    "instances": 1
+  }
+}

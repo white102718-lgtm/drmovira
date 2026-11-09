@@ -1,0 +1,18 @@
+{
+  "name": "python-task-scanner-checkpoint-unit-attempt-01",
+  "result": "FAIL",
+  "executed_at": "2026-11-08T10:33:02.541486+00:00",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests --ignore=python/tests/test_task_event_stream.py -q",
+  "scope": "完整Python单测排除在制T2事件测试；旧菜单测试数量未跟随新增tasks.read，非产品整体验收",
+  "summary": {
+    "passed": 1477,
+    "failed": 1,
+    "duration_seconds": 37.85
+  },
+  "failure": "test_launch_actions_and_template_actions_have_distinct_stable_numbers",
+  "source_sha256": {
+    "python/orbit_api/role_bridge.py": "32353752c98f6de38e338a726712e4bc761ffbf0e7f859a6b44107a5121be35d",
+    "python/tests/test_launch_menu_bridge.py": "5d954ad52f1810e791f11dacdbbd9f9e910bd459555d7e20e8861dbb247701dc"
+  },
+  "log_sha256": "11bd5ac24c51331524105bb7e1fec908798fdd287b7ec7893902f552b0389f84"
+}

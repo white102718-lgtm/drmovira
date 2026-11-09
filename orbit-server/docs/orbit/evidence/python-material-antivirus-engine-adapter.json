@@ -1,0 +1,23 @@
+{
+  "name": "material-antivirus-actual-engine-adapter",
+  "phase": "testing",
+  "item_ids": [],
+  "status": "PASS",
+  "executed_at": "2026-11-08T06:47:26.387621+00:00",
+  "completed_at": "2026-11-08T06:47:26.510595+00:00",
+  "case_names": [
+    "pythonMaterialAntivirusAdapterActualEngineSafePngCleanInMemory",
+    "pythonMaterialAntivirusAdapterActualEngineStandardSignatureInMemoryDetected",
+    "pythonMaterialAntivirusAdapterActualEngineNeverCleansChangedSourceHash"
+  ],
+  "passed": 3,
+  "engine_version": "1.5.4",
+  "daily_db_version": 28177,
+  "daily_db_built_at": "2026-11-08T06:23:52+00:00",
+  "config_sha256": "a32e3047ee458b650d5ec96aeb6629d4ac8e863f68b4aecdff34c3017e7485df",
+  "source_sha256": {
+    "python/orbit_api/material_antivirus.py": "1a0301e74a638714957c3aaadc58908f75c3f39f9cbee3a60d49e9d74196e5f0",
+    "tools/material_antivirus_engine_checks.py": "da04e91ff8b5ca5f3bf7ce59411186bc0a1a5e1d7014946796e0c8ed3611c317"
+  },
+  "scope": "Actual isolated loopback ClamD adapter with in-memory PNG and harmless standard signature; no signature written to disk. Not Worker, HTTP, 500MiB, or complete material acceptance."
+}

@@ -1,0 +1,32 @@
+{
+  "name": "preview-test-isolation",
+  "phase": "testing",
+  "result": "PASS",
+  "item_ids": [],
+  "executed_at": "2026-11-07T12:36:42+08:00",
+  "scope": "本轮MySQL119/应用7/浏览器6/网络6与预览并存：四个预览PID不变，前后端HTTP200，默认JAR修改时间仍11:08:05；未迁移或改动预览库。非产品整体验收。",
+  "before_source": "本轮首个Get-NetTCPConnection结果",
+  "before_pids": {
+    "18080": 28560,
+    "18081": 39384,
+    "13307": 21396,
+    "16380": 39164
+  },
+  "after_pids": {
+    "18080": 28560,
+    "18081": 39384,
+    "16380": 39164,
+    "13307": 21396
+  },
+  "preview_jar_modified_at": "2026-11-07T11:08:05+08:00",
+  "source_sha256": {
+    "ruoyi-admin/pom.xml": "742bb9d6fedca4f8100352082b2b9307da44f08ba57f4a8c13d0ed8ca6bfaef5"
+  },
+  "frontend_source_sha256": {
+    "playwright.orbit.config.ts": "5a29adc0e80921b27a1d093bbf56311eca017cae1ad4a598fa734318920fd9ee"
+  },
+  "http_status": {
+    "frontend": 200,
+    "backend_captcha": 200
+  }
+}

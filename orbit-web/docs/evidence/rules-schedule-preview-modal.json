@@ -1,0 +1,188 @@
+{
+  "result": "PASS",
+  "executed_at": "2026-11-09T08:01:03+08:00",
+  "scope": "最终原生弹窗Editor/Preview定向38项；SDK/Form/parent此前86项为改弹窗前检查点，不把它们相加或声称全量当前回归",
+  "executor": "A开发线真实执行，主线解析原JUnit归档；定向38/类型/格式均由A冻结并报告通过",
+  "summary": {
+    "tests": 38,
+    "passed": 38,
+    "failures": 0,
+    "skipped": 0
+  },
+  "command": "pnpm exec vitest run --config vitest.config.ts tests/orbit/rule-schedule-preview.test.ts tests/orbit/rule-editor.test.ts --reporter=default --reporter=junit --outputFile=.runtime/rule-schedule-modal-junit.xml",
+  "cases": [
+    {
+      "name": "仅edit权限读取专属定义，真实521旧范围不冒充Scope5且不读creator成员",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "原11字段与quoted CAS保存，允许同正文no-op版本不增长",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "定义与上下文revision漂移409，不能保存",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "ENABLED只读但保留完整定义",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "ARCHIVED只读但保留完整定义",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "创建无浏览器日期/时区假默认、空scope/profile不能提交",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "候选分页不重置已修改名称，保留真实已加载配置",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "改owner清已保存scope并按真实新owner查询配置",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "候选403立即清所有旧敏感定义，不能发新保存",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "普通503保留本地修改但阻止提交，明确来源失败",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "未确认保存先交父，手动用原body/key/CAS和当前CSRF恢复",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "明确422首次拒绝清pending并展示原字段path",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "关闭保留进行中原意图，迟到成功不覆盖或发saved",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "父回传未知请求重挂载先取当前会话，不跨actor重发",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "同actor未知请求重挂载能获取当前CSRF恢复",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "上下文切换中断读取并忽略旧定义",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "CREATE真实Scope回传后原完整正文提交，不造scope回执或日期",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "恢复Scope待选记录清pending后仍保持原owner，不把回执归给当前表单",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "定义401清私密数据；迟到另一路成功也不重建表单",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "缺当前原动作不会探测Context/定义/候选",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "Form内实际预览读取当前未保存Schedule及真实Context，不提交Rule",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "预览401/403即时清整个Editor敏感定义，不保留表单旧数据",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "SAVE未确认期间禁用并清旧预览，不吞原pending保存意图",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "owner切换使预览上下文失效并阻旧回包，不借新owner沿用旧结果",
+      "classname": "tests/orbit/rule-editor.test.ts"
+    },
+    {
+      "name": "仅明确点击POST当前Schedule7，不自动构造五条/写入",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "UPDATE仅对应edit动作和当前版本，不借read",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "缺动作/缺日期或时区不发请求，不推断客户端日期",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "服务端零记录真实空状态，既不补五条也不造触发记录",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "显示真实DST跳过墙钟和中文原因",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "改schedule立刻清结果，旧回包不能当新预览",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "切actor/revision时清结果并取消旧读取",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "401清敏感旧结果且禁止用改schedule解锁，当前认证刷新后可手动读",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "403清敏感旧结果且禁止用改schedule解锁，当前认证刷新后可手动读",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "503/409显式来源错误，不冒充空结果或自动重试",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "明确取消和卸载中断在途，迟到结果不外显",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "初始不弹出，点击后为原生有名modal，加载/结果仅在弹窗",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "主动关闭abort并清内容，不自动重发/保存，显式再次查询才打开",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    },
+    {
+      "name": "Schedule改动/禁用/撤权关闭modal并清旧内容",
+      "classname": "tests/orbit/rule-schedule-preview.test.ts"
+    }
+  ],
+  "junit_sha256": "bb17c2874beee1f522985cd48c691c5c3b83eae321376ef89977054735625a24",
+  "source_sha256": {
+    "src/api/orbit/rule-schedule-preview.ts": "2bb4994d9baa28b395dcd3d15b07e15e0c2003ed42e3fcbc1e1f31f62bf1cc71",
+    "src/views/orbit/rules/RuleSchedulePreview.vue": "eef11fac6bf25aff61789f93f9aa68830bc47625e0c8fde5c1ebc7a9a31b939a",
+    "tests/orbit/rule-schedule-preview-api.test.ts": "4f83cdb75d1d604f4358aaf9cb00af4512c968226c1b3303b4d1dbd81e9cd75d",
+    "tests/orbit/rule-schedule-preview.test.ts": "47164e266314ade9ae49e28d53678eddb860ff1f3e166aab43e2fc39748de656",
+    "docs/ORBIT_RULE_SCHEDULE_PREVIEW.md": "9572eb406d108932ccbd192bd3aa56359c33f0a52f3a3b56e8b45f96568b46de",
+    "src/views/orbit/rules/RuleDefinitionForm.vue": "ce0cf1dab9a879fc0a71f40d452654afd2ca8d8d0e123e588ba4129a7f0f23af",
+    "src/views/orbit/rules/RuleEditor.vue": "34332b2214fca5d81071b9816e54b7ee7785d577f8d28a2993e2a65135deb282",
+    "src/views/orbit/rules/index.vue": "45a2c75b9e60ce876fe2b46ae04b199ee41c4d4dc19232cff4d4db828e006353",
+    "tests/orbit/rule-definition-form.test.ts": "4f0b3ee0759d56b0f75fe835eb2d845d57b7decc7b8af0cda072f924db74e9d5",
+    "tests/orbit/rule-editor.test.ts": "6fc3a5f7dfd2d9c987b2dcdd130b8868fd45e3951ca8d655724145f831675624",
+    "tests/orbit/rules-page.test.ts": "d51504bef6538c0686a1eb710f35a6f4ae51e12abe4508708d06747f9721cc2a",
+    "docs/ORBIT_RULE_EDITOR.md": "9efabd9e9ed642b25198c36f2e014ef143bf5b758ee761047c2f09b857b0db6c",
+    "docs/ORBIT_RULES_PAGE.md": "1e228871219c923e4d417515f0eff677241ddac2ea645cde8b6ad843fca62fb2"
+  },
+  "limitations": [
+    "非全量前端回归",
+    "真实浏览器局部另见backend python-rules062-browser-partial.json",
+    "原生隐藏overlay壳首轮错误断言失败保留，最终以model=false及不可见验证"
+  ]
+}

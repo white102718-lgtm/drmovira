@@ -1,0 +1,99 @@
+{
+  "status": "PASS",
+  "scope": "5万渠道及5万户商目录SQL技术样本；非真实来源、全部模块或生产冷启动容量",
+  "cache_note": "装载后首读及暖读；未清理数据库缓存，不宣称冷启动",
+  "concurrency": 20,
+  "samples_per_page_size": 200,
+  "target_p95_seconds": 1.0,
+  "machine": {
+    "os": "Windows-11-10.0.22631-SP0",
+    "logical_cpus": 20,
+    "memory_bytes": 34028830720
+  },
+  "errors": [],
+  "mysql_version": "8.4.13",
+  "rss_before_bytes": 257716224,
+  "load_seconds": 23.881,
+  "seeded_counts": {
+    "channels": 50000,
+    "references": 50000
+  },
+  "full_reads": {
+    "channels": {
+      "count": 50000,
+      "pages": 250,
+      "seconds": 4.032,
+      "ordered_ids_sha256": "88da18c24eba5223290d16eab174a63d6e7c28aba1ee8b3cb3d7cc6b0b1ab41c"
+    },
+    "references": {
+      "count": 50025,
+      "pages": 251,
+      "seconds": 4.891,
+      "ordered_ids_sha256": "2e709a6200430faef66de6c76506a0e4811c79be5a7d991b108cab05a5fc7e68"
+    }
+  },
+  "performance": {
+    "channels": {
+      "20": {
+        "samples": 200,
+        "p50_seconds": 0.19315090001327917,
+        "p95_seconds": 0.34854119998635724,
+        "max_seconds": 0.35336549999192357
+      },
+      "50": {
+        "samples": 200,
+        "p50_seconds": 0.21892470004968345,
+        "p95_seconds": 0.24369860003935173,
+        "max_seconds": 0.28240159997949377
+      },
+      "100": {
+        "samples": 200,
+        "p50_seconds": 0.2599179000244476,
+        "p95_seconds": 0.28329910000320524,
+        "max_seconds": 0.3485151999630034
+      },
+      "200": {
+        "samples": 200,
+        "p50_seconds": 0.3533338999841362,
+        "p95_seconds": 0.517302300024312,
+        "max_seconds": 0.5547902000253089
+      }
+    },
+    "references": {
+      "20": {
+        "samples": 200,
+        "p50_seconds": 0.20781960000749677,
+        "p95_seconds": 0.283974300022237,
+        "max_seconds": 0.2981104999780655
+      },
+      "50": {
+        "samples": 200,
+        "p50_seconds": 0.21723319997545332,
+        "p95_seconds": 0.22845480003161356,
+        "max_seconds": 0.26865889999317005
+      },
+      "100": {
+        "samples": 200,
+        "p50_seconds": 0.27999070001533255,
+        "p95_seconds": 0.42569299996830523,
+        "max_seconds": 0.4465195999946445
+      },
+      "200": {
+        "samples": 200,
+        "p50_seconds": 0.3012608999852091,
+        "p95_seconds": 0.31923160003498197,
+        "max_seconds": 0.3545211000018753
+      }
+    }
+  },
+  "plans": {
+    "channel": [
+      "-> Limit: 201 row(s)  (cost=7506 rows=201) (actual time=0.0245..0.349 rows=201 loops=1)\n    -> Filter: ((c.tenant_id = '00000000-0000-0000-0000-000000000001') and (c.id > '') and ((locate('Cap-d5869cb07d6f',c.`name`) > 0) or (locate('Cap-d5869cb07d6f',c.`code`) > 0)))  (cost=7506 rows=25011) (actual time=0.024..0.342 rows=201 loops=1)\n        -> Index range scan on c using PRIMARY over (tenant_id = '00000000-0000-0000-0000-000000000001' AND '' < id)  (cost=7506 rows=25011) (actual time=0.0218..0.187 rows=201 loops=1)\n"
+    ],
+    "reference": [
+      "-> Limit: 201 row(s)  (cost=2410 rows=201) (actual time=0.0252..1.94 rows=201 loops=1)\n    -> Nested loop inner join  (cost=2410 rows=2502) (actual time=0.0248..1.93 rows=201 loops=1)\n        -> Filter: ((r.kind = 'VENDOR') and (r.tenant_id = '00000000-0000-0000-0000-000000000001') and (r.id > ''))  (cost=75.3 rows=2502) (actual time=0.0121..0.322 rows=201 loops=1)\n            -> Index range scan on r using PRIMARY over (tenant_id = '00000000-0000-0000-0000-000000000001' AND '' < id)  (cost=75.3 rows=25018) (actual time=0.0108..0.197 rows=201 loops=1)\n        -> Filter: ((o.user_id = '00000000-0000-0000-0000-000000000001') and (o.tenant_id = '00000000-0000-0000-0000-000000000001'))  (cost=0.25 rows=1) (actual time=0.00786..0.00791 rows=1 loops=201)\n            -> Single-row covering index lookup on o using PRIMARY (tenant_id='00000000-0000-0000-0000-000000000001', reference_id=r.id, user_id='00000000-0000-0000-0000-000000000001')  (cost=0.25 rows=1) (actual time=0.00689..0.00691 rows=1 loops=201)\n"
+    ]
+  },
+  "rss_after_bytes": 274898944,
+  "rss_note": "前后采样RSS，不是进程峰值或严格泄漏证明"
+}

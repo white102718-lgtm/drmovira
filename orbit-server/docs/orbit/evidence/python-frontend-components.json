@@ -1,0 +1,37 @@
+{
+  "name": "python-frontend-components",
+  "phase": "testing",
+  "result": "PASS",
+  "exit_code": 0,
+  "item_ids": [],
+  "executed_at": "2026-11-07T21:50:45.511000+08:00",
+  "command": "pnpm exec vitest run --config vitest.config.ts --reporter=json --outputFile=../.runtime/python-frontend-unit.json",
+  "environment": "本机Vue3/Element Plus/Vitest/jsdom；组件API为fixture，真实应用另有Python浏览器回执",
+  "scope": "部分组件/客户端及Unicode边界；不代表业务全模块验收",
+  "summary": {
+    "tests": 30,
+    "passed": 30,
+    "failures": 0
+  },
+  "frontend_source_sha256": {
+    "src/views/orbit/system/configuration/ConfigurationDialog.vue": "7da615a5b34a73d1655d4170dbfe5c822940b57ad61ecfd3392023280480a109",
+    "src/views/orbit/system/configuration/ConfigurationHistory.vue": "43161b62805deffc8d774f0a0ab2846eaf5c91e70ad569735680c520fad36800",
+    "src/views/orbit/system/configuration/index.vue": "9123a03b38c18f975c8cd81d599ac426b32900f2cd179e6188cd0c4ca6cde8d6",
+    "src/views/orbit/system/configuration/validation.ts": "d75f0729130aa27f0ef0ab9764bcc1ff933b82f0880f5c21a09e245d338ee090",
+    "tests/orbit/audit-client.test.ts": "1b928c2c07f30be9126814620fe68301111338a5627f56265b3ed8ae4690471b",
+    "tests/orbit/configuration-client.test.ts": "700aa44b399cc7a4782675e4828db89a22616f86e48ffddf17dfca680d2ac15c",
+    "tests/orbit/configuration-dialog.test.ts": "69ffdb69f6a08d343d85400c3f5b8a41fb5f0ae59fbdb6f29e46d1978a91503e",
+    "tests/orbit/configuration-history.test.ts": "1d717dc50f85a797d1c2097543956ddd7c781defaeeb7552df809b8b504fb0cb",
+    "tests/orbit/configuration-intent.test.ts": "c249c8181e626b0646d6dc55f2fa4eeee4427292b3bb6149a483830bb164a47a",
+    "tests/orbit/configuration-validation.test.ts": "2d7ebab273d99ab248344d6d3c1537942ba9acd1e48c491dac9202a4bcd84a3d",
+    "tests/orbit/scope-client.test.ts": "5051c62c36dee89942a2c4d64b5f9f0c99f1776407a63f7b920b463e06f0dae9",
+    "tests/orbit/scope-components.test.ts": "cd40dbe0ae73936c1b49f0afc66216e3b5d00c57fdd3e55ac47c323db2c2bf31",
+    "tests/orbit/setup.ts": "b4ec0ce4e09ac04d269200aafe3bbc820343c721b6015562ff8509b76511e64f",
+    "src/api/orbit/audit.ts": "96a2b3984edf040c6646766bdb6d98e4f7ccdc148efeceb92bdf924e3bd533f3",
+    "src/api/orbit/configuration-intent.ts": "7f145ea7f999450af4ae701895434026da063e6b196377d303846dc6cf8c0985",
+    "src/api/orbit/configuration.ts": "64fabb99e7c30125a4855d0c61b3e0b73009912e267204a1c31bb0120ea6e848",
+    "src/api/orbit/scopes.ts": "be34b5b2e6cc4a934c723b5aa4aea210179ac6020e45cdbce9c2305f3fb11079",
+    "vitest.config.ts": "7c58e4189a29d8f75beaa19a17fa6300037de537dfb7bbbc055062b51fd6d322",
+    "package.json": "971fa6a831e6ddebf28d095915630eb03c214103c3649f6fb0bd2e564b2a5481"
+  }
+}

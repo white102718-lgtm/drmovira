@@ -1,0 +1,66 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ORBIT团队当前维护能力与CSRF扩展",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/v1/teams/capabilities": {
+      "get": {
+        "operationId": "getTeamCapabilities",
+        "description": "原若依会话下当前团队维护能力；不会替代原产品Session接口；不接受查询或指定租户。",
+        "responses": {
+          "200": {
+            "description": "当前有效能力与30分钟会话绑定CSRF；Cache-Control no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamCapabilities"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TeamCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data_role",
+          "managed_team_ids",
+          "can_create",
+          "csrf_token"
+        ],
+        "properties": {
+          "data_role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "TEAM_ADMIN",
+              "SUPER_ADMIN"
+            ]
+          },
+          "managed_team_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "can_create": {
+            "type": "boolean"
+          },
+          "csrf_token": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 255
+          }
+        }
+      }
+    }
+  }
+}

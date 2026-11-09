@@ -1,0 +1,10 @@
+{
+  "name": "frontend-types",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": "C:\\Users\\admin\\AppData\\Roaming\\npm\\pnpm.cmd check:orbit",
+  "executed_at": "2026-11-07T19:55:09+08:00",
+  "environment": "本地开发验证；模拟传输/Mapper的测试不代表真实平台或MySQL集成",
+  "summary": {},
+  "scope": "前端本地格式/类型/组件与请求测试/生产构建；不含真实浏览器前后端验收"
+}

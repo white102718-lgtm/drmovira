@@ -1,0 +1,48 @@
+/** 原目录窗口仍用Element Plus；限制窗口与内部滚动，避免手机上字段和操作跑出屏幕。 */
+.el-dialog.native-directory-dialog:not(.is-fullscreen) {
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+  margin-top: 12px !important;
+  display: flex;
+  flex-direction: column;
+
+  .el-dialog__header,
+  .el-dialog__footer {
+    flex-shrink: 0;
+  }
+
+  .el-dialog__body {
+    min-height: 0;
+    overflow: auto;
+  }
+}
+
+.native-user-import-dialog {
+  .el-upload,
+  .el-upload-dragger {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .native-user-editor-dialog .el-col-12,
+  .native-user-details .drawer-content .el-col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .native-user-details {
+    width: 100% !important;
+
+    .drawer-content .info-label {
+      width: 86px;
+      margin-right: 12px;
+      text-align: left;
+    }
+
+    .drawer-content .info-value {
+      min-width: 0;
+    }
+  }
+}

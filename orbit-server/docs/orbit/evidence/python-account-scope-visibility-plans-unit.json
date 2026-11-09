@@ -1,0 +1,16 @@
+{
+  "name": "python-account-scope-visibility-plans-unit",
+  "executed_at": "2026-11-08T09:22:13.134572+00:00",
+  "result": "PASS",
+  "scope": "4项独立性能工具边界/脱敏纯测；真实14组及指标另存",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_account_scope_visibility_plan_tool.py -q",
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "duration_seconds": 0.43
+  },
+  "source_sha256": {
+    "tools/account_scope_visibility_plan_checks.py": "05e46a6e62ecaa361f09b3634c9f274fb3a3534137ed08e976412894d79631d3",
+    "python/tests/test_account_scope_visibility_plan_tool.py": "e114752a0d55a37a4cdb4e59a4a79157181379a0cc8aeb96a195c51ec360fa86"
+  }
+}

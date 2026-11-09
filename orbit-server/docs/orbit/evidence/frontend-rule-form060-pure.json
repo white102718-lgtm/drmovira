@@ -1,0 +1,29 @@
+{
+  "name": "frontend-rule-form060-pure",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T22:03:37.741799+00:00",
+  "command": [
+    "pnpm.cmd",
+    "exec",
+    "vitest",
+    "run",
+    "--config",
+    "vitest.config.ts",
+    "tests/orbit/rules-api.test.ts",
+    "tests/orbit/rule-definition-form.test.ts"
+  ],
+  "scope": "真实Element Plus挂载受控Form与原规则SDK定向纯测；不含在制List/真实helper/浏览器/全量类型构建",
+  "result": "PASS",
+  "exit_code": 0,
+  "elapsed_seconds": 21.62,
+  "source_sha256": {
+    "src/api/orbit/rules.ts": "42c9698dcc63ac95990b7d04d927091abf9b2fe771c8993dea7f5b19b5568736",
+    "tests/orbit/rules-api.test.ts": "287700b4c357ddca3c03972d1441cb7220ee1276c33be51822981210793b4acc",
+    "src/views/orbit/rules/RuleDefinitionForm.vue": "3a3c8afc9fc6f9ebf7edb239467da9bfd1c99dd01933ddf6ad82b819b1d49b42",
+    "tests/orbit/rule-definition-form.test.ts": "b2841ad8523e0e2377d2eead416e78dad27dda6478bcccf13e120669a3404825",
+    "docs/ORBIT_RULE_FORM.md": "3eec3e52696297261803571e131828014b83745c13c1395b167ac49a84c8e0ec"
+  },
+  "changed_sources": [],
+  "output": "\n RUN  v3.2.4 D:/progress/orbit/orbit-web\n\n ✓ tests/orbit/rules-api.test.ts (31 tests) 70ms\n ✓ tests/orbit/rule-definition-form.test.ts (20 tests) 17215ms\n   ✓ 只有原明确非日期默认，不伪造日期/时区/UUID/账户数量，空候选不能提交  936ms\n   ✓ 父提供真实上下文后完整11/7字段提交，Decimal/null保持且不修改原对象  754ms\n   ✓ 编辑可复用父传已保存上下文，不用UUID造候选或借原snapshot creator身份  713ms\n   ✓ 换owner只能取真实候选团队且旧scope立即失效，父重验新scope后才可保存  702ms\n   ✓ 父范围数量null不能当完整可保存范围，缺字段不补0  638ms\n   ✓ 父范围数量0不能当完整可保存范围，缺字段不补0  635ms\n   ✓ 父范围数量50001不能当完整可保存范围，缺字段不补0  632ms\n   ✓ 50000完整成员和真实picker事件保留，组件不自行网络查询  632ms\n   ✓ 父撤候选/加载/来源错误后不可提交，不能沿旧有效状态继续保存  700ms\n   ✓ 三种频率切换清空所有互斥字段，默认星期从1开始且Schedule七键齐全  860ms\n   ✓ 367日拒绝但366日允许，开始/结束日期不从浏览器今天生成  705ms\n   ✓ 20叶/每组10/最多5组都有操作和提交双重边界，最少1组1条  4029ms\n   ✓ 阈值字符串空/null不补0，CTR/计数上限错误不发submit，叶错误中文可读  967ms\n   ✓ 服务端pointer对应原字段，编辑后不展示上次意图的旧错误  643ms\n   ✓ 只读/禁用/等待均防提交与条件修改 {\"readOnly\":true}  597ms\n   ✓ 只读/禁用/等待均防提交与条件修改 {\"disabled\":true}  596ms\n   ✓ 只读/禁用/等待均防提交与条件修改 {\"busy\":true}  593ms\n   ✓ 取消只发取消事件、不提交也不请求服务  592ms\n   ✓ 指标11项和比较符6项来自原白名单，不提供第三层递归条件  596ms\n   ✓ 冷却0有明确意义，清空数字字段不静默补0或发缺键正文  693ms\n\n Test Files  2 passed (2)\n      Tests  51 passed (51)\n   Start at  06:03:39\n   Duration  20.02s (transform 404ms, setup 14ms, collect 1.72s, tests 17.28s, environment 1.33s, prepare 181ms)\n\n"
+}

@@ -1,0 +1,32 @@
+{
+  "result": "PASS",
+  "exit_code": 0,
+  "phase": "testing",
+  "item_ids": [],
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-admin -am -Porbit-network-it verify",
+  "executed_at": "2026-11-07T19:59:50+08:00",
+  "environment": "Java21；network profile默认Surefire阶段的专项子集，数据库另见真实MySQL回执",
+  "scope": "6项输入校验与严格限制合并核心单测；未接入任务/Adapter，不代表RUL-11或CFG-04通过",
+  "summary": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "enforcesSchemaAndConfiguredArrayLimitsAndEvidenceUniqueness",
+      "rejectsForeignTenantAndInvalidRuleOrProviderLimits",
+      "runtimeSchemaOnlyRepairsOverescapedDecimalPattern",
+      "freezesExactDecimalStringsAndUsesStricterLimits",
+      "rejectsUnknownOrMissingFieldsWithoutEchoingInput",
+      "rejectsMalformedFormatsAndDecimals"
+    ]
+  },
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/analysis/AnalysisInputGuard.java": "d861540589a3b778723fc7b667cc3cbbe1ff39825c0805c8c45b1e922694a038",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/analysis/AnalysisInputGuardTest.java": "cb7e0b74d64d1b5acc7ed65a0a0ce723be7d481c81d93dacc1d2218c6da21316",
+    "ruoyi-system/src/main/resources/orbit/analysis-input.schema.json": "2e24c864f9443de3f416ad963f0ba30338a0b9633693cf09e74e3b9f3b5725b2",
+    "docs/orbit/baseline/contracts/analysis-input.schema.json": "2e24c864f9443de3f416ad963f0ba30338a0b9633693cf09e74e3b9f3b5725b2",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationCatalog.java": "1a36cc5ffde87f80c00ab7634262d49b78086f7812a7ba4b7f60140b74ee75d5",
+    "ruoyi-system/pom.xml": "14d1235e5792734b2e62cac1b15031d3a22a84ce7c8c792f147b333bd76c9164"
+  }
+}

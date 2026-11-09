@@ -1,0 +1,84 @@
+{
+  "name": "frontend-rule-scope-options-fixed",
+  "executed_at": "2026-11-09T01:03:51.481322+00:00",
+  "scope": "当前完整tests/orbit纯测试、vue-tsc、新7文件格式与production build；非真实HTTP/浏览器/平台验收",
+  "result": "FAIL",
+  "steps": [
+    {
+      "name": "unit",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "vitest.config.ts",
+        "--reporter=default",
+        "--reporter=json",
+        "--reporter=junit",
+        "--outputFile.json=D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\vitest.json",
+        "--outputFile.junit=D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\junit.xml"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 92.516,
+      "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\unit-step.log"
+    },
+    {
+      "name": "type",
+      "command": [
+        "pnpm",
+        "check:orbit"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 8.685,
+      "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\type-step.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "pnpm",
+        "exec",
+        "prettier",
+        "--check",
+        "src/api/orbit/rule-scope-options.ts",
+        "tests/orbit/rule-scope-options-api.test.ts",
+        "docs/ORBIT_RULE_SCOPE_OPTIONS.md",
+        "src/views/orbit/rules/RuleScopeSelector.vue",
+        "tests/orbit/rule-scope-selector.test.ts",
+        "src/views/orbit/rules/RuleEditor.vue",
+        "tests/orbit/rule-editor.test.ts"
+      ],
+      "exit_code": 1,
+      "duration_seconds": 1.479,
+      "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\format-step.log"
+    }
+  ],
+  "source_file_count": 492,
+  "source_before": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\source-before.json",
+  "format_files": [
+    "src/api/orbit/rule-scope-options.ts",
+    "tests/orbit/rule-scope-options-api.test.ts",
+    "docs/ORBIT_RULE_SCOPE_OPTIONS.md",
+    "src/views/orbit/rules/RuleScopeSelector.vue",
+    "tests/orbit/rule-scope-selector.test.ts",
+    "src/views/orbit/rules/RuleEditor.vue",
+    "tests/orbit/rule-editor.test.ts"
+  ],
+  "prior_failures_retained": [
+    "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-scope-options-placeholder-first-failed.log",
+    "D:\\progress\\orbit\\orbit-web\\.runtime\\rule-scope-options-placeholder-first-failed.xml"
+  ],
+  "source_after": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\source-after.json",
+  "source_stable": true,
+  "changed_files": [],
+  "unit": {
+    "numTotalTests": 1120,
+    "numPassedTests": 1120,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTotalTestSuites": 104,
+    "numPassedTestSuites": 104,
+    "success": true
+  },
+  "completed_at": "2026-11-09T01:05:34.650437+00:00"
+}

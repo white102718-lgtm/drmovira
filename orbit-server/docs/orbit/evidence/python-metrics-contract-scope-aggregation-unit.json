@@ -1,0 +1,69 @@
+{
+  "name": "metrics-contract-scope-aggregation-unit",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T17:44:47.929206+00:00",
+  "finished_at": "2026-11-08T17:44:50.006603+00:00",
+  "scope": "仅严格指标合同、monitor范围消费和分子比率计算280纯测试及静态检查；真实范围SQL独立证据13项，不是Metrics路由/采集/查询聚合SQL/容量或整体验收",
+  "status": "PASS",
+  "source_sha256": {
+    "python/orbit_api/metrics_contract.py": "c69ef695692cad142e6a1deeac0e9e8cb7c735fc59eec845bf7f4856043f4cb3",
+    "python/orbit_api/metrics_scope_access.py": "005754cf30eee7df9af123bb8ddd13b9d88ce2e1d942ce52de103042eec6740c",
+    "python/tests/test_metrics_contract.py": "d45a861de6c79e253423388368a946d33bd6c8a661596d5a2a1245c3be538c3a",
+    "python/tests/test_metrics_scope_access.py": "de3596dfb2c8b5abbf3551969c23bcfd1702683a04804b8359fbe31581a93962",
+    "tools/metrics_scope_checks.py": "f7ff1b16e98e49e33e54ef49d50b4dfa432a87d2da94ed1890263f2776578085",
+    "python/orbit_api/metrics_aggregation.py": "38857574c27a23adacc621aebdf387ebc4e86cbeec72a17dbf613e458ceb2aeb",
+    "python/tests/test_metrics_aggregation.py": "457b3ac17f46e103f682ec88de36cf7e1045dadedb28012ebcce081e61f7432b"
+  },
+  "changed_sources": [],
+  "commands": [
+    {
+      "command": [
+        "D:\\progress\\orbit\\orbit-server\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "python/tests/test_metrics_contract.py",
+        "python/tests/test_metrics_scope_access.py",
+        "python/tests/test_metrics_aggregation.py",
+        "-q"
+      ],
+      "exit_code": 0,
+      "output": "........................................................................ [ 25%]\n........................................................................ [ 51%]\n........................................................................ [ 77%]\n................................................................         [100%]\n280 passed in 1.25s\n"
+    },
+    {
+      "command": [
+        "D:\\progress\\orbit\\orbit-server\\.venv\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "python/orbit_api/metrics_contract.py",
+        "python/orbit_api/metrics_scope_access.py",
+        "python/tests/test_metrics_contract.py",
+        "python/tests/test_metrics_scope_access.py",
+        "tools/metrics_scope_checks.py",
+        "python/orbit_api/metrics_aggregation.py",
+        "python/tests/test_metrics_aggregation.py"
+      ],
+      "exit_code": 0,
+      "output": "All checks passed!\n"
+    },
+    {
+      "command": [
+        "D:\\progress\\orbit\\orbit-server\\.venv\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "python/orbit_api/metrics_contract.py",
+        "python/orbit_api/metrics_scope_access.py",
+        "python/tests/test_metrics_contract.py",
+        "python/tests/test_metrics_scope_access.py",
+        "tools/metrics_scope_checks.py",
+        "python/orbit_api/metrics_aggregation.py",
+        "python/tests/test_metrics_aggregation.py"
+      ],
+      "exit_code": 0,
+      "output": "7 files already formatted\n"
+    }
+  ]
+}

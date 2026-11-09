@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "exit_code": 0,
+  "executed_at": "2026-11-07T03:02:50+08:00",
+  "environment": "本项目回环Redis社区Windows构建8.10.3和MySQL8.4.13；不操作参考项目服务",
+  "command": "redis-cli -n 15 DBSIZE; mysql SHOW DATABASES LIKE orbit_net_%; stop-redis-test.ps1; start-redis-test.ps1; stop-redis-test.ps1; stop-mysql-test.ps1",
+  "scope": "实际核对Redis DB15键数0、随机联合测试库均已清理；独立实例停止并完成Redis重启停止循环，不是业务验收",
+  "source_sha256": {
+    "tools/start-redis-test.ps1": "47e876ce27a9fcc4d1db20d68563f6e7eae67658cdf4ff35c9a740c3ca102e94",
+    "tools/stop-redis-test.ps1": "c3ada94421bf12ef060fcb1a41cafb5c9ba4fbb99d2819f070c296b778ab43be"
+  },
+  "redis_binary_source": "https://github.com/redis-windows/redis-windows/releases/tag/8.10.3",
+  "redis_binary_sha256": "af16df340525b431e9ec8dabfd625d5e7a233f82805b5418819904ea909c447f"
+}

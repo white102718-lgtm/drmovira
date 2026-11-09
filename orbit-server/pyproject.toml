@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "orbit-server"
+version = "0.1.0"
+description = "ORBIT Python业务后端，基于RuoYi-FastAPI，MySQL8与Redis"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.143.3",
+  "uvicorn>=0.34,<1",
+  "SQLAlchemy[asyncio]==2.0.55",
+  "asyncmy==0.2.16",
+  "redis==8.1.0",
+  "pydantic-settings>=2.8,<3",
+  "cryptography>=46,<47",
+  "PyJWT>=2.10,<3",
+  "bcrypt>=4.2,<6",
+  "python-dotenv>=1.2,<2",
+  "email-validator==2.3.0",
+  "httpcore==1.0.9",
+  "Pillow==12.3.0",
+  "psutil==7.2.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3,<10", "pytest-asyncio>=1,<2", "httpx>=0.28,<1", "ruff>=0.12,<1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["python/orbit_api"]
+
+[tool.pytest.ini_options]
+testpaths = ["python/tests"]
+pythonpath = ["python", "python/ruoyi_fastapi"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["python"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

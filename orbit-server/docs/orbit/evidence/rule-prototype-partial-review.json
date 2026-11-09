@@ -1,0 +1,21 @@
+{
+  "status": "REVIEWED_PARTIAL_NOT_PRODUCT_ACCEPTANCE",
+  "executed_at": "2026-11-08T23:34:15.577704+00:00",
+  "source": "..\\data\\ORBIT_Codex开发PRD\\reference\\ORBIT_舒适版原型.html",
+  "source_sha256": "3852b80d49bf0895e2146da25856e0c59a8c368f8735e90a64ccd8fcd899fead",
+  "browser": "Codex in-app browser",
+  "observed": [
+    "rules list",
+    "create secondary page",
+    "five next runs dialog",
+    "global rule-hit tab",
+    "analysis evidence dialog"
+  ],
+  "not_opened": [
+    "view ad",
+    "process suggestion",
+    "manage suggestions"
+  ],
+  "production_writes": 0,
+  "coverage": "RULE_PROTOTYPE_REVIEW.md"
+}

@@ -1,0 +1,1 @@
+{"diagnostic": {"cleanup_state": "FAILED", "client_closed": true, "client_invalidated": false, "command": "ABSENT", "remaining_lock_waits": 0, "remaining_transactions": 1, "session_lock_wait_seconds": null, "stage": "metric_result_cancel_original_connection", "state": "NONE", "wait_event": null}, "recorded_at": "2026-11-08T20:33:36.000590+00:00", "version": 1}

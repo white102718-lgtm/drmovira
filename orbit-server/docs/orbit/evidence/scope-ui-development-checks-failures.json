@@ -1,0 +1,27 @@
+{
+  "name": "scope-ui-development-checks-failures",
+  "result": "FAIL",
+  "phase": "testing",
+  "item_ids": [],
+  "scope": "开发过程失败记录，不作为任何通过或验收证据；本机日志保留runtime，后续通过见正式回执",
+  "runs": [
+    {
+      "executed_at": "2026-11-07T09:02:40+08:00",
+      "command": "pnpm test:orbit",
+      "summary": {
+        "passed": 15,
+        "failed_suites": 1
+      },
+      "reason": "格式化后的模板多条内联点击语句解析失败，新组件用例未执行；改为具名方法"
+    },
+    {
+      "executed_at": "2026-11-07T09:03:29+08:00",
+      "command": "pnpm test:orbit",
+      "summary": {
+        "passed": 16,
+        "failed": 1
+      },
+      "reason": "连点fixture立即拒绝，第二次点击已是上次请求结束后的重试；改为挂起首请求后再连点，保留单次提交断言"
+    }
+  ]
+}

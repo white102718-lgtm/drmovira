@@ -1,0 +1,18 @@
+{
+  "name": "python-launch-dag-unit",
+  "executed_at": "2026-11-08T09:14:00.479200+00:00",
+  "result": "PASS",
+  "scope": "DAG37+分配算法27纯测；不创建Task、不生成valid凭证、不代表032或实际平台能力",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_launch_dag.py python/tests/test_launch_allocation.py -q",
+  "summary": {
+    "passed": 64,
+    "failed": 0,
+    "duration_seconds": 8.12
+  },
+  "source_sha256": {
+    "python/orbit_api/launch_dag.py": "eb7939209e26ad49954e0d9049f6cf040025e801896d448be69bb28b08a61942",
+    "python/orbit_api/launch_allocation.py": "2a46ec0ea2ca47c24eb5349c537573fdd470c4fe82c8bf289c0dcb878d4d69b3",
+    "python/tests/test_launch_dag.py": "5685d86f7217cbb92333bacc530f56ec115f3c7f3c2d04dba429ac498b1eb75f",
+    "python/tests/test_launch_allocation.py": "8e4eeeb7eff77e3d99582932f4611ca9198634edb13fb2a1331788102535028d"
+  }
+}

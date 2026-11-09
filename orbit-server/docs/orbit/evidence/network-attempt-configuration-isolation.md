@@ -1,0 +1,7 @@
+# 网络专项启动配置隔离回归
+
+新增完整应用浏览器测试后，将网络专项内部启动类改为TestConfiguration，目的是避免完整应用扫描误纳入测试启动类。复跑发现SpringBootTest把TestConfiguration视作补充配置，仍搜索并启动了完整RuoYiApplication，使网络专项独立数据源装配失效，六项启动错误。
+
+失败回执保留在network-configuration-integration按时间归档文件。修复为显式Configuration加专用`orbit-network-fixture` Profile，仅网络测试激活；完整应用浏览器测试不激活该profile。两个Failsafe profile分别限定类名，避免相互触发。
+
+此问题属于测试装配回归，不以改用Mock或跳过用例来处理。修复后分别复跑网络六项和完整应用三个浏览器视口；以各自最新JSON回执为结果。

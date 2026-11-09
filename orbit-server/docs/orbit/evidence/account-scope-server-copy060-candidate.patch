@@ -1,0 +1,118 @@
+diff --git a/python/orbit_api/account_scope_store.py b/python/orbit_api/account_scope_store.py
+index 4bde74a5..cddff910 100644
+--- a/python/orbit_api/account_scope_store.py
++++ b/python/orbit_api/account_scope_store.py
+@@ -162,7 +162,6 @@ class AccountScopeStore:
+                 break
+             if count + len(rows) > MAX_MEMBERS:
+                 raise OrbitError(422, "SCOPE_ACCOUNT_LIMIT", "账户范围超过50000项，不允许截断")
+-            batch = []
+             for row in rows:
+                 frozen = [
+                     row["id"],
+@@ -177,17 +176,27 @@ class AccountScopeStore:
+                     members_hash.update(b",")
+                 members_hash.update(canonical(frozen).encode())
+                 count += 1
+-                batch.append(params | dict(row) | {"snapshot": identifier_new})
+-            await session.execute(
++            # 仅复制本批已授权且持有共享锁的精确ID，不重新执行FILTER或扩大范围。
++            # 字段留在数据库内复制，避免五万成员完整显示值往返/逐行参数编码。
++            copied = await session.execute(
+                 text(
+                     "INSERT INTO orbit_account_scope_member "
+                     "(tenant_id,snapshot_id,account_id,external_id,name,name_prefix,account_revision,"
+-                    "owner_user_id,owner_team_id,currency) VALUES "
+-                    "(:tenant,:snapshot,:id,:external_id,:name,:name_prefix,:revision,"
+-                    ":owner_user_id,:owner_team_id,:currency)"
+-                ),
+-                batch,
++                    "owner_user_id,owner_team_id,currency) "
++                    "SELECT a.tenant_id,:snapshot,a.id,a.external_id,a.name,a.name_prefix,"
++                    "a.revision,"
++                    "a.owner_user_id,a.owner_team_id,a.currency FROM orbit_ad_account a "
++                    "WHERE a.tenant_id=:tenant AND a.id IN :member_ids ORDER BY a.id FOR SHARE OF a"
++                ).bindparams(bindparam("member_ids", expanding=True)),
++                {
++                    "tenant": current.tenant_id,
++                    "snapshot": identifier_new,
++                    "member_ids": [row["id"] for row in rows],
++                },
+             )
++            if type(copied.rowcount) is not int or copied.rowcount != len(rows):
++                # 外层事务整笔回滚；不能用较小的实际写入数量发布原完整成员hash。
++                changed()
+             after = rows[-1]["id"]
+         if selection.mode == "IDS" and count != len(selection.account_ids):
+             raise OrbitError(404, "NOT_FOUND", "选择包含不存在或不可见的账户")
+diff --git a/python/tests/test_account_scope_store.py b/python/tests/test_account_scope_store.py
+index 5d3110d7..de7c2e24 100644
+--- a/python/tests/test_account_scope_store.py
++++ b/python/tests/test_account_scope_store.py
+@@ -35,8 +35,9 @@ def row(index):
+ 
+ 
+ class Result:
+-    def __init__(self, values):
++    def __init__(self, values, *, rowcount=0):
+         self.values = values
++        self.rowcount = rowcount
+ 
+     def mappings(self):
+         return self
+@@ -70,7 +71,11 @@ class Session:
+             }
+         if sql.startswith("SELECT * FROM orbit_account_scope_snapshot"):
+             return Result([self.stored])
+-        if "FROM orbit_ad_account a WHERE" in sql:
++        if sql.startswith("INSERT INTO orbit_account_scope_member"):
++            assert set(params) == {"tenant", "snapshot", "member_ids"}
++            assert "SELECT a.tenant_id" in sql and "FOR SHARE OF a" in sql
++            return Result([], rowcount=len(params["member_ids"]))
++        if sql.startswith("SELECT") and "FROM orbit_ad_account a WHERE" in sql:
+             found = [item for item in self.values if item["id"] > params["after"]]
+             if "ids" in params:
+                 assert len(params["ids"]) <= 1000, "不能每块重复发送5万ID"
+@@ -119,10 +124,41 @@ async def test_1001_members_use_bounded_batches_and_deterministic_streaming_dige
+     writes = [
+         params for sql, params in session.calls if "INSERT INTO orbit_account_scope_member" in sql
+     ]
+-    assert [len(items) for items in writes] == [1000, 1]
++    assert [len(items["member_ids"]) for items in writes] == [1000, 1]
++    assert [value for items in writes for value in items["member_ids"]] == [
++        item["id"] for item in values
++    ]
+     assert all("UPDATE orbit_account_clock" not in sql for sql, _ in session.calls)
+ 
+ 
++@pytest.mark.asyncio
++@pytest.mark.parametrize("copied_count", [0, 1, -1, True, None])
++async def test_incomplete_database_copy_never_seals_or_audits(monkeypatch, copied_count):
++    class IncompleteSession(Session):
++        async def execute(self, statement, params):
++            result = await super().execute(statement, params)
++            if str(statement).startswith("INSERT INTO orbit_account_scope_member"):
++                result.rowcount = copied_count
++            return result
++
++    session, store = IncompleteSession([row(1), row(2)]), AccountScopeStore(None)
++    monkeypatch.setattr(store, "authorize", authorized)
++    monkeypatch.setattr("orbit_api.account_scope_store.verify_csrf", lambda *args: None)
++    with pytest.raises(OrbitError) as failure:
++        await store.create(
++            session,
++            1,
++            "",
++            "fixture",
++            "fixture-key-00001",
++            ScopeSelection("IDS", (row(1)["id"], row(2)["id"]), None, "{}"),
++            REQUEST,
++        )
++    assert failure.value.code == "SCOPE_CHANGED"
++    assert not any("SET ready=1" in sql for sql, _ in session.calls)
++    assert not any("INSERT INTO orbit_account_scope_event" in sql for sql, _ in session.calls)
++
++
+ @pytest.mark.asyncio
+ async def test_invisible_selected_ids_do_not_publish_partial_ready_snapshot(monkeypatch):
+     session, store = Session([row(1)]), AccountScopeStore(None)

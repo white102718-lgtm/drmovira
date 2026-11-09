@@ -1,0 +1,23 @@
+# 私有配置与凭据
+**/.env.local
+**/.env.*.local
+**/application-local.yml
+**/application-local.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# 依赖、构建与本地运行产物
+**/.runtime/
+**/.venv/
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/target/
+**/dist/
+**/logs/
+*.pyc
+*.log

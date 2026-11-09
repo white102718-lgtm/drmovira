@@ -1,0 +1,26 @@
+{
+  "phase": "testing",
+  "item_ids": [],
+  "status": "PASS",
+  "executed_at": "2026-11-08T06:08:01.169679+00:00",
+  "scope": "actual isolated local object writer vs purge cross-process races; no HTTP or MySQL",
+  "cases": [
+    "pythonMaterialActualPartWriterGuardSerializesPurgeAndRejectsLateWrite",
+    "pythonMaterialActualAssemblyGuardSerializesPurgeAndRejectsLateWrite",
+    "pythonMaterialActualPillowPreviewGuardSerializesPurgeAndRejectsLateWrite"
+  ],
+  "summary": {
+    "passed": 3
+  },
+  "source_sha256": {
+    "python/orbit_api/material_objects.py": "fde37a4630ec876686f1770bd94d89e4fce8ac763aee1d0dcf762747c9b167c5",
+    "python/orbit_api/material_processing.py": "63713e8901f10bb030852ca0c344d4e40bd8197aa4772da3b2550586e3ac613c",
+    "python/orbit_api/material_lifecycle_objects.py": "e093fe3e7ac2ee9ecf98adb4b77b11e5836931020879cfc8360673e72a807839",
+    "tools/material_lifecycle_race_checks.py": "55493e55f377fabd1050d226f836d8a364180d48a81ea9cbc605b02c01d95018"
+  },
+  "limitations": [
+    "Not HTTP DB snapshot race acceptance",
+    "Not production cleanup enablement",
+    "Existing reference writer integrations and active DB race matrix remain pending"
+  ]
+}

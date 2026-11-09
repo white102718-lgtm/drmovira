@@ -1,0 +1,58 @@
+{
+  "executed_at": "2026-11-08T05:25:53.080912+00:00",
+  "phase": "testing",
+  "item_ids": [],
+  "status": "PASS",
+  "scope": "material subprocess output and preview guards; pure local files only",
+  "summary": {
+    "new_processing_tests_passed": 13,
+    "combined_material_python_tests_passed": 66,
+    "actual_video_cases_passed": 2
+  },
+  "commands": [
+    ".venv/Scripts/python.exe -m pytest python/tests/test_material_contract.py python/tests/test_material_objects.py python/tests/test_material_job_policy.py python/tests/test_material_processing.py -q",
+    "pinned-tool subprocess executing standalone real video processing fixture"
+  ],
+  "source_sha256": {
+    "python/orbit_api/material_processing.py": "28063ab7a13fefc233da2b8b46941e9c1637cb1b89d7c2545a14717596367164",
+    "python/tests/test_material_processing.py": "5328dae82baea0973328d72e5d6857f7e0b43ff4f378e5e4adb420d7ad72a4fb"
+  },
+  "processor_tests": [
+    "real process exact 65536-byte stdout/stderr accepts",
+    "real stdout overflow kills/reaps and closes pipes",
+    "real stderr overflow kills/reaps and closes pipes",
+    "real timeout kills/reaps and closes pipes",
+    "real nonzero exit rejected"
+  ],
+  "preview_tests": [
+    "real JPEG verifies",
+    "empty file rejected",
+    "fake bytes rejected",
+    "PNG renamed jpeg rejected",
+    "preview width over1024 rejected",
+    "preview byte size over5MiB rejected",
+    "processor success with empty output cannot publish",
+    "processor success with PNG output cannot publish"
+  ],
+  "actual_fixed_tool_video": {
+    "status": "PASS",
+    "duration_seconds": "2.000000",
+    "dimensions": [
+      160,
+      120
+    ],
+    "preview_dimensions": [
+      1024,
+      768
+    ],
+    "truncated_mp4_result": "VIDEO_PROCESSING_FAILED",
+    "owned_directory_removed": true,
+    "tool_hash_reference": "python-material-local-media-tools.json"
+  },
+  "limitations": [
+    "Not updated HTTP/MySQL/Worker/browser acceptance",
+    "Not OS CPU/memory job isolation or descendant process containment",
+    "Not 500MiB successful upload or capacity proof",
+    "Production scheduler and trusted processor configuration remain pending"
+  ]
+}

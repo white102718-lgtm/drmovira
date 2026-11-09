@@ -1,0 +1,58 @@
+{
+  "name": "metric-profile-core",
+  "result": "PASS",
+  "phase": "testing",
+  "item_ids": [],
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-admin -am -Porbit-browser-it verify",
+  "executed_at": "2026-11-07T07:04:51+08:00",
+  "exit_code": 0,
+  "environment": "Java21；提取实际browser profile默认Surefire的26项口径定义测试，无真实Meta验证",
+  "summary": {
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "cannotInjectReadOnlyOrServerFields(String)[1]",
+      "cannotInjectReadOnlyOrServerFields(String)[2]",
+      "cannotInjectReadOnlyOrServerFields(String)[3]",
+      "cannotInjectReadOnlyOrServerFields(String)[4]",
+      "definitionCoversProductProfileExceptServerIdAndVerified",
+      "windowsAreBoundedDistinctAndCanonicalizedAsSet",
+      "normalizedPolicyFieldsAreStoredAsCanonicalContractEnums",
+      "validatesEnumsVersionReportTimeAndControlCharacters",
+      "frozenHashAndJsonRemainStableAfterSourceMutation",
+      "maturityBoundariesAndTypesAreStrict",
+      "mappingCanBeUnknownButNotEmptyOrCoerced(String)[1]",
+      "mappingCanBeUnknownButNotEmptyOrCoerced(String)[2]",
+      "mappingCanBeUnknownButNotEmptyOrCoerced(String)[3]",
+      "rejectsMaturityOutsideContract(int)[1]",
+      "rejectsMaturityOutsideContract(int)[2]",
+      "rejectsMaturityOutsideContract(int)[3]",
+      "requiresEveryDefinitionField(String)[1]",
+      "requiresEveryDefinitionField(String)[2]",
+      "requiresEveryDefinitionField(String)[3]",
+      "requiresEveryDefinitionField(String)[4]",
+      "requiresEveryDefinitionField(String)[5]",
+      "requiresEveryDefinitionField(String)[6]",
+      "requiresEveryDefinitionField(String)[7]",
+      "requiresEveryDefinitionField(String)[8]",
+      "requiresEveryDefinitionField(String)[9]",
+      "requiresEveryDefinitionField(String)[10]"
+    ]
+  },
+  "scope": "仅完整profile定义投影、未知映射、归因窗、成熟期、规范化和冻结；8项MySQL事务另有回执，不代表真实已验证口径或指标模块完成",
+  "related_evidence": [
+    "docs/orbit/evidence/metric-profile-version-integration.json"
+  ],
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/metrics/MetricProfileGuard.java": "1e5a8259878c7c97e12fdef1991b985749be16bbf4cf2ab83c258eb107b02f53",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/metrics/MetricProfileMapper.java": "ecc822a68b454c57e9d8e9779c2197cf66cd1f36013c8c326fa2d4b7ae5122e9",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/metrics/MetricProfileRegistry.java": "7f772813ba109d276ed22fed49a339212c3753685c092298ba8e59e64d2f10db",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/metrics/MetricProfileGuardTest.java": "8abb334286baac32387c64a274f5b0ad836b7f6bab3545892bdc134fe6f7a850",
+    "ruoyi-system/src/main/resources/mapper/orbit/MetricProfileMapper.xml": "e573fa585d3b6378135df2728a3fedc9b04ef9d5d3e6077268edda55795249ab",
+    "sql/orbit/V007__metric_profile_versions.sql": "f03be7ac889245c0945135c2c82372393272cf5af74672971b5280c75f66aadd",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/rules/RuleOwnership.java": "3314c133c48f55abe13b35c330e26759ac8415f8bc2189197b6c6a9ce8570ace",
+    "docs/orbit/baseline/contracts/openapi-current.json": "d9cd12c7f219830a35817e74e7ce55d8d3a49ad7f0d2670aeb67815c84c9e64a"
+  }
+}

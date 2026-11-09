@@ -1,0 +1,20 @@
+{
+  "name": "python-material-runtime-store-unit",
+  "executed_at": "2026-11-08T08:42:12.164555+00:00",
+  "result": "PASS",
+  "scope": "101项纯业务/协议分支；不替代030真实SQL、进程替换或生产消费者验收",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_material_runtime_store.py python/tests/test_material_antivirus_runtime.py python/tests/test_material_antivirus.py -q",
+  "summary": {
+    "passed": 101,
+    "failed": 0,
+    "duration_seconds": 0.89
+  },
+  "source_sha256": {
+    "python/orbit_api/material_runtime_store.py": "9a906802481bd2fb3ac58f1e5efe28d53e9f0bff62c8fe5787789c3a003bd7fa",
+    "python/orbit_api/material_antivirus_runtime.py": "fc411b407c8797dfa6b55a856df0e75e92b6bb26f0873e6848951794820ea7d8",
+    "python/orbit_api/material_antivirus.py": "1a0301e74a638714957c3aaadc58908f75c3f39f9cbee3a60d49e9d74196e5f0",
+    "python/tests/test_material_runtime_store.py": "231b41c5857801d44a87c9c37fa07b9652423b39ab2fb31eb5621ff80615374b",
+    "python/tests/test_material_antivirus_runtime.py": "9cfa13ec53e4a8a4e06db49a8082123e1174798f423dc9341c50e11dc145d9af",
+    "python/tests/test_material_antivirus.py": "1d90069a899c0f043da17935362f69c58428e88e4fad08055fff336e38275226"
+  }
+}

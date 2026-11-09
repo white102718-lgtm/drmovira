@@ -1,0 +1,32 @@
+{
+  "kind": "material-lifecycle-file-protocol-local-tests",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T05:56:49.390406+00:00",
+  "status": "PASS",
+  "platform": "Windows",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_material_lifecycle_objects.py -q",
+  "summary": {
+    "passed": 12
+  },
+  "source_sha256": {
+    "python/orbit_api/material_lifecycle_objects.py": "e093fe3e7ac2ee9ecf98adb4b77b11e5836931020879cfc8360673e72a807839",
+    "python/tests/test_material_lifecycle_objects.py": "89e32041b44df0b917c4369a0c590d60c56d093ba5a6e033ca6650cc7a4d5931"
+  },
+  "actual_checks": [
+    "default protocol disabled preserves bytes",
+    "controlled file purge leaves durable tombstone and refuses old UUID mutation guard",
+    "partial actual unlink then injected error retries remaining file",
+    "unknown keys and nested directories preserve original",
+    "arbitrary object paths rejected",
+    "real second process holds OS guard; contender times out; killing holder releases lock"
+  ],
+  "limitations": [
+    "No MySQL lifecycle transitions executed",
+    "Existing HTTP part/assembly/preview writers not integrated with new guard",
+    "No production scheduler or service identity enabled",
+    "No cloud objects touched",
+    "No physical lifecycle end-to-end acceptance",
+    "Link/reparse, lease crash, DB commit failure, capacity and EXPLAIN matrices pending"
+  ]
+}

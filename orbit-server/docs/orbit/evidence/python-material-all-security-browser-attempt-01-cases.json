@@ -1,0 +1,61 @@
+{
+  "scope": "Actual Playwright results only; backend90 passed separately, whole run failed",
+  "stats": {
+    "startTime": "2026-11-08T07:19:00.404Z",
+    "duration": 206900.964,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  },
+  "cases": [
+    {
+      "title": "历史READY安全门禁、原因弹窗及真实重新检查恢复预览",
+      "project": "desktop-1440",
+      "status": "unexpected",
+      "results": [
+        "timedOut"
+      ]
+    },
+    {
+      "title": "历史READY安全门禁、原因弹窗及真实重新检查恢复预览",
+      "project": "wide-1920",
+      "status": "unexpected",
+      "results": [
+        "timedOut"
+      ]
+    },
+    {
+      "title": "历史READY安全门禁、原因弹窗及真实重新检查恢复预览",
+      "project": "mobile-390",
+      "status": "unexpected",
+      "results": [
+        "timedOut"
+      ]
+    },
+    {
+      "title": "Python素材真实上传、处理、详情预览、标签分类、编辑与归档",
+      "project": "desktop-1440",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Python素材真实上传、处理、详情预览、标签分类、编辑与归档",
+      "project": "wide-1920",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Python素材真实上传、处理、详情预览、标签分类、编辑与归档",
+      "project": "mobile-390",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    }
+  ]
+}

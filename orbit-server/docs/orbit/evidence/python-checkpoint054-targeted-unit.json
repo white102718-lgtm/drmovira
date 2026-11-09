@@ -1,0 +1,41 @@
+{
+  "name": "python-checkpoint054-targeted-unit",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T19:19:23.981839+00:00",
+  "command": [
+    "D:\\progress\\orbit\\orbit-server\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "python/tests/test_launch_execution_recovery_scanner.py",
+    "python/tests/test_launch_execution_recovery_scanner_tool.py",
+    "python/tests/test_reference_channel_capacity_tool.py",
+    "python/tests/test_account_identities_tool.py",
+    "python/tests/test_identity_publication_tool.py",
+    "python/tests/test_credentials.py",
+    "-q"
+  ],
+  "scope": "恢复扫描及本轮容量/旧身份/密钥工具定向纯测试；不含在制055摘要、Metrics Store，不是完整业务验收",
+  "status": "PASS",
+  "exit_code": 0,
+  "elapsed_seconds": 1.91,
+  "source_sha256": {
+    "python/tests/test_launch_execution_recovery_scanner.py": "bcd8fc730346b8dc567b00ed93992518922dc425da793c11cf35b0a76051658b",
+    "python/tests/test_launch_execution_recovery_scanner_tool.py": "8b8631e568743828880939b77375b4197e101f8fc01dc038871f458fb65ae044",
+    "python/tests/test_reference_channel_capacity_tool.py": "eabd6be3d7262eccd63c77a6bc5400ed58927696e2812d654fcb2dba04dcd870",
+    "python/tests/test_account_identities_tool.py": "3f64124cc36eaed31d50cec97b79a5ed7070ff6f19fe429f4cd8ec7b707e8f9d",
+    "python/tests/test_identity_publication_tool.py": "0a0cdb441a46956aa1aad7d72fe357bbdbde8be6abe7a388b6df6b93c6db7c78",
+    "python/tests/test_credentials.py": "37637b1d36887fe84446a91519670fdcd3088060b9bc08f70a2b6f3380a529e0",
+    "python/orbit_api/launch_execution_recovery_scanner.py": "d6f1f9900ba1061b95b7bb038184743cb8ba7f4ffe6b7440c50fbec8e057fa8c",
+    "python/orbit_api/credentials.py": "5cbf6cf7c0dbedc325f1b0b4a82f81d10e5fce483d68a9785087b856ec90157d",
+    "python/orbit_api/migrations/054_execution_recovery_scan_indexes.sql": "6d21ee0991f1d0915ed2d6e5dc9cdb9576cd43404d4062b2018bac685fe8eb35",
+    "tools/launch_execution_recovery_scanner_checks.py": "a9c23954152262ee23aa73afceab9e7961fe26edc4c73da758da661b048aec7e",
+    "tools/reference_channel_capacity_checks.py": "0b22066aee69e13cda77b6490b7c997055d794537135ed201df9ebb955409c6f",
+    "tools/account_identities_checks.py": "1c09149e6c3e5d7246ef51373af589a6e0b02224e48b1da627b740b0b77308ef",
+    "tools/identity_publication_checks.py": "26f53f4c69909e153e3b5a88690638fab607b570a2b817c82e764e7bfecf8f52",
+    "tools/run_python_framework_checks.py": "15d8e58e5f74b024f27f903dfc5287ec1d7e4553bc9c7a9d7a32e84346098472",
+    "tools/refresh_scoped_receipts.py": "da9539049175332c0ebf1840c1d9d6cbb0c2934cdcc3a712645cbefb441a7edd"
+  },
+  "changed_sources": [],
+  "output": "........................................................................ [ 50%]\r\n......................................................................   [100%]\r\n142 passed in 1.24s\r\n"
+}

@@ -1,0 +1,251 @@
+{
+  "config": {
+    "argv": [
+      "D:\\Program Files\\nodejs\\node.exe",
+      "D:\\progress\\orbit\\orbit-web\\node_modules\\.pnpm\\@playwright+test@1.61.1\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "playwright.python.config.ts",
+      "orbit-python-identity-summary.spec.ts"
+    ],
+    "configFile": "D:\\progress\\orbit\\orbit-web\\playwright.python.config.ts",
+    "rootDir": "D:/progress/orbit/orbit-web/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-1440",
+        "name": "desktop-1440",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-python-identity-summary.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "wide-1920",
+        "name": "wide-1920",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-python-identity-summary.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-python-identity-summary.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\progress\\orbit\\.runtime\\python-browser-it\\playwright-result.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm dev --port 18084 --config vite.python.config.js",
+      "url": "http://127.0.0.1:18084/login",
+      "reuseExistingServer": false,
+      "timeout": 60000
+    }
+  },
+  "suites": [
+    {
+      "title": "orbit-python-identity-summary.spec.ts",
+      "file": "orbit-python-identity-summary.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Python身份摘要与原18列和Drawer真实身份读取逐项一致",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3815,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T19:49:29.576Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1c1559fc5fa702d4bbc2-aaa8835c03ebcd591c62",
+          "file": "orbit-python-identity-summary.spec.ts",
+          "line": 33,
+          "column": 1
+        },
+        {
+          "title": "Python身份摘要与原18列和Drawer真实身份读取逐项一致",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "wide-1920",
+              "projectName": "wide-1920",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3208,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T19:49:34.065Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1c1559fc5fa702d4bbc2-988d8903afbfe86c16b3",
+          "file": "orbit-python-identity-summary.spec.ts",
+          "line": 33,
+          "column": 1
+        },
+        {
+          "title": "Python身份摘要与原18列和Drawer真实身份读取逐项一致",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3158,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T19:49:37.942Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1c1559fc5fa702d4bbc2-6e0154152a071c522a12",
+          "file": "orbit-python-identity-summary.spec.ts",
+          "line": 33,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-08T19:49:26.001Z",
+    "duration": 15537.267000000002,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "python-material-antivirus-runtime",
+  "result": "PASS",
+  "executed_at": "2026-11-08T07:53:01.065039+00:00",
+  "command": ".venv/Scripts/python.exe tools/run_material_antivirus_runtime.py",
+  "scope": "固定本机实际ClamD/PID/连接四元组；负例是期望证明漂移，非实际换进程/SQL030或生产验收",
+  "measurements": {
+    "actual_engine_clean": true,
+    "actual_pid_bound_connections": 3,
+    "fixed_process_unchanged": true,
+    "scope": "Fixed actual OS process and PNG stream; profile expectation drift negatives, no process restart/config edit; no SQL030/HTTP/production launcher acceptance"
+  },
+  "summary": {
+    "expected": 6,
+    "passed": 6,
+    "cases": [
+      "pythonMaterialRuntimeActualPinnedEngineSafePngCleanWithSeparateProof",
+      "pythonMaterialRuntimeActualAcceptedConnectionsOwnedByPinnedPid",
+      "pythonMaterialRuntimeProfileRevisionDriftRejectedBeforeObjectRead",
+      "pythonMaterialRuntimeActualPidBirthDriftRejectedWithoutRestart",
+      "pythonMaterialRuntimeActualConfigDigestMismatchRejectedWithoutEditingFile",
+      "pythonMaterialRuntimeExpiredTrustedSourceRejectedBeforeObjectRead"
+    ]
+  },
+  "source_sha256": {
+    "tools/run_material_antivirus_runtime.py": "c4d1cd5a2913b4da67e10c11e5802a2e7928ec3873faba636e2259556835dedc",
+    "tools/material_antivirus_runtime_checks.py": "0f99b7e8edc1da16c7c47d7600461c0347b1deb72a8772cdd5ce61be34e6fc0f",
+    "tools/clamd_fixture_attestation.py": "b16b06dbcaeaea22ac053d9dc789752ad8ab9a2a30095311393ac9d83a0718d2",
+    "tools/material_antivirus_engine_checks.py": "da04e91ff8b5ca5f3bf7ce59411186bc0a1a5e1d7014946796e0c8ed3611c317",
+    "python/orbit_api/material_antivirus_runtime.py": "fc411b407c8797dfa6b55a856df0e75e92b6bb26f0873e6848951794820ea7d8",
+    "python/orbit_api/material_antivirus.py": "1a0301e74a638714957c3aaadc58908f75c3f39f9cbee3a60d49e9d74196e5f0",
+    "pyproject.toml": "056272b189b325d60e2cad335e41cc0fc85bba1690bcb49952c1cd8ef9c3af29"
+  }
+}

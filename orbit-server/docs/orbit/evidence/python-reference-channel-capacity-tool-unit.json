@@ -1,0 +1,23 @@
+{
+  "name": "python-reference-channel-capacity-tool-unit",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T18:46:30.193939+00:00",
+  "command": [
+    "D:\\progress\\orbit\\orbit-server\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "python/tests/test_reference_channel_capacity_tool.py",
+    "-q"
+  ],
+  "scope": "隔离目标/真实所选库及两种原DTO包装护栏；非容量或业务验收",
+  "status": "PASS",
+  "exit_code": 0,
+  "elapsed_seconds": 0.78,
+  "source_sha256": {
+    "tools/reference_channel_capacity_checks.py": "0b22066aee69e13cda77b6490b7c997055d794537135ed201df9ebb955409c6f",
+    "python/tests/test_reference_channel_capacity_tool.py": "eabd6be3d7262eccd63c77a6bc5400ed58927696e2812d654fcb2dba04dcd870"
+  },
+  "changed_sources": [],
+  "output": ".........                                                                [100%]\n9 passed in 0.23s\n"
+}

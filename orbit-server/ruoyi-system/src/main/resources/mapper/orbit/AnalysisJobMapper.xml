@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+  'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace="com.ruoyi.system.orbit.analysis.AnalysisJobMapper">
+    <resultMap id="gate" type="com.ruoyi.system.orbit.analysis.AnalysisJobModels$Gate">
+        <result property="generation" column="generation"/>
+        <result property="lastAdmittedAt" column="last_admitted_at"/>
+    </resultMap>
+    <resultMap id="job" type="com.ruoyi.system.orbit.analysis.AnalysisJobModels$Job">
+        <result property="ruleId" column="rule_id"/>
+        <result property="ruleRevision" column="rule_revision"/>
+        <result property="slot" column="schedule_slot"/>
+        <result property="id" column="id"/>
+        <result property="state" column="state"/>
+        <result property="generation" column="generation"/>
+        <result property="inputHash" column="input_hash"/>
+    </resultMap>
+    <!-- 只锁定公开参数和验证状态，队列层不读取凭据列。 -->
+    <select id="configurationShared" resultMap="com.ruoyi.system.orbit.config.ConfigurationMapper.configurationRow">
+        SELECT c.id,c.tenant_id,c.section,c.enabled,c.revision,c.settings_json,c.verification_status
+        FROM orbit_system_configuration c INNER JOIN orbit_tenant t ON t.id=c.tenant_id AND t.enabled=1
+        WHERE c.tenant_id=#{tenant} AND c.id=#{id} FOR SHARE
+    </select>
+    <insert id="reserveGate">
+        INSERT INTO orbit_analysis_gate(tenant_id,rule_id,entity_id) VALUES(#{tenant},#{rule},#{entity})
+        ON DUPLICATE KEY UPDATE generation=generation
+    </insert>
+    <select id="gate" resultMap="gate">
+        SELECT generation,last_admitted_at FROM orbit_analysis_gate WHERE tenant_id=#{tenant} AND
+        rule_id=#{rule} AND entity_id=#{entity} FOR UPDATE
+    </select>
+    <select id="replay" resultMap="job">
+        SELECT id,state,generation,input_hash,rule_id,rule_revision,schedule_slot FROM
+        orbit_analysis_job WHERE tenant_id=#{tenant} AND dedupe_hash=#{hash}
+    </select>
+    <insert id="reserveQuota">
+        INSERT INTO orbit_analysis_daily_quota(tenant_id,rule_id,entity_id,business_date)
+        VALUES(#{job.tenantId},#{job.ruleId},#{job.entityId},#{job.businessDate}) ON DUPLICATE KEY
+        UPDATE admitted_count=admitted_count
+    </insert>
+    <select id="quota" resultType="int">
+        SELECT admitted_count FROM orbit_analysis_daily_quota WHERE tenant_id=#{job.tenantId} AND
+        rule_id=#{job.ruleId} AND entity_id=#{job.entityId} AND business_date=#{job.businessDate} FOR
+        UPDATE
+    </select>
+    <update id="consumeQuota">
+        UPDATE orbit_analysis_daily_quota SET admitted_count=admitted_count+1 WHERE
+        tenant_id=#{job.tenantId} AND rule_id=#{job.ruleId} AND entity_id=#{job.entityId} AND
+        business_date=#{job.businessDate} AND admitted_count &lt; #{maximum}
+    </update>
+    <insert id="insert">
+        INSERT INTO
+        orbit_analysis_job(id,tenant_id,rule_id,rule_revision,entity_id,hit_id,schedule_slot,schedule_zone,business_date,generation,state,dedupe_hash,input_hash,input_json,policy_id,policy_revision,provider_id,provider_revision,settings_json,created_at)
+        VALUES(#{id},#{tenantId},#{ruleId},#{ruleRevision},#{entityId},#{hitId},#{slot},#{zone},#{businessDate},#{generation},#{state},#{dedupeHash},#{inputHash},#{inputJson},#{policyId},#{policyRevision},#{providerId},#{providerRevision},#{settingsJson},#{createdAt})
+    </insert>
+    <insert id="supersedeEvents">
+        INSERT INTO
+        orbit_analysis_job_event(id,tenant_id,job_id,from_state,to_state,reason_code,created_at) SELECT
+        UUID(),tenant_id,id,state,'SUPERSEDED','NEW_GENERATION',#{job.createdAt} FROM orbit_analysis_job
+        WHERE tenant_id=#{job.tenantId} AND rule_id=#{job.ruleId} AND entity_id=#{job.entityId} AND id
+        &lt;&gt; #{job.id} AND state IN ('QUEUED','RUNNING')
+    </insert>
+    <update id="supersede">
+        UPDATE orbit_analysis_job SET state='SUPERSEDED',revision=revision+1 WHERE
+        tenant_id=#{job.tenantId} AND rule_id=#{job.ruleId} AND entity_id=#{job.entityId} AND id &lt;&gt;
+        #{job.id} AND state IN ('QUEUED','RUNNING')
+    </update>
+    <insert id="queuedEvent">
+        INSERT INTO
+        orbit_analysis_job_event(id,tenant_id,job_id,from_state,to_state,reason_code,created_at)
+        VALUES(UUID(),#{job.tenantId},#{job.id},NULL,'QUEUED','TRUSTED_HIT',#{job.createdAt})
+    </insert>
+    <update id="advanceGate">
+        UPDATE orbit_analysis_gate SET generation=#{job.generation},last_admitted_at=#{job.createdAt}
+        WHERE tenant_id=#{job.tenantId} AND rule_id=#{job.ruleId} AND entity_id=#{job.entityId} AND
+        generation=#{job.generation}-1
+    </update>
+</mapper>

@@ -1,0 +1,23 @@
+{
+  "name": "python-vue-authentication-unit",
+  "phase": "testing",
+  "result": "PASS",
+  "exit_code": 0,
+  "item_ids": [],
+  "executed_at": "2026-11-08T04:01:12.148000+00:00",
+  "command": "pnpm exec vitest run --config vitest.config.ts tests/orbit/authentication.test.ts tests/orbit/authentication-page.test.ts tests/orbit/authentication-errors.test.ts --reporter=json --outputFile=../.runtime/authentication-unit-current.json",
+  "scope": "27项认证客户端/页面检查，包含迟到跳转和提供者/回调失败交互；组件服务替身不证明真实IdP异常。",
+  "summary": {
+    "tests": 27,
+    "failures": 0,
+    "skipped": 0
+  },
+  "frontend_source_sha256": {
+    "src/api/orbit/authentication.ts": "fc1739b78c47d2f7a6e994b29a44805de4ca525d5641e3939caab531d31fb9bb",
+    "src/api/orbit/auth-entry.ts": "063fe6008082ff9d84c01920ec24401c9367a59ceb356880ecee5c33e6a752d3",
+    "src/views/orbit/auth/Login.vue": "34343d655fbd631d77f87546f008266adcd867f6c0ff06ef1215f884916550c4",
+    "tests/orbit/authentication.test.ts": "73d1e88aae5a3aaea1a0a6bcdb4fbb662a843323c2f0cf4cbc341be3898297ec",
+    "tests/orbit/authentication-page.test.ts": "21b9840246184e9a916473d46df71ff04837eb7770e8c79c427c89bb213dab8f",
+    "tests/orbit/authentication-errors.test.ts": "7e85c3ccecba8b2ce1d125c4ac1cc44dea5fbed98e728372e923f4209bc28a9c"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "name": "python-rule-definition-recovery-browser",
+  "executed_at": "2026-11-09T02:26:29.811Z",
+  "scope": "Real isolated MySQL/Redis/HTTP and original native login; no Meta or production enable authority",
+  "result": "PASS",
+  "checks": [
+    {
+      "name": "NativeLoginAndOriginalDynamicRuleMenu",
+      "passed": true
+    },
+    {
+      "name": "TrueNamesNativeCreatorUtcMillisecondsAndExplicitNullNames",
+      "passed": true
+    },
+    {
+      "name": "TechnicalEnabledInputPauseReasonRequiredOriginalPostRevisionTwoToThreeAndReload",
+      "passed": true
+    },
+    {
+      "name": "ActualArchive200ResponseLostPreservesOriginalIntent",
+      "passed": true
+    },
+    {
+      "name": "DialogLocalLoginLinkActuallyOpensSeparateTabAfterOverlayFix",
+      "passed": true
+    },
+    {
+      "name": "NativeLogoutRevokesOldSessionVerificationGetsOnlyAndPreservesUnknownIntent",
+      "passed": true
+    },
+    {
+      "name": "NativeReloginSameActorAndTenantVerificationDoesNotPost",
+      "passed": true
+    },
+    {
+      "name": "ExplicitRetrySameBodyKeyQuotedCasReturnsOriginalArchivedRevisionTwo",
+      "passed": true
+    }
+  ],
+  "wire_comparison": {
+    "responseStatus": 200,
+    "bodyUnchanged": true,
+    "keyUnchanged": true,
+    "casUnchanged": true,
+    "cas": "\"1\""
+  },
+  "verification_requests": [
+    {
+      "method": "GET",
+      "path": "/dev-api/api/v1/rules/recovery-context"
+    },
+    {
+      "method": "GET",
+      "path": "/dev-api/getInfo"
+    },
+    {
+      "method": "GET",
+      "path": "/dev-api/api/v1/rules"
+    },
+    {
+      "method": "GET",
+      "path": "/dev-api/api/v1/rules/recovery-context"
+    },
+    {
+      "method": "GET",
+      "path": "/dev-api/api/v1/rules/display-metadata"
+    }
+  ],
+  "request_sha256": {
+    "body": "d305b9db267b8b52eee14ea2525c74c1ee8b711345b4fdb1ddea0437ec891cfa",
+    "key": "c47096f716cfe36c7f99394adcfaa2d0e8147f00dce839e4c9fa48a054b8fb48"
+  },
+  "actual_rule_id": "4c8c1423-5637-44e5-80a2-6ba872ae0b64",
+  "prior_failure": {
+    "name": "RecoveryControlsBehindModalOverlay",
+    "actual_blocker": "document.elementFromPoint at login link returned el-overlay-dialog; clicking opened no tab",
+    "screenshot": "rule-definition-business-062/recovery-dialog-blocked-first.jpg",
+    "resolution": "Final modal-local link opened tab13; new full flow rerun from different draft. Development HMR erased first parent state, never counted as restored."
+  },
+  "limitations": [
+    "Cookie renewal is actual HTTP only, not real OIDC login in UI",
+    "Only ACTION unknown-result replay exercised in UI; SAVE and SCOPE recovery currently component tests",
+    "Different actor/tenant refusals currently actual HTTP plus component tests, not UI",
+    "Technical enabled SQL input is not successful enable/simulation/scheduler",
+    "1440 horizontal columns exercised; 390 screenshot invalid and not counted as viewport acceptance",
+    "No hard reload or browser restart persistence promised"
+  ],
+  "screenshots": [
+    "rule-definition-business-062/pause-readback.jpg",
+    "rule-definition-business-062/metadata-1440.jpg",
+    "rule-definition-business-062/recovery-readback.jpg"
+  ]
+}

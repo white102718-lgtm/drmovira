@@ -1,0 +1,6 @@
+# 初次合并导出按原始字节保留；各子项目仍保留各自文本格式约定。
+* -text
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary

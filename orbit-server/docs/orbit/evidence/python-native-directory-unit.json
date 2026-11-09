@@ -1,0 +1,48 @@
+{
+  "name": "python-native-directory-unit",
+  "phase": "testing",
+  "result": "PASS",
+  "exit_code": 0,
+  "item_ids": [],
+  "executed_at": "2026-11-08T10:44:54.379376+08:00",
+  "command": ".venv/Scripts/python.exe tools/run_python_native_unit_checks.py",
+  "scope": "25项原框架回归，含无存储口令不能通过虚拟hash匹配的3项检查",
+  "summary": {
+    "tests": 25,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "test_user_list_never_serializes_loaded_credential_hash",
+      "test_edit_user_accepts_form_without_readonly_roles[react-form]",
+      "test_edit_user_accepts_form_without_readonly_roles[vue-form]",
+      "test_validate_password_accepts_each_character_type[0-Abc123!]",
+      "test_validate_password_accepts_each_character_type[1-123456]",
+      "test_validate_password_accepts_each_character_type[2-Abcdef]",
+      "test_validate_password_accepts_each_character_type[3-Abc123]",
+      "test_validate_password_accepts_each_character_type[4-Abc123!]",
+      "test_validate_password_rejects_invalid_character_type[0-Abc<123-\\u5bc6\\u7801\\u4e0d\\u80fd\\u5305\\u542b\\u975e\\u6cd5\\u5b57\\u7b26\\uff1a< > \" ' \\\\ |]",
+      "test_validate_password_rejects_invalid_character_type[1-12345a-\\u5bc6\\u7801\\u53ea\\u80fd\\u4e3a\\u6570\\u5b57\\uff080-9\\uff09]",
+      "test_validate_password_rejects_invalid_character_type[2-Abc123-\\u5bc6\\u7801\\u53ea\\u80fd\\u4e3a\\u82f1\\u6587\\u5b57\\u6bcd\\uff08a-z\\u3001A-Z\\uff09]",
+      "test_validate_password_rejects_invalid_character_type[3-Abcdef-\\u5bc6\\u7801\\u5fc5\\u987b\\u540c\\u65f6\\u5305\\u542b\\u5b57\\u6bcd\\u548c\\u6570\\u5b57]",
+      "test_validate_password_rejects_invalid_character_type[4-Abc123-\\u5bc6\\u7801\\u5fc5\\u987b\\u540c\\u65f6\\u5305\\u542b\\u5b57\\u6bcd\\u3001\\u6570\\u5b57\\u548c\\u7279\\u6b8a\\u5b57\\u7b26\\uff08~!@#$%^&*()-=_+\\uff09]",
+      "test_validate_password_rejects_invalid_length[12345]",
+      "test_validate_password_rejects_invalid_length[123456789012345678901]",
+      "test_validate_password_uses_fixed_rule_without_reading_config",
+      "test_validate_password_falls_back_to_default_rule[None]",
+      "test_validate_password_falls_back_to_default_rule[]",
+      "test_validate_password_falls_back_to_default_rule[invalid]",
+      "test_parallel_requests_isolate_dates_exports_and_cache",
+      "test_request_timezone_fallback_validation_and_exception_cleanup",
+      "test_background_exports_can_select_business_timezone_explicitly",
+      "test_missing_hash_still_checks_dummy_but_never_authenticates[None]",
+      "test_missing_hash_still_checks_dummy_but_never_authenticates[]",
+      "test_real_hash_match_and_mismatch_are_preserved"
+    ]
+  },
+  "source_sha256": {
+    "tools/run_python_native_unit_checks.py": "2c8c40a381629a61cba7830df8136166992bf228fc2ceff80812711945bf063d",
+    "python/ruoyi_fastapi/module_identity/service/identity_service.py": "25b6e9fa23cbb37df65b49692708b7b676d267d0e32815fe4ecf29e7d59ffb07",
+    "python/ruoyi_fastapi/tests/module_identity/service/test_password_null_guard.py": "c33ad5f6a6aa33bdd9464b110bfed4bf15082aa820e684a178a190144a9c8e7d"
+  }
+}

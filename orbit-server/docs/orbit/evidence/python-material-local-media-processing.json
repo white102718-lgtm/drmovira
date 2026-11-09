@@ -1,0 +1,69 @@
+{
+  "name": "python-material-local-media-processing",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T04:41:05.150946+00:00",
+  "status": "PASS",
+  "environment": "本机独占临时对象目录、真实Pillow与固定FFmpeg/FFprobe9.0.2；未连接API或数据库",
+  "scope": "纯文件真实MP4生成/解析/封面/损坏拒绝，以及9,441,806字节真实PNG双分片/摘要/解码；非模块验收",
+  "command": "在独立Python子进程PATH注入已校验工具bin，真实libx264生成2秒160x120 MP4，再调用原material_objects/process_material；另用真实PNG跨8MiB分片合并/解码",
+  "tool_evidence": "python-material-local-media-tools.json",
+  "source_sha256": {
+    "python/orbit_api/material_objects.py": "704bdb589a277225a37c38a53cb81e2cb3574cb360359c25e82f5fdc87ad5282",
+    "python/orbit_api/material_processing.py": "a375e53e9d27187218299ccef1db775ad841625f96affc8945e1b48fe3bade93",
+    "python/orbit_api/material_contract.py": "ac9c5aec653d1ffa5d80a41ac78cbf466e43f5432eb8daddf4a083784ceea214"
+  },
+  "summary": {
+    "tests": 3,
+    "passed": 3,
+    "failures": 0,
+    "cases": [
+      "realMp4DurationAndJpegCover",
+      "realTruncatedMp4RejectedWithoutPreview",
+      "realPngTwoPartsHashAssemblyAndPreview"
+    ]
+  },
+  "video": {
+    "generated_mime": "video/mp4",
+    "generated_codec": "H264/libx264",
+    "generated_bytes": 7881,
+    "duration_seconds": "2.000000",
+    "width": 160,
+    "height": 120,
+    "preview_dimensions": [
+      1024,
+      768
+    ],
+    "truncated_mp4_result": "VIDEO_PROCESSING_FAILED",
+    "python_version": "3.13.15"
+  },
+  "large_png": {
+    "executed_at": "2026-11-08T04:35:16.488408+00:00",
+    "byte_size": 9441806,
+    "part_count": 2,
+    "part_sizes": [
+      8388608,
+      1053198
+    ],
+    "decoded_width": 2048,
+    "decoded_height": 1536,
+    "preview_width": 1024,
+    "preview_height": 768,
+    "python_version": "3.13.15",
+    "pillow_version": "12.3.0",
+    "source_sha256": {
+      "python/orbit_api/material_objects.py": "704bdb589a277225a37c38a53cb81e2cb3574cb360359c25e82f5fdc87ad5282",
+      "python/orbit_api/material_contract.py": "ac9c5aec653d1ffa5d80a41ac78cbf466e43f5432eb8daddf4a083784ceea214",
+      "python/orbit_api/material_processing.py": "a375e53e9d27187218299ccef1db775ad841625f96affc8945e1b48fe3bade93"
+    }
+  },
+  "temporary_object_paths_omitted": true,
+  "owned_temporary_objects_removed": true,
+  "global_path_changed": false,
+  "limitations": [
+    "不是HTTP、MySQL、持久Worker、浏览器或生产对象存储验收",
+    "不是20MiB或500MiB产品上限验收",
+    "不是数据容量、并发或P95/P99性能证明",
+    "子进程内PATH仅指向已校验工具；生产可信工具配置与调度仍待接入"
+  ]
+}

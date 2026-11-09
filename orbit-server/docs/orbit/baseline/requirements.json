@@ -1,0 +1,290 @@
+[
+  {
+    "id": "FR-GEN-01",
+    "module": "global",
+    "title": "范围白名单",
+    "requirement": "仅八个一级业务模块；子功能归并，不删除保留字段和相关信息。",
+    "acceptance": "检查八路由/菜单；访问旧客户、产品、马甲包、户商、资源申请路径均不可操作；保留页每列和详情与字段矩阵对应。",
+    "test_id": "AT-GEN-01"
+  },
+  {
+    "id": "FR-GEN-02",
+    "module": "global",
+    "title": "权限交集",
+    "requirement": "所有请求同时校验会话、菜单、动作、数据范围；任务发送前复验；一般用户只看本人，团队管理员限管理团队，超级管理员按授予范围。",
+    "acceptance": "以本人/同团队他人/异团队/异租户ID查询及写入，符合权限返回结果，无菜单403，无数据权404；撤权后缓存、SSE和下载失效。",
+    "test_id": "AT-GEN-02"
+  },
+  {
+    "id": "FR-GEN-03",
+    "module": "global",
+    "title": "数字和时间",
+    "requirement": "外部ID用字符串；金额用Decimal字符串，币种不混加；null不变0；IANA时区及账户当地业务日保持。",
+    "acceptance": "输入32位外部ID往返无精度变化；未知余额仍未知；USD/EUR分别汇总；UTC日边界与账户业务日测试。",
+    "test_id": "AT-GEN-03"
+  },
+  {
+    "id": "FR-GEN-04",
+    "module": "global",
+    "title": "可恢复写操作",
+    "requirement": "幂等键+版本CAS+审计outbox同事务；202只代表受理；UNKNOWN锁定目标且不重发。",
+    "acceptance": "同键同请求返回同业务ID，不重复平台写；改payload409；旧revision409；断网后UNKNOWN只读回查，切通道不能重复创建。",
+    "test_id": "AT-GEN-04"
+  },
+  {
+    "id": "FR-GEN-05",
+    "module": "global",
+    "title": "字段与接口基线",
+    "requirement": "基础116和扩展22字段记录原样保留；123原路径加4引用目录路径；原语义按覆盖表裁剪。",
+    "acceptance": "运行validate_prd.py核对原字段、接口哈希、引用、需求覆盖；生产契约测试另验证错误码与响应。",
+    "test_id": "AT-GEN-05"
+  },
+  {
+    "id": "FR-UI-01",
+    "module": "global",
+    "title": "舒适Ant Design布局",
+    "requirement": "真实React/Ant Design；58px顶栏、44px导航、16至18px区块间距、13至14px正文；宽表内部滚动，不挤成竖排字。",
+    "acceptance": "1440×900与1920×1080人工检查标题/筛选/正文层次、字段完整和文字重叠；390px无文档级横向溢出。",
+    "test_id": "AT-UI-01"
+  },
+  {
+    "id": "FR-UI-02",
+    "module": "launch",
+    "title": "投放上下排列",
+    "requirement": "六个配置区单列上下排列，桌面最大1280px居中；不恢复双列，不隐藏区块来实现一屏。",
+    "acceptance": "测量launch0至launch5的左边界相同，后区顶部大于前区底部；锚点定位正确，输入后切换子页与返回状态一致。",
+    "test_id": "AT-UI-02"
+  },
+  {
+    "id": "FR-UI-03",
+    "module": "global",
+    "title": "完整交互状态",
+    "requirement": "列表含loading/空/错误/无权限/部分未知；表单标必填、行内错误和提交状态；键盘可操作弹窗、选择和确认。",
+    "acceptance": "请求失败展示重试且不吞旧筛选；校验失败定位字段；重复点击不能重复写；Modal焦点返回触发元素。",
+    "test_id": "AT-UI-03"
+  },
+  {
+    "id": "FR-ACC-01",
+    "module": "accounts",
+    "title": "账户信息",
+    "requirement": "18列及详情完整保留，支持搜索、状态/投放师/日期、列设置、分页；同步时间与金额来源可见。",
+    "acceptance": "逐列核对投手、名称/ID、户商、个号、主体、状态、授权、付费类型、余额、账单、总花费、付费方式、消耗、消耗时间、身份资产、时区、封禁原因、操作。",
+    "test_id": "AT-ACC-01"
+  },
+  {
+    "id": "FR-ACC-02",
+    "module": "accounts",
+    "title": "授权同步与分配",
+    "requirement": "OAuth只关联已授权租户；分配记有效期；同步及本地解绑独立于已删除申请流。",
+    "acceptance": "OAuth state过期/复用拒绝；转移账户后当前与历史归属按合同分别展示；本地解绑保留历史，不删除平台广告。",
+    "test_id": "AT-ACC-02"
+  },
+  {
+    "id": "FR-ACC-03",
+    "module": "accounts",
+    "title": "批量导入",
+    "requirement": "选择有效户商后预检数字ID；原始token最多500/20000codepoint；逐项状态，平台返回名称币种时区。",
+    "acceptance": "重复、已存在、无权限、格式错、归属冲突分别反馈；已存在不重绑；消耗同步失败不撤销成功绑定。",
+    "test_id": "AT-ACC-03"
+  },
+  {
+    "id": "FR-LCH-01",
+    "module": "launch",
+    "title": "计划差异树",
+    "requirement": "保留六区、系列/组/广告树、复制与克隆、负责人、账户/渠道及每账户身份。",
+    "acceptance": "同一计划混投手/团队/币种422；重复local_id拒绝；每层复制后预检展开数量与预览一致。",
+    "test_id": "AT-LCH-01"
+  },
+  {
+    "id": "FR-LCH-02",
+    "module": "launch",
+    "title": "预算目标与身份",
+    "requirement": "系列/组预算归属唯一，广告不能有预算；网站与应用目标字段互斥；默认暂停创建，启用独立授权。",
+    "acceptance": "lifetime缺结束时间、超366天、开始距发送不足5分钟拒绝；网站缺像素或app缺应用商店URL拒绝；无publish权限不得启用。",
+    "test_id": "AT-LCH-02"
+  },
+  {
+    "id": "FR-LCH-03",
+    "module": "launch",
+    "title": "分配与命名冻结",
+    "requirement": "素材兼容、allow_repeat及seed冻结；原子占用渠道名称序号；重试不重新命名；不静默覆盖落地页。",
+    "acceptance": "不可重复时素材数与广告数不符拒绝；同seed版本分配相同；两并发预览无序号碰撞；重试保持名称及素材映射。",
+    "test_id": "AT-LCH-03"
+  },
+  {
+    "id": "FR-LCH-04",
+    "module": "launch",
+    "title": "草稿模板",
+    "requirement": "草稿可暂缺业务必填但类型/引用权限始终校验；模板加载剥离账户、渠道、身份和租约，共享接收者冻结。",
+    "acceptance": "加载模板后需重新选择身份与渠道；新团队成员不自动获得旧TEAM模板；非所有者无法编辑。",
+    "test_id": "AT-LCH-04"
+  },
+  {
+    "id": "FR-LCH-05",
+    "module": "launch",
+    "title": "执行任务与统计",
+    "requirement": "预检冻结版本和15分钟有效期；DAG成功节点不重建；任务、重试、取消、只读对账、统计和提醒保留。",
+    "acceptance": "过期预览拒绝；模拟部分失败重试仅安全失败节点；API受理后必须回读才成功；配置成功不渲染为正在投放。",
+    "test_id": "AT-LCH-05"
+  },
+  {
+    "id": "FR-MON-01",
+    "module": "monitor",
+    "title": "七维度与查询",
+    "requirement": "七Tab顺序保留，完整指标、筛选、快照、币种分组、导出；汇总先权限过滤。",
+    "acceptance": "同渠道跨投手数据先按权限过滤再聚合；分页totals为全范围；100→120→迟到110最终仍120；超93日转异步导出。",
+    "test_id": "AT-MON-01"
+  },
+  {
+    "id": "FR-MON-02",
+    "module": "monitor",
+    "title": "建议双版本",
+    "requirement": "原AI结果不可改，本次建议可编辑且记录reason；依据读取冻结窗口、模型/策略版本和指标。",
+    "acceptance": "改预算后原AI建议仍可回溯；未生成建议的分析失败不能伪造OBSERVE；证据与suggestion_id一一对应。",
+    "test_id": "AT-MON-02"
+  },
+  {
+    "id": "FR-MON-03",
+    "module": "monitor",
+    "title": "提交与风险",
+    "requirement": "OBSERVE不可提交；同预算拥有者冲突先解决；修改/关闭/删除都经预览、权限、能力、风险与回读。",
+    "acceptance": "单次20%、24h正增30%边界及并发预占校验；UNKNOWN不释放锁；DELETE缺确认或权限拒绝，不能用归档冒充删除。",
+    "test_id": "AT-MON-03"
+  },
+  {
+    "id": "FR-MON-04",
+    "module": "monitor",
+    "title": "采纳和日志",
+    "requirement": "提交、采纳与平台执行成功分别统计；原样/修改/忽略/未处理、过期排除项、操作证据完整。",
+    "acceptance": "提交事务失败不计采纳；已提交命令失败仍计采纳但非执行成功；重试一次建议不重复计数。",
+    "test_id": "AT-MON-04"
+  },
+  {
+    "id": "FR-RUL-01",
+    "module": "rules",
+    "title": "条件与调度",
+    "requirement": "规则只定义条件/范围/分析调度，无预设预算动作；AND/OR最多两层20条件；IANA调度及未来运行预览。",
+    "acceptance": "空阈值不作0；INTERVAL/DAILY/WEEKLY互斥字段检查；夏令时预览与Worker slot一致；同revision+slot只运行一次。",
+    "test_id": "AT-RUL-01"
+  },
+  {
+    "id": "FR-RUL-02",
+    "module": "rules",
+    "title": "版本和分析",
+    "requirement": "启用规则编辑前暂停；改版使模拟过期；命中自动排队分析，冷却和日上限原子校验。",
+    "acceptance": "旧模拟不能启用新版本；并发命中不突破日额度；旧模型晚到不覆盖新generation；超时有限重试。",
+    "test_id": "AT-RUL-02"
+  },
+  {
+    "id": "FR-RUL-03",
+    "module": "rules",
+    "title": "保护与闭环",
+    "requirement": "稀疏/过新/过期数据只观察或阻断；命中→AI分析→人工确认→执行，不增加开始分析按钮。",
+    "acceptance": "未满24h或曝光/点击不足不能产生可执行写建议；删除暂停72h与成熟期不满足拒绝；自动命中不能直接平台写。",
+    "test_id": "AT-RUL-03"
+  },
+  {
+    "id": "FR-AST-01",
+    "module": "assets",
+    "title": "素材和指标",
+    "requirement": "保留ID、名称、文件、分类、标签AND/OR、日期、范围、排序、引用与完整指标；未知值排序后置。",
+    "acceptance": "范围含边界；未知指标不作0；切AND/OR结果符合集合；标签停用历史仍显示，上传后可预览。",
+    "test_id": "AT-AST-01"
+  },
+  {
+    "id": "FR-AST-02",
+    "module": "assets",
+    "title": "上传与删除",
+    "requirement": "JPEG/PNG≤20MiB、MP4≤500MiB；服务端校验并安全处理；批删整批检查活跃引用，保留历史。",
+    "acceptance": "伪造MIME/超大小拒绝；有任一活跃任务引用则整批拒绝且无部分删除；外部广告历史素材快照仍可追溯。",
+    "test_id": "AT-AST-02"
+  },
+  {
+    "id": "FR-AST-03",
+    "module": "assets",
+    "title": "标签归并",
+    "requirement": "分类/标签管理放素材库内部；原标签分组、引用数、编辑和停用动作保留。",
+    "acceptance": "无tags.edit无法编辑；没有额外一级标签菜单；停用后不允许新选但历史不清空。",
+    "test_id": "AT-AST-03"
+  },
+  {
+    "id": "FR-ENV-01",
+    "module": "environments",
+    "title": "分层环境状态",
+    "requirement": "机器在线、客户端连通、Profile、代理、登录身份、租约、能力分别展示；心跳15s/45s疑似/90s离线。",
+    "acceptance": "在线但账号身份不匹配仍不可写；旧boot心跳拒绝、重复seq忽略，在线判断用服务端接收时刻。",
+    "test_id": "AT-ENV-01"
+  },
+  {
+    "id": "FR-ENV-02",
+    "module": "environments",
+    "title": "动作能力与租约",
+    "requirement": "API和ADSPOWER_UI共享命令、风险锁和回读；每动作能力独立验证；租约120s每20s续期。",
+    "acceptance": "CREATE已验证但DELETE未验证时删除拒绝；过期fencing不能提交；两个通道不能重复同一操作。",
+    "test_id": "AT-ENV-02"
+  },
+  {
+    "id": "FR-ENV-03",
+    "module": "environments",
+    "title": "人机挑战与证据",
+    "requirement": "提交前挑战为NEEDS_HUMAN；提交后不确定为UNKNOWN；恢复重新预检；只读对账保留双人复核。",
+    "acceptance": "恢复时权限/绑定版本/预览任一过期拒绝；无WRITE_INTENT云端确认不能点击提交；无证据不能报SUCCEEDED。",
+    "test_id": "AT-ENV-03"
+  },
+  {
+    "id": "FR-CHN-01",
+    "module": "channels",
+    "title": "完整渠道字段",
+    "requirement": "渠道ID/名称/产品/总代/类型/媒体/链接/状态/分配人/版本完整保留；总代属选中产品。",
+    "acceptance": "切产品清除不兼容总代；跨租户或未分配引用拒绝；同租户code重复拒绝；空名称按原规则回退。",
+    "test_id": "AT-CHN-01"
+  },
+  {
+    "id": "FR-CHN-02",
+    "module": "channels",
+    "title": "引用资料连续性",
+    "requirement": "产品/总代/户商作为最小引用目录存续，系统受控导入；历史绑定产品保留，不恢复完整CRUD模块。",
+    "acceptance": "渠道编辑可以读候选而不需已删products菜单；引用失效禁止新选但历史显示；绑定产品不可改，提示新建渠道。",
+    "test_id": "AT-CHN-02"
+  },
+  {
+    "id": "FR-CHN-03",
+    "module": "channels",
+    "title": "链接与停用",
+    "requirement": "HTTPS链接与参数校验；停用不删历史；执行前重新检查渠道可用性，不自动覆盖落地页。",
+    "acceptance": "预览后停用渠道导致未发送任务阻断；已有计划落地页与渠道不同不被静默改写；未知渠道统计单列。",
+    "test_id": "AT-CHN-03"
+  },
+  {
+    "id": "FR-SYS-01",
+    "module": "system",
+    "title": "人员角色组织",
+    "requirement": "OIDC、用户昵称/联系方式/团队/功能角色/数据角色/状态及角色菜单完整；禁自提权和删除最后管理员。",
+    "acceptance": "普通用户不能改自己的角色；停用立即撤销会话；最终管理员禁用被拒绝；生产不显示演示身份切换。",
+    "test_id": "AT-SYS-01"
+  },
+  {
+    "id": "FR-SYS-02",
+    "module": "system",
+    "title": "门禁审计集成",
+    "requirement": "集成仅secret_ref，日志脱敏只追加；kill switch停写不停核验；release与动作能力按证据解锁。",
+    "acceptance": "日志/导出不包含密钥；停写后新命令拒绝而已有命令仍回查；未验证连接器不产生成功提示。",
+    "test_id": "AT-SYS-02"
+  },
+  {
+    "id": "FR-SYS-03",
+    "module": "system",
+    "title": "引用导入原子性",
+    "requirement": "引用目录预览、审查、提交分离，权限/版本/租户校验；同批全有或全无，历史快照不回写。",
+    "acceptance": "失效总代、跨团队owner或目录revision变化时拒绝提交；同幂等键重试只提交一次；预览过期必须重做。",
+    "test_id": "AT-SYS-03"
+  },
+  {
+    "id": "FR-MIG-01",
+    "module": "global",
+    "title": "迁移边界",
+    "requirement": "移除菜单/写API不级联删除历史；旧未完投放继续核验，旧资源申请仅受控离线存档不再可操作。",
+    "acceptance": "升级前后记录数与引用校验一致；未完成任务不重复创建；新构建没有退役模块路由、Worker或可授予权限。",
+    "test_id": "AT-MIG-01"
+  }
+]

@@ -1,0 +1,60 @@
+{
+  "name": "network-configuration-integration",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-admin -am -Porbit-network-it verify",
+  "executed_at": "2026-11-07T03:28:17+08:00",
+  "environment": "本机Windows真实回环HTTP/Tomcat、JWT签名、Redis社区构建8.10.3及MySQL8.4.13；仅外部平台传输fixture，未验证浏览器或完整应用",
+  "summary": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 6,
+    "skipped": 0,
+    "cases": [
+      "invalidSignatureCannotUseExistingRedisSession",
+      "malformedTokenNeverEchoesSensitiveInputInResponseOrLogs(CapturedOutput)",
+      "redisSessionRevocationRejectsPreviouslyValidSignedToken",
+      "realSessionPermissionsAndDatabaseScopeAreBothRequired",
+      "realHttpJwtRedisMysqlRoundTripAndClear(CapturedOutput)",
+      "expiredRedisSessionCannotAuthenticateEvenWithValidSignature"
+    ]
+  },
+  "unit_summary": {
+    "tests": 63,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope": "真实回环TCP HTTP、Tomcat、若依JWT签名/Redis会话、MySQL/Mapper/事务/安全链；仅平台传输fixture；未含浏览器、用户名密码登录流程、完整应用或真实平台验收",
+  "phase": "testing",
+  "item_ids": [],
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationCatalog.java": "89c363c3a76bf1fd702da044d57fb725e532626ff77eb7c602fd79f3f16ee565",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationException.java": "cab5edeb91bd5c66923f6ec315317151bcd8802096306139de75def0063c113a",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationFingerprint.java": "f869e2b4327211ef52bcc8f4b5246319906f1bb59b7b9725d385d362f4488822",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationMapper.java": "66901d1e4e375f2cee584d3805191c2d9643090b4a0eaee5d0f8a29a7cf3d6b2",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationModels.java": "007c2fb1191ec0f4e2b0e57c976a3509027bf3e99c2fbaec8d606c195cac0c8e",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationService.java": "8fdff2e6aabdbc6acbbd96e262efd7d97d36f0d98f0252efc2698b70a5ca2cc9",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConnectionProbe.java": "75ed38f3b3a5e558e54b3611619ee9a0434c8eac7036ad17c2e3eae600f81bd8",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/SecretCipher.java": "02192a8790063a267ca50492fcf291a9cab9fae6c5bb90368e2a0cbc1fa4a299",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/SecretConfiguration.java": "565552ba2a2522068d71f1b1d866c5de8cdcf34db0857db8655ace3c97d218e4",
+    "sql/orbit/V001__system_configuration.sql": "bb90eb7645a0474519ba92ead07d69ed3fbc2bb6139f12540480b92657afb798",
+    "sql/orbit/V002__configuration_history_cursor.sql": "441ffdb1dd76e6e92da215a36b4e2715797702f59ec6285c0ffad2c81a3b4501",
+    "sql/orbit/V003__configuration_audit_fingerprints.sql": "82cbdb1554388455e055932a363abf1217970969930bd348a2eef39d5116eae9",
+    "ruoyi-admin/src/main/java/com/ruoyi/web/controller/orbit/OrbitConfigurationController.java": "1a93b24765c8c9395d789e5c98fb58f3e14b69711046c3b827b87d9c01a57290",
+    "ruoyi-admin/src/main/java/com/ruoyi/web/controller/orbit/OrbitConfigurationExceptionHandler.java": "54c90f89821e4db3b13ac9f549aa4f25614b7ca4027e54e12fb15b77695a5bf6",
+    "ruoyi-admin/src/main/java/com/ruoyi/web/config/orbit/OrbitConfigurationSecurity.java": "bac9785a5c80cbb48547d7658236c25c894cc26059441a243d37976c57640bad",
+    "ruoyi-system/src/main/resources/mapper/orbit/ConfigurationMapper.xml": "ca3409bae3aa032121da9a4489b4446d5f7af7fd4e525fb575e40a8bd85dde83",
+    "ruoyi-admin/src/test/java/com/ruoyi/web/controller/orbit/OrbitConfigurationNetworkIT.java": "ba522b8de9f73f1afd463364f71fec99f97ea098dba0ac948611394af122962b",
+    "ruoyi-admin/src/main/resources/mybatis/mybatis-config.xml": "1f5fc4b6308f2586bf163b9e9ffead9cb92e852a35c5b348563e23001a81c9dc",
+    "ruoyi-admin/pom.xml": "f2b749e1df009005695081b8607b20cdcd5459a8d9c963d9e90e6034b4aa055e",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/TokenService.java": "82d53f64dfeb0a77c420bd37a6e4c538d39554331c539a58aac279f752073fdf",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/config/RedisConfig.java": "786261992781d1a15ecc886e99db88dc170bbf8f4bed89ede1edcfb0b21dae43",
+    "ruoyi-admin/src/test/resources/logback-orbit-test.xml": "04feb32d9ea094beb0f76131562b7d4bb768585e0e924b688b09e02226de2609",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/config/SecurityConfig.java": "d82d42a5d203e03e3e6f3b0496151b4466ce9f7f43244197041e6d431977f77a",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/security/filter/JwtAuthenticationTokenFilter.java": "80c6336ae24ee5afea771175f2309987bbf1923dff5350ca527677b237c219c7",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/PermissionService.java": "e32b37e3df07ce6ef217a299866d734eca1e07ce63739725fbef8fba3d8b908f",
+    "ruoyi-common/src/main/java/com/ruoyi/common/core/redis/RedisCache.java": "5098f476551e4b5f53b97085c76882e3fa758636f834c8d026229533101ad813",
+    "sql/ry_20260417.sql": "09f26cb52f2768e87f3860200e54ca39a491c373b766ef7cf404c2683bd7ae0b"
+  }
+}

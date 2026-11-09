@@ -1,0 +1,27 @@
+# 原始需求快照按字节保留，避免Git换行转换破坏产品哈希清单。
+docs/orbit/baseline/** -text -whitespace
+
+# 只规范本任务新增/修改文件，不重排若依未修改源码。
+.gitignore text eol=lf
+pom.xml text eol=lf
+README.md text eol=lf
+ruoyi-system/pom.xml text eol=lf
+ruoyi-admin/pom.xml text eol=lf
+**/orbit/**/*.java text eol=lf
+**/mapper/orbit/*.xml text eol=lf
+**/application-orbit.yml text eol=lf
+tools/** text eol=lf
+sql/orbit/** text eol=lf
+docs/orbit/*.md text eol=lf
+docs/orbit/*.json text eol=lf
+docs/orbit/extensions/** text eol=lf
+docs/orbit/evidence/** text eol=lf
+
+# 浏览器验收截图保留原始字节，不能按证据JSON的文本规则转换换行。
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+
+# 本轮修复JWT日志泄露的上游文件统一换行，其他上游文件保持原样。
+ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/TokenService.java text eol=lf

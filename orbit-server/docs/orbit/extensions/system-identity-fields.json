@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "source": "PRD-ORBIT.md：字段与信息补充：系统管理；不改写原始产品快照",
+  "status": "IMPLEMENTING",
+  "user_write_additions": {
+    "phone": {
+      "type": "string",
+      "default": "",
+      "minLength": 0,
+      "maxLength": 32,
+      "description": "手机号联系方式，按Unicode码点计数；允许国际区号及分隔写法，非短信登录证明；NFC、trim、拒绝控制符。"
+    }
+  },
+  "user_read_additions": {
+    "phone": {
+      "type": "string",
+      "maxLength": 32,
+      "readOnly": true,
+      "description": "同写入联系方式字段；来自原人员真实资料，不从用户名或邮箱推算。"
+    },
+    "identity_status": {
+      "type": "string",
+      "enum": [
+        "LOCAL_ACCOUNT",
+        "UNVERIFIED",
+        "OIDC_VERIFIED"
+      ],
+      "readOnly": true,
+      "description": "OIDC_VERIFIED只来自已验证issuer/sub的稳定外部身份绑定；LOCAL_ACCOUNT表示有本地凭据的原若依账号，不表示OIDC验证；UNVERIFIED表示未完成可信验证。邮箱不合并账号，浏览器不能写入此字段；外部配置停用影响登录可用性，不抹去历史验证事实。"
+    }
+  },
+  "compatibility": [
+    "原UserWrite八个必填字段全部保留；phone可选，缺失归一为空字符串。",
+    "原User、Team、Role的UUID、revision及权限字段继续保留。",
+    "现有若依昵称30字符/邮箱50字符/角色名30字符不足以存放原业务合同，桥接前必须完成显式结构和VO兼容迁移，不能截断。",
+    "不在UserWrite增加密码；OIDC恢复、邀请验证及原若依登录独立实现。",
+    "纯DTO测试不代表人员接口、数据库桥接、邀请、OIDC或页面已经完成。"
+  ]
+}

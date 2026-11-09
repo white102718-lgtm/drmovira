@@ -1,0 +1,1542 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ORBIT新增系统配置接口",
+    "version": "1.2.0"
+  },
+  "security": [
+    {
+      "ruoyiBearer": []
+    }
+  ],
+  "paths": {
+    "/api/v1/system-configurations": {
+      "get": {
+        "operationId": "listSystemConfigurations",
+        "responses": {
+          "200": {
+            "description": "脱敏结果；只读测试与配置启用均不代表广告写能力已验证",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConfigurationView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "安全脱敏错误，真实HTTP状态400/403/404/409/422/500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createSystemConfiguration",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9:_-]{8,128}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "脱敏结果；只读测试与配置启用均不代表广告写能力已验证",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "安全脱敏错误，真实HTTP状态400/403/404/409/422/500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system-configurations/metadata": {
+      "get": {
+        "operationId": "getSystemConfigurationMetadata",
+        "responses": {
+          "200": {
+            "description": "脱敏结果；只读测试与配置启用均不代表广告写能力已验证",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Metadata"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "安全脱敏错误，真实HTTP状态400/403/404/409/422/500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system-configurations/{id}": {
+      "get": {
+        "operationId": "getSystemConfiguration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "脱敏结果；只读测试与配置启用均不代表广告写能力已验证",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "安全脱敏错误，真实HTTP状态400/403/404/409/422/500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateSystemConfiguration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]{0,17}\"$"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9:_-]{8,128}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "脱敏结果；只读测试与配置启用均不代表广告写能力已验证",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "安全脱敏错误，真实HTTP状态400/403/404/409/422/500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system-configurations/{id}/test": {
+      "post": {
+        "operationId": "testSystemConfigurationReadOnly",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]{0,17}\"$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "reason"
+                ],
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "人工测试原因；NFC与trim后非空，禁止控制字符，不填写凭据"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "脱敏结果；只读测试与配置启用均不代表广告写能力已验证",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProbeResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "安全脱敏错误，真实HTTP状态400/403/404/409/422/500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system-configurations/{id}/history": {
+      "get": {
+        "operationId": "listSystemConfigurationHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "beforeRevision",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "脱敏结果；只读测试与配置启用均不代表广告写能力已验证",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "安全脱敏错误，真实HTTP状态400/403/404/409/422/500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ruoyiBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "SecretChange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation"
+        ],
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": [
+              "KEEP",
+              "REPLACE",
+              "CLEAR"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 8192
+          }
+        }
+      },
+      "ConfigurationWrite": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "ADSPOWER"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "agentId": {
+                    "type": "string",
+                    "description": "执行Agent ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "localSecretRef": {
+                    "type": "string",
+                    "description": "执行机本地密钥引用（不上传Local API Key）",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "heartbeatSeconds": {
+                    "type": "integer",
+                    "description": "心跳秒数",
+                    "default": 15,
+                    "minimum": 15,
+                    "maximum": 15
+                  },
+                  "leaseSeconds": {
+                    "type": "integer",
+                    "description": "租约秒数",
+                    "default": 120,
+                    "minimum": 120,
+                    "maximum": 120
+                  },
+                  "leaseRenewSeconds": {
+                    "type": "integer",
+                    "description": "续租秒数",
+                    "default": 20,
+                    "minimum": 20,
+                    "maximum": 20
+                  },
+                  "maxActiveProfiles": {
+                    "type": "integer",
+                    "description": "每机器最大活动Profile",
+                    "default": 2,
+                    "minimum": 1,
+                    "maximum": 20
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "AI_CLAUDE"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "模型ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "apiVersion": {
+                    "type": "string",
+                    "description": "Anthropic API版本",
+                    "default": "2026-10-21",
+                    "maxLength": 500
+                  },
+                  "workspaceId": {
+                    "type": "string",
+                    "description": "工作区ID（非工作区限定Key需填写）",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "timeoutSeconds": {
+                    "type": "integer",
+                    "description": "请求超时（秒）",
+                    "default": 60,
+                    "minimum": 1,
+                    "maximum": 60
+                  },
+                  "maxRetries": {
+                    "type": "integer",
+                    "description": "最多重试次数",
+                    "default": 2,
+                    "minimum": 0,
+                    "maximum": 2
+                  },
+                  "maxOutputTokens": {
+                    "type": "integer",
+                    "description": "最大输出Token",
+                    "default": 4096,
+                    "minimum": 256,
+                    "maximum": 32768
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "apiKey": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "AI_GPT"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "模型ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "timeoutSeconds": {
+                    "type": "integer",
+                    "description": "请求超时（秒）",
+                    "default": 60,
+                    "minimum": 1,
+                    "maximum": 60
+                  },
+                  "maxRetries": {
+                    "type": "integer",
+                    "description": "最多重试次数",
+                    "default": 2,
+                    "minimum": 0,
+                    "maximum": 2
+                  },
+                  "maxOutputTokens": {
+                    "type": "integer",
+                    "description": "最大输出Token",
+                    "default": 4096,
+                    "minimum": 256,
+                    "maximum": 32768
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "apiKey": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "AI_SUGGESTIONS"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "providerConfigId": {
+                    "type": "string",
+                    "description": "默认AI配置ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "promptVersion": {
+                    "type": "string",
+                    "description": "提示词版本",
+                    "default": "suggestion-v1",
+                    "maxLength": 500
+                  },
+                  "snapshotMaxAgeMinutes": {
+                    "type": "integer",
+                    "description": "快照最长有效分钟",
+                    "default": 30,
+                    "minimum": 1,
+                    "maximum": 30
+                  },
+                  "observationHours": {
+                    "type": "integer",
+                    "description": "新对象观察小时",
+                    "default": 24,
+                    "minimum": 24,
+                    "maximum": 720
+                  },
+                  "minimumImpressions": {
+                    "type": "integer",
+                    "description": "最低曝光",
+                    "default": 1000,
+                    "minimum": 1000,
+                    "maximum": 1000000
+                  },
+                  "minimumClicks": {
+                    "type": "integer",
+                    "description": "最低点击",
+                    "default": 20,
+                    "minimum": 20,
+                    "maximum": 1000000
+                  },
+                  "minimumPurchasesForDelete": {
+                    "type": "integer",
+                    "description": "删除最低购物数",
+                    "default": 5,
+                    "minimum": 5,
+                    "maximum": 1000000
+                  },
+                  "minimumPausedHours": {
+                    "type": "integer",
+                    "description": "删除最低暂停小时",
+                    "default": 72,
+                    "minimum": 72,
+                    "maximum": 8760
+                  },
+                  "maturityDays": {
+                    "type": "integer",
+                    "description": "归因成熟天数",
+                    "default": 28,
+                    "minimum": 28,
+                    "maximum": 365
+                  },
+                  "maxConcurrentAnalysis": {
+                    "type": "integer",
+                    "description": "最大并发分析数",
+                    "default": 2,
+                    "minimum": 1,
+                    "maximum": 20
+                  },
+                  "maxDailyPoints": {
+                    "type": "integer",
+                    "description": "输入最多逐日点",
+                    "default": 28,
+                    "minimum": 0,
+                    "maximum": 28
+                  },
+                  "maxEvidenceItems": {
+                    "type": "integer",
+                    "description": "输入最多证据条数",
+                    "default": 500,
+                    "minimum": 1,
+                    "maximum": 500
+                  },
+                  "maxOutputTokens": {
+                    "type": "integer",
+                    "description": "建议最大输出Token",
+                    "default": 4096,
+                    "minimum": 256,
+                    "maximum": 32768
+                  },
+                  "minimumCooldownMinutes": {
+                    "type": "integer",
+                    "description": "分析冷却下限（分钟）",
+                    "default": 60,
+                    "minimum": 0,
+                    "maximum": 10080
+                  },
+                  "maximumDailyAnalysesPerObject": {
+                    "type": "integer",
+                    "description": "每规则每对象每日分析上限",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 1000
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "META_APP"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "appId": {
+                    "type": "string",
+                    "description": "Meta App ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "graphVersion": {
+                    "type": "string",
+                    "description": "Graph API版本（如v25.0）",
+                    "default": "",
+                    "maxLength": 500
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "appSecret": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "META_BM"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "businessId": {
+                    "type": "string",
+                    "description": "Business Manager ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "systemUserId": {
+                    "type": "string",
+                    "description": "系统用户ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "graphVersion": {
+                    "type": "string",
+                    "description": "Graph API版本",
+                    "default": "",
+                    "maxLength": 500
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "accessToken": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "METRICS"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "intervalMinutes": {
+                    "type": "integer",
+                    "description": "同步间隔分钟",
+                    "default": 15,
+                    "minimum": 1,
+                    "maximum": 1440
+                  },
+                  "lookbackDays": {
+                    "type": "integer",
+                    "description": "回补业务日",
+                    "default": 7,
+                    "minimum": 1,
+                    "maximum": 93
+                  },
+                  "profileVersion": {
+                    "type": "string",
+                    "description": "指标Profile版本",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "registerActionType": {
+                    "type": "string",
+                    "description": "注册事件映射",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "purchaseActionType": {
+                    "type": "string",
+                    "description": "购物事件映射",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "valueActionType": {
+                    "type": "string",
+                    "description": "购物价值映射",
+                    "default": "",
+                    "maxLength": 500
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "NOTIFICATIONS"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "channel": {
+                    "type": "string",
+                    "description": "通知渠道",
+                    "default": "IN_APP",
+                    "maxLength": 500,
+                    "enum": [
+                      "IN_APP",
+                      "WEBHOOK"
+                    ]
+                  },
+                  "webhookUrl": {
+                    "type": "string",
+                    "description": "Webhook HTTPS地址",
+                    "default": "",
+                    "maxLength": 500
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "webhookToken": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "OIDC"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "issuer": {
+                    "type": "string",
+                    "description": "Issuer HTTPS地址",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "clientId": {
+                    "type": "string",
+                    "description": "Client ID",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "redirectUri": {
+                    "type": "string",
+                    "description": "回调HTTPS地址",
+                    "default": "",
+                    "maxLength": 500
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "clientSecret": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "RISK"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "singleChangePercent": {
+                    "type": "integer",
+                    "description": "单次预算变动上限（%）",
+                    "default": 20,
+                    "minimum": 1,
+                    "maximum": 20
+                  },
+                  "positiveRollingPercent": {
+                    "type": "integer",
+                    "description": "24小时累计正增上限（%）",
+                    "default": 30,
+                    "minimum": 1,
+                    "maximum": 30
+                  },
+                  "lifetimeSpendMaxAgeSeconds": {
+                    "type": "integer",
+                    "description": "消耗证据有效秒数",
+                    "default": 300,
+                    "minimum": 1,
+                    "maximum": 300
+                  },
+                  "previewTtlMinutes": {
+                    "type": "integer",
+                    "description": "预览有效分钟",
+                    "default": 15,
+                    "minimum": 1,
+                    "maximum": 15
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "name",
+              "enabled",
+              "settings",
+              "reason"
+            ],
+            "properties": {
+              "section": {
+                "type": "string",
+                "const": "STORAGE"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "endpoint": {
+                    "type": "string",
+                    "description": "S3兼容HTTPS地址",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "bucket": {
+                    "type": "string",
+                    "description": "Bucket",
+                    "default": "",
+                    "maxLength": 500
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Region",
+                    "default": "",
+                    "maxLength": 500
+                  }
+                }
+              },
+              "secrets": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "accessKey": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  },
+                  "secretKey": {
+                    "$ref": "#/components/schemas/SecretChange"
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          }
+        ]
+      },
+      "AuditPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "nextBeforeRevision"
+        ],
+        "properties": {
+          "nextBeforeRevision": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "actorId": {
+                  "type": "integer"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "integer"
+                },
+                "beforeRevision": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "beforeHash": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "afterHash": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "hashAlgorithm": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "SHA256_STATE_V1",
+                    null
+                  ]
+                },
+                "changedFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SecretState": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "configured",
+          "hint"
+        ],
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          },
+          "hint": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfigurationView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "section",
+          "name",
+          "enabled",
+          "revision",
+          "settings",
+          "secrets",
+          "verificationStatus",
+          "verifiedAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section": {
+            "type": "string",
+            "enum": [
+              "ADSPOWER",
+              "AI_CLAUDE",
+              "AI_GPT",
+              "AI_SUGGESTIONS",
+              "META_APP",
+              "META_BM",
+              "METRICS",
+              "NOTIFICATIONS",
+              "OIDC",
+              "RISK",
+              "STORAGE"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "settings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "integer"
+              ]
+            }
+          },
+          "secrets": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SecretState"
+            }
+          },
+          "verificationStatus": {
+            "type": "string",
+            "enum": [
+              "UNTESTED",
+              "READ_VERIFIED",
+              "FAILED",
+              "BLOCKED"
+            ]
+          },
+          "verifiedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "message",
+          "request_id"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Metadata": {
+        "type": "object",
+        "required": [
+          "sections",
+          "encryptionReady"
+        ],
+        "properties": {
+          "encryptionReady": {
+            "type": "boolean"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "fields"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "integer",
+                          "select",
+                          "secret"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      },
+                      "defaultValue": {
+                        "type": [
+                          "string",
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "minimum": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "maximum": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProbeResponse": {
+        "type": "object",
+        "required": [
+          "configuration",
+          "result"
+        ],
+        "properties": {
+          "configuration": {
+            "$ref": "#/components/schemas/ConfigurationView"
+          },
+          "result": {
+            "type": "object",
+            "required": [
+              "status",
+              "message"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "READ_VERIFIED",
+                  "FAILED",
+                  "BLOCKED"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-business-validation": "服务端另校验启用条件必填、凭据状态、同租户AI引用、角色/菜单/动作、版本、幂等与风险收紧限制；错误码400/403/404/409/422/500。只读测试不调用生成或广告写入。",
+  "x-authentication-response": {
+    "status": 401,
+    "code": "UNAUTHENTICATED",
+    "cacheControl": "no-store",
+    "scope": "仅新增系统配置路径使用独立安全链；若依原接口保持原行为；Token会话存储仍需真实Redis联调"
+  }
+}

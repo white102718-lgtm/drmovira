@@ -1,0 +1,34 @@
+{
+  "name": "python-metrics-result-contract-and-cursor-unit",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T18:55:16.273905+00:00",
+  "command": [
+    "D:\\progress\\orbit\\orbit-server\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "python/tests/test_metrics_query_result_contract.py",
+    "python/tests/test_metrics_query_result.py",
+    "python/tests/test_credentials.py",
+    "python/tests/test_directory_tokens.py",
+    "-q"
+  ],
+  "scope": "固定纯结果合同/覆盖质量/历史名称/排序及公共MAC用途分离；非QueryStore/完整HTTP/数据库/发行/平台验收",
+  "status": "PASS",
+  "exit_code": 0,
+  "elapsed_seconds": 1.34,
+  "source_sha256": {
+    "python/tests/test_metrics_query_result_contract.py": "99f50bad50f66df0641fffc20578e7b16a97d490cc7c40a2af7401d6bbe10898",
+    "python/tests/test_metrics_query_result.py": "9aef33096d783ea0d8ce78b549bd3e2e7f7b3013d8a0b2a97e71de98e3df8621",
+    "python/tests/test_credentials.py": "ef1dbe15e7dfb98a7a20599d756af2f9d5e34b2c82524c1b226e9ad4b8b27354",
+    "python/tests/test_directory_tokens.py": "976144d16a3b86b9c2ef0ce85b8cef7f4603186c50947e030ddc71d4c06f9dbf",
+    "python/orbit_api/metrics_query_result_contract.py": "7a27c024fd1001e1b0bb0f103fd1998d7f7601bf8264023b4755ef0b54d6e7b7",
+    "python/orbit_api/metrics_query_result.py": "a9b85e7056525909545e694b86ba42cc46f8cb52c67ab6fb79b88082b5c02a10",
+    "python/orbit_api/metrics_contract.py": "c69ef695692cad142e6a1deeac0e9e8cb7c735fc59eec845bf7f4856043f4cb3",
+    "python/orbit_api/metrics_aggregation.py": "38857574c27a23adacc621aebdf387ebc4e86cbeec72a17dbf613e458ceb2aeb",
+    "python/orbit_api/credentials.py": "6acdf8d9d176c79d322cd03f7e6677425272052a16a37dc9b2db02c192d88efb",
+    "python/orbit_api/directory_tokens.py": "e731ad8bfc2b70b60617f9c7300e659b61ccf0c61a7348d8b68d918ee8b6d493"
+  },
+  "changed_sources": [],
+  "output": "........................................................................ [ 41%]\n........................................................................ [ 82%]\n...............................                                          [100%]\n175 passed in 0.76s\n"
+}

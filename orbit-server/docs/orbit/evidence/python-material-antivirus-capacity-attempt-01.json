@@ -1,0 +1,30 @@
+{
+  "name": "python-material-antivirus-capacity",
+  "phase": "testing",
+  "executed_at": "2026-11-08T07:29:00.139978+00:00",
+  "command": ".venv/Scripts/python.exe tools/run_material_antivirus_capacity.py",
+  "scope": "实际500MiB ClamD INSTREAM；非HTTP上传/媒体解码/磁盘感染/整进程峰值验收",
+  "result": "FAIL",
+  "process_before": {
+    "pid": 7492,
+    "process_created_at_epoch": 1794119682.138348,
+    "executable_sha256": "d052be9cb42b3798e7a7a65c48a51a4253d8685d7720679b4279007fd6a1aa3f",
+    "archive_sha256": "0d9e0228b2674137ea1a2853566c98a0278ad52ab2582c3d6dbd75373848c395",
+    "config_sha256": "a32e3047ee458b650d5ec96aeb6629d4ac8e863f68b4aecdff34c3017e7485df",
+    "listener": "127.0.0.1:19310",
+    "scope": "fixed local fixture process only; not production lifecycle attestation"
+  },
+  "failure_type": "AssertionError",
+  "summary": {
+    "passed": 0,
+    "expected": 2,
+    "cases": []
+  },
+  "source_sha256": {
+    "python/orbit_api/material_antivirus.py": "1a0301e74a638714957c3aaadc58908f75c3f39f9cbee3a60d49e9d74196e5f0",
+    "tools/run_material_antivirus_capacity.py": "6971bc462df7dca08d4411e7712495e2db43e164e0bb863bec802af3b2f35909",
+    "tools/clamd_fixture_attestation.py": "b16b06dbcaeaea22ac053d9dc789752ad8ab9a2a30095311393ac9d83a0718d2",
+    "tools/material_antivirus_capacity_checks.py": "3bc539fa770e43e84804002896643fa6c1f261d886ad9adb57a79f6f18379db2",
+    "tools/material_antivirus_engine_checks.py": "da04e91ff8b5ca5f3bf7ce59411186bc0a1a5e1d7014946796e0c8ed3611c317"
+  }
+}

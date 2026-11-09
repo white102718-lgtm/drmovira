@@ -1,0 +1,312 @@
+{
+  "result": "PASS",
+  "executed_at": "2026-11-09T07:43:03+08:00",
+  "scope": "规则编辑/定义SDK/父页/List定向65项；真实EP与VueRouter，网络或子组件协议替身，非真实HTTP/浏览器验收",
+  "command": "pnpm exec vitest run --config vitest.config.ts tests/orbit/rule-editor.test.ts tests/orbit/rule-editor-definition-api.test.ts tests/orbit/rules-page.test.ts tests/orbit/rule-list.test.ts --reporter=json --outputFile=.runtime/rules-editor-parent-vitest.json",
+  "summary": {
+    "tests": 65,
+    "passed": 65,
+    "failures": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/views/orbit/rules/RuleEditor.vue": "1f7f07aad72c2e3a5281d52dc8027e79a3ab1bdf29afc9bc65bc8335c531908d",
+    "tests/orbit/rule-editor.test.ts": "996bff04a974eeacb71fb140fd99c0df379f4f588e7e759dcaf02463da53598b",
+    "docs/ORBIT_RULE_EDITOR.md": "6457d45b2a3e3caad883cec9a825430fe5b5e5c429a70f7f2a01025b322345f2",
+    "src/api/orbit/rule-editor-definition.ts": "2681ead49ecc16203725810b25149889a3a57c78b70f6ee0687a6ea72ccad521",
+    "tests/orbit/rule-editor-definition-api.test.ts": "66f1a6fb542db3329c11aaa89fe81c989bf6d9ce2c0e55c410ee118e43b4df63",
+    "docs/ORBIT_RULE_EDITOR_DEFINITION_API.md": "fe3b1898ad27a5299b4b0c499869a53d0bc8b7726ceefbbde10e8f3788263818",
+    "src/views/orbit/rules/index.vue": "4865b7a60dd0cb7ce961e56959599b0e11742e9a565466087803a6361bf1f713",
+    "tests/orbit/rules-page.test.ts": "9055a98d1e171546eed58b496dddc23036048c268235f777e1c417ed8d45d3ef",
+    "docs/ORBIT_RULES_PAGE.md": "ff2ce758633fd483e546445e3a16c8422bfbd55a37875aa65ff6a449451669ee",
+    "src/views/orbit/rules/RuleList.vue": "3252d17827c2557e5db45d4c4485d24cbb92124681bf52b64fae88e077ccdb11",
+    "tests/orbit/rule-list.test.ts": "6cd31052227d014e6b172405fc70fa484863052e5b31145c61dbdf40091f0f55"
+  },
+  "source_scope_note": "A明确冻结上述11文件；主线实际重跑并从Vitest JSON归档。hash记录于本次结果后，未声称有主线执行前双hash记录。",
+  "suites": [
+    {
+      "file": "tests\\orbit\\rule-editor-definition-api.test.ts",
+      "status": "passed",
+      "cases": [
+        {
+          "title": "专属rules.edit source GET，不调用通用read或其它模块",
+          "status": "passed"
+        },
+        {
+          "title": "strict两键/原Rule15/真实stored_scope4，521不套Plan500",
+          "status": "passed"
+        },
+        {
+          "title": "错scope/owner/team/count/新增键不能用作旧manifest",
+          "status": "passed"
+        },
+        {
+          "title": "对应请求规则ID仍须一致，不能接别的定义",
+          "status": "passed"
+        },
+        {
+          "title": "真实403错误code/path不伪空定义",
+          "status": "passed"
+        },
+        {
+          "title": "真实409错误code/path不伪空定义",
+          "status": "passed"
+        },
+        {
+          "title": "真实503错误code/path不伪空定义",
+          "status": "passed"
+        },
+        {
+          "title": "认证晚回与预取消拒绝，不把旧定义展示给新身份",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests\\orbit\\rule-editor.test.ts",
+      "status": "passed",
+      "cases": [
+        {
+          "title": "仅edit权限读取专属定义，真实521旧范围不冒充Scope5且不读creator成员",
+          "status": "passed"
+        },
+        {
+          "title": "原11字段与quoted CAS保存，允许同正文no-op版本不增长",
+          "status": "passed"
+        },
+        {
+          "title": "定义与上下文revision漂移409，不能保存",
+          "status": "passed"
+        },
+        {
+          "title": "ENABLED只读但保留完整定义",
+          "status": "passed"
+        },
+        {
+          "title": "ARCHIVED只读但保留完整定义",
+          "status": "passed"
+        },
+        {
+          "title": "创建无浏览器日期/时区假默认、空scope/profile不能提交",
+          "status": "passed"
+        },
+        {
+          "title": "候选分页不重置已修改名称，保留真实已加载配置",
+          "status": "passed"
+        },
+        {
+          "title": "改owner清已保存scope并按真实新owner查询配置",
+          "status": "passed"
+        },
+        {
+          "title": "候选403立即清所有旧敏感定义，不能发新保存",
+          "status": "passed"
+        },
+        {
+          "title": "普通503保留本地修改但阻止提交，明确来源失败",
+          "status": "passed"
+        },
+        {
+          "title": "未确认保存先交父，手动用原body/key/CAS和当前CSRF恢复",
+          "status": "passed"
+        },
+        {
+          "title": "明确422首次拒绝清pending并展示原字段path",
+          "status": "passed"
+        },
+        {
+          "title": "关闭保留进行中原意图，迟到成功不覆盖或发saved",
+          "status": "passed"
+        },
+        {
+          "title": "父回传未知请求重挂载先取当前会话，不跨actor重发",
+          "status": "passed"
+        },
+        {
+          "title": "同actor未知请求重挂载能获取当前CSRF恢复",
+          "status": "passed"
+        },
+        {
+          "title": "上下文切换中断读取并忽略旧定义",
+          "status": "passed"
+        },
+        {
+          "title": "CREATE真实Scope回传后原完整正文提交，不造scope回执或日期",
+          "status": "passed"
+        },
+        {
+          "title": "恢复Scope待选记录清pending后仍保持原owner，不把回执归给当前表单",
+          "status": "passed"
+        },
+        {
+          "title": "定义401清私密数据；迟到另一路成功也不重建表单",
+          "status": "passed"
+        },
+        {
+          "title": "缺当前原动作不会探测Context/定义/候选",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests\\orbit\\rule-list.test.ts",
+      "status": "passed",
+      "cases": [
+        {
+          "title": "无read不请求列表或任何cap，create-only不暗加read",
+          "status": "passed"
+        },
+        {
+          "title": "真实列表字段和四档cursor导航，filter/page变化重置",
+          "status": "passed"
+        },
+        {
+          "title": "原筛选完整交SDK，503/422不伪空结果",
+          "status": "passed"
+        },
+        {
+          "title": "15字段详情和完整调度/Decimal保真，编辑仅emit真实cap和rule",
+          "status": "passed"
+        },
+        {
+          "title": "详情读取失败不沿用列表行冒充，late detail不可覆盖另一身份",
+          "status": "passed"
+        },
+        {
+          "title": "旧列表晚返回不可覆盖当前身份",
+          "status": "passed"
+        },
+        {
+          "title": "启用态先暂停，不能编辑/归档；无真实模拟不能启用",
+          "status": "passed"
+        },
+        {
+          "title": "暂停原因/当前CAS与cap，取消无写，成功更新真实版本",
+          "status": "passed"
+        },
+        {
+          "title": "未知归档手动重试保存相同body/key/CAS，不二次cap不自动发送",
+          "status": "passed"
+        },
+        {
+          "title": "模拟实际503与触发记录503可见，不发行enable资格",
+          "status": "passed"
+        },
+        {
+          "title": "只使用原Simulation13 expires_at与当前版本，无添加created_at；真实enable body",
+          "status": "passed"
+        },
+        {
+          "title": "原动作cap拒绝可见且不发写入，缺动作不探测cap",
+          "status": "passed"
+        },
+        {
+          "title": "编辑未提交的名称后翻页仍沿已提交筛选，不污染cursor",
+          "status": "passed"
+        },
+        {
+          "title": "未知意图认证变化后不显示旧对象，恢复原上下文用同键重试",
+          "status": "passed"
+        },
+        {
+          "title": "错误模拟对象不能生成启用资格，归类未知保留原key",
+          "status": "passed"
+        },
+        {
+          "title": "真实已过期模拟不默认有效，不能发送enable",
+          "status": "passed"
+        },
+        {
+          "title": "服务端原path字段错误可见，非unknown拒绝允许修改原因",
+          "status": "passed"
+        },
+        {
+          "title": "创建cap晚回不向新身份emit，不添加虚构创建人时间",
+          "status": "passed"
+        },
+        {
+          "title": "详情真实运行记录组件可翻页，关闭详情取消子组件读取",
+          "status": "passed"
+        },
+        {
+          "title": "父显式refresh回首屏但保留appliedQuery与未提交筛选输入",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests\\orbit\\rules-page.test.ts",
+      "status": "passed",
+      "cases": [
+        {
+          "title": "List→创建路由→返回保留同一列表与原本地筛选",
+          "status": "passed"
+        },
+        {
+          "title": "编辑List真实rule.id放query，保存回列表显式refresh不重建列表",
+          "status": "passed"
+        },
+        {
+          "title": "edit-only直达不挂List/不探read，真实权限传给Editor",
+          "status": "passed"
+        },
+        {
+          "title": "create-only不用rules.read，父入口开真实CREATE模式",
+          "status": "passed"
+        },
+        {
+          "title": "严格query ?mode=edit不创建伪编辑上下文",
+          "status": "passed"
+        },
+        {
+          "title": "严格query ?mode=edit&rule_id=not-uuid不创建伪编辑上下文",
+          "status": "passed"
+        },
+        {
+          "title": "严格query ?mode=create&rule_id=00000000-0000-4000-8000-000000000001不创建伪编辑上下文",
+          "status": "passed"
+        },
+        {
+          "title": "严格query ?mode=edit&rule_id=00000000-0000-4000-8000-000000000001&rule_id=00000000-0000-4000-8000-000000000002不创建伪编辑上下文",
+          "status": "passed"
+        },
+        {
+          "title": "严格query ?mode=wrong不创建伪编辑上下文",
+          "status": "passed"
+        },
+        {
+          "title": "父保存pending跨关闭恢复原mode/rule，不丢原业务意图或发新写",
+          "status": "passed"
+        },
+        {
+          "title": "非空token刷新不换actor生命周期，手动恢复可更新传输认证",
+          "status": "passed"
+        },
+        {
+          "title": "跨actor隐藏编辑器与原正文，原未知阻新写且不重发",
+          "status": "passed"
+        },
+        {
+          "title": "同actor非权限清空变化仍保留生命周期，退出清空换代且不恢复旧意图",
+          "status": "passed"
+        },
+        {
+          "title": "pending清除后保存成功刷新，未知未确认时不主动refresh",
+          "status": "passed"
+        },
+        {
+          "title": "RuleRuns不冒充全局触发记录/5次预览，不加未实现菜单",
+          "status": "passed"
+        },
+        {
+          "title": "迟到旧actor pending事件不能盖成新身份",
+          "status": "passed"
+        },
+        {
+          "title": "父完整保留SCOPE原请求，返回后只恢复原编辑目标",
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

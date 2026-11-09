@@ -1,0 +1,14 @@
+{
+  "name": "audit-client-attempt-01",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": "C:\\Users\\admin\\AppData\\Roaming\\npm\\pnpm.cmd test:orbit",
+  "executed_at": "2026-11-07T19:53:18+08:00",
+  "environment": "本地开发验证；模拟传输/Mapper的测试不代表真实平台或MySQL集成",
+  "summary": {
+    "tests": 21,
+    "passed": 20,
+    "failures": 1
+  },
+  "scope": "前端21项中20通过1失败：新增客户端测试复用同一Response，首轮读取后body已消费，后续断言误得到REQUEST_FAILED。改为每次调用返回独立Response，保留状态、隐私与历史未知错误断言。不是产品接口故障或验收通过。"
+}

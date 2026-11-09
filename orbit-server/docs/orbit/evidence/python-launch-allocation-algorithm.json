@@ -1,0 +1,16 @@
+{
+  "name": "python-launch-allocation-algorithm",
+  "executed_at": "2026-11-08T08:18:37.390056+00:00",
+  "result": "PASS",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_launch_allocation.py -q",
+  "scope": "纯算法27项/小图穷举oracle；未接权威能力、SQL、HTTP或任务Worker",
+  "summary": {
+    "passed": 27,
+    "failed": 0,
+    "duration_seconds": 4.52
+  },
+  "source_sha256": {
+    "python/orbit_api/launch_allocation.py": "2a46ec0ea2ca47c24eb5349c537573fdd470c4fe82c8bf289c0dcb878d4d69b3",
+    "python/tests/test_launch_allocation.py": "8e4eeeb7eff77e3d99582932f4611ca9198634edb13fb2a1331788102535028d"
+  }
+}

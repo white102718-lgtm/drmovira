@@ -1,0 +1,31 @@
+{
+  "name": "meta-app-probe-regression",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-admin -am -Porbit-network-it verify",
+  "executed_at": "2026-11-07T03:34:27+08:00",
+  "environment": "本机Java21、受控HttpClient传输，未访问真实平台；同轮默认单测报告",
+  "phase": "testing",
+  "item_ids": [],
+  "scope": "连接探测8项测试，其中新增Meta应用无凭据不发送请求与应用ID一致性2项回归；不代表CFG-06完整验收",
+  "summary": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "metaAppEvidenceMustMatchConfiguredIdAndUseOnlyBearerCredential",
+      "metaAppRequiresActualSecretBeforeAnyNetworkRequest",
+      "springCanConstructProbeWithoutUsingTestTransport",
+      "claudeUsesOwnProtocolVersionAndWorkspace",
+      "missingCredentialsAndUnsupportedConnectorAreBlockedWithoutNetwork",
+      "gptOnlyCallsOfficialReadEndpointAndNeverPlacesKeyInUrl",
+      "mismatchedBusinessEvidenceCannotPass",
+      "errorsAndMissingEvidenceNeverLeakProviderBody"
+    ]
+  },
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConnectionProbe.java": "8b0bbde89f75a7455f82c49ce14e762c5c6657c509e28b697a61fbfc07c7cdea",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/config/ConnectionProbeTest.java": "b4bbe2284ec3ee8253e05ecdd8c755c651efc615bd1c046a8685d74585a34147"
+  }
+}

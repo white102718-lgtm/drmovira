@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "scope": "静态需求/合同/覆盖校验；不是生产业务或完整OpenAPI规范认证",
+  "checks": [
+    {
+      "name": "基础字段保留且逐对象一致",
+      "status": "PASS",
+      "detail": 116
+    },
+    {
+      "name": "扩展字段保留且逐对象一致",
+      "status": "PASS",
+      "detail": 22
+    },
+    {
+      "name": "字段索引无遗漏",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "原123路径完整保留",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "只新增指定4引用目录路径",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "退役路径未恢复",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "OpenAPI本地引用可解析",
+      "status": "PASS",
+      "detail": {
+        "references": 1766,
+        "invalid": []
+      }
+    },
+    {
+      "name": "operationId唯一且响应非空",
+      "status": "PASS",
+      "detail": {
+        "operations": 156
+      }
+    },
+    {
+      "name": "路径参数声明完整",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "name": "八菜单与动作映射完整",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "退役权限不可授予",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "需求与验收唯一且双向覆盖",
+      "status": "PASS",
+      "detail": {
+        "requirements": 36,
+        "acceptance_cases": 36
+      }
+    },
+    {
+      "name": "验收不伪称生产通过",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "开发任务覆盖全部需求",
+      "status": "PASS",
+      "detail": 11
+    },
+    {
+      "name": "开发依赖无前向缺失或环",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "PRD正文包含全部FR与AT",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "最新布局及生产边界明确",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "当前文档相对链接有效",
+      "status": "PASS",
+      "detail": []
+    }
+  ],
+  "passed": 18,
+  "failed": 0
+}

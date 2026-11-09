@@ -1,0 +1,23 @@
+{
+  "name": "metric-fact-schema-tool-unit",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T18:07:29.723153+00:00",
+  "scope": "仅25项工具护栏纯测及Ruff lint/format；真实SQL另20项具名回执，非生产发行/QueryStore/容量验收",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_metric_fact_schema_tool.py -q",
+  "summary": {
+    "tests": 25,
+    "expected": 25,
+    "passed": 25,
+    "failures": 0,
+    "not_run": 0
+  },
+  "status": "PASS",
+  "elapsed_seconds": 0.17,
+  "source_capture": "主线实际验证后采集，工具/测试由作者冻结；不是新的一轮全量3289清单",
+  "source_sha256": {
+    "tools/metric_fact_schema_checks.py": "36f11b0d011c8089776456bf0d8c687b1a8273e8d3f7542a4255854000b5eafe",
+    "python/tests/test_metric_fact_schema_tool.py": "1b8bf8025be7d4ad732918d75f575354211640e2520f9ec1e18de5c1dec915b5",
+    "tools/run_python_framework_checks.py": "775ea4490ec353a6cbc692d3715aa6040cb880b589ecff5ce1254b9711fcd755"
+  }
+}

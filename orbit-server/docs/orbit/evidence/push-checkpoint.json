@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-11-07T01:27:11+08:00",
+  "scope": "Initial source checkpoint, not final product delivery",
+  "repositories": [
+    {
+      "repository": "orbit-server",
+      "branch": "springboot3",
+      "local": "7d8b57d92740f68dda57de06279342813133d54d",
+      "remote": "7d8b57d92740f68dda57de06279342813133d54d"
+    },
+    {
+      "repository": "orbit-web",
+      "branch": "master",
+      "local": "3e14f82e789959ec0bb916eae45d3a214d866e53",
+      "remote": "3e14f82e789959ec0bb916eae45d3a214d866e53"
+    }
+  ]
+}

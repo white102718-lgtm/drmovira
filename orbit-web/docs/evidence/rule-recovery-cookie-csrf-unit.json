@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-09T10:07:36.693268+08:00",
+  "scope": "Cookie CSRF transport refresh only after server-verified same principal; does not create authentication or persist intent",
+  "result": "PASS",
+  "tests": 23,
+  "command": "pnpm exec vitest run --config vitest.config.ts tests/orbit/authentication.test.ts",
+  "format": "two owned files PASS",
+  "source_hash_capture": "after execution only; no before/after freeze claim",
+  "sources": {
+    "src/api/orbit/authentication.ts": "3e6aa7ed18040cfc2af1f456b4213260345f651c85f1a6880ef310804bcaa150",
+    "tests/orbit/authentication.test.ts": "8679e6e03f863b4c2ea7a8c274d1f5dc96ecb1f15f6927e4dcd7a30277c862b2"
+  },
+  "limitations": [
+    "No real reauthentication or unknown-result business acceptance in this receipt",
+    "JWT transport remains unchanged; Cookie identity, permissions and expiry unchanged"
+  ]
+}

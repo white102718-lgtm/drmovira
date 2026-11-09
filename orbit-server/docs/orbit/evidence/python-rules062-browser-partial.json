@@ -1,0 +1,92 @@
+{
+  "result": "PASS",
+  "executed_at": "2026-11-09T07:59:52+08:00",
+  "scope": "PARTIAL_REAL_INTERNAL_BROWSER_HTTP_MYSQL_REDIS_NOT_FULL_ACCEPTANCE",
+  "method": "主线cua_repl内置浏览器真实UI操作；无route.fulfill或API响应替身",
+  "fixture": "本轮through062独立UUID MySQL与Redis15，SQL技术账户/profile，非Meta权威；无广告写入",
+  "checks": [
+    {
+      "name": "真实原登录与原若依菜单保留，062规则入口实际可达",
+      "passed": true
+    },
+    {
+      "name": "普通USER仅原规则菜单，真实列表无损坏fixture跨owner泄漏",
+      "passed": true
+    },
+    {
+      "name": "分页实际20条+8条，返回首屏文本完整一致，四档选项均可见",
+      "passed": true
+    },
+    {
+      "name": "详情原字段实际读取，进入二级编辑页关闭原Drawer",
+      "passed": true
+    },
+    {
+      "name": "521历史范围真实元数据，首次编辑保存版本2到3并刷新列表",
+      "passed": true
+    },
+    {
+      "name": "手机真实FILTER冻结完整521账户，成员下一页与应用范围",
+      "passed": true
+    },
+    {
+      "name": "应用新RULE范围后再次保存版本3到4",
+      "passed": true
+    },
+    {
+      "name": "最终弹窗源码重新加载后真实返回五条UTC6与本地offset时间",
+      "passed": true
+    },
+    {
+      "name": "1440/1920/390视口预览弹窗与关闭入口实际可用",
+      "passed": true
+    },
+    {
+      "name": "390手机documentWidth等于390，表格342/520内部横向滚动到178",
+      "passed": true
+    },
+    {
+      "name": "关闭弹窗实际不可见且焦点回到预览入口",
+      "passed": true
+    },
+    {
+      "name": "过期日期真实返回零次，不填充假运行时刻",
+      "passed": true
+    },
+    {
+      "name": "取消未保存日期后重新加载仍原截止日2026-12-31",
+      "passed": true
+    }
+  ],
+  "not_run": [
+    "全部字段与错误分支UI",
+    "真实创建完整流程",
+    "UI网络未知结果/撤权故障注入",
+    "UI真实DST gap/fold",
+    "每个视口重复全部业务流程",
+    "模拟/启用/调度/全局触发/AI"
+  ],
+  "fixture_observation": "SUPERADMIN无过滤列表精确503，因definition工具三份故意坏head；未删除/修复损坏证据或伪造空结果。切原990570 USER范围后真实正常列表。",
+  "source_sha256": {
+    "orbit-web/src/views/orbit/rules/index.vue": "45a2c75b9e60ce876fe2b46ae04b199ee41c4d4dc19232cff4d4db828e006353",
+    "orbit-web/src/views/orbit/rules/RuleList.vue": "3252d17827c2557e5db45d4c4485d24cbb92124681bf52b64fae88e077ccdb11",
+    "orbit-web/src/views/orbit/rules/RuleEditor.vue": "34332b2214fca5d81071b9816e54b7ee7785d577f8d28a2993e2a65135deb282",
+    "orbit-web/src/views/orbit/rules/RuleDefinitionForm.vue": "ce0cf1dab9a879fc0a71f40d452654afd2ca8d8d0e123e588ba4129a7f0f23af",
+    "orbit-web/src/views/orbit/rules/RuleSchedulePreview.vue": "eef11fac6bf25aff61789f93f9aa68830bc47625e0c8fde5c1ebc7a9a31b939a",
+    "orbit-web/src/views/orbit/rules/RuleScopeSelector.vue": "311f9bf8783b56f1f08e97bf63a4810e1a8d079abd6ee06f38c5e0350b49bca1",
+    "orbit-web/src/api/orbit/rule-schedule-preview.ts": "2bb4994d9baa28b395dcd3d15b07e15e0c2003ed42e3fcbc1e1f31f62bf1cc71"
+  },
+  "source_note": "前端Modal最终冻结并重新加载后复验；入口与保存较早步骤为同轮前后最小弹窗改造，未声称整轮前后源码完全不变。",
+  "screenshots": {
+    "detail-390.png": "794ea1242a9fbb120183b83a8a5e44207a3883ceb65e2155063ce8e56ab09053",
+    "list-1440.png": "6dd2ffca8ea2d6fbb9600dacbbcd0a8d28143a8e2d0bf01bda8b60d212ffba5f",
+    "list-1920.png": "348345b085c30a8da251f7c05ec0b88d36c3cbcf1912b398a59cbb83a3697463",
+    "list-390.png": "26bed33bd37ededa03aa9278c697a24498e9114b15b30e58c767d8de965a389f",
+    "preview-1440.png": "94b847dbefe1d6839f255cb0cd9c7bce6aeb16908c85c78e3a7766aa69e66409",
+    "preview-1920.png": "170e382087a0884dabff42fd373794af19403cb81b1867956d800943cadf97a2",
+    "preview-390-scrolled.png": "eb23d63ec9993c565f402d0dc0bb9db1eec5054ea8bf555fe66c66450ed66e7e",
+    "preview-390.png": "2b9c6185b2e3855bf5b631a3568728b719375adff1bb284e460b867730c931bd",
+    "preview-empty-390.png": "82ea571a40679804b5126288867b05d1193ee42ad792b91034d49c5f8df2fcb9",
+    "scope-390.png": "d82d7be550767de466a539f9c7b55ecc382c8c541a9556e10a7d3b6f2be03862"
+  }
+}

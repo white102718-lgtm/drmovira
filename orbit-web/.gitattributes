@@ -1,0 +1,22 @@
+# 仅规范ORBIT新增或已修改文件，保留其余若依上游文件。
+package.json text eol=lf
+README.md text eol=lf
+vite.config.js text eol=lf
+src/api/orbit/** text eol=lf
+src/views/orbit/** text eol=lf
+tests/orbit/** text eol=lf
+docs/ORBIT.md text eol=lf
+vitest.config.ts text eol=lf
+tsconfig.orbit.json text eol=lf
+pnpm-lock.yaml text eol=lf
+pnpm-workspace.yaml text eol=lf
+index.html text eol=lf
+src/main.js text eol=lf
+src/permission.js text eol=lf
+src/router/index.js text eol=lf
+src/store/modules/user.js text eol=lf
+src/utils/request.js text eol=lf
+src/views/login.vue text eol=lf
+playwright.python.config.ts text eol=lf
+vite.python.config.js text eol=lf
+tests/e2e/orbit-python-*.spec.ts text eol=lf

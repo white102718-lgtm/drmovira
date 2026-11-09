@@ -1,0 +1,95 @@
+{
+  "scope": "Experimental server-side member copy, not adopted; no proven speed improvement",
+  "report": {
+    "all_seven_frozen_fields_hash_matches": true,
+    "create_and_members_seconds": 42.818045099964365,
+    "create_seconds": 6.264192299975548,
+    "daily_facts": 0,
+    "diagnostic_only": true,
+    "duplicates": 0,
+    "member_pages": 250,
+    "members": 50000,
+    "omissions": 0,
+    "platform_writes": 0,
+    "seed_seconds": 5.720082900021225,
+    "status": "PASS",
+    "synthetic_accounts": 50000
+  },
+  "create": {
+    "schema": 1,
+    "status": "CREATE_RETURNED",
+    "execute_restored": true,
+    "calls": 112,
+    "elapsed_ms": 6234.347,
+    "member_batches_attempted": 50,
+    "member_batches_completed": 50,
+    "member_rows_attempted": 50000,
+    "member_rows_completed": 50000,
+    "diagnostic_write_failures": 0,
+    "sql": {
+      "AUTH_READ": {
+        "calls": 4,
+        "completed": 4,
+        "failed": 0,
+        "total_ms": 1.388,
+        "max_ms": 0.516
+      },
+      "CLOCK_READ": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.184,
+        "max_ms": 0.184
+      },
+      "OTHER": {
+        "calls": 2,
+        "completed": 2,
+        "failed": 0,
+        "total_ms": 1.01,
+        "max_ms": 0.777
+      },
+      "SCOPE_HEAD_WRITE": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 1.022,
+        "max_ms": 1.022
+      },
+      "SCOPE_HEAD_READ": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.323,
+        "max_ms": 0.323
+      },
+      "ACCOUNT_READ": {
+        "calls": 51,
+        "completed": 51,
+        "failed": 0,
+        "total_ms": 150.311,
+        "max_ms": 5.132
+      },
+      "SCOPE_MEMBER_WRITE": {
+        "calls": 50,
+        "completed": 50,
+        "failed": 0,
+        "total_ms": 5851.647,
+        "max_ms": 150.023
+      },
+      "SCOPE_SEAL_WRITE": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.512,
+        "max_ms": 0.512
+      },
+      "SCOPE_EVENT_WRITE": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.774,
+        "max_ms": 0.774
+      }
+    }
+  }
+}

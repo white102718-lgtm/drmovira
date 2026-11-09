@@ -1,0 +1,22 @@
+{
+  "captured_at": "2026-11-07T01:21:50+08:00",
+  "scope": "准备工作与本阶段证据，不代表全产品完成",
+  "automation_id": "orbit-10",
+  "repositories": [
+    {
+      "isPrivate": true,
+      "nameWithOwner": "hesong0105-bit/orbit-server",
+      "url": "https://github.com/hesong0105-bit/orbit-server",
+      "local_branch": "springboot3",
+      "upstream_sha": "a51a838b71b446ea27256900efe7ed2faa2a02fd"
+    },
+    {
+      "isPrivate": true,
+      "nameWithOwner": "hesong0105-bit/orbit-web",
+      "url": "https://github.com/hesong0105-bit/orbit-web",
+      "local_branch": "master",
+      "upstream_sha": "838965c5a18d2c61b73ec30c6e288057aaa08b63"
+    }
+  ],
+  "baseline_files_byte_equal": 43
+}

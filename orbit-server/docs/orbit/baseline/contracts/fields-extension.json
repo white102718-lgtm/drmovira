@@ -1,0 +1,156 @@
+[
+  {
+    "module": "所有权",
+    "key": "data_role",
+    "constraints": "USER/TEAM_ADMIN/SUPER_ADMIN；仅超级管理员授予",
+    "default": "USER",
+    "authority": "U01/U02"
+  },
+  {
+    "module": "所有权",
+    "key": "owner_user_id",
+    "constraints": "服务端默认本人；管理员可指定同目标团队用户",
+    "default": "当前用户",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "所有权",
+    "key": "owner_team_id",
+    "constraints": "一个有效团队，服务端复验；不能自行扩scope",
+    "default": "当前团队",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "主数据",
+    "key": "data_owner_user_ids",
+    "constraints": "1至500个同团队启用用户；更改需assign权限",
+    "default": "创建者",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "模板",
+    "key": "recipient_user_ids",
+    "constraints": "0至500个显式接收者；TEAM需要share权限；不自动加入新成员",
+    "default": "空",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "投放",
+    "key": "allow_repeat",
+    "constraints": "boolean；false要求素材数=广告数；true至少1份兼容素材",
+    "default": "false",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "投放",
+    "key": "identity_bindings",
+    "constraints": "逐账户主页、逐组像素或应用、可选广告主页覆盖；提交时完整",
+    "default": "空",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "投放",
+    "key": "profile_binding_ids",
+    "constraints": "ADSPOWER_UI逐账户必有有效绑定；API为空",
+    "default": "空",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "投放",
+    "key": "workflow_version",
+    "constraints": "经能力验证的工作流版本",
+    "default": "能力包",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "投放",
+    "key": "adapter_version",
+    "constraints": "经能力验证的页面/API适配器版本",
+    "default": "能力包",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "分配",
+    "key": "algorithm_version",
+    "constraints": "allocation-v1；与seed/版本共同冻结",
+    "default": "allocation-v1",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "分配",
+    "key": "seed",
+    "constraints": "0至2147483647整数；重新分配+1；重试不变",
+    "default": "0",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "反馈",
+    "key": "configuration_state",
+    "constraints": "UNVERIFIED/VERIFIED/MISMATCH/UNKNOWN",
+    "default": "UNVERIFIED",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "反馈",
+    "key": "delivery_state",
+    "constraints": "UNKNOWN/ACTIVE/PAUSED/REVIEWING/BLOCKED",
+    "default": "UNKNOWN",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "反馈",
+    "key": "no_op",
+    "constraints": "boolean；已达目标仍须核验后才为true",
+    "default": "false",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "环境",
+    "key": "profile_external_id",
+    "constraints": "1至128字符；与agent关联，不是广告账户ID",
+    "default": "无",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "环境",
+    "key": "fencing_token",
+    "constraints": "正整数，服务端单调生成；不能由用户指定",
+    "default": "服务端生成",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "历史",
+    "key": "attribution_version",
+    "constraints": "正整数，历史更正后新版本；旧快照保留",
+    "default": "1",
+    "authority": "D v1.2"
+  },
+  {
+    "module": "权限",
+    "key": "managed_team_ids",
+    "constraints": "TEAM_ADMIN显式管理团队集合",
+    "default": "[]",
+    "authority": "D"
+  },
+  {
+    "module": "计划",
+    "key": "account_scope_snapshot_id",
+    "constraints": "与非空account_ids互斥，引用冻结快照",
+    "default": "null",
+    "authority": "D"
+  },
+  {
+    "module": "报表",
+    "key": "granularity",
+    "constraints": "SUMMARY/DAY",
+    "default": "SUMMARY",
+    "authority": "D"
+  },
+  {
+    "module": "手工操作",
+    "key": "emergency_pause",
+    "constraints": "仅PAUSE且独立权限，不能绕过身份/锁/kill-switch",
+    "default": "false",
+    "authority": "D"
+  }
+]

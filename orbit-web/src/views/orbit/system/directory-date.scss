@@ -1,0 +1,29 @@
+/* 仅限ORBIT目录日期弹层：窄屏双月纵向排列并内部滚动，保留Element Plus原生交互和配色。 */
+@media (max-width: 600px) {
+  .orbit-directory-date-popper {
+    max-width: calc(100vw - 24px);
+
+    .el-date-range-picker {
+      width: min(360px, calc(100vw - 24px));
+    }
+
+    .el-picker-panel__body-wrapper {
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+
+    .el-picker-panel__body {
+      min-width: 0;
+    }
+
+    .el-date-range-picker__content {
+      display: block;
+      width: 100%;
+      border-right: 0;
+    }
+
+    .el-date-range-picker__content.is-right {
+      border-top: 1px solid var(--el-border-color-light);
+    }
+  }
+}

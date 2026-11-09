@@ -1,0 +1,15 @@
+{
+  "name": "metrics-aggregation-first-unit",
+  "executed_at": "2026-11-08T17:43:46.279696+00:00",
+  "phase": "testing",
+  "item_ids": [],
+  "status": "FAIL",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_metrics_aggregation.py -q",
+  "passed": 29,
+  "failed": 2,
+  "failure": "舍入测试输入使用7位源小数，被原6位合同正确拒绝；应使用合法分子分母产生7位比率，不能放宽输入合同。另Ruff Mapping导入违规。",
+  "source_sha256": {
+    "python/orbit_api/metrics_aggregation.py": "82abf7aa425e50eb1be167a1b137cfc9ac755abb1fe6cb93f4dcb5b1f91465c3",
+    "python/tests/test_metrics_aggregation.py": "867ed0682113644f9150dde82cf9efe78972a05b22589ce30fb2be24af7c69a5"
+  }
+}

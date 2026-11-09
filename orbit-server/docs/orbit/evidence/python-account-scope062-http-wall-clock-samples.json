@@ -1,0 +1,2489 @@
+{
+  "name": "account-scope062-http-wall-clock-samples",
+  "parent": "python-account-scope062-http-instrumented-pass.json",
+  "scope": "Explicit instrumented wall clocks only; not pure DB/CPU, not reproduction or resolution of prior uninstrumented timeout",
+  "reports": [
+    {
+      "schema": 1,
+      "trace": "26b83932e1ca4abe86f2c67705c0c5b2",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.921,
+        "native_exit_ms": 9.693,
+        "store_enter_ms": 11.139,
+        "store_exit_ms": 5094.875,
+        "response_start_enter_ms": 5116.659,
+        "response_start_exit_ms": 5118.934,
+        "last_body_enter_ms": 5120.888,
+        "last_body_exit_ms": 5122.5,
+        "app_end_ms": 5124.635
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 112,
+      "member_batches_attempted": 50,
+      "member_batches_completed": 50,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.915,
+          "exit_ms": 8.437,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 12.235,
+          "exit_ms": 5093.457,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 13.023,
+          "exit_ms": 14.584,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 15.862,
+          "exit_ms": 17.332,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 18.579,
+          "exit_ms": 20.229,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 21.847,
+          "exit_ms": 23.294,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 24.455,
+          "exit_ms": 25.844,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 27.088,
+          "exit_ms": 29.082,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 30.462,
+          "exit_ms": 32.757,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 33.932,
+          "exit_ms": 35.332,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 36.677,
+          "exit_ms": 41.355,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 47.727,
+          "exit_ms": 105.311,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 108.279,
+          "exit_ms": 112.662,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 118.584,
+          "exit_ms": 181.877,
+          "outcome": "RETURNED",
+          "sql_ordinal": 12,
+          "member_batch": 2
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 184.694,
+          "exit_ms": 189.253,
+          "outcome": "RETURNED",
+          "sql_ordinal": 13,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 195.314,
+          "exit_ms": 259.895,
+          "outcome": "RETURNED",
+          "sql_ordinal": 14,
+          "member_batch": 3
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 262.759,
+          "exit_ms": 267.169,
+          "outcome": "RETURNED",
+          "sql_ordinal": 15,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 273.198,
+          "exit_ms": 340.797,
+          "outcome": "RETURNED",
+          "sql_ordinal": 16,
+          "member_batch": 4
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 343.623,
+          "exit_ms": 348.141,
+          "outcome": "RETURNED",
+          "sql_ordinal": 17,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 353.98,
+          "exit_ms": 459.636,
+          "outcome": "RETURNED",
+          "sql_ordinal": 18,
+          "member_batch": 5
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 462.721,
+          "exit_ms": 467.157,
+          "outcome": "RETURNED",
+          "sql_ordinal": 19,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 473.105,
+          "exit_ms": 543.767,
+          "outcome": "RETURNED",
+          "sql_ordinal": 20,
+          "member_batch": 6
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 546.56,
+          "exit_ms": 553.342,
+          "outcome": "RETURNED",
+          "sql_ordinal": 21,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 559.359,
+          "exit_ms": 630.436,
+          "outcome": "RETURNED",
+          "sql_ordinal": 22,
+          "member_batch": 7
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 633.548,
+          "exit_ms": 640.708,
+          "outcome": "RETURNED",
+          "sql_ordinal": 23,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 646.651,
+          "exit_ms": 720.521,
+          "outcome": "RETURNED",
+          "sql_ordinal": 24,
+          "member_batch": 8
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 723.509,
+          "exit_ms": 727.98,
+          "outcome": "RETURNED",
+          "sql_ordinal": 25,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 733.919,
+          "exit_ms": 791.133,
+          "outcome": "RETURNED",
+          "sql_ordinal": 26,
+          "member_batch": 9
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 794.156,
+          "exit_ms": 798.88,
+          "outcome": "RETURNED",
+          "sql_ordinal": 27,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 805.076,
+          "exit_ms": 881.754,
+          "outcome": "RETURNED",
+          "sql_ordinal": 28,
+          "member_batch": 10
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 884.738,
+          "exit_ms": 889.66,
+          "outcome": "RETURNED",
+          "sql_ordinal": 29,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 895.8,
+          "exit_ms": 966.915,
+          "outcome": "RETURNED",
+          "sql_ordinal": 30,
+          "member_batch": 11
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 970.261,
+          "exit_ms": 977.207,
+          "outcome": "RETURNED",
+          "sql_ordinal": 31,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 983.397,
+          "exit_ms": 1040.639,
+          "outcome": "RETURNED",
+          "sql_ordinal": 32,
+          "member_batch": 12
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1043.965,
+          "exit_ms": 1050.508,
+          "outcome": "RETURNED",
+          "sql_ordinal": 33,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1057.278,
+          "exit_ms": 1153.39,
+          "outcome": "RETURNED",
+          "sql_ordinal": 34,
+          "member_batch": 13
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1156.909,
+          "exit_ms": 1161.578,
+          "outcome": "RETURNED",
+          "sql_ordinal": 35,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1167.557,
+          "exit_ms": 1244.046,
+          "outcome": "RETURNED",
+          "sql_ordinal": 36,
+          "member_batch": 14
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1247.09,
+          "exit_ms": 1251.555,
+          "outcome": "RETURNED",
+          "sql_ordinal": 37,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1257.517,
+          "exit_ms": 1335.946,
+          "outcome": "RETURNED",
+          "sql_ordinal": 38,
+          "member_batch": 15
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1338.898,
+          "exit_ms": 1343.458,
+          "outcome": "RETURNED",
+          "sql_ordinal": 39,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1349.152,
+          "exit_ms": 1426.462,
+          "outcome": "RETURNED",
+          "sql_ordinal": 40,
+          "member_batch": 16
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1429.47,
+          "exit_ms": 1433.859,
+          "outcome": "RETURNED",
+          "sql_ordinal": 41,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1440.241,
+          "exit_ms": 1520.02,
+          "outcome": "RETURNED",
+          "sql_ordinal": 42,
+          "member_batch": 17
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1523.028,
+          "exit_ms": 1527.523,
+          "outcome": "RETURNED",
+          "sql_ordinal": 43,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1533.689,
+          "exit_ms": 1609.172,
+          "outcome": "RETURNED",
+          "sql_ordinal": 44,
+          "member_batch": 18
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1612.205,
+          "exit_ms": 1616.723,
+          "outcome": "RETURNED",
+          "sql_ordinal": 45,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1622.65,
+          "exit_ms": 1683.167,
+          "outcome": "RETURNED",
+          "sql_ordinal": 46,
+          "member_batch": 19
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1686.748,
+          "exit_ms": 1691.848,
+          "outcome": "RETURNED",
+          "sql_ordinal": 47,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1697.846,
+          "exit_ms": 1796.645,
+          "outcome": "RETURNED",
+          "sql_ordinal": 48,
+          "member_batch": 20
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1799.922,
+          "exit_ms": 1804.528,
+          "outcome": "RETURNED",
+          "sql_ordinal": 49,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1810.794,
+          "exit_ms": 1877.791,
+          "outcome": "RETURNED",
+          "sql_ordinal": 50,
+          "member_batch": 21
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1880.82,
+          "exit_ms": 1885.392,
+          "outcome": "RETURNED",
+          "sql_ordinal": 51,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 1892.139,
+          "exit_ms": 1990.466,
+          "outcome": "RETURNED",
+          "sql_ordinal": 52,
+          "member_batch": 22
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 1993.258,
+          "exit_ms": 1997.888,
+          "outcome": "RETURNED",
+          "sql_ordinal": 53,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2004.168,
+          "exit_ms": 2083.333,
+          "outcome": "RETURNED",
+          "sql_ordinal": 54,
+          "member_batch": 23
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2086.797,
+          "exit_ms": 2091.515,
+          "outcome": "RETURNED",
+          "sql_ordinal": 55,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2097.661,
+          "exit_ms": 2178.769,
+          "outcome": "RETURNED",
+          "sql_ordinal": 56,
+          "member_batch": 24
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2181.611,
+          "exit_ms": 2186.372,
+          "outcome": "RETURNED",
+          "sql_ordinal": 57,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2192.46,
+          "exit_ms": 2270.934,
+          "outcome": "RETURNED",
+          "sql_ordinal": 58,
+          "member_batch": 25
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2273.723,
+          "exit_ms": 2278.356,
+          "outcome": "RETURNED",
+          "sql_ordinal": 59,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2284.801,
+          "exit_ms": 2365.947,
+          "outcome": "RETURNED",
+          "sql_ordinal": 60,
+          "member_batch": 26
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2369.456,
+          "exit_ms": 2374.55,
+          "outcome": "RETURNED",
+          "sql_ordinal": 61,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2380.642,
+          "exit_ms": 2447.966,
+          "outcome": "RETURNED",
+          "sql_ordinal": 62,
+          "member_batch": 27
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2451.023,
+          "exit_ms": 2456.304,
+          "outcome": "RETURNED",
+          "sql_ordinal": 63,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2462.453,
+          "exit_ms": 2545.152,
+          "outcome": "RETURNED",
+          "sql_ordinal": 64,
+          "member_batch": 28
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2547.989,
+          "exit_ms": 2552.881,
+          "outcome": "RETURNED",
+          "sql_ordinal": 65,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2559.23,
+          "exit_ms": 2663.877,
+          "outcome": "RETURNED",
+          "sql_ordinal": 66,
+          "member_batch": 29
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2666.944,
+          "exit_ms": 2671.865,
+          "outcome": "RETURNED",
+          "sql_ordinal": 67,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2678.865,
+          "exit_ms": 2786.505,
+          "outcome": "RETURNED",
+          "sql_ordinal": 68,
+          "member_batch": 30
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2789.593,
+          "exit_ms": 2794.227,
+          "outcome": "RETURNED",
+          "sql_ordinal": 69,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2800.774,
+          "exit_ms": 2913.223,
+          "outcome": "RETURNED",
+          "sql_ordinal": 70,
+          "member_batch": 31
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 2916.256,
+          "exit_ms": 2921.001,
+          "outcome": "RETURNED",
+          "sql_ordinal": 71,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 2927.191,
+          "exit_ms": 3029.472,
+          "outcome": "RETURNED",
+          "sql_ordinal": 72,
+          "member_batch": 32
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3033.0,
+          "exit_ms": 3038.056,
+          "outcome": "RETURNED",
+          "sql_ordinal": 73,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3044.389,
+          "exit_ms": 3128.63,
+          "outcome": "RETURNED",
+          "sql_ordinal": 74,
+          "member_batch": 33
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3131.69,
+          "exit_ms": 3136.503,
+          "outcome": "RETURNED",
+          "sql_ordinal": 75,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3142.632,
+          "exit_ms": 3239.687,
+          "outcome": "RETURNED",
+          "sql_ordinal": 76,
+          "member_batch": 34
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3242.727,
+          "exit_ms": 3247.579,
+          "outcome": "RETURNED",
+          "sql_ordinal": 77,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3253.733,
+          "exit_ms": 3336.143,
+          "outcome": "RETURNED",
+          "sql_ordinal": 78,
+          "member_batch": 35
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3339.472,
+          "exit_ms": 3344.259,
+          "outcome": "RETURNED",
+          "sql_ordinal": 79,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3350.249,
+          "exit_ms": 3446.996,
+          "outcome": "RETURNED",
+          "sql_ordinal": 80,
+          "member_batch": 36
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3450.16,
+          "exit_ms": 3455.006,
+          "outcome": "RETURNED",
+          "sql_ordinal": 81,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3461.25,
+          "exit_ms": 3566.973,
+          "outcome": "RETURNED",
+          "sql_ordinal": 82,
+          "member_batch": 37
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3570.242,
+          "exit_ms": 3574.973,
+          "outcome": "RETURNED",
+          "sql_ordinal": 83,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3581.175,
+          "exit_ms": 3688.818,
+          "outcome": "RETURNED",
+          "sql_ordinal": 84,
+          "member_batch": 38
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3692.004,
+          "exit_ms": 3696.713,
+          "outcome": "RETURNED",
+          "sql_ordinal": 85,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3702.939,
+          "exit_ms": 3806.586,
+          "outcome": "RETURNED",
+          "sql_ordinal": 86,
+          "member_batch": 39
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3809.801,
+          "exit_ms": 3814.559,
+          "outcome": "RETURNED",
+          "sql_ordinal": 87,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3820.531,
+          "exit_ms": 3907.601,
+          "outcome": "RETURNED",
+          "sql_ordinal": 88,
+          "member_batch": 40
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 3910.793,
+          "exit_ms": 3915.655,
+          "outcome": "RETURNED",
+          "sql_ordinal": 89,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 3921.772,
+          "exit_ms": 4030.407,
+          "outcome": "RETURNED",
+          "sql_ordinal": 90,
+          "member_batch": 41
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4033.634,
+          "exit_ms": 4038.571,
+          "outcome": "RETURNED",
+          "sql_ordinal": 91,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4045.238,
+          "exit_ms": 4165.325,
+          "outcome": "RETURNED",
+          "sql_ordinal": 92,
+          "member_batch": 42
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4168.335,
+          "exit_ms": 4173.515,
+          "outcome": "RETURNED",
+          "sql_ordinal": 93,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4179.746,
+          "exit_ms": 4293.78,
+          "outcome": "RETURNED",
+          "sql_ordinal": 94,
+          "member_batch": 43
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4296.902,
+          "exit_ms": 4301.703,
+          "outcome": "RETURNED",
+          "sql_ordinal": 95,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4308.382,
+          "exit_ms": 4420.592,
+          "outcome": "RETURNED",
+          "sql_ordinal": 96,
+          "member_batch": 44
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4423.811,
+          "exit_ms": 4428.593,
+          "outcome": "RETURNED",
+          "sql_ordinal": 97,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4434.885,
+          "exit_ms": 4551.862,
+          "outcome": "RETURNED",
+          "sql_ordinal": 98,
+          "member_batch": 45
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4555.725,
+          "exit_ms": 4560.53,
+          "outcome": "RETURNED",
+          "sql_ordinal": 99,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4566.843,
+          "exit_ms": 4652.996,
+          "outcome": "RETURNED",
+          "sql_ordinal": 100,
+          "member_batch": 46
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4656.283,
+          "exit_ms": 4661.185,
+          "outcome": "RETURNED",
+          "sql_ordinal": 101,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4667.195,
+          "exit_ms": 4766.611,
+          "outcome": "RETURNED",
+          "sql_ordinal": 102,
+          "member_batch": 47
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4770.325,
+          "exit_ms": 4775.186,
+          "outcome": "RETURNED",
+          "sql_ordinal": 103,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4781.501,
+          "exit_ms": 4863.755,
+          "outcome": "RETURNED",
+          "sql_ordinal": 104,
+          "member_batch": 48
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4868.285,
+          "exit_ms": 4873.923,
+          "outcome": "RETURNED",
+          "sql_ordinal": 105,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4880.703,
+          "exit_ms": 4945.525,
+          "outcome": "RETURNED",
+          "sql_ordinal": 106,
+          "member_batch": 49
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 4949.271,
+          "exit_ms": 4954.542,
+          "outcome": "RETURNED",
+          "sql_ordinal": 107,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 4961.224,
+          "exit_ms": 5071.665,
+          "outcome": "RETURNED",
+          "sql_ordinal": 108,
+          "member_batch": 50
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 5075.239,
+          "exit_ms": 5077.664,
+          "outcome": "RETURNED",
+          "sql_ordinal": 109,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_SEAL_WRITE",
+          "enter_ms": 5079.484,
+          "exit_ms": 5081.673,
+          "outcome": "RETURNED",
+          "sql_ordinal": 110,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_EVENT_WRITE",
+          "enter_ms": 5083.334,
+          "exit_ms": 5085.899,
+          "outcome": "RETURNED",
+          "sql_ordinal": 111,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 5088.247,
+          "exit_ms": 5090.862,
+          "outcome": "RETURNED",
+          "sql_ordinal": 112,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "35a464665a3b454cb62b3328a37594d8",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.048,
+        "native_exit_ms": 9.269,
+        "response_start_enter_ms": 12.312,
+        "response_start_exit_ms": 13.597,
+        "last_body_enter_ms": 14.846,
+        "last_body_exit_ms": 15.922,
+        "app_end_ms": 17.065
+      },
+      "native_calls": 1,
+      "store_calls": 0,
+      "sql_calls": 0,
+      "member_batches_attempted": 0,
+      "member_batches_completed": 0,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.045,
+          "exit_ms": 7.276,
+          "outcome": "RETURNED"
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": null
+    },
+    {
+      "schema": 1,
+      "trace": "4092b8834d6342c2bf273d474b39f75b",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.126,
+        "native_exit_ms": 9.157,
+        "store_enter_ms": 10.664,
+        "store_exit_ms": 39.103,
+        "response_start_enter_ms": 43.224,
+        "response_start_exit_ms": 44.599,
+        "last_body_enter_ms": 45.976,
+        "last_body_exit_ms": 47.103,
+        "app_end_ms": 48.349
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 9,
+      "member_batches_attempted": 0,
+      "member_batches_completed": 0,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.123,
+          "exit_ms": 7.683,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 11.768,
+          "exit_ms": 37.621,
+          "outcome": "ERROR"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 12.604,
+          "exit_ms": 14.619,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 16.031,
+          "exit_ms": 17.594,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 18.803,
+          "exit_ms": 20.131,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 21.254,
+          "exit_ms": 22.599,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 23.836,
+          "exit_ms": 25.187,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 26.356,
+          "exit_ms": 27.702,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 29.005,
+          "exit_ms": 30.581,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 31.84,
+          "exit_ms": 33.227,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 34.443,
+          "exit_ms": 35.836,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "432fca5fcd0e4a65a8d81bb886eb1b7f",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 4.793,
+        "native_exit_ms": 13.45,
+        "store_enter_ms": 15.534,
+        "store_exit_ms": 59.293,
+        "response_start_enter_ms": 62.409,
+        "response_start_exit_ms": 63.74,
+        "last_body_enter_ms": 65.163,
+        "last_body_exit_ms": 66.371,
+        "app_end_ms": 67.976
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 13,
+      "member_batches_attempted": 1,
+      "member_batches_completed": 1,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 4.782,
+          "exit_ms": 12.039,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 16.746,
+          "exit_ms": 58.272,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 17.615,
+          "exit_ms": 19.469,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 20.793,
+          "exit_ms": 22.489,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 23.707,
+          "exit_ms": 25.083,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 26.253,
+          "exit_ms": 27.632,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 28.794,
+          "exit_ms": 30.873,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 32.254,
+          "exit_ms": 33.774,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 35.153,
+          "exit_ms": 37.168,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 38.439,
+          "exit_ms": 39.826,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 41.071,
+          "exit_ms": 42.785,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 44.021,
+          "exit_ms": 46.655,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        },
+        {
+          "phase": "SCOPE_SEAL_WRITE",
+          "enter_ms": 49.114,
+          "exit_ms": 50.789,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_EVENT_WRITE",
+          "enter_ms": 52.321,
+          "exit_ms": 53.727,
+          "outcome": "RETURNED",
+          "sql_ordinal": 12,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 54.903,
+          "exit_ms": 56.29,
+          "outcome": "RETURNED",
+          "sql_ordinal": 13,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "62fd2f2f138647a0a9d7d3f1f39c1bb4",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.83,
+        "native_exit_ms": 10.71,
+        "store_enter_ms": 12.465,
+        "store_exit_ms": 101.054,
+        "response_start_enter_ms": 104.002,
+        "response_start_exit_ms": 105.221,
+        "last_body_enter_ms": 106.467,
+        "last_body_exit_ms": 107.511,
+        "app_end_ms": 109.23
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 14,
+      "member_batches_attempted": 1,
+      "member_batches_completed": 1,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.821,
+          "exit_ms": 9.191,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 13.618,
+          "exit_ms": 99.981,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 14.553,
+          "exit_ms": 16.454,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 17.787,
+          "exit_ms": 19.341,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 20.549,
+          "exit_ms": 21.866,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 23.09,
+          "exit_ms": 24.364,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 25.569,
+          "exit_ms": 27.649,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 28.906,
+          "exit_ms": 30.375,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 31.668,
+          "exit_ms": 33.118,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 34.309,
+          "exit_ms": 36.153,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 37.422,
+          "exit_ms": 48.537,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 52.629,
+          "exit_ms": 82.921,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 85.532,
+          "exit_ms": 87.446,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_SEAL_WRITE",
+          "enter_ms": 88.863,
+          "exit_ms": 90.599,
+          "outcome": "RETURNED",
+          "sql_ordinal": 12,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_EVENT_WRITE",
+          "enter_ms": 91.961,
+          "exit_ms": 93.606,
+          "outcome": "RETURNED",
+          "sql_ordinal": 13,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 95.257,
+          "exit_ms": 97.91,
+          "outcome": "RETURNED",
+          "sql_ordinal": 14,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "71fa181033c24cca84aa9f1f65c3dee6",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.397,
+        "native_exit_ms": 9.622,
+        "store_enter_ms": 11.281,
+        "store_exit_ms": 45.901,
+        "response_start_enter_ms": 48.266,
+        "response_start_exit_ms": 49.417,
+        "last_body_enter_ms": 50.456,
+        "last_body_exit_ms": 51.465,
+        "app_end_ms": 52.452
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 10,
+      "member_batches_attempted": 1,
+      "member_batches_completed": 0,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.393,
+          "exit_ms": 8.099,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 12.816,
+          "exit_ms": 44.868,
+          "outcome": "ERROR"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 13.755,
+          "exit_ms": 15.596,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 17.047,
+          "exit_ms": 19.245,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 20.537,
+          "exit_ms": 21.929,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 23.137,
+          "exit_ms": 24.65,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 25.87,
+          "exit_ms": 27.357,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 28.635,
+          "exit_ms": 30.002,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 31.321,
+          "exit_ms": 32.801,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 33.981,
+          "exit_ms": 35.408,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 36.634,
+          "exit_ms": 38.421,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 39.682,
+          "exit_ms": 42.104,
+          "outcome": "ERROR",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "726e09383b544f9e802c9ef720407c68",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.196,
+        "native_exit_ms": 9.57,
+        "response_start_enter_ms": 11.322,
+        "response_start_exit_ms": 12.431,
+        "last_body_enter_ms": 13.719,
+        "last_body_exit_ms": 14.811,
+        "app_end_ms": 15.911
+      },
+      "native_calls": 1,
+      "store_calls": 0,
+      "sql_calls": 0,
+      "member_batches_attempted": 0,
+      "member_batches_completed": 0,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.193,
+          "exit_ms": 8.288,
+          "outcome": "RETURNED"
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": null
+    },
+    {
+      "schema": 1,
+      "trace": "a491b9ad550d4129ab1c64ce3e7d5aa9",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.263,
+        "native_exit_ms": 10.348,
+        "store_enter_ms": 12.179,
+        "store_exit_ms": 52.305,
+        "response_start_enter_ms": 54.743,
+        "response_start_exit_ms": 56.078,
+        "last_body_enter_ms": 57.299,
+        "last_body_exit_ms": 58.515,
+        "app_end_ms": 59.6
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 12,
+      "member_batches_attempted": 1,
+      "member_batches_completed": 1,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.26,
+          "exit_ms": 8.937,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 13.311,
+          "exit_ms": 51.258,
+          "outcome": "ERROR"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 14.088,
+          "exit_ms": 16.236,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 17.567,
+          "exit_ms": 19.196,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 20.367,
+          "exit_ms": 21.715,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 23.018,
+          "exit_ms": 24.427,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 25.656,
+          "exit_ms": 27.002,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 28.175,
+          "exit_ms": 29.608,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 31.02,
+          "exit_ms": 32.424,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 33.627,
+          "exit_ms": 35.358,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 36.62,
+          "exit_ms": 38.413,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 40.138,
+          "exit_ms": 42.546,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        },
+        {
+          "phase": "SCOPE_SEAL_WRITE",
+          "enter_ms": 44.546,
+          "exit_ms": 46.075,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_EVENT_WRITE",
+          "enter_ms": 47.313,
+          "exit_ms": 49.269,
+          "outcome": "ERROR",
+          "sql_ordinal": 12,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "a9a8a5565e004a34b364b8f393fa84f0",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.541,
+        "native_exit_ms": 11.587,
+        "store_enter_ms": 13.139,
+        "store_exit_ms": 55.447,
+        "response_start_enter_ms": 58.137,
+        "response_start_exit_ms": 59.322,
+        "last_body_enter_ms": 60.55,
+        "last_body_exit_ms": 61.666,
+        "app_end_ms": 63.229
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 13,
+      "member_batches_attempted": 1,
+      "member_batches_completed": 1,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.537,
+          "exit_ms": 10.2,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 14.184,
+          "exit_ms": 54.22,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 14.982,
+          "exit_ms": 16.816,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 18.143,
+          "exit_ms": 19.695,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 21.456,
+          "exit_ms": 23.072,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 24.374,
+          "exit_ms": 25.845,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 27.149,
+          "exit_ms": 28.509,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 29.661,
+          "exit_ms": 31.028,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 32.309,
+          "exit_ms": 33.793,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 34.948,
+          "exit_ms": 36.307,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 37.839,
+          "exit_ms": 39.778,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 41.057,
+          "exit_ms": 43.433,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        },
+        {
+          "phase": "SCOPE_SEAL_WRITE",
+          "enter_ms": 45.37,
+          "exit_ms": 46.929,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_EVENT_WRITE",
+          "enter_ms": 48.134,
+          "exit_ms": 49.437,
+          "outcome": "RETURNED",
+          "sql_ordinal": 12,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 50.577,
+          "exit_ms": 51.858,
+          "outcome": "RETURNED",
+          "sql_ordinal": 13,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "ca96f7855d0a439282686c840438d40e",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 3.173,
+        "native_exit_ms": 9.968,
+        "store_enter_ms": 11.525,
+        "store_exit_ms": 39.433,
+        "response_start_enter_ms": 46.383,
+        "response_start_exit_ms": 47.924,
+        "last_body_enter_ms": 49.332,
+        "last_body_exit_ms": 50.49,
+        "app_end_ms": 51.782
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 8,
+      "member_batches_attempted": 0,
+      "member_batches_completed": 0,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 3.168,
+          "exit_ms": 8.721,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 12.626,
+          "exit_ms": 37.37,
+          "outcome": "ERROR"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 13.377,
+          "exit_ms": 15.168,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 16.644,
+          "exit_ms": 18.454,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 19.635,
+          "exit_ms": 21.052,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 22.272,
+          "exit_ms": 23.64,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 24.991,
+          "exit_ms": 26.393,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 27.531,
+          "exit_ms": 28.892,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 30.192,
+          "exit_ms": 31.719,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 32.871,
+          "exit_ms": 34.532,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "d79ff579308948769f4091cbd2dab325",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.213,
+        "native_exit_ms": 8.795,
+        "store_enter_ms": 10.274,
+        "store_exit_ms": 51.72,
+        "response_start_enter_ms": 54.388,
+        "response_start_exit_ms": 55.592,
+        "last_body_enter_ms": 56.852,
+        "last_body_exit_ms": 58.457,
+        "app_end_ms": 64.948
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 13,
+      "member_batches_attempted": 1,
+      "member_batches_completed": 1,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.209,
+          "exit_ms": 7.568,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 11.325,
+          "exit_ms": 50.671,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 12.068,
+          "exit_ms": 13.896,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 15.178,
+          "exit_ms": 16.842,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 18.013,
+          "exit_ms": 19.327,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 20.497,
+          "exit_ms": 22.402,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 23.595,
+          "exit_ms": 24.854,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 25.99,
+          "exit_ms": 27.344,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 28.627,
+          "exit_ms": 30.369,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 31.566,
+          "exit_ms": 33.181,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 34.532,
+          "exit_ms": 36.333,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 37.63,
+          "exit_ms": 39.379,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        },
+        {
+          "phase": "SCOPE_SEAL_WRITE",
+          "enter_ms": 41.387,
+          "exit_ms": 43.29,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_EVENT_WRITE",
+          "enter_ms": 44.505,
+          "exit_ms": 46.054,
+          "outcome": "RETURNED",
+          "sql_ordinal": 12,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 47.228,
+          "exit_ms": 48.599,
+          "outcome": "RETURNED",
+          "sql_ordinal": 13,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "df25c8b3b43a47109b52069f20c17997",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.042,
+        "native_exit_ms": 9.222,
+        "store_enter_ms": 10.726,
+        "store_exit_ms": 32.834,
+        "response_start_enter_ms": 34.565,
+        "response_start_exit_ms": 35.688,
+        "last_body_enter_ms": 36.841,
+        "last_body_exit_ms": 37.887,
+        "app_end_ms": 39.146
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 6,
+      "member_batches_attempted": 0,
+      "member_batches_completed": 0,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.039,
+          "exit_ms": 7.779,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 11.901,
+          "exit_ms": 31.781,
+          "outcome": "ERROR"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 12.646,
+          "exit_ms": 14.399,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 15.727,
+          "exit_ms": 17.304,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 18.534,
+          "exit_ms": 19.818,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 20.939,
+          "exit_ms": 22.249,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 23.954,
+          "exit_ms": 25.472,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 27.662,
+          "exit_ms": 30.0,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "f249de62226e45cab925833717fdc039",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.306,
+        "native_exit_ms": 10.191,
+        "store_enter_ms": 11.728,
+        "store_exit_ms": 57.559,
+        "response_start_enter_ms": 60.294,
+        "response_start_exit_ms": 61.561,
+        "last_body_enter_ms": 62.796,
+        "last_body_exit_ms": 63.87,
+        "app_end_ms": 65.692
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 13,
+      "member_batches_attempted": 1,
+      "member_batches_completed": 1,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.302,
+          "exit_ms": 8.544,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 12.929,
+          "exit_ms": 56.493,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 13.779,
+          "exit_ms": 15.564,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 17.625,
+          "exit_ms": 20.31,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 21.659,
+          "exit_ms": 23.306,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 24.502,
+          "exit_ms": 25.801,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 26.988,
+          "exit_ms": 28.263,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 29.454,
+          "exit_ms": 31.255,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 32.555,
+          "exit_ms": 34.029,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 35.202,
+          "exit_ms": 36.574,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "ACCOUNT_READ",
+          "enter_ms": 37.771,
+          "exit_ms": 40.365,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_WRITE",
+          "enter_ms": 41.734,
+          "exit_ms": 43.417,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": 1
+        },
+        {
+          "phase": "SCOPE_SEAL_WRITE",
+          "enter_ms": 45.354,
+          "exit_ms": 47.442,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_EVENT_WRITE",
+          "enter_ms": 48.777,
+          "exit_ms": 50.754,
+          "outcome": "RETURNED",
+          "sql_ordinal": 12,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 51.985,
+          "exit_ms": 54.26,
+          "outcome": "RETURNED",
+          "sql_ordinal": 13,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    },
+    {
+      "schema": 1,
+      "trace": "f8e4335cc3614e91a7102095b8e4c338",
+      "status": "APP_RETURNED",
+      "clock": "PERF_COUNTER_RELATIVE_MS_WALL_NOT_CPU",
+      "native_scope": "NATIVE_RESOLVER_ONLY_OTHER_COOKIE_WORK_UNKNOWN",
+      "store_scope": "ORDINARY_LAZY_SESSION_NOT_RC",
+      "timing": {
+        "http_enter_ms": 0.0,
+        "native_enter_ms": 2.213,
+        "native_exit_ms": 9.947,
+        "store_enter_ms": 11.367,
+        "store_exit_ms": 55.106,
+        "response_start_enter_ms": 57.833,
+        "response_start_exit_ms": 59.029,
+        "last_body_enter_ms": 60.248,
+        "last_body_exit_ms": 61.346,
+        "app_end_ms": 63.027
+      },
+      "native_calls": 1,
+      "store_calls": 1,
+      "sql_calls": 14,
+      "member_batches_attempted": 0,
+      "member_batches_completed": 0,
+      "inflight_sql": null,
+      "spans": [
+        {
+          "phase": "NATIVE_RESOLVER",
+          "enter_ms": 2.21,
+          "exit_ms": 8.676,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "STORE_CREATE",
+          "enter_ms": 12.382,
+          "exit_ms": 53.879,
+          "outcome": "RETURNED"
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 13.117,
+          "exit_ms": 14.787,
+          "outcome": "RETURNED",
+          "sql_ordinal": 1,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 16.207,
+          "exit_ms": 17.763,
+          "outcome": "RETURNED",
+          "sql_ordinal": 2,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 18.977,
+          "exit_ms": 20.317,
+          "outcome": "RETURNED",
+          "sql_ordinal": 3,
+          "member_batch": null
+        },
+        {
+          "phase": "AUTH_READ",
+          "enter_ms": 21.6,
+          "exit_ms": 23.027,
+          "outcome": "RETURNED",
+          "sql_ordinal": 4,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 24.199,
+          "exit_ms": 25.538,
+          "outcome": "RETURNED",
+          "sql_ordinal": 5,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 26.699,
+          "exit_ms": 28.021,
+          "outcome": "RETURNED",
+          "sql_ordinal": 6,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_WRITE",
+          "enter_ms": 29.335,
+          "exit_ms": 30.873,
+          "outcome": "RETURNED",
+          "sql_ordinal": 7,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 32.542,
+          "exit_ms": 34.925,
+          "outcome": "RETURNED",
+          "sql_ordinal": 8,
+          "member_batch": null
+        },
+        {
+          "phase": "CLOCK_READ",
+          "enter_ms": 36.177,
+          "exit_ms": 37.492,
+          "outcome": "RETURNED",
+          "sql_ordinal": 9,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 38.736,
+          "exit_ms": 40.359,
+          "outcome": "RETURNED",
+          "sql_ordinal": 10,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_HEAD_READ",
+          "enter_ms": 41.542,
+          "exit_ms": 42.951,
+          "outcome": "RETURNED",
+          "sql_ordinal": 11,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 44.164,
+          "exit_ms": 45.579,
+          "outcome": "RETURNED",
+          "sql_ordinal": 12,
+          "member_batch": null
+        },
+        {
+          "phase": "SCOPE_MEMBER_READ",
+          "enter_ms": 46.925,
+          "exit_ms": 49.135,
+          "outcome": "RETURNED",
+          "sql_ordinal": 13,
+          "member_batch": null
+        },
+        {
+          "phase": "OTHER",
+          "enter_ms": 50.434,
+          "exit_ms": 52.075,
+          "outcome": "RETURNED",
+          "sql_ordinal": 14,
+          "member_batch": null
+        }
+      ],
+      "dropped_spans": 0,
+      "diagnostic_write_failures": 0,
+      "execute_restored": true
+    }
+  ]
+}

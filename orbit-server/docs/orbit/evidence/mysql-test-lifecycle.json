@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "exit_code": 0,
+  "executed_at": "2026-11-07T02:19:12+08:00",
+  "environment": "本工作区独立MySQL8.4.13，13306仅回环，临时fixture配置",
+  "command": "tools/start-mysql-test.ps1; tools/stop-mysql-test.ps1; tools/start-mysql-test.ps1; tools/stop-mysql-test.ps1",
+  "scope": "实际启动/停止循环两次；等待已识别mysqld退出后再重启；不新增业务验收勾选",
+  "source_sha256": {
+    "tools/start-mysql-test.ps1": "4cd01ba174d6dbb15eb92a6f4b96d51f33ea7e04acf9fc64d48d98edcc5b4b37",
+    "tools/stop-mysql-test.ps1": "ea8e2d0125052fda49b044efccfa9d7227a7125495ffb58ed3cee83074690e92"
+  },
+  "resolved_failures": [
+    "正斜杠程序路径需规范化为Windows绝对路径",
+    "Windows mysqld父进程与监听子进程需核对父子关系",
+    "mysqladmin返回后需等待InnoDB退出释放文件，再允许重启"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "expired-session-rule-entry-recovery",
+  "phase": "testing",
+  "item_ids": [],
+  "scope": "Original router guard only; 13 focused authentication UI/guard tests, plus native-browser expired-session reproduction and recovery. Not complete auth or rules acceptance.",
+  "result": "PASS",
+  "tests": 13,
+  "failures": 0,
+  "command": "pnpm exec vitest run tests/orbit/permission-expired-session.test.ts tests/orbit/authentication-errors.test.ts tests/orbit/authentication-page.test.ts",
+  "source_hash_captured": "AFTER_RUN_ONLY_NOT_A_BEFORE_AFTER_FREEZE_CLAIM",
+  "source_sha256": {
+    "src/permission.js": "5a0e0b1725f7b68e3f4c03ef5899db6a7a64aebd9f048a59ba948bb7abae1c98",
+    "tests/orbit/permission-expired-session.test.ts": "ed2da6a3301285cd542b963012cf9c96337031b3f06de07235184430eb33dac1"
+  },
+  "browser_evidence": "orbit-server/docs/orbit/evidence/python-rule-definition-business-browser-partial.json",
+  "limitation": "Local stale identity cleared after getInfo failure; failed remote logout is not reported as confirmed server revocation."
+}

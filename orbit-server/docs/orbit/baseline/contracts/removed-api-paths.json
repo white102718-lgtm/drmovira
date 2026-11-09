@@ -1,0 +1,217 @@
+[
+  {
+    "path": "/api/v1/clients",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/clients/{id}",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/products",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/products/{id}",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/business-agents",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/business-agents/{id}",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/app-packages",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/app-packages/{id}",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/vendors",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/vendors/{id}",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/resource-requests",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/resource-requests/{id}",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get",
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/app-packages/{id}/secret",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/vendors/{id}/accounts",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "get"
+    ]
+  },
+  {
+    "path": "/api/v1/vendors/{id}/account-imports",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/resource-requests/{id}/submit",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/resource-requests/{id}/withdraw",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/resource-requests/{id}/decisions",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/resource-requests/{id}/fulfillments",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/resource-requests/{id}/verify",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/clients/{id}/owners",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/products/{id}/owners",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/app-packages/{id}/owners",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/vendors/{id}/owners",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/business-agents/{id}/owners",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "put"
+    ]
+  },
+  {
+    "path": "/api/v1/clients/{id}/archive",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/app-packages/{id}/archive",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/vendors/{id}/archive",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  },
+  {
+    "path": "/api/v1/business-agents/{id}/archive",
+    "reason": "独立模块管理入口移除",
+    "methods": [
+      "post"
+    ]
+  }
+]

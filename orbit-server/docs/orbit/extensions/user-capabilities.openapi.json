@@ -1,0 +1,205 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ORBIT人员管理能力与CSRF扩展",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/v1/users/capabilities": {
+      "get": {
+        "operationId": "getUserCapabilities",
+        "description": "当前人员动作及数据范围下的创建能力、本人UUID、基础管理员保护和会话CSRF；不是原Session或跨租户server_scope替代",
+        "responses": {
+          "200": {
+            "description": "当前有效能力与30分钟会话绑定CSRF；Cache-Control no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCapabilities"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/reference-options": {
+      "get": {
+        "operationId": "getUserReferenceOptions",
+        "summary": "人员新增表单的团队与功能角色名称选项",
+        "description": "仅当前可信租户、人员管理动作且SUPER_ADMIN。选择能力不包含团队/角色维护权限；有效团队和非基础有效角色。键集分页，游标绑定调用人、租户、目录版本与查询。",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "TEAM",
+                "ROLE"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                20,
+                50,
+                100,
+                200
+              ],
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            }
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 3700
+            },
+            "description": "最多100个不重复UUID，以逗号分隔；有界回显本租户既有引用名称，包括停用或基础引用，不代表允许新分配。默认选项仍只含有效非基础引用。；前端每次100个分批回显，避免长URL及一次性预取全部目录。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "当前页选项，Cache-Control no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserReferencePage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无人员管理动作或数据角色不足"
+          },
+          "409": {
+            "description": "选项游标已过期或目录/筛选发生变化"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data_role",
+          "managed_team_ids",
+          "can_create",
+          "csrf_token",
+          "actor_user_id",
+          "protected_user_ids"
+        ],
+        "properties": {
+          "data_role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "TEAM_ADMIN",
+              "SUPER_ADMIN"
+            ]
+          },
+          "managed_team_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "can_create": {
+            "type": "boolean"
+          },
+          "csrf_token": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 255
+          },
+          "actor_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "当前可信业务用户UUID，不是原数字ID"
+          },
+          "protected_user_ids": {
+            "type": "array",
+            "maxItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "当前租户受保护基础管理员UUID；服务端仍逐次保护"
+          }
+        }
+      },
+      "UserReferenceOption": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "当前团队或功能角色名称"
+          }
+        }
+      },
+      "UserReferencePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/UserReferenceOption"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2048
+          }
+        }
+      }
+    }
+  }
+}

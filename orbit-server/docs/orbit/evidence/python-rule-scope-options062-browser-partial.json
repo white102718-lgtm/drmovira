@@ -1,0 +1,83 @@
+{
+  "result": "PASS",
+  "executed_at": "2026-11-09T00:56:20.476Z",
+  "scope": "内置浏览器限定12项；真实本轮Python/MySQL/Redis及SQL-only候选，非整页/整产品或平台验收",
+  "checks": [
+    {
+      "name": "nativeLoginAndOriginalMenuAfterNaturalRateLimit",
+      "passed": true
+    },
+    {
+      "name": "registeredRuleDefinitionsMenuAndCreateSecondaryPage",
+      "passed": true
+    },
+    {
+      "name": "realOperatorLabelsAndHistoricalDisabledLabel",
+      "passed": true
+    },
+    {
+      "name": "operator20ThenThreeNewWithSelectedRetentionUnique23",
+      "passed": true
+    },
+    {
+      "name": "vendor23RealNames22UnknownAliasesAndHistoricalUnavailable",
+      "passed": true
+    },
+    {
+      "name": "literalPercentUnderscoreExclamationOperatorSelection",
+      "passed": true
+    },
+    {
+      "name": "fiveOriginalFiltersServerFreezesOneAndSameMember",
+      "passed": true
+    },
+    {
+      "name": "mobileAppliesActualFrozenOneToParent",
+      "passed": true
+    },
+    {
+      "name": "viewport1440NoDocumentHorizontalOverflow",
+      "passed": true
+    },
+    {
+      "name": "viewport1920NoDocumentHorizontalOverflow",
+      "passed": true
+    },
+    {
+      "name": "viewport390NoDocumentHorizontalOverflowAndReceiptWrap",
+      "passed": true
+    },
+    {
+      "name": "finalReloadCandidateNonemptyAndEmptyPlaceholders",
+      "passed": true
+    }
+  ],
+  "observations": {
+    "route": "/orbit/rules/definitions?mode=create",
+    "operator_first_page": 20,
+    "operator_new_last_page": 3,
+    "retained_selected": 1,
+    "unique_operators": 23,
+    "vendor_count": 23,
+    "unknown_alias_count": 22,
+    "frozen_count": 1,
+    "matched_account": "95c6a76e-4c3c-4a73-a46a-aad855d47d85",
+    "snapshot_id": "f13a9c28-05d1-4a22-a7a4-11013c578472",
+    "hash": "d8d9b44639562a35ed7f5ff20b12e27f91446510bb9b655a00997b2784c1bd6a",
+    "viewport_widths": [
+      1440,
+      1920,
+      390
+    ],
+    "final_placeholder_after_reload": true
+  },
+  "limitations": [
+    "SUPERADMIN列表故意损坏head夹具返回503，未删除或标列表通过",
+    "首次错误直达/orbit/rules返回404，改经实际菜单/definitions进入",
+    "原登录429自然恢复；没有清限流",
+    "真实分页只测20+3和50整页；100/200选项可见但未独立UI翻页",
+    "UI撤权/网络/DST/完整创建保存未本轮实测；86纯测独立",
+    "完整五filter流程先完成，随后仅两处placeholder修改，最终reload单独验非空/空文案；不声称所有UI全程同一源码冻结",
+    "未保存新Rule、未模拟/启用或真实广告写入"
+  ]
+}

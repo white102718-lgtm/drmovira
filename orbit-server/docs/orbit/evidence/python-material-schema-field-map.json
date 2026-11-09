@@ -1,0 +1,309 @@
+{
+  "kind": "candidate-field-to-real-case-mapping",
+  "status": "REVIEW_REQUIRED",
+  "item_ids": [],
+  "original_spec_sha256": "d9cd12c7f219830a35817e74e7ce55d8d3a49ad7f0d2670aeb67815c84c9e64a",
+  "validator_source_sha256": "0df8b754f604962a8d1d1380914a7206ce0af9fcb652835fde19d9575cce62fa",
+  "entries": [
+    {
+      "field_id": "SCHEMA-Asset.name",
+      "original_definition": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.category_id",
+      "original_definition": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.tag_ids",
+      "original_definition": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "minItems": 0,
+        "maxItems": 20
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.id",
+      "original_definition": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.revision",
+      "original_definition": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.ownership",
+      "original_definition": {
+        "$ref": "#/components/schemas/Ownership"
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.kind",
+      "original_definition": {
+        "type": "string",
+        "enum": [
+          "IMAGE",
+          "VIDEO"
+        ]
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.state",
+      "original_definition": {
+        "type": "string",
+        "enum": [
+          "INITIATED",
+          "UPLOADING",
+          "SCANNING",
+          "PROCESSING",
+          "READY",
+          "UPLOAD_FAILED",
+          "QUARANTINED",
+          "PROCESSING_FAILED",
+          "ARCHIVED"
+        ]
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": [
+        "UPLOAD_FAILED and complete state lifecycle remain pending"
+      ]
+    },
+    {
+      "field_id": "SCHEMA-Asset.sha256",
+      "original_definition": {
+        "type": "string",
+        "minLength": 64,
+        "maxLength": 64
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.preview_url",
+      "original_definition": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "format": "uri"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Asset.duration_seconds",
+      "original_definition": {
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,6})?$",
+            "maxLength": 28
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Tag.name",
+      "original_definition": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30
+      },
+      "actual_case": "pythonMaterialOriginalTagSchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Tag.group",
+      "original_definition": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 30
+      },
+      "actual_case": "pythonMaterialOriginalTagSchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Tag.id",
+      "original_definition": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "actual_case": "pythonMaterialOriginalTagSchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Tag.revision",
+      "original_definition": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "actual_case": "pythonMaterialOriginalTagSchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Tag.state",
+      "original_definition": {
+        "type": "string",
+        "enum": [
+          "ENABLED",
+          "DISABLED"
+        ]
+      },
+      "actual_case": "pythonMaterialOriginalTagSchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Category.name",
+      "original_definition": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30
+      },
+      "actual_case": "pythonMaterialOriginalCategorySchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Category.id",
+      "original_definition": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "actual_case": "pythonMaterialOriginalCategorySchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Category.revision",
+      "original_definition": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "actual_case": "pythonMaterialOriginalCategorySchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Category.state",
+      "original_definition": {
+        "type": "string",
+        "enum": [
+          "ENABLED",
+          "DISABLED"
+        ]
+      },
+      "actual_case": "pythonMaterialOriginalCategorySchemaAndRegisteredVisibleCountExtension",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Ownership.owner_user_id",
+      "original_definition": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    },
+    {
+      "field_id": "SCHEMA-Ownership.owner_team_id",
+      "original_definition": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "actual_case": "pythonMaterialOriginalAssetSchemaTypesAndDecimalDuration",
+      "evidence_run": "49983 material-only through016 33/33",
+      "scope": "actual HTTP response schema shape; not every numeric boundary or lifecycle branch",
+      "limitations": []
+    }
+  ],
+  "not_original_fields": [
+    "Asset.width_px",
+    "Asset.height_px",
+    "Tag.visible_asset_count",
+    "Category.visible_asset_count"
+  ],
+  "extension": "MAT-TAXONOMY-COUNT-V1 only GET list/get visible_asset_count; independently validated; not silently added to original schema",
+  "note": "No total ledger status changed. Root must map actual receipt and independently scope completion; width/height are real internal decode data, not original Asset properties."
+}

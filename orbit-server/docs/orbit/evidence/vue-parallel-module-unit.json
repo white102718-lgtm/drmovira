@@ -1,0 +1,36 @@
+{
+  "name": "vue-parallel-module-unit",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T04:41:02.638041+00:00",
+  "command": "pnpm exec vitest run tests/orbit/accounts-import.test.ts tests/orbit/authentication-errors.test.ts tests/orbit/authentication-page.test.ts tests/orbit/material-api.test.ts tests/orbit/material-hash.test.ts tests/orbit/reference-channel-client.test.ts --reporter=json --outputFile=../.runtime/parallel-module-ui-unit.json",
+  "environment": "本机Vue组件/客户端/分片散列单测；服务替身不证明真实业务",
+  "scope": "6个文件37项；前端类型检查亦实际执行通过，三视口真实联调另计。",
+  "result": "PASS",
+  "exit_code": 0,
+  "summary": {
+    "tests": 37,
+    "passed": 37,
+    "failures": 0
+  },
+  "frontend_source_sha256": {
+    "tests/orbit/accounts-import.test.ts": "bd89e804aa9826eea806dff24e344feea8e7e47819b58d1a767ec60df900554b",
+    "tests/orbit/authentication-errors.test.ts": "7e85c3ccecba8b2ce1d125c4ac1cc44dea5fbed98e728372e923f4209bc28a9c",
+    "tests/orbit/authentication-page.test.ts": "21b9840246184e9a916473d46df71ff04837eb7770e8c79c427c89bb213dab8f",
+    "tests/orbit/material-api.test.ts": "870ba78d4c24e31313e89360ea04681019d8ed55006ae12693ba019c9862811f",
+    "tests/orbit/material-hash.test.ts": "3e268aa3561c9b38d155de3f60d73d6807b33706e087adb27cfcf46cab53b492",
+    "tests/orbit/reference-channel-client.test.ts": "b4025110dea70d3d8f298d1704e4e801968f6c05a68a7600e9e440f1819b0e3b",
+    "src/api/orbit/accounts.ts": "60a9d33cdcbc5b99e6bce0db3ec559e2e9da4d9d51da26e64c2776806da646b5",
+    "src/api/orbit/channels.ts": "410386d17c3f339d044388eb97d85f5af5dcf137cbbbf9a1eadafa35250c6902",
+    "src/api/orbit/references.ts": "c00173f03966f614a51e7740c538d4db59d9baa4d789ee742eb1ff0b62426e73",
+    "src/api/orbit/materials.ts": "5a24f5c728ddbedca190a30c21953731d5662abccb8f393d915d10fdf6fd16e3",
+    "src/api/orbit/material-hash.ts": "845a1f63aa75be5649aea951be15fbf9735c28aa687ed0c7ed99048b8325d1c4",
+    "src/api/orbit/authentication.ts": "fc1739b78c47d2f7a6e994b29a44805de4ca525d5641e3939caab531d31fb9bb",
+    "src/api/orbit/auth-entry.ts": "063fe6008082ff9d84c01920ec24401c9367a59ceb356880ecee5c33e6a752d3",
+    "src/views/orbit/auth/Login.vue": "34343d655fbd631d77f87546f008266adcd867f6c0ff06ef1215f884916550c4",
+    "src/views/orbit/accounts/ImportAccounts.vue": "65a1a47b90b5892120a32ff3237acce6c4002320d736627e6578238ead9507dc",
+    "src/views/orbit/materials/index.vue": "9071291f999fe6509f24b379f2b6fdc659f631d790e5b5e17f834e5fbb2196a0",
+    "src/views/orbit/materials/MaterialTaxonomy.vue": "b075b8dfcfd464c06a4837ee284df7759f5ab8cb4f0528751e0f36aa77b14a96",
+    "src/views/orbit/materials/MaterialUpload.vue": "c656e5ce7fc766ed54cb29b68365fb38d9f74826756542c32ee915be545205f9"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "prd-baseline",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": "C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python313Portable\\python.exe -X utf8 validation/validate_prd.py",
+  "executed_at": "2026-11-07T05:37:52+08:00",
+  "environment": "本地开发验证；模拟传输/Mapper的测试不代表真实平台或MySQL集成",
+  "summary": {
+    "checks": 18,
+    "failed": 0
+  },
+  "scope": "原产品包静态一致性；未修改原需求，不代表业务验收"
+}

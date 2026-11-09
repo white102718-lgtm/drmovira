@@ -1,0 +1,37 @@
+{
+  "name": "python-execution-recovery052-unit",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-08T18:27:37.027277+00:00",
+  "command": [
+    "D:\\progress\\orbit\\orbit-server\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "python/tests/test_launch_execution_lease_contract.py",
+    "python/tests/test_launch_execution_lease_store.py",
+    "python/tests/test_launch_execution_fact_append.py",
+    "python/tests/test_execution_recovery_fact_chain.py",
+    "python/tests/test_launch_execution_recovery_store.py",
+    "python/tests/test_launch_execution_recovery_tool.py",
+    "-q"
+  ],
+  "scope": "固定恢复协议/事实读取追加/有序hash/恢复提交及工具护栏纯测试；真实SQL证据另列，不代表Worker或平台验收",
+  "status": "PASS",
+  "exit_code": 0,
+  "elapsed_seconds": 2.23,
+  "source_sha256": {
+    "python/tests/test_launch_execution_lease_contract.py": "9eb91a8c84b6043b09e7cd3ba018b5ce5821b3dbd46c35725669275d7d15de7a",
+    "python/tests/test_launch_execution_lease_store.py": "da66b279127193556170c90ce242bafb20cf9193d32196742cf0e52106c914b7",
+    "python/tests/test_launch_execution_fact_append.py": "02a9167ed25c11eb538c3d28e37fd695c6fc5cec27c1d1a6131b88b8727b5c8f",
+    "python/tests/test_execution_recovery_fact_chain.py": "262c326b5a059c315bb336598f88e785a593b3b801fa7a081987feb2c9a637e7",
+    "python/tests/test_launch_execution_recovery_store.py": "e9d498e0f15357a2d2cef0149a10a546d7b4091939c23e362b3dc864b4486e36",
+    "python/tests/test_launch_execution_recovery_tool.py": "958486ae0be41c5d806929b85b5875dce2e99ce05d1ee752a3e2a30d8a0e732a",
+    "python/orbit_api/launch_execution_lease_contract.py": "39771d973eb97176feb005e2d5fea05410a9a0f9e8ae83e6c1079b8bffc3027f",
+    "python/orbit_api/launch_execution_lease_store.py": "36a40a3e79ceef9cd7bcc68f8d122d3839ca5db841143d14a04f2ba6461cdb2b",
+    "python/orbit_api/launch_execution_recovery_store.py": "b5c207b31a9c39a6b5158e0e5279065c858af21512335a2f747339dc8f7fa9f2",
+    "tools/launch_execution_recovery_checks.py": "48162ae5c1374ffb92dd0d28185c98e6702340e03c1cc6070682fc34cf70cb29",
+    "python/orbit_api/migrations/052_execution_recovery_decisions.sql": "d4244545c323a127d5a0460214f1bdd242c77e007c5c589098b1e3f2c895c790"
+  },
+  "changed_sources": [],
+  "output": "........................................................................ [ 29%]\n........................................................................ [ 59%]\n........................................................................ [ 89%]\n.........................                                                [100%]\n241 passed in 1.60s\n"
+}

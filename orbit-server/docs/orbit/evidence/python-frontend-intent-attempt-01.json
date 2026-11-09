@@ -1,0 +1,13 @@
+{
+  "name": "python-frontend-intent-attempt-01",
+  "phase": "testing",
+  "result": "FAIL",
+  "exit_code": 1,
+  "item_ids": [],
+  "executed_at": "2026-11-07T21:48:48+08:00",
+  "command": "pnpm test:orbit",
+  "environment": "Vue3/Element Plus/Vitest/jsdom，真实Node WebCrypto",
+  "scope": "新增异步HMAC意图后，组件断言过早执行；不是通过证据",
+  "summary": {"tests": 27, "passed": 25, "failures": 2},
+  "failure": "两项保存组件测试只等待Vue Promise队列，尚未等待原生WebCrypto结束；改为等待实际保存调用完成。"
+}

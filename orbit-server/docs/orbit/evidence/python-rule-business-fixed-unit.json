@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-09T10:29:21.616691+08:00",
+  "scope": "Rule Store original query limit, metadata/recovery production contracts, and dedicated HTTP tool unit tests; no new capacity/browser claim",
+  "result": "PASS",
+  "elapsed_seconds": 8.956,
+  "command": [
+    "-m",
+    "pytest",
+    "python/tests/test_rule_store.py",
+    "python/tests/test_rule_display_metadata.py",
+    "python/tests/test_rule_recovery_context.py",
+    "python/tests/test_rules_definition_flow_checks.py",
+    "python/tests/test_rule_recovery_context_checks_tool.py",
+    "-q",
+    "--junitxml=.runtime/rule-business-fixed-unit.xml"
+  ],
+  "source_sha256": {
+    "python/tests/test_rule_store.py": "74c152b65a11c52252ff711df2dba94ec44276f2c880a59d5d051467a261d1c8",
+    "python/tests/test_rule_display_metadata.py": "e008a144ff9b7e3e6d7297ec6763d02c3c650135b1dec3528e98c59a7ca5b458",
+    "python/tests/test_rule_recovery_context.py": "12777f3ca8addb20afc94a330b6deedd9c139792456e576c738b7d875e15a5ba",
+    "python/tests/test_rules_definition_flow_checks.py": "43595311056938ac82f6f0bd153bb3e2036ebfb26030328033638c22f77813e9",
+    "python/tests/test_rule_recovery_context_checks_tool.py": "990bb21f66a871c6c01a4720586cbf5837b761b7f87d8117cee691b28b2e0099",
+    "python/orbit_api/rule_store.py": "c98afd7c671dea64691d304eb30683e17c491ce2f559d6cd434d4be859f3aaad",
+    "python/orbit_api/rule_display_metadata_contract.py": "217b5e21c354b11cf8035c57f0a1b8eecf4238dd32118c9fd479315ac4e3a2b0",
+    "python/orbit_api/rule_display_metadata_store.py": "ee8371b4937ca42927f13fe0be3e097e7b48db2e8d4272a3fbb5fa570b2a05e8",
+    "python/orbit_api/rule_display_metadata_routes.py": "5086b54d59faba50f5e0e2191a309fef36a139d62470fa0fcd26acddd578fcc5",
+    "python/orbit_api/rule_recovery_context_routes.py": "e661dfa3c6523550b3aa11e66c866e6399e4e5b706cf647cfc1dc5238745525c",
+    "tools/rules_definition_flow_checks.py": "1665eacdd83a74383c9d04686529fa6c77b57c250df4af7271bb91e125a00231",
+    "tools/rule_recovery_context_checks.py": "df9635adfec4331a46a0ce0662097f8a4802712a57464b8a876ec1e51941d5b3",
+    "tools/rules_definition_browser_fixture.py": "0fa37aa82bc91da0fd306b8bf1b3ca769844ba52ae5244927d838eb976b2a22b",
+    "python/orbit_api/application.py": "53660aa9b74a09022b71fc0c69c62eb88306c57127c94ee51914fc1ecb36735b",
+    "tools/run_python_framework_checks.py": "fca9d20123ec69365b2178369d124be964f71146301eb1182deed2a80202bc96"
+  },
+  "source_unchanged": true,
+  "output_tail": [
+    "........................................................................ [ 43%]",
+    "........................................................................ [ 87%]",
+    "....................                                                     [100%]",
+    "164 passed in 6.41s"
+  ]
+}

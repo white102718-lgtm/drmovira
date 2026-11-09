@@ -1,0 +1,32 @@
+{
+  "result": "PASS",
+  "phase": "development",
+  "executed_at": "2026-11-07T03:01:16+08:00",
+  "item_ids": [
+    "CFG-10"
+  ],
+  "source_sha256": {
+    "ruoyi-admin/src/main/java/com/ruoyi/web/config/orbit/OrbitConfigurationSecurity.java": "bac9785a5c80cbb48547d7658236c25c894cc26059441a243d37976c57640bad",
+    "ruoyi-admin/src/main/java/com/ruoyi/web/controller/orbit/OrbitConfigurationController.java": "1a93b24765c8c9395d789e5c98fb58f3e14b69711046c3b827b87d9c01a57290",
+    "ruoyi-admin/src/main/java/com/ruoyi/web/controller/orbit/OrbitConfigurationExceptionHandler.java": "54c90f89821e4db3b13ac9f549aa4f25614b7ca4027e54e12fb15b77695a5bf6",
+    "ruoyi-admin/src/test/java/com/ruoyi/web/controller/orbit/OrbitConfigurationHttpTest.java": "b1d690e966d3b0209b7e0f468bfedc76ed4aaccf6af3aa6a151288f71e7aa419",
+    "ruoyi-admin/pom.xml": "b32e315cf4d729b99921ae5de169a09003bd6d4351d166fb45109ff0a9421436",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/config/ConfigurationService.java": "8fdff2e6aabdbc6acbbd96e262efd7d97d36f0d98f0252efc2698b70a5ca2cc9",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/config/SecurityConfig.java": "d82d42a5d203e03e3e6f3b0496151b4466ce9f7f43244197041e6d431977f77a",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/config/ResourcesConfig.java": "560aaf6e56859510449da837b5f57602bf635c4d724fa7adbea7889703cfab72",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/security/filter/JwtAuthenticationTokenFilter.java": "80c6336ae24ee5afea771175f2309987bbf1923dff5350ca527677b237c219c7",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/PermissionService.java": "e32b37e3df07ce6ef217a299866d734eca1e07ce63739725fbef8fba3d8b908f",
+    "ruoyi-framework/src/main/java/com/ruoyi/framework/interceptor/impl/SameUrlDataInterceptor.java": "bc8736825157e1d601241241a97754882a2b413604ff934eecfc31b612098d76"
+  },
+  "scope": "系统配置专用安全链、双权限、活跃租户/数据角色、风控额外权限代码完成",
+  "evidence": [
+    "docs/orbit/evidence/http-configuration-boundary.json",
+    "docs/orbit/evidence/mysql-configuration-integration.json"
+  ],
+  "remaining": [
+    "真实JWT签名及Redis会话生命周期",
+    "网络HTTP与MySQL联合验证",
+    "真实浏览器验收"
+  ],
+  "network_evidence": "docs/orbit/evidence/network-configuration-integration.json"
+}

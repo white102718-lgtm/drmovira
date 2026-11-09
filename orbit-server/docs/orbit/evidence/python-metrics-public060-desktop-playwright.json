@@ -1,0 +1,291 @@
+{
+  "config": {
+    "argv": [
+      "D:\\Program Files\\nodejs\\node.exe",
+      "D:\\progress\\orbit\\orbit-web\\node_modules\\.pnpm\\@playwright+test@1.61.1\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "playwright.python.config.ts",
+      "orbit-metrics.spec.ts",
+      "--project",
+      "desktop-1440"
+    ],
+    "configFile": "D:\\progress\\orbit\\orbit-web\\playwright.python.config.ts",
+    "rootDir": "D:/progress/orbit/orbit-web/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-1440",
+        "name": "desktop-1440",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-metrics.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "wide-1920",
+        "name": "wide-1920",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-metrics.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-metrics.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\progress\\orbit\\.runtime\\python-browser-it\\playwright-result.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm dev --port 18084 --config vite.python.config.js",
+      "url": "http://127.0.0.1:18084/login",
+      "reuseExistingServer": false,
+      "timeout": 60000
+    }
+  },
+  "suites": [
+    {
+      "title": "orbit-metrics.spec.ts",
+      "file": "orbit-metrics.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Metrics原七Tab四实体目录选择及公开查询真实集合",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4353,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "原登录、查询上下文与目录真实读取",
+                      "duration": 2731
+                    },
+                    {
+                      "title": "四实体真实13字段查询及全量ID集合",
+                      "duration": 1405
+                    }
+                  ],
+                  "startTime": "2026-11-08T21:27:43.275Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e6798877c19a17a74490-8db024eaac3e79550cf4",
+          "file": "orbit-metrics.spec.ts",
+          "line": 319,
+          "column": 1
+        },
+        {
+          "title": "Metrics广告22条四档游标历史DAY44及原币种完整totals",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6259,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "20加2真实下一页与历史，totals不受页数影响",
+                      "duration": 1080
+                    },
+                    {
+                      "title": "50/100/200重新首查均完整22条",
+                      "duration": 2481
+                    },
+                    {
+                      "title": "DAY44保留两日相同实体且汇总不重复广告数",
+                      "duration": 1065
+                    }
+                  ],
+                  "startTime": "2026-11-08T21:27:47.787Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e6798877c19a17a74490-d7f3bddd5ccc6234f46a",
+          "file": "orbit-metrics.spec.ts",
+          "line": 371,
+          "column": 1
+        },
+        {
+          "title": "Metrics字面通配符两日筛选全部字段详情与无结果恢复",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3886,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "字面%_!按最新名选实体但保留两日金额",
+                      "duration": 223
+                    },
+                    {
+                      "title": "原15字段含完整12指标的只读Drawer及响应式关闭",
+                      "duration": 1369
+                    },
+                    {
+                      "title": "无结果是合法空实体，清空q恢复22条分页",
+                      "duration": 659
+                    }
+                  ],
+                  "startTime": "2026-11-08T21:27:54.054Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e6798877c19a17a74490-b9f26ab683fd61f910d3",
+          "file": "orbit-metrics.spec.ts",
+          "line": 435,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-08T21:27:39.662Z",
+    "duration": 18558.628,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

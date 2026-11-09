@@ -1,0 +1,50 @@
+{
+  "name": "frontend-rule-scope-options-continuation",
+  "base_run": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-fixed-20261109T010351481322Z\\receipt.json",
+  "executed_at": "2026-11-09T01:06:28.924153+00:00",
+  "scope": "仅owned MD格式修复后的7文件格式与原未执行production build；1120单测/type来自原固定档，未重跑",
+  "base_source_changed_files": [
+    "docs/ORBIT_RULE_SCOPE_OPTIONS.md"
+  ],
+  "base_product_source_tests_configs_lock_unchanged": true,
+  "steps": [
+    {
+      "name": "format",
+      "command": [
+        "pnpm",
+        "exec",
+        "prettier",
+        "--check",
+        "src/api/orbit/rule-scope-options.ts",
+        "tests/orbit/rule-scope-options-api.test.ts",
+        "docs/ORBIT_RULE_SCOPE_OPTIONS.md",
+        "src/views/orbit/rules/RuleScopeSelector.vue",
+        "tests/orbit/rule-scope-selector.test.ts",
+        "src/views/orbit/rules/RuleEditor.vue",
+        "tests/orbit/rule-editor.test.ts"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.517,
+      "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-continuation-20261109T010628922333Z\\format-step.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "pnpm",
+        "build:prod"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 28.733,
+      "log": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-continuation-20261109T010628922333Z\\build-step.log"
+    }
+  ],
+  "result": "PASS",
+  "source_stable": true,
+  "source_file_count": 492,
+  "changed_files": [],
+  "source_before": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-continuation-20261109T010628922333Z\\source-before.json",
+  "source_after": "D:\\progress\\orbit\\orbit-web\\.runtime\\frontend-rule-options-continuation-20261109T010628922333Z\\source-after.json",
+  "completed_at": "2026-11-09T01:06:59.515769+00:00",
+  "unit_reexecuted": false,
+  "type_reexecuted": false
+}

@@ -1,0 +1,96 @@
+{
+  "scope": "Isolated 50000 scope creation diagnostic; no daily facts, not original 44-case capacity acceptance",
+  "report": {
+    "all_seven_frozen_fields_hash_matches": true,
+    "create_and_members_seconds": 58.60825479996856,
+    "create_seconds": 5.189443699957337,
+    "daily_facts": 0,
+    "diagnostic_only": true,
+    "duplicates": 0,
+    "member_pages": 250,
+    "members": 50000,
+    "omissions": 0,
+    "platform_writes": 0,
+    "seed_seconds": 5.7111506999935955,
+    "status": "PASS",
+    "synthetic_accounts": 50000
+  },
+  "create": {
+    "schema": 1,
+    "status": "CREATE_RETURNED",
+    "execute_restored": true,
+    "calls": 112,
+    "elapsed_ms": 5161.055,
+    "member_batches_attempted": 50,
+    "member_batches_completed": 50,
+    "member_rows_attempted": 50000,
+    "member_rows_completed": 50000,
+    "diagnostic_write_failures": 0,
+    "sql": {
+      "AUTH_READ": {
+        "calls": 4,
+        "completed": 4,
+        "failed": 0,
+        "total_ms": 1.416,
+        "max_ms": 0.533
+      },
+      "CLOCK_READ": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.264,
+        "max_ms": 0.264
+      },
+      "OTHER": {
+        "calls": 2,
+        "completed": 2,
+        "failed": 0,
+        "total_ms": 0.837,
+        "max_ms": 0.551
+      },
+      "SCOPE_HEAD_WRITE": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 1.047,
+        "max_ms": 1.047
+      },
+      "SCOPE_HEAD_READ": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.308,
+        "max_ms": 0.308
+      },
+      "ACCOUNT_READ": {
+        "calls": 51,
+        "completed": 51,
+        "failed": 0,
+        "total_ms": 164.332,
+        "max_ms": 5.126
+      },
+      "SCOPE_MEMBER_WRITE": {
+        "calls": 50,
+        "completed": 50,
+        "failed": 0,
+        "total_ms": 4687.245,
+        "max_ms": 131.209
+      },
+      "SCOPE_SEAL_WRITE": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.529,
+        "max_ms": 0.529
+      },
+      "SCOPE_EVENT_WRITE": {
+        "calls": 1,
+        "completed": 1,
+        "failed": 0,
+        "total_ms": 0.806,
+        "max_ms": 0.806
+      }
+    }
+  },
+  "parent": "python-scope-create060-focused-http.json"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "python-fixture-idle-tls",
+  "executed_at": "2026-11-08T07:47:21.300743+00:00",
+  "result": "PASS",
+  "scope": "真实回环HTTPS专项：闲置未握手TCP与畸形TLS不阻塞另一真实TLS请求；不代表产品认证全回归",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_tls_fixture_server.py -q",
+  "summary": {
+    "passed": 2,
+    "failed": 0,
+    "duration_seconds": 1.45
+  },
+  "source_sha256": {
+    "tools/tls_fixture_server.py": "dfd6fff9f8b973cfd5a769428cd475b19a776c6847351f1290af47c5eb9838b8",
+    "tools/oidc_https_fixture.py": "3520a5c33981626df6007a1cc27ab6053dbc3f65fbed04e3a94461573c2e3771",
+    "tools/authentication_browser_gateway.py": "0e3f099482eee6f47ca36e0b03930fe9ca7b51dd4e3abd03eb0ff86b6602b6cf",
+    "python/tests/test_tls_fixture_server.py": "62ee084b14747598d0de6c9f08abea980c87d764f306a653c028432ce566142f"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "source_run": "7c74cb9b90b54766886de1ee98ac1e99",
+  "scope": "SHORT_AUTH_NATIVE_LEASE_TECHNICAL_AGGREGATE",
+  "instrumented_not_stability_proof": true,
+  "reports": 809,
+  "warm_samples": 800,
+  "cold_selection": "earliest completed full 200-row report filesystem mtime",
+  "sizes": {
+    "20": {
+      "samples": 200,
+      "counts": {
+        "released_before_rc_enter": 200,
+        "native_active_at_rc_enter": 0,
+        "native_active_at_rc_exit": 0,
+        "same_pool": 200
+      },
+      "native_lease_mean_seconds": 0.050611836999887604,
+      "after_resolver_release_mean_seconds": 0.009420931500208098
+    },
+    "50": {
+      "samples": 200,
+      "counts": {
+        "released_before_rc_enter": 200,
+        "native_active_at_rc_enter": 0,
+        "native_active_at_rc_exit": 0,
+        "same_pool": 200
+      },
+      "native_lease_mean_seconds": 0.050615976499102544,
+      "after_resolver_release_mean_seconds": 0.008006969502312132
+    },
+    "100": {
+      "samples": 200,
+      "counts": {
+        "released_before_rc_enter": 200,
+        "native_active_at_rc_enter": 0,
+        "native_active_at_rc_exit": 0,
+        "same_pool": 200
+      },
+      "native_lease_mean_seconds": 0.050558486497902774,
+      "after_resolver_release_mean_seconds": 0.007123739501985256
+    },
+    "200": {
+      "samples": 200,
+      "counts": {
+        "released_before_rc_enter": 200,
+        "native_active_at_rc_enter": 0,
+        "native_active_at_rc_exit": 0,
+        "same_pool": 200
+      },
+      "native_lease_mean_seconds": 0.08266089399985503,
+      "after_resolver_release_mean_seconds": 0.025214079996512737
+    }
+  },
+  "source_sha256": {
+    "tools/account_list_query_diagnostics.py": "e89103eb23a63e05ca0de5d270fd4d43e83c7a372a421d5bca2476dc45db48d0",
+    "python/orbit_api/account_read_identity.py": "7f425c1fbe0afedc568c8626bb453595b18b7402de2fdc56cdca11021241f37f",
+    "python/orbit_api/account_details_routes.py": "86922f1b2295f73ef893acbb7e4dedcacb7c3b7619ac34221175ed942f4c1ea2",
+    "python/orbit_api/read_sessions.py": "fb38eb46438d6181158eb2f805bf81c5f70c24537bd984ba295af108723e85a1"
+  }
+}

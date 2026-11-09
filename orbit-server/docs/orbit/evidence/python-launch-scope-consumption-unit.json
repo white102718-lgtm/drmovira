@@ -1,0 +1,20 @@
+{
+  "name": "python-launch-scope-consumption-unit",
+  "executed_at": "2026-11-08T08:45:35.810895+00:00",
+  "result": "PASS",
+  "scope": "111项纯单元与边界；真实SQL/HTTP另存回执",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_launch_scope_consumption.py python/tests/test_launch_contract_expansion.py python/tests/test_launch_store_boundaries.py python/tests/test_launch_naming.py -q",
+  "summary": {
+    "passed": 111,
+    "failed": 0,
+    "duration_seconds": 0.88
+  },
+  "source_sha256": {
+    "python/orbit_api/launch_references.py": "f362be792b3ba8c390a1ca0c4818054601eed6ee6b4b308206a9a8937225eac7",
+    "python/orbit_api/launch_store.py": "3adf9357f6a52a1e4fd7510163a216dac041bd516cbfa95d1b9e6a8dde4e08be",
+    "python/tests/test_launch_scope_consumption.py": "d852281cacb51919a869d6994fd8f77ed19cf37793d03ffa5c9a1033d12488bf",
+    "python/tests/test_launch_contract_expansion.py": "db7b61d683dd4a95d0e89f59a10c773a8e91efa19c16ecca1a678271fedca799",
+    "python/tests/test_launch_store_boundaries.py": "51d910fb077fa14674a36dd73491762ae38105943e1d52f9ae12d6aeb89eacdb",
+    "python/tests/test_launch_naming.py": "e66b24e2209d5014671e98db37cd87b71e789aa71b787acb81c14ce6ecb7e593"
+  }
+}

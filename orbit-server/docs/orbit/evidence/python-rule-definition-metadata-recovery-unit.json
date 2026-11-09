@@ -1,0 +1,31 @@
+{
+  "at": "2026-11-09T10:11:26.320240+08:00",
+  "scope": "Fixed metadata SQL projection, recovery-context protocol, and actual-flow tool unit tests only; not browser or actual recovery HTTP",
+  "result": "PASS",
+  "command": [
+    "-m",
+    "pytest",
+    "python/tests/test_rule_display_metadata.py",
+    "python/tests/test_rule_recovery_context.py",
+    "python/tests/test_rules_definition_flow_checks.py",
+    "-q",
+    "--junitxml=.runtime/rule-definition-metadata-recovery-unit.xml"
+  ],
+  "elapsed_seconds": 1.973,
+  "source_sha256": {
+    "python/orbit_api/rule_display_metadata_contract.py": "217b5e21c354b11cf8035c57f0a1b8eecf4238dd32118c9fd479315ac4e3a2b0",
+    "python/orbit_api/rule_display_metadata_store.py": "ee8371b4937ca42927f13fe0be3e097e7b48db2e8d4272a3fbb5fa570b2a05e8",
+    "python/orbit_api/rule_display_metadata_routes.py": "5086b54d59faba50f5e0e2191a309fef36a139d62470fa0fcd26acddd578fcc5",
+    "python/tests/test_rule_display_metadata.py": "e008a144ff9b7e3e6d7297ec6763d02c3c650135b1dec3528e98c59a7ca5b458",
+    "python/orbit_api/rule_recovery_context_routes.py": "e661dfa3c6523550b3aa11e66c866e6399e4e5b706cf647cfc1dc5238745525c",
+    "python/tests/test_rule_recovery_context.py": "12777f3ca8addb20afc94a330b6deedd9c139792456e576c738b7d875e15a5ba",
+    "tools/rules_definition_flow_checks.py": "7f3de656e0bbc131fe1845dabfe820f11fdb736f212353ec0068f21bcaa3bc15",
+    "python/tests/test_rules_definition_flow_checks.py": "43595311056938ac82f6f0bd153bb3e2036ebfb26030328033638c22f77813e9"
+  },
+  "source_unchanged": true,
+  "output_tail": [
+    "........................................................................ [ 77%]",
+    ".....................                                                    [100%]",
+    "93 passed in 1.30s"
+  ]
+}

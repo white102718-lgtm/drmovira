@@ -1,0 +1,2452 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="1120" failures="0" errors="0" time="200.7468359">
+    <testsuite name="tests/orbit/account-actions-api.test.ts" timestamp="2026-11-09T01:05:23.959Z" hostname="DESKTOP-7N307EV" tests="3" failures="0" errors="0" skipped="0" time="0.0025939">
+        <testcase classname="tests/orbit/account-actions-api.test.ts" name="原路径、Reason仅字段、CSRF/CAS/幂等都保留，重试不改请求" time="0.0012667">
+        </testcase>
+        <testcase classname="tests/orbit/account-actions-api.test.ts" name="能力按指定动作取，解绑仍为原POST/Reason" time="0.0002039">
+        </testcase>
+        <testcase classname="tests/orbit/account-actions-api.test.ts" name="错误账户/版本/状态/额外字段回执保持不确定，不能伪装已成功" time="0.0006097">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-actions-dialog.test.ts" timestamp="2026-11-09T01:05:23.961Z" hostname="DESKTOP-7N307EV" tests="6" failures="0" errors="0" skipped="0" time="0.5576041">
+        <testcase classname="tests/orbit/account-actions-dialog.test.ts" name="按当前动作取能力，不借导入；原因与当前CAS提交，受理不称同步完成" time="0.1981637">
+        </testcase>
+        <testcase classname="tests/orbit/account-actions-dialog.test.ts" name="本地解绑有明确边界，取消不提交" time="0.0996067">
+        </testcase>
+        <testcase classname="tests/orbit/account-actions-dialog.test.ts" name="网络不确定锁定内容并重试同一key，关闭重开也不生成新意图" time="0.0707126">
+        </testcase>
+        <testcase classname="tests/orbit/account-actions-dialog.test.ts" name="Unicode上限按码点，拒绝末尾换行和隐藏格式字符" time="0.0804957">
+        </testcase>
+        <testcase classname="tests/orbit/account-actions-dialog.test.ts" name="动作403显式展示，不显示假成功；能力失败可重读" time="0.0541232">
+        </testcase>
+        <testcase classname="tests/orbit/account-actions-dialog.test.ts" name="迟到能力不能覆盖新账户或新动作" time="0.0536855">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-assignment-api.test.ts" timestamp="2026-11-09T01:05:23.963Z" hostname="DESKTOP-7N307EV" tests="3" failures="0" errors="0" skipped="0" time="0.0033684">
+        <testcase classname="tests/orbit/account-assignment-api.test.ts" name="原PUT/5字段/幂等CAS头，原意图重试不改变时刻或body" time="0.00143">
+        </testcase>
+        <testcase classname="tests/orbit/account-assignment-api.test.ts" name="OWNER无导入依赖，VENDOR显式绑定目标投手且安全编码" time="0.0004762">
+        </testcase>
+        <testcase classname="tests/orbit/account-assignment-api.test.ts" name="错误回执不能假称当前归属已转移" time="0.0008157">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-assignment-dialog.test.ts" timestamp="2026-11-09T01:05:23.964Z" hostname="DESKTOP-7N307EV" tests="6" failures="0" errors="0" skipped="0" time="1.8088228">
+        <testcase classname="tests/orbit/account-assignment-dialog.test.ts" name="五字段只用真实候选团队与服务端时间，显式null户商；SCHEDULED不提前改变账户" time="0.4984109">
+        </testcase>
+        <testcase classname="tests/orbit/account-assignment-dialog.test.ts" name="换投手必须重新明确户商选择，迟到候选不能串投手" time="0.2760094">
+        </testcase>
+        <testcase classname="tests/orbit/account-assignment-dialog.test.ts" name="未知结果关闭重开仍原5字段/key/CAS/时间，不能换新意图" time="0.2781648">
+        </testcase>
+        <testcase classname="tests/orbit/account-assignment-dialog.test.ts" name="明确版本409不报成功，重新取能力后才用新CAS与时刻" time="0.2735611">
+        </testcase>
+        <testcase classname="tests/orbit/account-assignment-dialog.test.ts" name="缺选择、控制字符及无变化不能提交，取消不发写请求" time="0.2717652">
+        </testcase>
+        <testcase classname="tests/orbit/account-assignment-dialog.test.ts" name="候选错误不伪装空资源，无法读取生效时刻不能提交" time="0.2101134">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-command-api.test.ts" timestamp="2026-11-09T01:05:23.965Z" hostname="DESKTOP-7N307EV" tests="11" failures="0" errors="0" skipped="0" time="0.0042324">
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="仅GET并绑定原账户、动作、受理request_id，不增加写头或TaskID" time="0.0016832">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;account_id&quot;:&quot;other&quot;}" time="0.0006672">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;kind&quot;:&quot;UNBIND&quot;}" time="0.0001706">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;accepted_request_id&quot;:&quot;other&quot;}" time="0.0001615">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;task_id&quot;:&quot;fake-task&quot;}" time="0.0001537">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;state&quot;:&quot;QUEUED&quot;}" time="0.0001662">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;attempt_count&quot;:5}" time="0.0001413">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;revision&quot;:0}" time="0.0001116">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;completed_at&quot;:&quot;2026-11-08&quot;}" time="0.000125">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;updated_at&quot;:&quot;2026-02-30T00:00:00.000Z&quot;}" time="0.000133">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-api.test.ts" name="错关联、原Task状态或错字段拒绝，不显示虚假状态 {&quot;last_error_code&quot;:&quot;platform token raw response&quot;}" time="0.0001185">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-command-status.test.ts" timestamp="2026-11-09T01:05:23.967Z" hostname="DESKTOP-7N307EV" tests="9" failures="0" errors="0" skipped="0" time="0.1598579">
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="显式查询前不发请求，真实状态、编号、UTC和null可区分且没有写控件" time="0.060054">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="读取失败401清除旧状态但明确原回执保留" time="0.0191274">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="读取失败403清除旧状态但明确原回执保留" time="0.0147965">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="读取失败404清除旧状态但明确原回执保留" time="0.0136876">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="读取失败503清除旧状态但明确原回执保留" time="0.0121182">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="换账户或原请求后晚到旧读取不得回填，重新查询仅当前关联" time="0.004423">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="成功说明按SYNC真实动作边界，不冒充统一Task" time="0.0100543">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="成功说明按ASSIGNMENT真实动作边界，不冒充统一Task" time="0.013362">
+        </testcase>
+        <testcase classname="tests/orbit/account-command-status.test.ts" name="成功说明按UNBIND真实动作边界，不冒充统一Task" time="0.0110919">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-details.test.ts" timestamp="2026-11-09T01:05:23.968Z" hostname="DESKTOP-7N307EV" tests="13" failures="0" errors="0" skipped="0" time="4.2883603">
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 原账户页面通过真实路由入口进入范围二级页，不依赖导入权限" time="0.5816948">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 保留18列、前导零、未知与真实代称缺口，投手候选使用read接口" time="0.3143303">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 日期取消不查，快捷确认只发送mode，不按浏览器时区展开日期" time="0.3403339">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 列设置取消不改，确认保存列ID且名称和操作始终存在" time="0.3391541">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 迟到列表响应不能覆盖较新的查询" time="0.2749618">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 请求失败清空旧列表且显式重试，不把错误当空成功" time="0.2946954">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 详情保留完整原名与每项金额来源，身份失败不填空资源" time="0.035274">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 关闭详情立即作废旧请求，重新打开不被旧对象响应覆盖" time="0.0327216">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 只读权限不显示写动作，详情和原18列查询仍保留" time="0.2602368">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 按明确sync权限显示并真正打开原因弹窗，受理后刷新而不伪改资料" time="0.4283943">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; assign/unbind独立权限入口各自接正确弹窗，不要求导入权限" time="0.5844338">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 菜单打开后撤动作也不能靠旧command打开弹窗" time="0.3985002">
+        </testcase>
+        <testcase classname="tests/orbit/account-details.test.ts" name="账户18列与详情，组件服务替身范围 &gt; 实际父页面关闭重开未知同步仍沿原意图，成功后才刷新" time="0.4025168">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-identities.test.ts" timestamp="2026-11-09T01:05:23.969Z" hostname="DESKTOP-7N307EV" tests="15" failures="0" errors="0" skipped="0" time="0.0139836">
+        <testcase classname="tests/orbit/account-identities.test.ts" name="严格原四字段与64位外部ID字符串，不将usable解释成写授权" time="0.0011721">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.extra = &quot;unknown&quot;;
+  }" time="0.000199">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    delete row.capability_version;
+  }" time="0.0000779">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.account_id = &quot;{&quot; + id + &quot;}&quot;;
+  }" time="0.000133">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.observed_at = &quot;2026-11-08&quot;;
+  }" time="0.0001012">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.resources[0].external_id = 9007199254740992;
+  }" time="0.0000777">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.resources[0].external_id = &quot;9&quot;.repeat(65);
+  }" time="0.0000743">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.resources[0].usable = &quot;true&quot;;
+  }" time="0.0000573">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.resources[0].kind = &quot;EVENT&quot;;
+  }" time="0.0000731">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.resources[0].token = &quot;not-a-contract-field&quot;;
+  }" time="0.0000825">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.resources[0].reason_code = &quot;&quot;;
+  }" time="0.0000539">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="拒绝未知/错类型/越界/重复资源 % # (row) =&gt; {
+    row.resources.push({ ...row.resources[0] });
+  }" time="0.0000566">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="5000资源完整保留而5001拒绝，不截断" time="0.0031016">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="真实GET形状复用认证头与Abort，Token不放URL；错账户响应拒绝" time="0.0074519">
+        </testcase>
+        <testcase classname="tests/orbit/account-identities.test.ts" name="403/503原始错误保留，非法UUID不会发送GET" time="0.0006584">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/account-identity-summary.test.ts" timestamp="2026-11-09T01:05:23.970Z" hostname="DESKTOP-7N307EV" tests="9" failures="0" errors="0" skipped="0" time="0.5567234">
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 SYNCED/0" time="0.1804345">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 SYNCED/3" time="0.0435615">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 UNSYNCED/null" time="0.039107">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 UNKNOWN/null" time="0.0347542">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 UNKNOWN/0" time="0.0388489">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 SYNCED/null" time="0.0301963">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 SYNCED/-1" time="0.0278463">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要严格区分状态与计数 SYNCED/0.5" time="0.0293058">
+        </testcase>
+        <testcase classname="tests/orbit/account-identity-summary.test.ts" name="摘要不代替身份GET，原读取与刷新流程保留" time="0.1315281">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/accounts-import.test.ts" timestamp="2026-11-09T01:05:23.971Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="1.2867652">
+        <testcase classname="tests/orbit/accounts-import.test.ts" name="账户导入弹窗，服务替身范围 &gt; 按目标owner读取户商，原始文本与前导零直接提交，排队不称平台成功" time="0.5302803">
+        </testcase>
+        <testcase classname="tests/orbit/accounts-import.test.ts" name="账户导入弹窗，服务替身范围 &gt; 原始501重复项仍超限，不能仅凭去重后1项提交" time="0.2586407">
+        </testcase>
+        <testcase classname="tests/orbit/accounts-import.test.ts" name="账户导入弹窗，服务替身范围 &gt; 结果未知时锁定意图并重用同一幂等键" time="0.277588">
+        </testcase>
+        <testcase classname="tests/orbit/accounts-import.test.ts" name="账户导入弹窗，服务替身范围 &gt; 没有户商候选时给出导入分配指引，不退化成自由文本" time="0.2190742">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/audit-client.test.ts" timestamp="2026-11-09T01:05:23.972Z" hostname="DESKTOP-7N307EV" tests="3" failures="0" errors="0" skipped="0" time="0.0094516">
+        <testcase classname="tests/orbit/audit-client.test.ts" name="审计查询编码合同字段与游标，独立鉴权并禁止缓存和Cookie" time="0.0046557">
+        </testcase>
+        <testcase classname="tests/orbit/audit-client.test.ts" name="审计错误保留状态和追踪UUID，不回显网关HTML或私有诊断" time="0.0036403">
+        </testcase>
+        <testcase classname="tests/orbit/audit-client.test.ts" name="取消请求保持AbortError语义，空筛选不伪造租户或操作者" time="0.000588">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/authentication-errors.test.ts" timestamp="2026-11-09T01:05:23.972Z" hostname="DESKTOP-7N307EV" tests="6" failures="0" errors="0" skipped="0" time="0.5413673">
+        <testcase classname="tests/orbit/authentication-errors.test.ts" name="认证异常交互，服务替身范围 &gt; 没有提供者时明确提示配置缺失且禁用登录" time="0.0293917">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-errors.test.ts" name="认证异常交互，服务替身范围 &gt; 提供者暂不可用时保留错误，重读后恢复单提供者操作" time="0.2737339">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-errors.test.ts" name="认证异常交互，服务替身范围 &gt; 多个提供者时不擅自选择身份来源" time="0.11903">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-errors.test.ts" name="认证异常交互，服务替身范围 &gt; 发起中重复点击不制造第二次授权事务，限流错误不自动重试" time="0.0982453">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-errors.test.ts" name="认证异常交互，服务替身范围 &gt; 回调拒绝后不重放授权码，也不清除尚未替换的原账号" time="0.0120942">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-errors.test.ts" name="认证异常交互，服务替身范围 &gt; 刷新丢失一次性回调参数时指引重新登录，不发送空回调" time="0.0078761">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/authentication-page.test.ts" timestamp="2026-11-09T01:05:23.973Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="0.0721666">
+        <testcase classname="tests/orbit/authentication-page.test.ts" name="公开认证页面 &gt; 合法邀请在首屏启用操作，凭据仅传给授权接口" time="0.0502492">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-page.test.ts" name="公开认证页面 &gt; 没有邀请凭据时不发送请求并提供重新打开指引" time="0.0068633">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-page.test.ts" name="公开认证页面 &gt; 离开回调页面后迟到结果不能把用户强制跳回原目标" time="0.0055352">
+        </testcase>
+        <testcase classname="tests/orbit/authentication-page.test.ts" name="公开认证页面 &gt; 离开邀请页面后迟到的授权地址不能触发外部跳转" time="0.0083061">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/authentication.test.ts" timestamp="2026-11-09T01:05:23.973Z" hostname="DESKTOP-7N307EV" tests="17" failures="0" errors="0" skipped="0" time="0.0103836">
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：//evil.example" time="0.0009473">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：/%2f%2fevil.example" time="0.0002174">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：/%255c%255cevil.example" time="0.000128">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：https://evil.example" time="0.0000544">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：/
+redirect" time="0.0000509">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：/%00" time="0.000054">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：/%xx" time="0.0000557">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 站外、嵌套编码、控制字符或多值返回地址安全回退：/index" time="0.000035">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 保留合法站内筛选地址" time="0.0001483">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 入口先清除邀请片段，只能从内存提取一次，不写浏览器存储" time="0.001415">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 非法邀请和回调入口不把凭据保留在路由状态" time="0.0001773">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 并发探测共用一次服务端验证，Cookie模式不发送旧Bearer，写请求使用Cookie CSRF" time="0.0018179">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 无Cookie时保留原Bearer独立请求模式" time="0.0002582">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 退出清理后迟到探测响应不能恢复前端登录态" time="0.0001912">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 邀请凭据只放正文，重定向授权地址须为HTTPS" time="0.0019495">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 回调拒绝重复参数，合法回调验证Cookie会话并拒绝站外返回地址" time="0.0014186">
+        </testcase>
+        <testcase classname="tests/orbit/authentication.test.ts" name="Cookie登录入口和会话边界 &gt; 退出网络失败保留同键重试，不携带凭据正文" time="0.0007061">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/channel-recovery-page.test.ts" timestamp="2026-11-09T01:05:23.975Z" hostname="DESKTOP-7N307EV" tests="11" failures="0" errors="0" skipped="0" time="14.9669519">
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="100个emoji完整保存，101码点拒绝而不是按UTF16截断" time="1.145673">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="未知结果冻结显式disabled产品选择，并禁止取消与Escape丢弃原键" time="1.018301">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="真实详情读取历史绑定和当前引用状态，禁止只显示旧列表快照" time="0.2782066">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="409重新读取后用当前版本及新键，不重放旧CAS" time="1.4617545">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="分配未知结果同样禁止关闭并保留原操作键" time="0.7453118">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="停用未知结果同样禁止关闭并保留原操作键" time="0.3183912">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="冲突后当前对象读取失败仍保持冻结，不放行旧版本" time="0.7358993">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="三页加载后只合并当前已加载目标，不静默选择下一页，500项折叠回显" time="2.8566224">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="批选合并超过500时明确拒绝且保持原400集合，不静默截断" time="2.5286049">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="末页null游标不能掩盖重新打开分配时尚未返回的首屏候选" time="3.4238654">
+        </testcase>
+        <testcase classname="tests/orbit/channel-recovery-page.test.ts" name="初次候选失败明确显示并可重试，不把失败当合法末页" time="0.4533037">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/configuration-client.test.ts" timestamp="2026-11-09T01:05:23.976Z" hostname="DESKTOP-7N307EV" tests="7" failures="0" errors="0" skipped="0" time="0.0074533">
+        <testcase classname="tests/orbit/configuration-client.test.ts" name="系统配置请求安全边界 &gt; 明确的保存意图键原样发送，网络重试不会强制生成另一键" time="0.0034843">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-client.test.ts" name="系统配置请求安全边界 &gt; 非JSON网关错误不回显原始响应片段" time="0.000978">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-client.test.ts" name="系统配置请求安全边界 &gt; 网络异常只显示恢复提示，不回显传输异常中的内容" time="0.0002669">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-client.test.ts" name="系统配置请求安全边界 &gt; 凭据请求不缓存、不携带Cookie，并使用幂等键" time="0.0009943">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-client.test.ts" name="系统配置请求安全边界 &gt; 识别若依HTTP200中的会话失效，不将其当作元数据" time="0.000354">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-client.test.ts" name="系统配置请求安全边界 &gt; 传播安全的版本冲突，保留重新加载入口" time="0.0002896">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-client.test.ts" name="系统配置请求安全边界 &gt; 只读测试提交人工原因和原版本，不携带公开配置或凭据" time="0.0003746">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/configuration-dialog.test.ts" timestamp="2026-11-09T01:05:23.977Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="1.2695031">
+        <testcase classname="tests/orbit/configuration-dialog.test.ts" name="系统配置凭据弹窗 &gt; 已配置凭据保持不变时不要求重新输入，合法emoji名称可保存" time="0.5350745">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-dialog.test.ts" name="系统配置凭据弹窗 &gt; 编辑只回填公开数据与配置状态，不生成掩码密钥输入" time="0.2217156">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-dialog.test.ts" name="系统配置凭据弹窗 &gt; 替换凭据后提交成功会清空密钥输入并发出刷新事件" time="0.2999096">
+            <system-err>
+undefined
+
+undefined
+
+undefined
+
+            </system-err>
+        </testcase>
+        <testcase classname="tests/orbit/configuration-dialog.test.ts" name="系统配置凭据弹窗 &gt; 旧配置缺新增字段时表单补默认值，读取对象不被改写" time="0.2120056">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/configuration-history.test.ts" timestamp="2026-11-09T01:05:23.977Z" hostname="DESKTOP-7N307EV" tests="5" failures="0" errors="0" skipped="0" time="0.4941542">
+        <testcase classname="tests/orbit/configuration-history.test.ts" name="展示脱敏历史并使用服务器版本游标继续加载" time="0.246878">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-history.test.ts" name="切换配置后丢弃旧请求结果" time="0.0522322">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-history.test.ts" name="失败明确显示错误并可重试" time="0.0737102">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-history.test.ts" name="展开显示摘要并区分新增配置与未采集的历史" time="0.0554593">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-history.test.ts" name="旧记录无摘要显示未采集，不填零或伪造摘要" time="0.0647446">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/configuration-intent.test.ts" timestamp="2026-11-09T01:05:23.978Z" hostname="DESKTOP-7N307EV" tests="2" failures="0" errors="0" skipped="0" time="0.0118219">
+        <testcase classname="tests/orbit/configuration-intent.test.ts" name="同一意图重试复用键，字段顺序不影响，不保留可序列化凭据" time="0.0093872">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-intent.test.ts" name="内容、凭据、目标或版本改变均产生新键，重开明确结束旧意图" time="0.0018063">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/configuration-validation.test.ts" timestamp="2026-11-09T01:05:23.979Z" hostname="DESKTOP-7N307EV" tests="3" failures="0" errors="0" skipped="0" time="0.0025853">
+        <testcase classname="tests/orbit/configuration-validation.test.ts" name="配置字段Unicode和凭据边界 &gt; NFC后按码点计数，合法emoji和组合字符不提前截断" time="0.0012264">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-validation.test.ts" name="配置字段Unicode和凭据边界 &gt; 先拒控制符，不能通过trim去掉换行后放行" time="0.0001449">
+        </testcase>
+        <testcase classname="tests/orbit/configuration-validation.test.ts" name="配置字段Unicode和凭据边界 &gt; 凭据不变换，空值和超限分别拒绝" time="0.0006009">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-account-scopes.test.ts" timestamp="2026-11-09T01:05:23.979Z" hostname="DESKTOP-7N307EV" tests="21" failures="0" errors="0" skipped="0" time="0.0712381">
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="严格保留50000范围、安全版本、64字符hash与数字字符串前导零" time="0.0022171">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="拒绝快照非法字段 0" time="0.0004754">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="拒绝快照非法字段 1" time="0.0001285">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="拒绝快照非法字段 2" time="0.0001156">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="拒绝快照非法字段 3" time="0.0000961">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="拒绝快照非法字段 4" time="0.0000873">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="拒绝快照非法字段 5" time="0.0000654">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="成员严格字段/重复/上限/游标，不能将平台ID转数值" time="0.0010038">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="IDS与FILTER严格互斥、重复拒绝、50000合法而50001不截断" time="0.0291931">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="候选仅投影真实归属和状态，未知完整账户字段不冒充快照成员" time="0.0006213">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="POST只接受201，冻结key/csrf/body及memory认证不在URL、不带虚构CAS" time="0.0077403">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="非原成功状态200不能冒充冻结成功" time="0.0016899">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="非原成功状态202不能冒充冻结成功" time="0.0006978">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="网络未知重放只能使用调用方原key/body，SDK不自动重试" time="0.0011118">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="畸形/网关错误400不能证明写入未受理" time="0.0005934">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="畸形/网关错误502不能证明写入未受理" time="0.0004565">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="原错误体保留字段指针和nullable constraint；GET错误不标未知写" time="0.0141482">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="Cookie会话改写csrf时禁止偷偷替换原写上下文" time="0.0006572">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="成员分页保留原opaque游标/四档，非法page_size不发送" time="0.0075404">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="候选只发原筛选，不塞owner_team/exclusion/date/凭据参数" time="0.000571">
+        </testcase>
+        <testcase classname="tests/orbit/launch-account-scopes.test.ts" name="已取消请求不发网络；读取异常不会生成未知写结果" time="0.0012047">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-draft-editor.test.ts" timestamp="2026-11-09T01:05:23.980Z" hostname="DESKTOP-7N307EV" tests="17" failures="0" errors="0" skipped="0" time="4.9719116">
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="计划原指标UUID手填保存不要求monitor.read，已应用值进入原恢复草稿" time="0.9336329">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="指标目录二级页期间关闭和保存守卫不丢意图，父locked事件向页面传播" time="0.1619862">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="首开真实actor默认归属，101emoji拒绝而100码点完整提交" time="0.1760612">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="未知结果冻结父字段，重试使用同一完整正文与键且缓存不含CSRF" time="0.1738783">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="未知后撤权403不能伪装已确认或丢弃旧保存键" time="0.1540512">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="刷新后恢复保留旧意图，但新会话CSRF从当前caps获得" time="0.3109753">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="只读详情不会强加拥有者写候选权限，且无保存按钮" time="0.1331197">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="明确依赖未就绪是未保存，可继续编辑而非假成功" time="0.1553034">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="逐账户身份显式应用进入原恢复缓存，503不假保存，未知保存和刷新恢复仍冻结同正文与键" time="0.5065291">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="来源账户移除保留孤立身份并进入原缓存，只读详情仍能打开身份区域" time="0.410014">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="账户入口使用独立范围选择器并传真实read/context，素材渠道继续原选择器" time="0.5077989">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="没有accounts.read不能打开账户入口，不借launch动作读取" time="0.1315613">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="真实snapshot数量参与展开，恢复只有scopeID则明确未知且身份须先保存解析" time="0.2772511">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="保存解析后以真实server source回编；再保存和恢复缓存只含实际IDs/null与可写字段" time="0.2321231">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="scope保存未知仍冻结同一个原请求/key，不能提前套用猜测解析IDs" time="0.1876866">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="清除账户必须确认，保留所有孤立身份和原恢复正文，不删除快照" time="0.1439736">
+        </testcase>
+        <testcase classname="tests/orbit/launch-draft-editor.test.ts" name="子范围unknown锁挡关闭/保存/刷新；原上下文prop变化只传递，不丢子意图" time="0.3749463">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-field-location.test.ts" timestamp="2026-11-09T01:05:23.982Z" hostname="DESKTOP-7N307EV" tests="7" failures="0" errors="0" skipped="0" time="3.088995">
+        <testcase classname="tests/orbit/launch-field-location.test.ts" name="真实系列/组/广告local_id选中并聚焦各自字段，切换不改任何原配置" time="0.9468083">
+        </testcase>
+        <testcase classname="tests/orbit/launch-field-location.test.ts" name="预算金额定位打开真实二级页、聚焦原十进制字符串，不自动确认或写树" time="0.4473534">
+        </testcase>
+        <testcase classname="tests/orbit/launch-field-location.test.ts" name="未知字段/缺失local_id拒绝假焦点，只读控件不得借定位变成可编辑" time="0.2874356">
+        </testcase>
+        <testcase classname="tests/orbit/launch-field-location.test.ts" name="父传同head Pointer穿过Draft选中真实广告标题，定位不产生草稿改动" time="0.3944071">
+        </testcase>
+        <testcase classname="tests/orbit/launch-field-location.test.ts" name="未知合法Pointer保留原文和不可定位提示，不选择相似字段；旧来源版本也拒绝" time="0.1740776">
+        </testcase>
+        <testcase classname="tests/orbit/launch-field-location.test.ts" name="顶层计划名称焦点是实际可编辑控件，错误的Pointer解码与不存在树索引不得定位" time="0.1797121">
+        </testcase>
+        <testcase classname="tests/orbit/launch-field-location.test.ts" name="身份字段Pointer穿过Draft按账户和组local_id打开真实输入，未应用不改原缓存" time="0.6583637">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-form.test.ts" timestamp="2026-11-09T01:05:23.982Z" hostname="DESKTOP-7N307EV" tests="6" failures="0" errors="0" skipped="0" time="0.0028713">
+        <testcase classname="tests/orbit/launch-form.test.ts" name="投放配置树与原字段口径 &gt; 按真实父分支展开，不把平行分支相乘" time="0.0012262">
+        </testcase>
+        <testcase classname="tests/orbit/launch-form.test.ts" name="投放配置树与原字段口径 &gt; 一万上限在复制公式后检查，空账户仍是草稿零展开" time="0.0001188">
+        </testcase>
+        <testcase classname="tests/orbit/launch-form.test.ts" name="投放配置树与原字段口径 &gt; 复制整个分支新UUID且不反向修改原配置" time="0.0004178">
+        </testcase>
+        <testcase classname="tests/orbit/launch-form.test.ts" name="投放配置树与原字段口径 &gt; 新草稿不默认激活，也不复用外部身份和账户选择" time="0.0001512">
+        </testcase>
+        <testcase classname="tests/orbit/launch-form.test.ts" name="投放配置树与原字段口径 &gt; NFC后按码点，emoji不以UTF16长度计数" time="0.0000944">
+        </testcase>
+        <testcase classname="tests/orbit/launch-form.test.ts" name="投放配置树与原字段口径 &gt; 替换式草稿清空可选字段省略，正文LF及显式null保留" time="0.0002516">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-metric-profile-field.test.ts" timestamp="2026-11-09T01:05:23.983Z" hostname="DESKTOP-7N307EV" tests="20" failures="0" errors="0" skipped="0" time="2.7295088">
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="没有monitor.read仍能手填原UUID，目录不能打开且零GET；清除传undefined不是null" time="0.0507118">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="readonly或未知写入禁用时不能发GET或修改UUID" time="0.0118896">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="只在显式打开目录后读真实原GET参数；候选未确认不改草稿" time="0.3659434">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="全部12原字段和null/windows完整显示，FIXTURE verified=true仍醒目标非平台验证" time="0.1746474">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="分页遵循next_cursor而非返回条数，上一页还原原cursor" time="0.182994">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="每页20条切换重置游标并实际发该参数" time="0.1449127">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="每页50条切换重置游标并实际发该参数" time="0.1470886">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="每页100条切换重置游标并实际发该参数" time="0.140934">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="每页200条切换重置游标并实际发该参数" time="0.1374214">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="UUID查询只在点击查询后发送，换条件禁止原游标翻页" time="0.136469">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="HTTP401显示拒绝并清候选，不能以空目录冒充成功" time="0.1143732">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="HTTP403显示拒绝并清候选，不能以空目录冒充成功" time="0.1080806">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="409清游标后显式重查首页，原UUID不丢" time="0.1578104">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="依赖/网络失败可显式重读，不丢手填UUID" time="0.1298231">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="依赖/网络失败可显式重读，不丢手填UUID" time="0.1266075">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="绑定/权限/锁变化中止迟到响应且不改另一个广告组：{&quot;bindingKey&quot;:&quot;group-b&quot;}" time="0.1107516">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="绑定/权限/锁变化中止迟到响应且不改另一个广告组：{&quot;contextKey&quot;:&quot;actor-2&quot;}" time="0.1119477">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="绑定/权限/锁变化中止迟到响应且不改另一个广告组：{&quot;canRead&quot;:false}" time="0.1346964">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="绑定/权限/锁变化中止迟到响应且不改另一个广告组：{&quot;disabled&quot;:true}" time="0.1060643">
+        </testcase>
+        <testcase classname="tests/orbit/launch-metric-profile-field.test.ts" name="关闭与卸载均取消当前GET，没有后台轮询或自动重试" time="0.1352661">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-page-tabs.test.ts" timestamp="2026-11-09T01:05:23.985Z" hostname="DESKTOP-7N307EV" tests="2" failures="0" errors="0" skipped="0" time="1.1139">
+        <testcase classname="tests/orbit/launch-page-tabs.test.ts" name="真实ElementPlus在成功apply后先同步内部tab再开抽屉，关闭后可重返模板继续归档" time="0.7042769">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-tabs.test.ts" name="普通模板待确认结果及草稿打开时仍不能切页，成功内部切换标志不会遗留" time="0.4089255">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-page-validation.test.ts" timestamp="2026-11-09T01:05:23.985Z" hostname="DESKTOP-7N307EV" tests="11" failures="0" errors="0" skipped="0" time="3.926696">
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="指标目录权限只从原monitor.read透传给计划与模板，权限变动同步换context" time="0.6198929">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="旧caps无availability默认关闭预检，明确依赖且不发head或任何假受理" time="0.3300023">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="按新caps和GET当前head9打开，冻结请求上下文且execute默认关闭，不猜7+1" time="0.3344189">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="点击前真实权限/依赖撤回，先刷新caps阻止后续head与预检" time="0.3090438">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="子未知写入锁阻止关闭/切tab/路由离开/刷新，解锁并明确关闭后恢复" time="0.3579938">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="head读取失败保留列表；取消读取后迟到旧结果不能弹开预检" time="0.3325628">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="同版本字段定位再次GEThead，传真实Pointer给编辑器，来源权限独立传递" time="0.3132372">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="错误源head已变化不按旧树索引定位；非法Pointer不发GET" time="0.3105349">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="仅实际Task合同事件接力既有详情，不把allocation/runtime UUID当Task" time="0.3430228">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="无tasks.read不因202授予读取，保留真实受理ID与权限提示" time="0.3312562">
+        </testcase>
+        <testcase classname="tests/orbit/launch-page-validation.test.ts" name="只读与编辑入口都传真实accounts.read，不能用launch动作冒来源授权" time="0.3437803">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-pagination.test.ts" timestamp="2026-11-09T01:05:23.986Z" hostname="DESKTOP-7N307EV" tests="16" failures="0" errors="0" skipped="0" time="6.5165013">
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="plan字节短页仍有下一页，三页历史游标回退使用原签名而非合成页码" time="0.8985999">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="plan四档page_size都真实发送，换大小从首游标重新建立历史" time="0.5119848">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="plan换名称/状态/UTC日期禁旧游标，原日期字符串不自行加日或转换时区" time="0.3994977">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="plan409清除旧目录与游标，明确回首重新读取；403清旧数据和写能力" time="0.3991561">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="plan网络错误保留上次成功页和筛选，重试仍沿用同一下一页游标" time="0.3479653">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="template字节短页仍有下一页，三页历史游标回退使用原签名而非合成页码" time="0.4004455">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="template四档page_size都真实发送，换大小从首游标重新建立历史" time="0.4306519">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="template换名称/状态/UTC日期禁旧游标，原日期字符串不自行加日或转换时区" time="0.3265504">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="template409清除旧目录与游标，明确回首重新读取；403清旧数据和写能力" time="0.3094404">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="template网络错误保留上次成功页和筛选，重试仍沿用同一下一页游标" time="0.2974931">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="模板详情完整回显真实id/revision/ownership/state，不从当前actor猜拥有者名称或时间" time="0.360778">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="模板切离再进入时迟到旧页和旧caps不能盖新页" time="0.2573574">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="计划切tab后旧读取失效，新查询完成后迟到页不覆盖当前结果" time="0.3419087">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="模板保存确认后内部刷新真正落到首游标，不被busy转场误取消，原分页不残留" time="0.4385187">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="模板未知保存不允许列表页数/条件或关闭操作丢失原意图" time="0.4591741">
+        </testcase>
+        <testcase classname="tests/orbit/launch-pagination.test.ts" name="2020日期编辑本身不发请求，cap读取中断不发list，显式重试保留原日期与名称条件" time="0.3357354">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-recovery.test.ts" timestamp="2026-11-09T01:05:23.987Z" hostname="DESKTOP-7N307EV" tests="2" failures="0" errors="0" skipped="0" time="0.0018747">
+        <testcase classname="tests/orbit/launch-recovery.test.ts" name="恢复缓存按实际账号隔离，不将同浏览器另一账号配置自动带入" time="0.0010476">
+        </testcase>
+        <testcase classname="tests/orbit/launch-recovery.test.ts" name="模板操作仅保存受控业务描述和原键，CSRF在重试时重新取得" time="0.0003083">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-source-picker.test.ts" timestamp="2026-11-09T01:05:23.988Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="0.4619506">
+        <testcase classname="tests/orbit/launch-source-picker.test.ts" name="跨页选择保留原未加载关联，不能把翻页当重置选择" time="0.2779387">
+        </testcase>
+        <testcase classname="tests/orbit/launch-source-picker.test.ts" name="501候选合并明确拒绝，原500选择不被静默截断或替换" time="0.0696741">
+        </testcase>
+        <testcase classname="tests/orbit/launch-source-picker.test.ts" name="同团队另一投手的账户不能因管理员当前可读而被本负责人选择" time="0.0673856">
+        </testcase>
+        <testcase classname="tests/orbit/launch-source-picker.test.ts" name="读取403保留已有选择，不伪成功或清空未读关联" time="0.0462064">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-templates-panel.test.ts" timestamp="2026-11-09T01:05:23.988Z" hostname="DESKTOP-7N307EV" tests="9" failures="0" errors="0" skipped="0" time="4.4575671">
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="模板共用原广告组指标字段，无monitor.read仍能保存手填UUID并保留其它配置" time="1.2503201">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="模板指标二级页阻止父保存/关闭/刷新，不改变既有unknown恢复" time="0.3829661">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="从已有配置实际编辑保存模板，正文与NFC保留且不夹带账户或身份" time="0.4267151">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="可见的其他所有者模板只有查看使用权，SUPER范围不出现维护按钮" time="0.2258769">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="归档原因必填，按原资源版本调用真实动作API" time="0.3067595">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="模板应用使用已验证本人默认负责人，完成后发出新草稿而非执行成功" time="0.3804033">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="未知结果刷新后从无凭证缓存恢复同一次模板保存" time="0.6155253">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="按钮读取详情失败时显示错误，不打开假成功弹窗" time="0.214948">
+        </testcase>
+        <testcase classname="tests/orbit/launch-templates-panel.test.ts" name="真实ElSelect在异步候选结束后选择成员并提交中文原因，原生输入与业务模型一致" time="0.653139">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-tree.test.ts" timestamp="2026-11-09T01:05:23.989Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="2.0590999">
+        <testcase classname="tests/orbit/launch-tree.test.ts" name="三层增建与复制是字段表单操作，移除节点同步配置树" time="1.0332021">
+        </testcase>
+        <testcase classname="tests/orbit/launch-tree.test.ts" name="父表单禁用时不能通过子组件新增或复制覆盖冻结意图" time="0.0086533">
+        </testcase>
+        <testcase classname="tests/orbit/launch-tree.test.ts" name="广告组手填指标UUID不依赖目录权限，清空实际删除optional属性" time="0.6245117">
+        </testcase>
+        <testcase classname="tests/orbit/launch-tree.test.ts" name="预算弹窗使用十进制字符串拒绝科学计数法，取消不会写入父节点" time="0.3920356">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/launch-validation.test.ts" timestamp="2026-11-09T01:05:23.989Z" hostname="DESKTOP-7N307EV" tests="83" failures="0" errors="0" skipped="0" time="0.0821921">
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; PlanValidation十字段完整保留、Money不转Float、无head_revision或客户端版本推算" time="0.0020053">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：extra" time="0.0006119">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：missing" time="0.0001341">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：unsafe" time="0.0001747">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：count" time="0.0001089">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：hash" time="0.0001101">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：expiry" time="0.0000841">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：errors" time="0.0001567">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：money" time="0.0001293">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 预检响应拒绝字段/上限错误：scope" time="0.0001142">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 允许1000原FieldError、100币种项；constraint成功schema必须string，HTTP nullable另测" time="0.0013768">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：1.23" time="0.0000997">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：1e3" time="0.0000531">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：01" time="0.0000488">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：-1" time="0.0000417">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：1.1234567" time="0.0000429">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：1,000" time="0.0000405">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：Infinity" time="0.0000412">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 金额拒绝浮点/非规范十进制：.1" time="0.0000397">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Money允许零及六位小数原字符串，拒绝未知字段/非大写币种/长度溢出" time="0.0001679">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 命名完整10000项、30位数字序号和前导零不转Number，真实日期不接受YYYYMMDD" time="0.0083686">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation task_id=null是合法异步分配，不能当Task；10000项/100警告保留" time="0.0295768">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：slot" time="0.0004239">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：name" time="0.0001635">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：sequence" time="0.0001405">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：itemUnknown" time="0.0001298">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：path" time="0.000185">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：code" time="0.0001269">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：message" time="0.0001418">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：constraint" time="0.0001441">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：warning" time="0.0002025">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; 嵌套文本及未知字段边界不遗漏：assetUuid" time="0.0001953">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：extra" time="0.0002059">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：state" time="0.0001175">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：revision" time="0.0001154">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：task" time="0.0001159">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：hash" time="0.0001327">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：seed" time="0.0001152">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：item" time="0.000121">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="投放预检原schema &gt; Allocation拒绝各字段错误：algorithm" time="0.0001102">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 仅原execute忙态保留同键恢复：execute/409/EXECUTION_PREPARATION_IN_PROGRESS" time="0.0048774">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 仅原execute忙态保留同键恢复：execute/409/REVISION_CONFLICT" time="0.0006299">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 仅原execute忙态保留同键恢复：execute/403/EXECUTION_PREPARATION_IN_PROGRESS" time="0.0005267">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 仅原execute忙态保留同键恢复：validate/409/EXECUTION_PREPARATION_IN_PROGRESS" time="0.0005371">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 无正文原命名200，冻结三header不改写，认证仅内存header不在URL" time="0.0008194">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; Validate严格200，调用两次只由调用方明确重试同key，不猜head+1或改原对象" time="0.00099">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 原202 Allocation与GET轮询分开，task_id=null不会生成任务ID" time="0.0009433">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; POST及GET分配结果必须属于请求的真实Plan及allocation，不接受外域ID" time="0.0008544">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; execute严格202原Task，拒绝runtime/Allocation或错误200假受理" time="0.00484">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：unknown" time="0.0005683">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：bareUUID" time="0.0002063">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：braces" time="0.000162">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：missing" time="0.0001404">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：ack" time="0.0001464">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：hash" time="0.0001774">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：duplicateAsset" time="0.0001589">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：seed" time="0.000149">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 发送前拒绝原请求schema错误：algorithm" time="0.0001519">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 冻结header非法不补默认或生成新key：key" time="0.0002464">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 冻结header非法不补默认或生成新key：csrf" time="0.0001551">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 冻结header非法不补默认或生成新key：unquoted" time="0.0001597">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 冻结header非法不补默认或生成新key：unsafe" time="0.0001472">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 冻结header非法不补默认或生成新key：zero" time="0.0001405">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 冻结header非法不补默认或生成新key：missing" time="0.0001332">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 冻结header非法不补默认或生成新key：extra" time="0.0001468">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; Cookie当前csrf变化明确拒绝，不偷偷替换原冻结上下文" time="0.0004056">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP400完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0006488">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP401完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0003737">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP403完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0003713">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP404完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0003347">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP409完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0003473">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP410完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0003297">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP422完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0003439">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP429完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0027479">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP503完整保留结构化Error和nullable通用constraint，不丢字段" time="0.0004327">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; HTTP error继承现ReferenceApiError；异常error字段/100条上限严格拒绝但保留HTTP状态" time="0.0009494">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 非原html错误HTTP502不能证明mutation未受理，保留旧意图且不自动换键重试" time="0.0006359">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 非原html错误HTTP400不能证明mutation未受理，保留旧意图且不自动换键重试" time="0.0004417">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 非原schema错误HTTP502不能证明mutation未受理，保留旧意图且不自动换键重试" time="0.0004547">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 非原schema错误HTTP400不能证明mutation未受理，保留旧意图且不自动换键重试" time="0.0004528">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; GET遇网关HTML502或畸形400仍是只读失败，不产生未知写入意图" time="0.0007136">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 网络/超时写结果未知不自动重试，调用方保留原意图" time="0.0044517">
+        </testcase>
+        <testcase classname="tests/orbit/launch-validation.test.ts" name="冻结意图单次HTTP请求 &gt; 已取消不发送；写请求已发送后取消仅是结果未知，GET取消仍AbortError" time="0.0020078">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/material-api.test.ts" timestamp="2026-11-09T01:05:23.995Z" hostname="DESKTOP-7N307EV" tests="7" failures="0" errors="0" skipped="0" time="0.0075518">
+        <testcase classname="tests/orbit/material-api.test.ts" name="素材SDK重试与同源边界 &gt; 安全集合一次请求与重扫原版本、原因及意图键独立于原Asset合同" time="0.0027566">
+        </testcase>
+        <testcase classname="tests/orbit/material-api.test.ts" name="素材SDK重试与同源边界 &gt; 任意响应上传URL不会成为凭据发送目标" time="0.0014725">
+        </testcase>
+        <testcase classname="tests/orbit/material-api.test.ts" name="素材SDK重试与同源边界 &gt; 分片响应丢失重试保持创建会话与分片意图键" time="0.0010115">
+        </testcase>
+        <testcase classname="tests/orbit/material-api.test.ts" name="素材SDK重试与同源边界 &gt; 完成响应丢失重试不重传已确认分片" time="0.0004746">
+        </testcase>
+        <testcase classname="tests/orbit/material-api.test.ts" name="素材SDK重试与同源边界 &gt; READY去重复用仍重新读取现有素材且不发文件" time="0.0002976">
+        </testcase>
+        <testcase classname="tests/orbit/material-api.test.ts" name="素材SDK重试与同源边界 &gt; 超限图片不创建任何上传会话" time="0.0003153">
+        </testcase>
+        <testcase classname="tests/orbit/material-api.test.ts" name="标签分类查询按原字段编码筛选和签名游标，不修改内容或发送任意字段" time="0.0006062">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/material-components.test.ts" timestamp="2026-11-09T01:05:23.996Z" hostname="DESKTOP-7N307EV" tests="3" failures="0" errors="0" skipped="0" time="0.1211589">
+        <testcase classname="tests/orbit/material-components.test.ts" name="素材路由组件实际SFC编译 &gt; index.vue的脚本与模板均可编译" time="0.0873683">
+        </testcase>
+        <testcase classname="tests/orbit/material-components.test.ts" name="素材路由组件实际SFC编译 &gt; MaterialUpload.vue的脚本与模板均可编译" time="0.0145894">
+        </testcase>
+        <testcase classname="tests/orbit/material-components.test.ts" name="素材路由组件实际SFC编译 &gt; MaterialTaxonomy.vue的脚本与模板均可编译" time="0.0181068">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/material-hash.test.ts" timestamp="2026-11-09T01:05:23.996Z" hostname="DESKTOP-7N307EV" tests="10" failures="0" errors="0" skipped="0" time="0.0868238">
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：0字节" time="0.0014974">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：1字节" time="0.0002412">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：55字节" time="0.0001399">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：56字节" time="0.0001634">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：63字节" time="0.0001739">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：64字节" time="0.0001808">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：65字节" time="0.000184">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：511字节" time="0.0003093">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 跨块摘要与独立Node实现一致：1048613字节" time="0.0827473">
+        </testcase>
+        <testcase classname="tests/orbit/material-hash.test.ts" name="素材有界SHA256 &gt; 标准abc向量" time="0.0003551">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/material-scanner-configuration.test.ts" timestamp="2026-11-09T01:05:23.997Z" hostname="DESKTOP-7N307EV" tests="14" failures="0" errors="0" skipped="0" time="0.7487682">
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 版本变更影响仅在扫描配置弹窗提示：MATERIAL_SCANNER" time="0.4312722">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 版本变更影响仅在扫描配置弹窗提示：AI_GPT" time="0.1363688">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 只请求固定同源候选接口，返回标识标签及可用性" time="0.0021353">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0015468">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0006729">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0007885">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0005677">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0005903">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0007403">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0008972">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 拒绝基础设施泄露或不完整候选，不渲染原响应" time="0.0006455">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 候选标签按Unicode码点限制80并统一NFC及两端空白" time="0.000828">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 无候选时保留旧选择并明确提示，不提供自由输入路径或地址" time="0.0713611">
+        </testcase>
+        <testcase classname="tests/orbit/material-scanner-configuration.test.ts" name="扫描候选公开边界 &gt; 读取失败可显式刷新，错误文案不回显原始连接内容" time="0.0990656">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/material-security-response.test.ts" timestamp="2026-11-09T01:05:23.998Z" hostname="DESKTOP-7N307EV" tests="18" failures="0" errors="0" skipped="0" time="0.0042553">
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 捕获目标GET/api/v1/assets/00000000-0000-4000-8000-000000000001/security" time="0.0010513">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 捕获目标GET/dev-api/api/v1/assets/00000000-0000-4000-8000-000000000001/security" time="0.0002493">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 拒绝非目标刷新https://app.fixture.example/api/v1/assets/00000000-0000-4000-8000-000000000001/security POST" time="0.0002466">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 拒绝非目标刷新http://app.fixture.example/api/v1/assets/00000000-0000-4000-8000-000000000001/security GET" time="0.00017">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 拒绝非目标刷新https://untrusted.example/api/v1/assets/00000000-0000-4000-8000-000000000001/security GET" time="0.0001831">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 拒绝非目标刷新https://app.fixture.example/other/api/v1/assets/00000000-0000-4000-8000-000000000001/security GET" time="0.0001917">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 拒绝非目标刷新https://app.fixture.example/api/v1/assets/00000000-0000-4000-8000-000000000001/security/extra GET" time="0.0001781">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 拒绝非目标刷新https://app.fixture.example/api/v1/assets/another-id/security GET" time="0.0001604">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材安全刷新响应精确边界 &gt; 拒绝非目标刷新invalid-url GET" time="0.0001257">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 捕获可信网关的实际路径/api/v1/assets/00000000-0000-4000-8000-000000000001/rescan" time="0.0002311">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 捕获可信网关的实际路径/dev-api/api/v1/assets/00000000-0000-4000-8000-000000000001/rescan" time="0.0001797">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 拒绝非目标响应https://app.fixture.example/api/v1/assets/00000000-0000-4000-8000-000000000001/rescan GET" time="0.0001227">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 拒绝非目标响应http://app.fixture.example/api/v1/assets/00000000-0000-4000-8000-000000000001/rescan POST" time="0.0000999">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 拒绝非目标响应https://untrusted.example/api/v1/assets/00000000-0000-4000-8000-000000000001/rescan POST" time="0.0000809">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 拒绝非目标响应https://app.fixture.example/unexpected/api/v1/assets/00000000-0000-4000-8000-000000000001/rescan POST" time="0.0000971">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 拒绝非目标响应https://app.fixture.example/api/v1/assets/00000000-0000-4000-8000-000000000001/rescan/extra POST" time="0.0000821">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 拒绝非目标响应https://app.fixture.example/api/v1/assets/another-id/rescan POST" time="0.0000672">
+        </testcase>
+        <testcase classname="tests/orbit/material-security-response.test.ts" name="素材重扫浏览器响应精确边界 &gt; 拒绝非目标响应invalid-url POST" time="0.0000404">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/metric-profiles-page.test.ts" timestamp="2026-11-09T01:05:23.999Z" hostname="DESKTOP-7N307EV" tests="17" failures="0" errors="0" skipped="0" time="3.7300518">
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="原monitor.read门禁：launch.read不能借用，超级通配符能读" time="0.3782877">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="初始仅真实GET首50、原scope/time元数据、无创建编辑执行按钮" time="0.1539901">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="全部12字段详情展示null、数组、false和原值，FIXTURE不标平台已验证" time="0.1677841">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="META真实verified=true仍明确不替代当前执行授权" time="0.1603321">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="短页保留next，三页前后历史用原cursor、不生成offset" time="0.2040876">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="四档size均回首且不沿用旧游标" time="0.2498389">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="ID筛选变更清页/详情、不偷发未定义filter，显式提交后取交集" time="0.2111453">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="服务端401清旧配置和详情，状态明确而非空列表成功" time="0.1570807">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="服务端403清旧配置和详情，状态明确而非空列表成功" time="0.1603549">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="服务端409清旧配置和详情，状态明确而非空列表成功" time="0.1648242">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="服务端503清旧配置和详情，状态明确而非空列表成功" time="0.1432442">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="409重试从首页重新建立游标" time="0.144811">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="网络失败的明确重试保留原下一页请求，不能偷变条件或自动循环" time="0.2871346">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="成功空页有独立空状态，不能伪造默认配置" time="0.4240536">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="读取中换条件abort，迟到旧响应不覆盖新筛选" time="0.1368737">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="撤权/换身份立清旧数据并关闭详情，不让旧成功返回；恢复按新context首读" time="0.2909506">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles-page.test.ts" name="隐藏/卸载取消GET，后台不自动轮询或重试" time="0.2939342">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/metric-profiles.test.ts" timestamp="2026-11-09T01:05:24.001Z" hostname="DESKTOP-7N307EV" tests="44" failures="0" errors="0" skipped="0" time="0.0132186">
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="保留全部原12字段、nullable事件、窗口数组和boolean，不伪造Ownership" time="0.0017608">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 0" time="0.0004415">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 1" time="0.0001266">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 2" time="0.00012">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 3" time="0.0000919">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 4" time="0.0000957">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 5" time="0.0000765">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 6" time="0.0000863">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 7" time="0.0000816">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 8" time="0.0001285">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 9" time="0.0001073">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 10" time="0.0000597">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 11" time="0.0000497">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 12" time="0.0000482">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 13" time="0.0000432">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 14" time="0.0000433">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 15" time="0.0000435">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 16" time="0.0000412">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 17" time="0.0000409">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格拒绝配置非法值 18" time="0.0000388">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="事件与版本字符串64码点完整，窗口最多10而不截断" time="0.0001297">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="严格Page4字段、200上限、空页与短页nextcursor，不从行数猜尾页" time="0.0014787">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="仅四参数、q和profile完整UUID大小写归一、原cursor不解码" time="0.0005341">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 0" time="0.0001357">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 1" time="0.0000586">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 2" time="0.0000606">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 3" time="0.0000433">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 4" time="0.0000388">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 5" time="0.0000504">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 6" time="0.00004">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 7" time="0.0000402">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 8" time="0.0000398">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 9" time="0.0000536">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 10" time="0.0000501">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="未定义筛选或错误参数不发送 11" time="0.000039">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="GET使用当前内存认证/no-store和原endpoint，凭据不在URL或body" time="0.0022045">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="四档分页实际序列化，Cookie凭据模式原样沿用" time="0.0009412">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="不以非原200状态201当列表成功" time="0.0005191">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="不以非原200状态202当列表成功" time="0.0002358">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="原错误403保留field_errors/nullable约束和request_id" time="0.0003711">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="原错误409保留field_errors/nullable约束和request_id" time="0.0003046">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="原错误503保留field_errors/nullable约束和request_id" time="0.0003262">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="网关正文不回显，网络失败不自动重试" time="0.0004486">
+        </testcase>
+        <testcase classname="tests/orbit/metric-profiles.test.ts" name="外部Abort在发送前不发请求，发送后实际传递到fetch signal" time="0.0008966">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/metrics-api.test.ts" timestamp="2026-11-09T01:05:24.003Z" hostname="DESKTOP-7N307EV" tests="95" failures="0" errors="0" skipped="0" time="0.0208937">
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="精确13请求字段与8/15/12/8响应结构，null保留不补零" time="0.0020943">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举ACCOUNT保留，未替服务端虚构映射" time="0.0001458">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举CAMPAIGN保留，未替服务端虚构映射" time="0.0000926">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举ADSET保留，未替服务端虚构映射" time="0.0000867">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举AD保留，未替服务端虚构映射" time="0.0001019">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举OPERATOR保留，未替服务端虚构映射" time="0.0000832">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举CHANNEL保留，未替服务端虚构映射" time="0.0001363">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举ASSET保留，未替服务端虚构映射" time="0.0000554">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原dataset枚举LAUNCH保留，未替服务端虚构映射" time="0.0000573">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段date_from严格拒绝" time="0.0004492">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段date_to严格拒绝" time="0.0000818">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段dataset严格拒绝" time="0.0000551">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段metric_profile_id严格拒绝" time="0.0000601">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段scope_snapshot_id严格拒绝" time="0.0000535">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段channel_id严格拒绝" time="0.0000472">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段operator_user_id严格拒绝" time="0.0000449">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段q严格拒绝" time="0.0000441">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段sort严格拒绝" time="0.0000539">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段direction严格拒绝" time="0.000058">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段cursor严格拒绝" time="0.0000533">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段page_size严格拒绝" time="0.000043">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="缺少请求必需字段granularity严格拒绝" time="0.0000435">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 0" time="0.0001627">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 1" time="0.0000788">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 2" time="0.0000587">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 3" time="0.0000875">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 4" time="0.0000554">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 5" time="0.0000644">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 6" time="0.0000536">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 7" time="0.0000605">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 8" time="0.000052">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 9" time="0.0000487">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 10" time="0.0000464">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 11" time="0.0000456">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 12" time="0.0000702">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 13" time="0.000049">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法请求边界 14" time="0.0000504">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="日期93含首尾合法，未来日期留服务端逐账户核验" time="0.000138">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 0" time="0.000113">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 1" time="0.0000599">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 2" time="0.0000675">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 3" time="0.0000629">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 4" time="0.0000477">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 5" time="0.0000448">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 6" time="0.0000463">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 7" time="0.0000482">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="金融字段拒绝浮点或非规范值 8" time="0.0000478">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="28字符六位字符串原样保留，不转Number" time="0.0000797">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 0" time="0.0001142">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 1" time="0.0000945">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 2" time="0.000065">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 3" time="0.0000668">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 4" time="0.0000638">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 5" time="0.0000543">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 6" time="0.0000556">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 7" time="0.0000473">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法行严格拒绝 8" time="0.000047">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法total严格拒绝 0" time="0.0000797">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法total严格拒绝 1" time="0.0000735">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法total严格拒绝 2" time="0.0000579">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法total严格拒绝 3" time="0.0000514">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 0" time="0.0000751">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 1" time="0.0000962">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 2" time="0.0000531">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 3" time="0.0000508">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 4" time="0.0000499">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 5" time="0.0000514">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 6" time="0.0000464">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法顶层严格拒绝 7" time="0.0000702">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="短页含nextcursor和空页真实totals均保留" time="0.0001603">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="精确POST及冻结header，cookie/bearer在header而非URL，无自动重试" time="0.0026841">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP400保留" time="0.0004921">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP401保留" time="0.0003087">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP403保留" time="0.000258">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP404保留" time="0.0002325">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP409保留" time="0.0002304">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP422保留" time="0.0001928">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP429保留" time="0.0001735">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="原Error五字段HTTP503保留" time="0.0002783">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="坏body HTTP200保持未知写结果且不泄HTML" time="0.000756">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="坏body HTTP400保持未知写结果且不泄HTML" time="0.0003143">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="坏body HTTP502保持未知写结果且不泄HTML" time="0.000239">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="网络失败不偷偷换幂等键，显式同意图重试保留body/header" time="0.0003461">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="冻结csrf与当前会话变化时零发送" time="0.0002776">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="非法冻结key或预取消信号零发送" time="0.0005815">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="200行/1000汇总上界与长Unicode字段完整，不因短页推断尾页" time="0.0028053">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="成功状态不是200或字段错误缺code时不误当合法业务结果" time="0.0005613">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="发送后外部abort不接受迟到响应" time="0.0005708">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="当前查询上下文严格GET一个csrf字段，不用其他菜单或URL凭据" time="0.000467">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="上下文坏结构不伪造CSRF 0" time="0.000178">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="上下文坏结构不伪造CSRF 1" time="0.0001199">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="上下文坏结构不伪造CSRF 2" time="0.0001156">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="上下文坏结构不伪造CSRF 3" time="0.0001022">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="上下文坏结构不伪造CSRF 4" time="0.0000903">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-api.test.ts" name="上下文403保留Error并非写入未知，坏响应不回显原文" time="0.0004318">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/metrics-page.test.ts" timestamp="2026-11-09T01:05:24.010Z" hostname="DESKTOP-7N307EV" tests="13" failures="0" errors="0" skipped="0" time="5.683243">
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="保留原七Tab顺序，不自动POST/假卡/AI建议，默认依赖说明" time="0.7074073">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="native缺CSRF零发送且monitor.read原门禁不借launch.read" time="0.4491277">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="成功短页nextcursor仍翻页，上一页使用冻结原条件而非页内计数" time="0.4935336">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="503不是空数据，保留五字段和原意图同key显式重试" time="0.4188439">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="未知网络结果锁编辑/离开须确认，同键重试不自动新意图" time="0.4111206">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="403清数据与恢复key，不将权限失败当作无结果" time="0.3834033">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="actor/context变化中断旧网络，旧成功/失败不能污染新上下文" time="0.3737787">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="换条件后重置历史和数据，关闭active也abort并清旧结果" time="0.4580118">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="409明确提示原快照失效，确认后保留输入但重建首页意图" time="0.4028641">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="收到可信错误请求ID及字段code全部显示为纯文本" time="0.3606147">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="显式CSRF与cookie来源优先，不借其他菜单或重复取得上下文" time="0.4170247">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="上下文503可明确重试，403清数据禁查询，不转成空成功" time="0.3682689">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-page.test.ts" name="上下文GET在身份变化后abort，旧CSRF不能覆盖新用户" time="0.4382346">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/metrics-query-form.test.ts" timestamp="2026-11-09T01:05:24.011Z" hostname="DESKTOP-7N307EV" tests="8" failures="0" errors="0" skipped="0" time="4.1569997">
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="13字段完整发出，原可选项为空时null，cursor仅父分页管理" time="0.6620878">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="未填写或日期非法不产生query，错误可读" time="0.4246539">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="可选渠道/投手/范围完整不截断，清除恢复null" time="0.4259398">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="真实disabled防发请求；context变化清空旧输入而dataset变化保留原筛选" time="0.453859">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="选择真实目录版本/来源状态，无手填UUID；未指定scope明确全部可见账户" time="0.4711808">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="版本只筛已加载候选，完整ID才原远程精确q；下一页真实GET不拉全量" time="0.4000927">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="目录403不伪空，context变化丢弃迟到候选并abort" time="0.6516526">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-query-form.test.ts" name="不同配置同版本来源状态时，选项与已选显示真实完整ID并保存准确配置" time="0.6666232">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/metrics-row-details.test.ts" timestamp="2026-11-09T01:05:24.012Z" hostname="DESKTOP-7N307EV" tests="1" failures="0" errors="0" skipped="0" time="0.1585396">
+        <testcase classname="tests/orbit/metrics-row-details.test.ts" name="14元字段加values的12子字段全部显示，null明确未知并转义名称" time="0.1579425">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/metrics-rows.test.ts" timestamp="2026-11-09T01:05:24.012Z" hostname="DESKTOP-7N307EV" tests="2" failures="0" errors="0" skipped="0" time="0.2789441">
+        <testcase classname="tests/orbit/metrics-rows.test.ts" name="全部12指标可见，完整大金额/前导零原样，totals独立币种不合并" time="0.1665681">
+        </testcase>
+        <testcase classname="tests/orbit/metrics-rows.test.ts" name="初始/成功空实体/仍有totals三个状态不混为来源失败" time="0.1114229">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/plan-account-scope-picker.test.ts" timestamp="2026-11-09T01:05:24.013Z" hostname="DESKTOP-7N307EV" tests="24" failures="0" errors="0" skipped="0" time="9.3680645">
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="未授权默认禁用、零读取、不能借计划权限读账户" time="0.5252639">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="初次打开不拉全量，明确查询绑定目标owner；手动单选不创建快照" time="0.329988">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="跨页手动勾选和取消保留本地明确ID，短页仍按nextcursor继续" time="0.3563521">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="归属不同候选不可选，币种冲突不会静默混入" time="0.2941945">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="500已选仍完整回显并禁止501，没有截断或静默全选" time="0.8690989">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="FILTER真正201后分页核对才可应用，原account_ids必须空且无排除扩展" time="0.4272543">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="真实范围0不截断为500，也不能用于计划" time="0.3664158">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="真实范围501不截断为500，也不能用于计划" time="0.3784574">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="真实范围50000不截断为500，也不能用于计划" time="0.4472891">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="成员游标上一页/四档重置，查询只改变视图不重建快照" time="0.5295208">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="成员读取401使整范围失效清旧名，不保留可应用假快照" time="0.4144127">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="成员读取403使整范围失效清旧名，不保留可应用假快照" time="0.3886507">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="成员读取404使整范围失效清旧名，不保留可应用假快照" time="0.3654831">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="成员读取409使整范围失效清旧名，不保留可应用假快照" time="0.3667911">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="成员版本漂移拒绝，不能只凭原count/ID继续应用" time="0.3687769">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="应用前真实成员重读网络失败，不以旧成功快照继续emit" time="0.3838042">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="已存snapshot重开保持真实元数据，必须重新核对成员才能应用" time="0.271557">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="冻结中拥有者变化不丢原意图，恢复成功也不能给新拥有者直接应用" time="0.3913305">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="冻结网络未知锁关闭/条件，同key同payload恢复且不再次取csrf" time="0.3866679">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="未知写后换登录上下文禁止用新身份重放原意图，恢复原上下文才可继续" time="0.3850185">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="拥有者/权限上下文改变清观察并禁止应用，保留原选择供用户重新处理" time="0.2787888">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="迟到候选不能盖过新筛选；关闭取消GET且不伪造服务器取消快照" time="0.2445875">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="取消已冻结选择需确认，取消只是本地事件，不调用虚构删除接口" time="0.3382287">
+        </testcase>
+        <testcase classname="tests/orbit/plan-account-scope-picker.test.ts" name="capabilities晚回时组件已卸载，不发起新的POST" time="0.2588949">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/plan-execute-confirm.test.ts" timestamp="2026-11-09T01:05:24.015Z" hostname="DESKTOP-7N307EV" tests="8" failures="0" errors="0" skipped="0" time="0.5552807">
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="执行默认false，完整确认字段和分币种原始金额可读但绝不发送" time="0.2187408">
+        </testcase>
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="默认暂停提交使用重读head9而非source7/猜8，只emit真实Task受理且解除锁" time="0.0651727">
+        </testcase>
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="激活必须独立publish与真实checkbox确认，不能默认勾选" time="0.0508225">
+        </testcase>
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="过期/上海跨日/无execute/错误配置引用均禁止新请求" time="0.0416861">
+        </testcase>
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="未知结果保留同hash/key/CAS，不能关闭；明确重试才发送同一意图" time="0.0503193">
+        </testcase>
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="同键准备忙态保留确认意图，不因409换key或宣告任务已受理" time="0.0436295">
+        </testcase>
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="未知请求遇上下文/权限变化仍保留意图但隐藏旧范围、禁重试，不把旧响应写入新上下文" time="0.0350674">
+        </testcase>
+        <testcase classname="tests/orbit/plan-execute-confirm.test.ts" name="422字段错误完整保留，已知拒绝解除未知锁而不发Task成功" time="0.0489813">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/plan-expansion-preview.test.ts" timestamp="2026-11-09T01:05:24.016Z" hostname="DESKTOP-7N307EV" tests="2" failures="0" errors="0" skipped="0" time="1.341442">
+        <testcase classname="tests/orbit/plan-expansion-preview.test.ts" name="完整10000映射本地有界分页，最后一项不截断，命名按真实三段前缀且保留序号字符串" time="1.1050409">
+        </testcase>
+        <testcase classname="tests/orbit/plan-expansion-preview.test.ts" name="所有冻结名称另有分页，未知路径明确显示缺失而不猜名称，XSS为纯文本" time="0.2353813">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/plan-identity-bindings.test.ts" timestamp="2026-11-09T01:05:24.016Z" hostname="DESKTOP-7N307EV" tests="13" failures="0" errors="0" skipped="0" time="5.6174974">
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="不自动扇出读取账户；逐账户主页/网站组/广告覆盖使用local_id与字符串ID完整应用" time="0.8178163">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="应用配置只写应用字段，HTTPS及事件64码点校验有JSONPointer且不截断" time="0.4148186">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="优化事件65emoji拒绝而64完整保留，绝不默认PURCHASE" time="0.3747669">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="未配置目标不猜网站或应用；未知资源/不可用主页不能应用" time="0.1797414">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="读取503可重试/刷新，403撤权清观察但保留原输入；关闭abort及迟到结果不覆盖" time="0.4334942">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="取消确认不丢输入，确认取消不改草稿；全账户删除也需确认" time="0.3367097">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="账户和树变化保留孤立绑定，明确标记并禁止旧弹窗覆盖新树" time="0.2816362">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="网站切应用不自动丢像素/事件，原值可见并要求明确移除" time="0.3773043">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="只读仍可打开并读观察但不出现应用按钮；未知保存disabled阻止配置和读取" time="0.3326787">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="没有accounts.read默认不读取，不从投放动作推断来源权限" time="0.2576879">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="错误定位按实际binding账户与组/广告local_id，按需读一次观察且聚焦真实字段" time="0.4405118">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="未知身份路径或失效local_id不能打开错误账户或猜字段，原绑定保留" time="0.0264801">
+        </testcase>
+        <testcase classname="tests/orbit/plan-identity-bindings.test.ts" name="500账户/万组/万广告均分页，末页完整且没有截断原model" time="1.3428915">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/plan-validation-dialog.test.ts" timestamp="2026-11-09T01:05:24.017Z" hostname="DESKTOP-7N307EV" tests="17" failures="0" errors="0" skipped="0" time="1.6321916">
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="真实SDK遇非原HTTP502错误体保持写锁，重试同URL/键/CAS原意图" time="0.2584586">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="真实SDK遇非原HTTP400错误体保持写锁，重试同URL/键/CAS原意图" time="0.0730136">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="依赖默认关闭，完整预检入口禁用且没有发出任何假请求" time="0.0157849">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="原Dialog标题X关闭同步父model，未知写入锁仍阻止X卸载意图" time="0.0382561">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="真实SDK调用顺序为名称→完整分配→预检→原GET重读head9，再经独立确认仅emit真实Task" time="0.2872427">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="异步分配QUEUED/RUNNING必须真实GET到SUCCEEDED才validate，task_id=null不补Task" time="0.0531325">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="停止本地等待不假称取消服务端，继续读取复用原allocation而不新建" time="0.059042">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="取消重分配保留原映射；明确确认才seed+1并使旧预检失效" time="0.0869048">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="200 valid=false显示全部1000字段错误并逐页定位JSON Pointer，不假装预检成功" time="0.2544629">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="通用422所有字段/nullable约束可见，503依赖失败不创建假Task" time="0.0536039">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="未知写结果锁定原意图，同key/body/CAS显式重试恢复，不偷偷生成新key" time="0.0519692">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="预检成功但GET head失败只重读head，不猜+1或重复预检写入" time="0.045743">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="GET发现配置漂移则旧hash失效；props/权限变化也清掉旧预检，不沿用旧确认" time="0.0472041">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="TTL到期及上海跨日使已取得的预检/命名失效，不能继续提交" time="0.0610764">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="分配FAILED展示实际警告，60次未完成仍不伪造失败或Task" time="0.084292">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="在途写请求遇Plan变更不自动换意图，迟到旧结果不能串到新计划" time="0.0191574">
+        </testcase>
+        <testcase classname="tests/orbit/plan-validation-dialog.test.ts" name="未知execute遇父上下文变化不卸载丢意图，恢复后重试原提交并解锁" time="0.1417405">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/reference-channel-client.test.ts" timestamp="2026-11-09T01:05:24.019Z" hostname="DESKTOP-7N307EV" tests="8" failures="0" errors="0" skipped="0" time="0.0064106">
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; 创建正文只有业务字段，会话在内存且不缓存" time="0.0030437">
+        </testcase>
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; 编辑携带原版本且目标UUID编码" time="0.0003581">
+        </testcase>
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; 专门分配和停用请求保留原因且不夹带编辑字段" time="0.0004599">
+        </testcase>
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; 提交预览不发送新业务正文，使用冻结预览CAS" time="0.0002841">
+        </testcase>
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; 总代候选绑定产品与目标拥有者，游标原样编码" time="0.0005363">
+        </testcase>
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; 权限/版本/过期错误保留服务端语义" time="0.0006067">
+        </testcase>
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; 网络未知结果明确提示保留幂等键" time="0.0001966">
+        </testcase>
+        <testcase classname="tests/orbit/reference-channel-client.test.ts" name="引用资料与渠道真实客户端边界 &gt; HTML或无效响应不能冒充保存成功" time="0.0002879">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-definition-form.test.ts" timestamp="2026-11-09T01:05:24.019Z" hostname="DESKTOP-7N307EV" tests="21" failures="0" errors="0" skipped="0" time="21.2208117">
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="只有原明确非日期默认，不伪造日期/时区/UUID/账户数量，空候选不能提交" time="1.1522601">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="父提供真实上下文后完整11/7字段提交，Decimal/null保持且不修改原对象" time="0.9590225">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="编辑可复用父传已保存上下文，不用UUID造候选或借原snapshot creator身份" time="0.8188205">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="换owner只能取真实候选团队且旧scope立即失效，父重验新scope后才可保存" time="0.8079656">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="父范围数量null不能当完整可保存范围，缺字段不补0" time="0.7342349">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="父范围数量0不能当完整可保存范围，缺字段不补0" time="0.7632334">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="父范围数量50001不能当完整可保存范围，缺字段不补0" time="0.7691102">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="50000完整成员和真实picker事件保留，组件不自行网络查询" time="0.8259012">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="父撤候选/加载/来源错误后不可提交，不能沿旧有效状态继续保存" time="0.9557481">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="三种频率切换清空所有互斥字段，默认星期从1开始且Schedule七键齐全" time="1.155469">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="367日拒绝但366日允许，开始/结束日期不从浏览器今天生成" time="0.7878387">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="20叶/每组10/最多5组都有操作和提交双重边界，最少1组1条" time="4.6090985">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="阈值字符串空/null不补0，CTR/计数上限错误不发submit，叶错误中文可读" time="1.0895292">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="服务端pointer对应原字段，编辑后不展示上次意图的旧错误" time="0.7557923">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="只读/禁用/等待均防提交与条件修改 {&quot;readOnly&quot;:true}" time="0.663474">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="只读/禁用/等待均防提交与条件修改 {&quot;disabled&quot;:true}" time="0.6592758">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="只读/禁用/等待均防提交与条件修改 {&quot;busy&quot;:true}" time="0.6578807">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="取消只发取消事件、不提交也不请求服务" time="0.6741753">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="指标11项和比较符6项来自原白名单，不提供第三层递归条件" time="0.6725305">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="冷却0有明确意义，清空数字字段不静默补0或发缺键正文" time="0.9146514">
+        </testcase>
+        <testcase classname="tests/orbit/rule-definition-form.test.ts" name="可选调度预览slot传当前Schedule副本，不能反向改原11字段表单" time="0.7935302">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-editor-api.test.ts" timestamp="2026-11-09T01:05:24.021Z" hostname="DESKTOP-7N307EV" tests="24" failures="0" errors="0" skipped="0" time="0.0430201">
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="CREATE/UPDATE原Context8与GET路径，无body或额外动作" time="0.0088572">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="OWNER字面prefix q仅trim+NFC，不扩成contains或改调用方" time="0.0014981">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="PROFILE复用原12字段，owner/team与UUID q明确query" time="0.0015585">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="四档20与opaque cursor原样" time="0.0006131">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="四档50与opaque cursor原样" time="0.0005013">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="四档100与opaque cursor原样" time="0.0004528">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="四档200与opaque cursor原样" time="0.0004792">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="合法不可保留旧owner和UNAVAILABLE/CHANGED profile不造资格" time="0.0001584">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="Context严格键/当前profile状态与版本/owner关联不能伪造" time="0.0004216">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="Page4严格类型/重复项/200上限/UTC与未知新增字段拒绝" time="0.0003742">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="严格组合和未知参数在fetch前拒绝" time="0.0023572">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="q先NFC按码点100/101边界且空串合法" time="0.0025777">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="原服务端503/code/path/request_id保真且不重试" time="0.0008133">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="原服务端409/code/path/request_id保真且不重试" time="0.0004782">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="畸形服务端错误不能化为空页或冒充已核来源" time="0.0004098">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="Context必须匹配本次action/rule，跨对象响应拒绝" time="0.0004962">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="Cookie headers与credentials用既有auth，响应身份变化丢弃" time="0.0006688">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="已取消调用不发fetch，在途取消与listener清理" time="0.0025582">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="超时15秒有界且不重试，网络错误不伪成功" time="0.0030954">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="错误HTTP状态/非法JSON/非法UTF8/预算溢出全部失败关闭" time="0.0067074">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="响应正文在途取消立即停止流读取并移除监听" time="0.0013753">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="响应流清理失败不替代原业务错误" time="0.004228">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="超过请求page_size或PROFILE精确UUID过滤的响应拒绝" time="0.0011072">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-api.test.ts" name="Bearer晚回认证变更丢弃，不接受另一请求的context" time="0.0004437">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-editor-definition-api.test.ts" timestamp="2026-11-09T01:05:24.023Z" hostname="DESKTOP-7N307EV" tests="8" failures="0" errors="0" skipped="0" time="0.0247332">
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="专属rules.edit source GET，不调用通用read或其它模块" time="0.017836">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="strict两键/原Rule15/真实stored_scope4，521不套Plan500" time="0.0012176">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="错scope/owner/team/count/新增键不能用作旧manifest" time="0.0015667">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="对应请求规则ID仍须一致，不能接别的定义" time="0.0015105">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="真实403错误code/path不伪空定义" time="0.0006316">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="真实409错误code/path不伪空定义" time="0.0003881">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="真实503错误code/path不伪空定义" time="0.0003382">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-definition-api.test.ts" name="认证晚回与预取消拒绝，不把旧定义展示给新身份" time="0.0006682">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-editor-scopes-api.test.ts" timestamp="2026-11-09T01:05:24.023Z" hostname="DESKTOP-7N307EV" tests="26" failures="0" errors="0" skipped="0" time="0.1265786">
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="三个rules路径精确，无launch/accounts权限端点请求" time="0.0106217">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="POST精确四键/Scope5 count保留521，不套Plan500" time="0.0021247">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="UPDATE必须quotedIfMatch且值精确，CREATE禁止版本头" time="0.0012015">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="IDS重复按规范UUID先限原数量、不静默去重" time="0.0004983">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="5万纯DTO边界允许且50001先拒，非容量验收" time="0.0744404">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="FILTER全五字段与空IDs原样冻结，不拉当前页拼全选" time="0.0017999">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="同步冻结原wire正文/key/CAS，调用方变化不能改在途请求" time="0.0011663">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="未知结果后仅手动同frozen意图重试，不自动换key/body/CAS" time="0.0026455">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="候选/成员四档20与原opaque cursor" time="0.0040714">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="候选/成员四档50与原opaque cursor" time="0.0022318">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="候选/成员四档100与原opaque cursor" time="0.0018843">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="候选/成员四档200与原opaque cursor" time="0.0014729">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="accounts q空白可规范空，members原非空空白拒绝，NFC100/101" time="0.0056485">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="严格query组合、非法Unicode/unknown字段在fetch前拒绝" time="0.001343">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="写入缺四键/错CREATE-null/不完整FILTER/空IDS均拒绝" time="0.0007581">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="Scope严格非空1..50000/hex/UTC，Member3与Page4拒坏结构" time="0.00196">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="明确服务器403保留code/path/ID，不标网络未知" time="0.0012431">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="明确服务器409保留code/path/ID，不标网络未知" time="0.0006415">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="明确服务器422保留code/path/ID，不标网络未知" time="0.000707">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="明确服务器503保留code/path/ID，不标网络未知" time="0.0005883">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="写入坏响应/非201/认证晚回标未知，不伪成功" time="0.00134">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="Cookie真实CSRF覆盖变化在发送前409，不发旧意图也不标未知" time="0.0007748">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="已取消不发送，发出后POST取消标未知，GET取消抛AbortError" time="0.0021142">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="客户端15秒有界设置，不冒充原服务端10秒容量标准" time="0.0031616">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="IDS受理count必须完整对应原选择，不能静默丢成员" time="0.0006978">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor-scopes-api.test.ts" name="members只能q/page/cursor，非primitive状态不能靠toString通过" time="0.0004522">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-editor.test.ts" timestamp="2026-11-09T01:05:24.025Z" hostname="DESKTOP-7N307EV" tests="24" failures="0" errors="0" skipped="0" time="19.890913">
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="仅edit权限读取专属定义，真实521旧范围不冒充Scope5且不读creator成员" time="1.3801931">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="原11字段与quoted CAS保存，允许同正文no-op版本不增长" time="1.0385516">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="定义与上下文revision漂移409，不能保存" time="0.8562735">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="ENABLED只读但保留完整定义" time="0.8392154">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="ARCHIVED只读但保留完整定义" time="0.868415">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="创建无浏览器日期/时区假默认、空scope/profile不能提交" time="0.9227784">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="候选分页不重置已修改名称，保留真实已加载配置" time="1.0416806">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="改owner清已保存scope并按真实新owner查询配置" time="1.1303919">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="候选403立即清所有旧敏感定义，不能发新保存" time="0.978062">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="普通503保留本地修改但阻止提交，明确来源失败" time="0.8742045">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="未确认保存先交父，手动用原body/key/CAS和当前CSRF恢复" time="0.9349202">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="明确422首次拒绝清pending并展示原字段path" time="0.8949592">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="关闭保留进行中原意图，迟到成功不覆盖或发saved" time="0.923512">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="父回传未知请求重挂载先取当前会话，不跨actor重发" time="0.9687513">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="同actor未知请求重挂载能获取当前CSRF恢复" time="0.9674888">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="上下文切换中断读取并忽略旧定义" time="0.0039067">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="CREATE真实Scope回传后原完整正文提交，不造scope回执或日期" time="0.9193449">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="恢复Scope待选记录清pending后仍保持原owner，不把回执归给当前表单" time="0.8665969">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="定义401清私密数据；迟到另一路成功也不重建表单" time="0.0082997">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="缺当前原动作不会探测Context/定义/候选" time="0.0037221">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="Form内实际预览读取当前未保存Schedule及真实Context，不提交Rule" time="0.8615569">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="预览401/403即时清整个Editor敏感定义，不保留表单旧数据" time="0.8314979">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="SAVE未确认期间禁用并清旧预览，不吞原pending保存意图" time="0.8896304">
+        </testcase>
+        <testcase classname="tests/orbit/rule-editor.test.ts" name="owner切换使预览上下文失效并阻旧回包，不借新owner沿用旧结果" time="0.8856827">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-list.test.ts" timestamp="2026-11-09T01:05:24.027Z" hostname="DESKTOP-7N307EV" tests="20" failures="0" errors="0" skipped="0" time="5.4909376">
+        <testcase classname="tests/orbit/rule-list.test.ts" name="无read不请求列表或任何cap，create-only不暗加read" time="0.4647737">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="真实列表字段和四档cursor导航，filter/page变化重置" time="0.3217034">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原筛选完整交SDK，503/422不伪空结果" time="0.2038978">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="15字段详情和完整调度/Decimal保真，编辑仅emit真实cap和rule" time="0.2347347">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="详情读取失败不沿用列表行冒充，late detail不可覆盖另一身份" time="0.2075103">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="旧列表晚返回不可覆盖当前身份" time="0.1881719">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="启用态先暂停，不能编辑/归档；无真实模拟不能启用" time="0.2146754">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="暂停原因/当前CAS与cap，取消无写，成功更新真实版本" time="0.2767169">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知归档手动重试保存相同body/key/CAS，不二次cap不自动发送" time="0.2756005">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="模拟实际503与触发记录503可见，不发行enable资格" time="0.5233464">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="只使用原Simulation13 expires_at与当前版本，无添加created_at；真实enable body" time="0.2337776">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="原动作cap拒绝可见且不发写入，缺动作不探测cap" time="0.23346">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="编辑未提交的名称后翻页仍沿已提交筛选，不污染cursor" time="0.226091">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="未知意图认证变化后不显示旧对象，恢复原上下文用同键重试" time="0.3094122">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="错误模拟对象不能生成启用资格，归类未知保留原key" time="0.225441">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="真实已过期模拟不默认有效，不能发送enable" time="0.2143595">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="服务端原path字段错误可见，非unknown拒绝允许修改原因" time="0.2337619">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="创建cap晚回不向新身份emit，不添加虚构创建人时间" time="0.1912761">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="详情真实运行记录组件可翻页，关闭详情取消子组件读取" time="0.4993539">
+        </testcase>
+        <testcase classname="tests/orbit/rule-list.test.ts" name="父显式refresh回首屏但保留appliedQuery与未提交筛选输入" time="0.2117225">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-runs.test.ts" timestamp="2026-11-09T01:05:24.029Z" hostname="DESKTOP-7N307EV" tests="19" failures="0" errors="0" skipped="0" time="5.4057475">
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原八字段与真实UTC/0/null，默认50条不补运行时间或成功" time="0.548453">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="只有有效空页可显示空记录，加载/403/503不是空成功" time="0.2770742">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档20页重置首页" time="0.3168586">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档50页重置首页" time="0.2860183">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档100页重置首页" time="0.2922532">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="原四档200页重置首页" time="0.2889095">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="真实next/previous栈保持原opaque cursor，首尾禁用" time="0.3213191">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="状态和原日期筛选只有提交生效，翻页冻结已提交query" time="0.3626664">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="清空日期不传null，父原其余参数完整保留不修改" time="0.2956377">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="实际403/code/path与请求ID可见，不自动重试/空成功" time="0.2351502">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="实际503/code/path与请求ID可见，不自动重试/空成功" time="0.2249081">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="实际409/code/path与请求ID可见，不自动重试/空成功" time="0.232125">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="旧游标409后重新查询回首页，不悄悄调整结果" time="0.2632911">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="无read或未选择规则不借其它权限读记录" time="0.2256073">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="规则切换取消旧signal，late响应不覆盖新规则" time="0.2525305">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="认证/权限撤回立即清除已读数据并拒绝旧晚回" time="0.232084">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="父筛选更新取消旧页，晚失败不得覆盖新成功" time="0.2401526">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="卸载取消且AbortError不渲染成来源失败" time="0.2239675">
+        </testcase>
+        <testcase classname="tests/orbit/rule-runs.test.ts" name="不接受另一个规则的有效结构记录页" time="0.2855324">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-schedule-preview-api.test.ts" timestamp="2026-11-09T01:05:24.030Z" hostname="DESKTOP-7N307EV" tests="13" failures="0" errors="0" skipped="0" time="0.0490227">
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="POST四键原Schedule7和当前CSRF，无IfMatch/幂等头或写入资格" time="0.0307522">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="严格CREATE两null、UPDATE当前rev、Schedule互斥全部required" time="0.0051382">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="零slots真实空，不默认补五条；原UTC6精度保留" time="0.0011533">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="DST缺失墙钟单列，local_time偏移与UTC/真实zone相符" time="0.0012017">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="多于5、重复/倒序/早于参考、缺偏移/错误日期/UTC3均拒绝" time="0.0013951">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="错误DST reason/重复墙钟/多于366不伪正常结果" time="0.0008644">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="真实401 code/path显式保留，不返回空预览" time="0.0018898">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="真实403 code/path显式保留，不返回空预览" time="0.0008613">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="真实409 code/path显式保留，不返回空预览" time="0.0008453">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="真实503 code/path显式保留，不返回空预览" time="0.0007827">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="auth额外写头字段、坏csrf、Cookie代际漂移均不外发" time="0.0008273">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="当前认证变化丢弃迟到响应，不泄漏另一身份结果" time="0.0007356">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview-api.test.ts" name="取消/超时/坏响应均只读错误，不标写入未知" time="0.0017282">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-schedule-preview.test.ts" timestamp="2026-11-09T01:05:24.031Z" hostname="DESKTOP-7N307EV" tests="14" failures="0" errors="0" skipped="0" time="0.6210613">
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="仅明确点击POST当前Schedule7，不自动构造五条/写入" time="0.199124">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="UPDATE仅对应edit动作和当前版本，不借read" time="0.0376677">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="缺动作/缺日期或时区不发请求，不推断客户端日期" time="0.0089698">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="服务端零记录真实空状态，既不补五条也不造触发记录" time="0.0181995">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="显示真实DST跳过墙钟和中文原因" time="0.0300489">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="改schedule立刻清结果，旧回包不能当新预览" time="0.0210532">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="切actor/revision时清结果并取消旧读取" time="0.0569079">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="401清敏感旧结果且禁止用改schedule解锁，当前认证刷新后可手动读" time="0.0418312">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="403清敏感旧结果且禁止用改schedule解锁，当前认证刷新后可手动读" time="0.0321785">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="503/409显式来源错误，不冒充空结果或自动重试" time="0.0142436">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="明确取消和卸载中断在途，迟到结果不外显" time="0.0315995">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="初始不弹出，点击后为原生有名modal，加载/结果仅在弹窗" time="0.0395676">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="主动关闭abort并清内容，不自动重发/保存，显式再次查询才打开" time="0.0342833">
+        </testcase>
+        <testcase classname="tests/orbit/rule-schedule-preview.test.ts" name="Schedule改动/禁用/撤权关闭modal并清旧内容" time="0.054501">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-scope-options-api.test.ts" timestamp="2026-11-09T01:05:24.032Z" hostname="DESKTOP-7N307EV" tests="17" failures="0" errors="0" skipped="0" time="0.0560587">
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="严格GET规则专属接口+owner_team_id，无其它模块或写头" time="0.0130466">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="CREATE不带rule_id/UPDATE必需，禁止team_id别名和其它账户过滤参数" time="0.0023836">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="候选q独立NFC100、字面前缀/完整UUID，不改变调用方" time="0.0013085">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="四档size和opaque cursor严格边界" time="0.0011087">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="Operator5/Vendor4真实历史状态/null分别保存，不把name当alias" time="0.0006959">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="坏type/多字段/错kind/假名称/重复ID不能凑成功页" time="0.0012414">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="Page4/200/实际请求size/UTC与scope version有界，不用空吞坏页" time="0.0025592">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="真实401错误与pointer保留，不伪空" time="0.0012868">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="真实403错误与pointer保留，不伪空" time="0.0008683">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="真实409错误与pointer保留，不伪空" time="0.0008886">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="真实503错误与pointer保留，不伪空" time="0.0007362">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="认证迟到/提前取消不混当前身份，未知网络只读可重试不自动重发" time="0.0030585">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="发出后调用方修改kind/size不改变已冻结GET解析合同" time="0.0010091">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="已收到401的坏正文仍保留授权/漂移状态，不输出原正文" time="0.0065433">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="已收到403的坏正文仍保留授权/漂移状态，不输出原正文" time="0.0103638">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="已收到409的坏正文仍保留授权/漂移状态，不输出原正文" time="0.0071478">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-options-api.test.ts" name="200坏正文仍是502，未收到响应的网络失败不冒充撤权" time="0.0008903">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rule-scope-selector.test.ts" timestamp="2026-11-09T01:05:24.034Z" hostname="DESKTOP-7N307EV" tests="45" failures="0" errors="0" skipped="0" time="24.1993383">
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="只用规则create动作读取Member3，不借账户读取或默认勾选" time="0.7572728">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="没有当前动作或真实EditorContext就不发候选/冻结" time="0.4533189">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="IDS显式跨页保留，真实POST Scope5及成员核对后才choose" time="0.6312678">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="FILTER全选五字段/空IDs，不拼当前页或假总数" time="0.6213837">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="零匹配/未知来源503不能冻结FILTER，不显示假快照" time="0.3585653">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档20、历史cursor及已提交filter冻结" time="0.4341634">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档50、历史cursor及已提交filter冻结" time="0.4428839">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档100、历史cursor及已提交filter冻结" time="0.4292518">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选四档200、历史cursor及已提交filter冻结" time="0.4237284">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="UPDATE固定quoted旧CAS，未知手动恢复不自动换键或正文" time="0.5158862">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="未知恢复后来403仍保留第一笔未知，不能另建scope写" time="0.4355845">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="明确422不是未知，可调整而不伪造成功" time="0.4208015">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="在途显式关闭中止本地等待、保留pending并禁止新写" time="0.4410906">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="父接管pending后跨卸载重建仍用原请求恢复，不声明内置持久化" time="0.8754632">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="head/无关权限变化仍恢复原IfMatch，旧成员409不能apply" time="0.6783872">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="不同actor上下文绝不重发原意图且不露旧数据" time="0.4618895">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="不同owner上下文绝不重发原意图且不露旧数据" time="0.4312382">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="不同rule上下文绝不重发原意图且不露旧数据" time="0.3861989">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="成员原四档/分页及q冻结，错误403明确而不当空库存" time="0.5445624">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="晚候选不能覆盖新规则，关闭/卸载取消读取" time="0.3602934">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实Dialog打开首搜索焦点、关闭后归还触发器；普通取消无POST" time="0.3778964">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="父镜像同一pending不把正在等待的请求误标失败或重发" time="0.4599205">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="未知请求当前原动作已撤回时不能恢复，关闭仍保留记录" time="0.3841091">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="已有成功回执重新打开必须重新核成员，不能直接应用旧资格" time="0.498713">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="同actor当前CSRF刷新只在手动恢复更新传输，业务三项逐字不变" time="0.4884369">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="head3旧成功恢复且members200只读历史，不能stamp为当前head4资格" time="0.5013352">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选401即时清敏感选择和快照，不依赖props撤权，禁止新POST" time="0.5853306">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选403即时清敏感选择和快照，不依赖props撤权，禁止新POST" time="0.5273305">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="成员401清旧回执/成员/已选，但不假造空成功" time="0.5125055">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="成员403清旧回执/成员/已选，但不假造空成功" time="0.4733069">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="普通候选网络503保留明确选择供重试，不当作撤权抹除" time="0.3537346">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="未知期间head变化清旧游标栈，恢复后不再沿旧页回退" time="0.4990958">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="规则专属远程两种候选独立加载，历史状态可筛且alias null不回退name" time="0.54441">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选q与原账户q独立，四档keyset不会伪全量或清掉当前filter" time="0.639491">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="翻页保留曾真实选择的ID标签，非候选UUID不能塞入filter" time="0.522802">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="两个远程请求各有epoch，快速查询迟到不覆盖，owner/revision变化清cursor与旧filter" time="0.5760692">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程401清旧候选/账户选择/已选filter，不能继续新写" time="0.5357499">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程403清旧候选/账户选择/已选filter，不能继续新写" time="0.5254179">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程409清旧候选/账户选择/已选filter，不能继续新写" time="0.5145217">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="候选503保留真实已选和已验证scope，不把查询失败当空或新增freeze资格门禁" time="0.7667824">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="远程真实空页区别于503，关闭取消两个读取且不启动其它权限API" time="0.5272789">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="在途候选随后撤权不能吞已发scope的未知意图" time="0.7357808">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实SDK解析401畸形正文后清旧候选/快照，保留已发未知scope意图" time="1.0866799">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实SDK解析403畸形正文后清旧候选/快照，保留已发未知scope意图" time="0.8099905">
+        </testcase>
+        <testcase classname="tests/orbit/rule-scope-selector.test.ts" name="真实SDK解析409畸形正文后清旧候选/快照，保留已发未知scope意图" time="0.64774">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rules-api.test.ts" timestamp="2026-11-09T01:05:24.037Z" hostname="DESKTOP-7N307EV" tests="31" failures="0" errors="0" skipped="0" time="0.0854804">
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 保留11/15/13/5/8字段及大整数Decimal文本/null，不借number转换" time="0.0130226">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 全部Schedule互斥null键必须存在，366含首尾但不接受367或无效日期" time="0.0014978">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;threshold&quot;:1}" time="0.0001611">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;threshold&quot;:&quot;1e2&quot;}" time="0.0000916">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;threshold&quot;:&quot;-1&quot;}" time="0.0000892">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;threshold&quot;:&quot;0.1234567&quot;}" time="0.0000921">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;metric&quot;:&quot;clicks&quot;,&quot;threshold&quot;:&quot;0.1&quot;}" time="0.0001104">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;metric&quot;:&quot;ctr&quot;,&quot;threshold&quot;:&quot;100.000001&quot;}" time="0.0000737">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;metric&quot;:&quot;roas&quot;,&quot;threshold&quot;:&quot;1000000.000001&quot;}" time="0.0000752">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 拒绝阈值错误类型/范围 {&quot;metric&quot;:&quot;spend&quot;,&quot;threshold&quot;:&quot;1000000000.000001&quot;}" time="0.0001252">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 只允许Rule→group→leaf两层AST且全部条件≤20" time="0.0008254">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 逐码点处理Unicode且不保留调用方可变引用" time="0.0006617">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; Simulation分类必须完整对账、10000叶边界、未知值不补0" time="0.0291905">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="严格原DTO &gt; 页与运行记录严格四/八字段，非法UTC和假状态不变为空成功" time="0.0014591">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 能力入口只请求原CREATE动作" time="0.0059997">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 能力入口只请求原UPDATE动作" time="0.0009211">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 能力入口只请求原ENABLE动作" time="0.0008612">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 能力入口只请求原PAUSE动作" time="0.0007121">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 能力入口只请求原ARCHIVE动作" time="0.0008022">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 能力入口只请求原SIMULATE动作" time="0.0006719">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; create201与PUT200保留原完整body/key/quoted safe If-Match且不写Storage" time="0.0039918">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 归档/暂停原Reason、enable原单字段、simulate严格无正文" time="0.0029447">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; list/runs保留原十参数与literal Unicode查询，GET不附加写头" time="0.0032671">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 本地字段/未知参数与错header拒绝，不能悄悄补默认值" time="0.0017609">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 查询q先NFC再核100码点且保持调用方原对象，101拒绝" time="0.0020486">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 503保留完整server Error/nullable constraint，不伪装空Simulation或Run" time="0.0013938">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 200 envelope/缺字段不当原成功，create200也不当201" time="0.0014006">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 网络未知保留同key且不自动重发" time="0.0007336">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; Cookie机制已换CSRF则发出前拒绝，不覆盖调用方冻结key/body" time="0.0014427">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 会话切换的迟到成功不回填新身份，写结果保持未知" time="0.0007407">
+        </testcase>
+        <testcase classname="tests/orbit/rules-api.test.ts" name="原九接口/六动作与冻结传输 &gt; 已取消读取不发出，发出后超时写不换key重试" time="0.0073">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/rules-page.test.ts" timestamp="2026-11-09T01:05:24.039Z" hostname="DESKTOP-7N307EV" tests="17" failures="0" errors="0" skipped="0" time="0.1772907">
+        <testcase classname="tests/orbit/rules-page.test.ts" name="List→创建路由→返回保留同一列表与原本地筛选" time="0.0538405">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="编辑List真实rule.id放query，保存回列表显式refresh不重建列表" time="0.0151266">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="edit-only直达不挂List/不探read，真实权限传给Editor" time="0.0049981">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="create-only不用rules.read，父入口开真实CREATE模式" time="0.0110064">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=edit不创建伪编辑上下文" time="0.0070717">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=edit&amp;rule_id=not-uuid不创建伪编辑上下文" time="0.0058178">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=create&amp;rule_id=00000000-0000-4000-8000-000000000001不创建伪编辑上下文" time="0.0055036">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=edit&amp;rule_id=00000000-0000-4000-8000-000000000001&amp;rule_id=00000000-0000-4000-8000-000000000002不创建伪编辑上下文" time="0.004947">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="严格query ?mode=wrong不创建伪编辑上下文" time="0.0047108">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="父保存pending跨关闭恢复原mode/rule，不丢原业务意图或发新写" time="0.011038">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="非空token刷新不换actor生命周期，手动恢复可更新传输认证" time="0.0073258">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="跨actor隐藏编辑器与原正文，原未知阻新写且不重发" time="0.007945">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="同actor非权限清空变化仍保留生命周期，退出清空换代且不恢复旧意图" time="0.0093436">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="pending清除后保存成功刷新，未知未确认时不主动refresh" time="0.0104992">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="RuleRuns不冒充全局触发记录/5次预览，不加未实现菜单" time="0.0025756">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="迟到旧actor pending事件不能盖成新身份" time="0.004801">
+        </testcase>
+        <testcase classname="tests/orbit/rules-page.test.ts" name="父完整保留SCOPE原请求，返回后只恢复原编辑目标" time="0.0097426">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/scope-client.test.ts" timestamp="2026-11-09T01:05:24.041Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="0.0072952">
+        <testcase classname="tests/orbit/scope-client.test.ts" name="只读账户范围从Python capabilities取得CSRF，不借导入或旧Java csrf接口" time="0.0034175">
+        </testcase>
+        <testcase classname="tests/orbit/scope-client.test.ts" name="范围重试保留调用方幂等键/CSRF并透传取消信号，不缓存或发送Cookie" time="0.0006923">
+        </testcase>
+        <testcase classname="tests/orbit/scope-client.test.ts" name="成员查询只发送合同参数并编码游标，长外部ID保持字符串" time="0.001367">
+        </testcase>
+        <testcase classname="tests/orbit/scope-client.test.ts" name="权限版本冲突保留状态码且不回显网关HTML或请求凭据" time="0.0011595">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/scope-components.test.ts" timestamp="2026-11-09T01:05:24.041Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="0.8626684">
+        <testcase classname="tests/orbit/scope-components.test.ts" name="重复UUID包含大小写等价项时明确提示，不静默去重并提交成功" time="0.2487183">
+        </testcase>
+        <testcase classname="tests/orbit/scope-components.test.ts" name="修改页面筛选立即清除已确认范围，不能继续使用旧快照" time="0.2300427">
+        </testcase>
+        <testcase classname="tests/orbit/scope-components.test.ts" name="超时后同一意图重用幂等键，修改筛选后换新键；连点只提交一次" time="0.1996777">
+        </testcase>
+        <testcase classname="tests/orbit/scope-components.test.ts" name="弹窗关闭会取消请求，重新打开后迟到的旧结果不能覆盖新成员" time="0.1835574">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/task-event-log.test.ts" timestamp="2026-11-09T01:05:24.042Z" hostname="DESKTOP-7N307EV" tests="14" failures="0" errors="0" skipped="0" time="4.0781942">
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="原九字段全文可展开读取，nullable节点和未知state不猜含义、不显示checkpoint或动作" time="0.2594544">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="仅缓存内分页20条且不发HTTP" time="0.1122588">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="仅缓存内分页50条且不发HTTP" time="0.1395117">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="仅缓存内分页100条且不发HTTP" time="0.1468895">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="仅缓存内分页200条且不发HTTP" time="0.1921462">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="查看较早页按sequence锚定，追加事件不挪页；缓存淘汰锚点则明确回最新页" time="0.1370353">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="新段重置翻页与展开DOM；状态与ID只作安全文本" time="0.0998347">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="空记录解释是未收到本次事件，不宣称无历史" time="0.0604744">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="新段即使出现同一事件ID也清除原生详情展开状态" time="0.0720677">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="手动重读先清观察段，不借用新快照之前的事件，旧observer仍不能回填" time="0.4243298">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="详情缓存最多200且完整保存九字段；事件仍只合并一次GET，不改Task业务状态" time="0.4120513">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="同checkpoint重连保留记录；resynchronizing立即清段并明确缺失未恢复" time="0.3490848">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="换actor/隐藏/关闭清记录并丢弃旧epoch事件与快照，不能混合新段" time="1.0000764">
+        </testcase>
+        <testcase classname="tests/orbit/task-event-log.test.ts" name="撤权立即清缓存并清旧Task，不从控制帧捏造事件记录" time="0.6720425">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/task-events-components.test.ts" timestamp="2026-11-09T01:05:24.043Z" hostname="DESKTOP-7N307EV" tests="10" failures="0" errors="0" skipped="0" time="15.885833">
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="同有tasks.read的身份上下文切换中断旧observer和GET，迟到错误/事件不污染新任务" time="3.3740946">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="SSE授权错误原五字段传递到详情与父层，清旧任务且停流" time="1.0008999">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="单observer快照开启，live不全量轮询；事件只合并触发GET，不以node FAILED臆造Task失败" time="1.4060144">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="事件到达正在读取时只保留一次待刷新意图，没有并发GET风暴" time="1.4098828">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="重连fallback每10秒有界读取，503后仍可恢复；live立即停fallback" time="1.5935281">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="410或缺口恢复新快照后取消旧节点页并回首页，保留明确恢复说明" time="1.5792559">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="切Task/后台隐藏/关闭后停止observer；迟到快照与状态/错误不能覆盖新页面" time="2.2397437">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="观察撤权立停并清Task/node/详情，不把SCOPE_REVOKED伪装成Task业务状态" time="1.0596737">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="手动刷新仅重建一个observer，消费done拒绝后允许重新读取且没有未处理异常" time="1.3176629">
+        </testcase>
+        <testcase classname="tests/orbit/task-events-components.test.ts" name="初次快照网络失败进入重连后可手动重试，不能永久锁定读取按钮" time="0.9040557">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/task-events.test.ts" timestamp="2026-11-09T01:05:24.043Z" hostname="DESKTOP-7N307EV" tests="43" failures="0" errors="0" skipped="0" time="0.044597">
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 每个UTF8字节与CRLF任意分片、多帧、注释心跳保持完整Unicode" time="0.0032321">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 标准多行data仅在空行结束时交付，CR单独换行也支持" time="0.0005151">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; observer撤权帧严格仅code，无虚构TaskEvent/id/sequence" time="0.0002549">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝未知/重复/不完整控制字段：event: OTHER
+data: {}
+
+" time="0.0005971">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝未知/重复/不完整控制字段：event: SCOPE_REVOKED
+data: {&quot;code&quot;:&quot;SCOPE_REVOKED&quot;,&quot;sequence&quot;:1}
+
+" time="0.0002123">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝未知/重复/不完整控制字段：id: 00000000-0000-4000-8000-000000000001
+event: SCOPE_REVOKED
+data: {&quot;code&quot;:&quot;SCOPE_REVOKED&quot;}
+
+" time="0.0002066">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝未知/重复/不完整控制字段：id: 00000000-0000-4000-8000-000000000001
+id: 00000000-0000-4000-8000-00000000c3b5
+data: {&quot;event_id&quot;:&quot;00000000-0000-4000-8000-00000000c3b5&quot;,&quot;sequence&quot;:101,&quot;schema_version&quot;:1,&quot;task_id&quot;:&quot;00000000-0000-4000-8000-000000002710&quot;,&quot;task_revision&quot;:3,&quot;node_id&quot;:&quot;00000000-0000-4000-8000-000000007530&quot;,&quot;state&quot;:&quot;RUNNING&quot;,&quot;occurred_at&quot;:&quot;2026-11-08T00:01:02.123Z&quot;,&quot;request_id&quot;:&quot;00000000-0000-4000-8000-00000000ea60&quot;}
+
+" time="0.0001726">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝未知/重复/不完整控制字段：retry: 100
+
+" time="0.0001707">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝未知/重复/不完整控制字段：id: 12
+
+" time="0.0001885">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝未知/重复/不完整控制字段：data: {broken}
+
+" time="0.0002303">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 拒绝id/data错配、无id、非法UTF8、帧过大及EOF半帧，不交付未完成事件" time="0.0010419">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：extra" time="0.0001991">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：missing" time="0.0001546">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：version" time="0.0001465">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：sequence" time="0.0001358">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：revision" time="0.0001265">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：node" time="0.0001012">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：task" time="0.0000964">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：request" time="0.0001032">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：state" time="0.0000973">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原九字段schema严格校验：date" time="0.000104">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="严格有界TaskEvent增量解码 &gt; 原state为1..40字符串而非Task枚举；不误拒合法扩展状态且冻结返回值" time="0.0002107">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 快照同一响应header且MAC保持opaque；首帧101不从Task.revision2推算" time="0.0113876">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 相同事件重复去重；断线重连只传最新真实event_id，不错用旧snapshot凭证" time="0.0021807">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 序号缺口停止交付缺口之后的事件、重新取得快照，不能伪造连续成功" time="0.001687">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; HTTP410只经新快照恢复；重复410明确失败，不能去掉游标跳过历史" time="0.0024383">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 首次HTTP401即时终止，不重连、不借快照保留权限" time="0.0006115">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 首次HTTP403即时终止，不重连、不借快照保留权限" time="0.0005463">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 首次HTTP404即时终止，不重连、不借快照保留权限" time="0.0005399">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 流内撤权后同chunk后续事件不交付且停止读取，不写为全局Task状态" time="0.0010508">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 网络失败1/2/5/10秒退避封顶，可取消等待且无隐藏重试" time="0.0013921">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 旧快照迟到不能覆盖新任务；外部Abort已取消不读取且取消活跃流" time="0.000739">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 缺checkpoint终止，不悄悄降级成假轮询成功" time="0.0006173">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 事件流type不伪造成功，未知schema终止、冲突重复触发快照" time="0.000864">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 事件流foreign不伪造成功，未知schema终止、冲突重复触发快照" time="0.000744">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 事件流version不伪造成功，未知schema终止、冲突重复触发快照" time="0.0010048">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 事件流conflictingDuplicate不伪造成功，未知schema终止、冲突重复触发快照" time="0.0015209">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 流无心跳10秒后取消body并重连；stop之后不再通知旧Task" time="0.001642">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 外部Abort取消已打开的真实ReadableStream且不推进游标/重连" time="0.0012435">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; HTTP403即使正文无效也撤权立停，不能当网络重试继续显示旧快照" time="0.0008643">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; UI回调应用失败明确终止，不自动重连重复应用或推进到后续事件" time="0.0015765">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; 同事务快照读取保持真实Task原schema，不能把响应头混到不同Task" time="0.0017127">
+        </testcase>
+        <testcase classname="tests/orbit/task-events.test.ts" name="Task单消费者observer协议 &gt; Task快照原schema失配是终止错误，不能无限当网络中断重试" time="0.0009943">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/task-owner-filter.test.ts" timestamp="2026-11-09T01:05:24.046Z" hostname="DESKTOP-7N307EV" tests="11" failures="0" errors="0" skipped="0" time="2.4587635">
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="中文明确冻结拥有者而非执行操作人；已知UUID可直接查询且保留原status/page_size" time="0.4960787">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="严格拒绝无效UUID not-uuid，不发查询且旧游标失效" time="0.2148967">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="严格拒绝无效UUID 00000000000040008000000000013880，不发查询且旧游标失效" time="0.1894995">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="严格拒绝无效UUID {00000000-0000-4000-8000-000000013880}，不发查询且旧游标失效" time="0.1796707">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="严格拒绝无效UUID 00000000-0000-4000-8000-000000013880x，不发查询且旧游标失效" time="0.1748313">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="严格拒绝无效UUID &lt;script&gt;unsafe()&lt;/script&gt;，不发查询且旧游标失效" time="0.1775246">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="查询从首页开始，翻页沿同拥有者，换UUID禁旧翻页并移除原cursor" time="0.2077265">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="清除按钮和空白值都删除operator参数而不发null，原行筛选保持可用" time="0.2307038">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="无效输入后的新查询清旧错误并真实重新读取" time="0.1844806">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="context变化清拥有者和错误，旧读取晚到不能覆盖新用户或恢复旧条件" time="0.197241">
+        </testcase>
+        <testcase classname="tests/orbit/task-owner-filter.test.ts" name="撤权清拥有者/旧结果和历史，不以筛选赋予权限" time="0.2051603">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/task-read-error-view.test.ts" timestamp="2026-11-09T01:05:24.047Z" hostname="DESKTOP-7N307EV" tests="5" failures="0" errors="0" skipped="0" time="0.8418164">
+        <testcase classname="tests/orbit/task-read-error-view.test.ts" name="中文只读展示完整五字段和原路径，恶意文本不变成HTML，不提供广告操作" time="0.0143773">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-error-view.test.ts" name="本地合成错误明确没有服务端编号且无服务端重试结论" time="0.0019121">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-error-view.test.ts" name="撤权完整清理说明保留，本地控制帧不冒用旧HTTP或事件请求编号" time="0.4221001">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-error-view.test.ts" name="真实HTTP撤权错误卡片编号只取本次服务端Error.request_id" time="0.1996871">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-error-view.test.ts" name="相同tasks.read的actor上下文切换清错/清数据，旧GET错误晚到不能盖住新用户" time="0.2030334">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/task-read-errors.test.ts" timestamp="2026-11-09T01:05:24.048Z" hostname="DESKTOP-7N307EV" tests="43" failures="0" errors="0" skipped="0" time="0.0335578">
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="严格保留原Error五字段与FieldError四字段，Unicode按码点且返回副本" time="0.0022591">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 0" time="0.0002468">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 1" time="0.0000941">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 2" time="0.0000888">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 3" time="0.0000657">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 4" time="0.0000663">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 5" time="0.0000597">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 6" time="0.0000719">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 7" time="0.0000656">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 8" time="0.000065">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 9" time="0.0000585">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 10" time="0.0000396">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 11" time="0.0000383">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 12" time="0.0000482">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 13" time="0.0000372">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 14" time="0.0000327">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 15" time="0.0000528">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 16" time="0.0000638">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 17" time="0.0000392">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 18" time="0.0000349">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 19" time="0.0000319">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="拒绝非原Error字段边界 20" time="0.0000313">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="原字段code不可缺失" time="0.0003426">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="原字段message不可缺失" time="0.0000714">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="原字段field_errors不可缺失" time="0.0000518">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="原字段retryable不可缺失" time="0.000047">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="原字段request_id不可缺失" time="0.0000448">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="GET HTTP401保留全部原错误信息且仍只GET" time="0.0073192">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="GET HTTP403保留全部原错误信息且仍只GET" time="0.0008265">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="GET HTTP404保留全部原错误信息且仍只GET" time="0.0004348">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="GET HTTP409保留全部原错误信息且仍只GET" time="0.0004363">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="GET HTTP422保留全部原错误信息且仍只GET" time="0.000421">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="GET HTTP503保留全部原错误信息且仍只GET" time="0.0003444">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="坏JSON HTTP401保留状态且不泄露正文" time="0.0004354">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="坏JSON HTTP403保留状态且不泄露正文" time="0.0003318">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="坏JSON HTTP404保留状态且不泄露正文" time="0.0004161">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="坏JSON HTTP502保留状态且不泄露正文" time="0.0004241">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="SSE快照HTTP错误保留原五字段，100条最大字段错误不受8KiB帧限截断" time="0.0126247">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="SSE坏授权HTTP401终止、保留状态且无重连" time="0.0016772">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="SSE坏授权HTTP403终止、保留状态且无重连" time="0.0009949">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="SSE坏授权HTTP404终止、保留状态且无重连" time="0.0007613">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="原三参本地错误无虚构服务端请求编号或重试结论" time="0.0001862">
+        </testcase>
+        <testcase classname="tests/orbit/task-read-errors.test.ts" name="SSE合法服务端403原错误五字段在终止回调中完整保留" time="0.0009391">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/tasks-components.test.ts" timestamp="2026-11-09T01:05:24.051Z" hostname="DESKTOP-7N307EV" tests="11" failures="0" errors="0" skipped="0" time="6.6689856">
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="详情完整首200及真实node_count，配置/投放与任务状态分开，不生成执行操作" time="1.2692066">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="详情nextcursor正确接第201默认50，上一段回详情首200，不截父依赖" time="2.0809434">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="前缀查询从节点首页开始，101码点本地拒绝且不发送截断前缀" time="0.4414868">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="快速切换任务时abort旧请求，迟到旧响应不能覆盖新任务" time="0.2585676">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="正常live不重复10秒全量GET，隐藏/关闭/卸载取消观察，恢复可见才重取快照" time="0.290015">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="观察撤权清除已有任务和节点并停止，不能继续展示缓存或假失败重发" time="0.2696637">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="快照409清节点和游标，重新读取后使用新版本，不能重复旧页" time="1.0539362">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="节点二级详情保留全部100父ID/跨页提示/大整数与错误纯文本" time="0.3631737">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="Task列表仅激活时GET，空nodes展示275真实计数且拥有者筛选走服务器" time="0.2356853">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="列表有数据后403清除缓存，503不显示假空成功，可重新读取" time="0.2202261">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-components.test.ts" name="详情观察到新版本时取消旧列表读取，迟到旧响应和旧详情不能倒退版本" time="0.1851063">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/tasks-entry.test.ts" timestamp="2026-11-09T01:05:24.052Z" hostname="DESKTOP-7N307EV" tests="7" failures="0" errors="0" skipped="0" time="2.44378">
+        <testcase classname="tests/orbit/tasks-entry.test.ts" name="仅tasks.read可打开真实任务入口，不调用launch.read，撤权即卸载任务内容" time="0.5927599">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-entry.test.ts" name="有launch.read但无tasks.read不显示任务tab，原布局和模板入口保留" time="0.3218272">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-entry.test.ts" name="父菜单伪含launch.read但实际动作403时，仅有tasks.read才安全降级任务" time="0.2940765">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-entry.test.ts" name="无Task读取权限或非403错误不能凭失败授予任务入口：403" time="0.2783922">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-entry.test.ts" name="无Task读取权限或非403错误不能凭失败授予任务入口：503" time="0.2806576">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-entry.test.ts" name="计划动作随后403时清除原列表与创建能力，保留Task入口且不再重读被禁计划" time="0.3244194">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-entry.test.ts" name="原草稿待保存门禁继续阻止切任务，关闭后才可切换" time="0.350713">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/tasks-sdk.test.ts" timestamp="2026-11-09T01:05:24.052Z" hostname="DESKTOP-7N307EV" tests="26" failures="0" errors="0" skipped="0" time="0.043035">
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 只GET稀疏列表，node_count不从空nodes推断，编码游标和受控AbortSignal" time="0.0100562">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 详情保留首200、100父ID、超JS安全位数平台ID及可选字段" time="0.0029576">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 节点page_size=20与NFC前缀查询，保持完整返回字段" time="0.0011305">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 节点page_size=50与NFC前缀查询，保持完整返回字段" time="0.0010046">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 节点page_size=100与NFC前缀查询，保持完整返回字段" time="0.001472">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 节点page_size=200与NFC前缀查询，保持完整返回字段" time="0.0013606">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 未定义列表q/日期/channel或节点条件不静默伪查询" time="0.0016954">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; HTTP401保留受控状态和码，不能返回假Task成功" time="0.0007559">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; HTTP403保留受控状态和码，不能返回假Task成功" time="0.0006419">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; HTTP404保留受控状态和码，不能返回假Task成功" time="0.0007785">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; HTTP409保留受控状态和码，不能返回假Task成功" time="0.0008049">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; HTTP410保留受控状态和码，不能返回假Task成功" time="0.0005601">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; HTTP429保留受控状态和码，不能返回假Task成功" time="0.0004897">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; HTTP503保留受控状态和码，不能返回假Task成功" time="0.0004883">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 网络与取消区分；取消不伪报网络失败且已取消不发请求" time="0.001102">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 读取10秒超时可重读，调用方取消仍中止真实fetch" time="0.0031969">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; JSON读取期间取消仍为AbortError" time="0.0005346">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：numericId" time="0.0015887">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：unsafeRevision" time="0.0014714">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：extra" time="0.0013726">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：missing" time="0.0013719">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：over200" time="0.0013977">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：invalidParent" time="0.0013609">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：numericExternal" time="0.0015133">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 拒绝不符合原schema的响应：badState" time="0.0016634">
+        </testcase>
+        <testcase classname="tests/orbit/tasks-sdk.test.ts" name="Task原合同只读SDK &gt; 原可选值缺省保持未知，不补execution_mode/no_op或删跨页父ID" time="0.0011446">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/user-invitation-client.test.ts" timestamp="2026-11-09T01:05:24.054Z" hostname="DESKTOP-7N307EV" tests="2" failures="0" errors="0" skipped="0" time="0.0055722">
+        <testcase classname="tests/orbit/user-invitation-client.test.ts" name="邀请管理接口 &gt; POST不带正文、邮箱和身份，版本带引号并沿用原幂等键" time="0.0028652">
+        </testcase>
+        <testcase classname="tests/orbit/user-invitation-client.test.ts" name="邀请管理接口 &gt; 明确拒绝保留HTTP状态，网关非JSON错误不回显响应" time="0.0019458">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/user-invitation.test.ts" timestamp="2026-11-09T01:05:24.055Z" hostname="DESKTOP-7N307EV" tests="4" failures="0" errors="0" skipped="0" time="0.3083867">
+        <testcase classname="tests/orbit/user-invitation.test.ts" name="人员邀请状态与写入意图 &gt; 配置不足时显示真实原因，不能提交" time="0.1686496">
+        </testcase>
+        <testcase classname="tests/orbit/user-invitation.test.ts" name="人员邀请状态与写入意图 &gt; 响应丢失后保持原版本和幂等键，成功只提示排队" time="0.0581813">
+        </testcase>
+        <testcase classname="tests/orbit/user-invitation.test.ts" name="人员邀请状态与写入意图 &gt; 明确版本冲突后允许刷新，不显示已发送成功" time="0.0632324">
+        </testcase>
+        <testcase classname="tests/orbit/user-invitation.test.ts" name="人员邀请状态与写入意图 &gt; 切换人员后延迟返回的数据不能覆盖当前邀请" time="0.0174392">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/vendor-alias-client.test.ts" timestamp="2026-11-09T01:05:24.055Z" hostname="DESKTOP-7N307EV" tests="7" failures="0" errors="0" skipped="0" time="0.0063745">
+        <testcase classname="tests/orbit/vendor-alias-client.test.ts" name="代称先NFC再按码点验证，不按UTF16截断名称" time="0.0017219">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-client.test.ts" name="明确清除发送null，空输入不能冒充未知" time="0.0002324">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-client.test.ts" name="控制符和无原因都拒绝，不静默吞掉换行" time="0.0003119">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-client.test.ts" name="维护请求只含alias和reason，携带独立版本及幂等键" time="0.0020307">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-client.test.ts" name="批量当前读取只发UUID，不发名称或拥有者暗示数据" time="0.0005082">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-client.test.ts" name="未知网络结果可用完全相同的冻结正文和幂等键重试" time="0.0006521">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-client.test.ts" name="服务端拒绝版本冲突保留真实状态，不模拟维护成功" time="0.0002596">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/orbit/vendor-alias-page.test.ts" timestamp="2026-11-09T01:05:24.056Z" hostname="DESKTOP-7N307EV" tests="3" failures="0" errors="0" skipped="0" time="0.58319">
+        <testcase classname="tests/orbit/vendor-alias-page.test.ts" name="网络结果未知时冻结字段，并使用相同正文版本和键重试" time="0.3582788">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-page.test.ts" name="CAS冲突必须重新读取，随后提交使用新版本与新键" time="0.1792827">
+        </testcase>
+        <testcase classname="tests/orbit/vendor-alias-page.test.ts" name="没有维护动作时仍可读真实代称，不展示维护按钮" time="0.0447842">
+        </testcase>
+    </testsuite>
+</testsuites>

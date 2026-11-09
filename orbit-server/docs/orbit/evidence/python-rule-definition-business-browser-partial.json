@@ -1,0 +1,39 @@
+{
+  "result": "PASS",
+  "scope": "Limited real UI workflow only; metadata, ENABLED pause, full permission/error matrix and responsive acceptance remain pending",
+  "rule_id": "04789ff2-a5e2-41ed-88e2-bf24bdcea06a",
+  "scope_id": "11136dcb-a1b4-4e2f-bfde-bdc0d57b97f6",
+  "checks": [
+    {
+      "name": "NativeLoginAndOriginalDynamicRuleMenu",
+      "passed": true
+    },
+    {
+      "name": "ExpiredSessionAndFailedLogoutRecoverToLoginAfterFix",
+      "passed": true
+    },
+    {
+      "name": "CreateExplicitTwoAccountFreezeApplySaveAndServerReadback",
+      "passed": true
+    },
+    {
+      "name": "EditOrTwoGroupsExactDecimalZeroCooldownEightDailyVersionTwo",
+      "passed": true
+    },
+    {
+      "name": "ArchiveCancelRequiredReasonConfirmVersionThreeAndReloadPersistence",
+      "passed": true
+    },
+    {
+      "name": "DraftPauseDisabledAndArchivedEditArchiveDisabled",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "SQL FIXTURE profile, no Meta/source/enable/scheduler success",
+    "No ENABLED pause positive path executed",
+    "Creator/time and real ownership names still missing in this snapshot",
+    "No full fields/permission/errors/viewports acceptance",
+    "ElementPlus zero-size native checkbox input was operated via its visible label; no forced clicks"
+  ]
+}

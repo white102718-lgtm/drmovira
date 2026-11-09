@@ -1,0 +1,37 @@
+-- 账户分配/只读同步/本地解绑命令；不自动启用调度，不调用平台广告写入。
+CREATE TABLE orbit_account_command (
+ tenant_id CHAR(36) NOT NULL COMMENT '原业务动作可信租户UUID',
+ id CHAR(36) NOT NULL COMMENT '持久命令UUID，与平台对象ID分离',
+ account_id CHAR(36) NOT NULL COMMENT '目标账户业务UUID',
+ kind VARCHAR(16) NOT NULL COMMENT 'ASSIGNMENT、SYNC或UNBIND',
+ state VARCHAR(32) NOT NULL COMMENT 'SCHEDULED、WAITING_EXECUTOR、RUNNING、BLOCKED、SUCCEEDED或FAILED',
+ revision BIGINT NOT NULL DEFAULT 1 COMMENT '命令真实状态版本，旧响应不能覆盖新版本',
+ actor_id BIGINT NOT NULL COMMENT '原发起人员原生用户ID，不以Worker代替身份',
+ actor_subject_id CHAR(36) NOT NULL COMMENT '原业务人员UUID，激活时当前权限与范围另验',
+ request_key VARCHAR(128) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '同人员动作幂等键，不含凭据',
+ request_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '动作、账户、If-Match和完整规范字段SHA256',
+ request_id CHAR(36) NOT NULL COMMENT '原安全请求UUID，重放保留原回执关联',
+ accepted_account_revision BIGINT NOT NULL COMMENT '受理后的真实账户版本，不代表平台同步成功',
+ source_json JSON NOT NULL COMMENT '当时原owner/team/vendor冻结，非当前权限凭据',
+ payload_json JSON NOT NULL COMMENT '原动作规范字段与原因，不含Token',
+ response_json JSON NOT NULL COMMENT '原严格Ack，幂等重放不得伪造新成功时间',
+ assignment_id CHAR(36) NULL COMMENT '新未来归属区间UUID，仅分配命令使用',
+ effective_from DATETIME(3) NULL COMMENT '账户当地下一业务日零点对应UTC，仅分配命令使用',
+ active_kind VARCHAR(16) NULL COMMENT '未完成动作种类；终态清空，约束同账户同种类仅一项待执行',
+ source_config_id CHAR(36) NULL COMMENT '只读同步冻结来源配置UUID，非浏览器选择Token',
+ source_config_revision BIGINT NULL COMMENT '只读同步冻结已验证来源版本，变化拒绝执行',
+ last_error_code VARCHAR(64) NULL COMMENT '脱敏阻断/依赖码，不保存原始平台或数据库异常',
+ activation_alias_json JSON NULL COMMENT '实际激活时别名观察；无户商明确NO_VENDOR，不回填旧受理快照',
+ created_at DATETIME(3) NOT NULL COMMENT '真实持久受理UTC时刻',
+ updated_at DATETIME(3) NOT NULL COMMENT '真实状态迁移UTC时刻',
+ completed_at DATETIME(3) NULL COMMENT '实际本地完成UTC；排队不填写',
+ PRIMARY KEY(tenant_id,id),
+ UNIQUE KEY uk_account_command_key(tenant_id,actor_id,request_key),
+ UNIQUE KEY uk_account_command_active(tenant_id,account_id,active_kind),
+ KEY idx_account_command_due(tenant_id,kind,state,effective_from,id),
+ KEY idx_account_projection_guard(tenant_id,active_kind,effective_from,account_id)
+   COMMENT '只检查未完成分配的到期索引，不扫全部历史命令、不串行所有读取',
+ KEY idx_account_command_account(tenant_id,account_id,created_at,id),
+ FOREIGN KEY(tenant_id,account_id) REFERENCES orbit_ad_account(tenant_id,id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs
+ COMMENT='真实持久账户动作；SCHEDULED未生效、WAITING_EXECUTOR未同步，不是平台成功';

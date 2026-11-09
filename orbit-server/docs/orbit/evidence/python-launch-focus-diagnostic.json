@@ -1,0 +1,90 @@
+{
+  "result": "FAIL",
+  "parent": "python-launch-desktop-diagnostic-attempt-05.json",
+  "scope": "仅固定UI事件类型/长度/布尔；无输入正文/凭据/请求体；不是验收通过",
+  "attachments": [
+    {
+      "name": "template-reason-focus.json",
+      "value": [
+        {
+          "event": "focusin",
+          "category": "SELECT_INPUT",
+          "dialog": "OTHER_DIALOG",
+          "tag": "INPUT",
+          "length": 0,
+          "active": true,
+          "connected": true,
+          "duplicateId": false,
+          "labelTargetsNode": true
+        },
+        {
+          "event": "focusin",
+          "category": "SELECT_INPUT",
+          "dialog": "OTHER_DIALOG",
+          "tag": "INPUT",
+          "length": 0,
+          "active": true,
+          "connected": true,
+          "duplicateId": false,
+          "labelTargetsNode": true
+        },
+        {
+          "event": "focusin",
+          "category": "ACTION_REASON",
+          "dialog": "OTHER_DIALOG",
+          "tag": "TEXTAREA",
+          "length": 0,
+          "active": true,
+          "connected": true,
+          "duplicateId": false,
+          "labelTargetsNode": true
+        },
+        {
+          "event": "focusin",
+          "category": "SELECT_INPUT",
+          "dialog": "OTHER_DIALOG",
+          "tag": "INPUT",
+          "length": 0,
+          "active": true,
+          "connected": true,
+          "duplicateId": false,
+          "labelTargetsNode": true
+        },
+        {
+          "event": "beforeinput",
+          "category": "SELECT_INPUT",
+          "dialog": "OTHER_DIALOG",
+          "tag": "INPUT",
+          "length": 0,
+          "active": true,
+          "connected": true,
+          "duplicateId": false,
+          "labelTargetsNode": true
+        },
+        {
+          "event": "input",
+          "category": "SELECT_INPUT",
+          "dialog": "OTHER_DIALOG",
+          "tag": "INPUT",
+          "length": 9,
+          "active": true,
+          "connected": true,
+          "duplicateId": false,
+          "labelTargetsNode": true
+        }
+      ]
+    },
+    {
+      "name": "template-reason-events.json",
+      "value": {
+        "nativeLength": "-1",
+        "componentInputLength": "-1",
+        "componentUpdateLength": "-1",
+        "composing": "false",
+        "modelState": "已输入 0/1000 码点",
+        "nativeValueLength": 0,
+        "disabled": false
+      }
+    }
+  ]
+}

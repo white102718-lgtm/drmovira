@@ -1,0 +1,32 @@
+{
+  "name": "python-framework-integration",
+  "phase": "testing",
+  "item_ids": [],
+  "executed_at": "2026-11-07T12:32:00.536417+00:00",
+  "command": ".venv/Scripts/python.exe tools/run_python_framework_checks.py",
+  "environment": "本机独立MySQL13306、Redis16379/DB15、FastAPI真实HTTP18083；不访问平台",
+  "scope": "新Python框架启动、JSON登录兼容、当前用户/动态菜单、退出失效；不代表ORBIT业务完成",
+  "result": "FAIL",
+  "exit_code": 1,
+  "failure_type": "AssertionError",
+  "failure_message": "独立Python框架集成验证失败，保留脱敏失败回执，不计功能通过",
+  "summary": {
+    "tests": 5,
+    "passed": 2,
+    "failures": 1,
+    "cases": [
+      "pythonRealMysqlRedisReadiness",
+      "pythonRealJsonPasswordLogin"
+    ]
+  },
+  "source_sha256": {
+    "pyproject.toml": "b4ac32821c159eebd8138b337f249184fab1e8f29353455664330ca648da3680",
+    "tools/run_python_framework_checks.py": "4bb49dd0c6ac3ef6d56893615ae30eb55a63625f74545bdf3c247614ed0a9af3",
+    "python/orbit_api/application.py": "851cfc8a14ed61481a53c24e0b240a6caadc1de55936d412c33ce80a4f741a36",
+    "python/orbit_api/login_adapter.py": "a7d0ca21ed0faaa145eebadbe410d45561b373a36f7f2b674c342f65c3a24aab",
+    "python/orbit_api/__init__.py": "111c81ac1b8766ab286aeab21373e2146890292c3ac8ba35536cd762940a6239",
+    "python/ruoyi_fastapi/config/env.py": "b4de018b65a780da010180c79b42a220691b23376044c70bbd135ecdbe435922",
+    "python/ruoyi_fastapi/config/orbit_runtime.py": "4ad75288b66dcbeb6d3341eaabc33858f80814dba1826ed6e30362ac1e4a7b38",
+    "python/ruoyi_fastapi/config/lifecycle.py": "a0cc4268bc33de9b28872e8256b1b5f657be801eca0e8839efcfe557c87adeda"
+  }
+}

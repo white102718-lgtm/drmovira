@@ -1,0 +1,23 @@
+{
+  "executed_at": "2026-11-08T22:30:45.187488+00:00",
+  "scope": "Read-only ORBIT owned 13306 fixture global settings; no settings changed; cumulative status not per-request root cause",
+  "variables": {
+    "innodb_buffer_pool_size": "134217728",
+    "innodb_flush_log_at_trx_commit": "1",
+    "innodb_io_capacity": "10000",
+    "innodb_io_capacity_max": "20000",
+    "innodb_log_buffer_size": "67108864",
+    "innodb_redo_log_capacity": "104857600",
+    "max_connections": "151"
+  },
+  "global_status": {
+    "Innodb_buffer_pool_pages_dirty": "0",
+    "Innodb_buffer_pool_pages_total": "8192",
+    "Innodb_buffer_pool_wait_free": "47",
+    "Innodb_data_pending_reads": "0",
+    "Innodb_data_pending_writes": "0",
+    "Innodb_data_reads": "3480237",
+    "Innodb_data_writes": "9967555",
+    "Innodb_log_waits": "0"
+  }
+}

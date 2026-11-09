@@ -1,0 +1,25 @@
+{
+  "name": "frontend-task-event-unit-attempt-01",
+  "result": "FAIL",
+  "executed_at": "2026-11-08T11:23:49.662202+00:00",
+  "command": "pnpm test:orbit",
+  "summary": {
+    "passed": 325,
+    "failed": 1,
+    "files_passed": 41,
+    "duration_seconds": 29.93
+  },
+  "failure": "旧任务第201节点/上一段完整父依赖用例触及原5000ms限制；当轮同时有真实浏览器，不将资源竞争推断当已证根因。",
+  "log_sha256": "76e274c7b37e059f5ba72b1fd84f70215395e5ef9e43b3237077267c78964134",
+  "source_sha256": {
+    "vitest.config.ts": "7c58e4189a29d8f75beaa19a17fa6300037de537dfb7bbbc055062b51fd6d322",
+    "src/views/orbit/launch/TaskDetails.vue": "acfd2e411c185a3bf37c5574e3fc25642697bb3b57a80c0c26fd8e50343be046",
+    "src/api/orbit/task-events.ts": "1be538635a53ad31a9aafdd51a947acc7a8dd91f9354da30f8b34454368bf784",
+    "tests/orbit/task-events-components.test.ts": "80529c3344034df481a46cb07da0f14c56d46032af543ecfba52a6d8e774f02b",
+    "tests/orbit/task-events.test.ts": "53c14dd615bfc6e9adefedb23ecbf617d70507ca1dd8380a89a419b8413308ff",
+    "tests/orbit/tasks-components.test.ts": "b0e02cdf0bc8f562e544fded2ade961feb9a26ed4f82c40474ded248fcbc4f1c",
+    "tests/orbit/tasks-entry.test.ts": "88b4d672fab473117b70a9bb9aff223cc47e3c8b46bc466276189e9f13d15592",
+    "tests/orbit/tasks-fixtures.ts": "006d7b5efa39bd33bafa8d95b69d7788134eaae37749fedb6a04ea1ddeaa2f76",
+    "tests/orbit/tasks-sdk.test.ts": "1000d1d9df42ee12b06abac34dddb0c3244b4f539a6cacc24cb5001a1d7be61d"
+  }
+}

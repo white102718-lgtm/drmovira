@@ -1,0 +1,37 @@
+{
+  "name": "python-rule-calendar-scope-http-protocol-checkpoint",
+  "executed_at": "2026-11-09T01:25:42.098760+00:00",
+  "phase": "testing",
+  "item_ids": [],
+  "scope": "Focused protocol/unit checks only; not real SQL/HTTP/calendar-source or complete business acceptance",
+  "command": [
+    ".venv/Scripts/python.exe",
+    "-m",
+    "pytest",
+    "python/tests/test_account_scope_http_diagnostics.py",
+    "python/tests/test_rule_simulation_access.py",
+    "python/tests/test_rule_simulation_expected_units.py",
+    "python/tests/test_rule_simulation_profile_binding.py",
+    "python/tests/test_rule_simulation_calendar_checks.py",
+    "-q"
+  ],
+  "result": "PASS",
+  "seconds": 3.259,
+  "source_sha256": {
+    "python/tests/test_account_scope_http_diagnostics.py": "244eb5643a30eeff333a82187bd221834e07d587460d79c1c50fd7e7e10b830d",
+    "python/tests/test_rule_simulation_access.py": "b6e30bf02d761b3907c81157e38b08628096c308d7fff773be657180eca5b9e9",
+    "python/tests/test_rule_simulation_expected_units.py": "92d4310aaff362ee4bab832b612e732193ce8dc6df1aed10ecf35973dcdfd67f",
+    "python/tests/test_rule_simulation_profile_binding.py": "f52e9173b0d353424d8e16f4b89692a49b34deb7c04151f04c339a4367ef5298",
+    "python/tests/test_rule_simulation_calendar_checks.py": "0c8232d4048e1cb8a6f4e499c98223aaa23b627cf89679b3d0d2a1443029d9fb",
+    "tools/account_scope_http_diagnostics.py": "ee5fb2f6677844d02287e023170a71022caa67edc1fe88231170a3f459862ad6",
+    "tools/account_scope_capacity_diagnostics.py": "37e1f61450755efd1fdbece357f0311d2a017a09dacacb88f269228b1696a642",
+    "tools/rule_simulation_calendar_checks.py": "223398265c4c03abe7265d3ede88f31a1e523ab36a0c2a35c5b90327025d6195",
+    "tools/rule_simulation_access_checks.py": "20d2991f3d889003765ccf874b3a18bc627d21f69e968428f1e05e8b86dba308",
+    "tools/run_python_framework_checks.py": "fc7a3e5c2569d7d33203a9a80803098dfb95af1dd49e2243061d38a84cc6cecb",
+    "python/orbit_api/rule_simulation_access.py": "0d7e370d7cf8f21550b7dc294118234596e958388a8f7b68305dd2c1773323b9",
+    "python/orbit_api/rule_simulation_expected_units.py": "a80dae9346f7320f8c0aa45d51fb7d5e171a6eb7d0c4a4ed5e3a7bfe2a116605",
+    "python/orbit_api/rule_profile_references.py": "3743c0558353d11d59117080bb2f7d018283ba9dd71bcd46671d123697fabbb4"
+  },
+  "changed_sources": [],
+  "output": "........................................................................ [ 64%]\n........................................                                 [100%]\n112 passed in 2.55s\n"
+}

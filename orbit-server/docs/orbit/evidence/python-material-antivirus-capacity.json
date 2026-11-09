@@ -1,0 +1,47 @@
+{
+  "name": "python-material-antivirus-capacity",
+  "phase": "testing",
+  "executed_at": "2026-11-08T07:34:34.900314+00:00",
+  "command": ".venv/Scripts/python.exe tools/run_material_antivirus_capacity.py",
+  "scope": "实际500MiB ClamD INSTREAM；非HTTP上传/媒体解码/磁盘感染/整进程峰值验收",
+  "result": "PASS",
+  "process_before": {
+    "pid": 7492,
+    "process_created_at_epoch": 1794119682.138348,
+    "executable_sha256": "d052be9cb42b3798e7a7a65c48a51a4253d8685d7720679b4279007fd6a1aa3f",
+    "archive_sha256": "0d9e0228b2674137ea1a2853566c98a0278ad52ab2582c3d6dbd75373848c395",
+    "config_sha256": "a32e3047ee458b650d5ec96aeb6629d4ac8e863f68b4aecdff34c3017e7485df",
+    "listener": "127.0.0.1:19310",
+    "scope": "fixed local fixture process only; not production lifecycle attestation"
+  },
+  "measurements": {
+    "actual_streamed_bytes": 524288000,
+    "elapsed_seconds": 1.273,
+    "source_max_read_bytes": 1048576,
+    "scope": "Actual ClamD INSTREAM only; no video decode, HTTP upload, DB Worker, disk infection, or full process RSS measurement"
+  },
+  "process_after": {
+    "pid": 7492,
+    "process_created_at_epoch": 1794119682.138348,
+    "executable_sha256": "d052be9cb42b3798e7a7a65c48a51a4253d8685d7720679b4279007fd6a1aa3f",
+    "archive_sha256": "0d9e0228b2674137ea1a2853566c98a0278ad52ab2582c3d6dbd75373848c395",
+    "config_sha256": "a32e3047ee458b650d5ec96aeb6629d4ac8e863f68b4aecdff34c3017e7485df",
+    "listener": "127.0.0.1:19310",
+    "scope": "fixed local fixture process only; not production lifecycle attestation"
+  },
+  "summary": {
+    "passed": 2,
+    "expected": 2,
+    "cases": [
+      "pythonMaterialAntivirusActuallyStreamsFiveHundredMiBWithinVerifiedPolicy",
+      "pythonMaterialAntivirusOneByteOverClientLimitNeverOpensSource"
+    ]
+  },
+  "source_sha256": {
+    "python/orbit_api/material_antivirus.py": "1a0301e74a638714957c3aaadc58908f75c3f39f9cbee3a60d49e9d74196e5f0",
+    "tools/run_material_antivirus_capacity.py": "6971bc462df7dca08d4411e7712495e2db43e164e0bb863bec802af3b2f35909",
+    "tools/clamd_fixture_attestation.py": "b16b06dbcaeaea22ac053d9dc789752ad8ab9a2a30095311393ac9d83a0718d2",
+    "tools/material_antivirus_capacity_checks.py": "f4225d521559fc24c61ff7d343b596f4ff191ea515807c352a062d5c9024d516",
+    "tools/material_antivirus_engine_checks.py": "da04e91ff8b5ca5f3bf7ce59411186bc0a1a5e1d7014946796e0c8ed3611c317"
+  }
+}

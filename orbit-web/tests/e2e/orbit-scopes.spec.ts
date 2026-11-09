@@ -1,0 +1,72 @@
+import { test, expect } from '@playwright/test'
+import path from 'node:path'
+
+test('真实菜单冻结账户范围并分页搜索、确认和清除', async ({ page }, info) => {
+  const captchaReady = page.waitForResponse((response) => response.url().endsWith('/captchaImage'))
+  await page.goto('/login')
+  await captchaReady
+  await page.getByPlaceholder('账号').fill('admin')
+  await page.getByPlaceholder('密码').fill(process.env.ORBIT_E2E_FIXTURE_PASSWORD!)
+  await page.getByRole('button', { name: '登 录' }).click()
+  await expect(page.locator('.sidebar-container')).toBeVisible()
+  if (info.project.name === 'mobile-390') await page.locator('.hamburger-container').click()
+  await page.locator('.sidebar-container').getByText('ORBIT工作台', { exact: true }).click()
+  await page.locator('.sidebar-container').getByText('账户范围', { exact: true }).click()
+  await expect(page.getByRole('heading', { name: '账户范围', exact: true })).toBeVisible()
+  if (info.project.name === 'mobile-390')
+    await page.locator('.drawer-bg').click({ position: { x: 380, y: 100 } })
+  await page.getByRole('button', { name: '冻结并查看成员', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: '账户范围成员' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog).toContainText('冻结账户 45 个')
+  await expect(dialog.locator('.el-table__body tbody tr')).toHaveCount(45)
+  await dialog.locator('.el-select__wrapper').click()
+  await page.getByRole('option', { name: '20', exact: true }).click()
+  await expect(dialog.locator('.el-table__body tbody tr')).toHaveCount(20)
+  const first = await dialog
+    .locator('.el-table__body tbody tr')
+    .first()
+    .locator('td')
+    .last()
+    .innerText()
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click()
+  await expect(dialog).toContainText('第 2 页')
+  await expect(
+    dialog.locator('.el-table__body tbody tr').first().locator('td').last(),
+  ).not.toHaveText(first)
+  await dialog.getByRole('button', { name: '上一页', exact: true }).click()
+  await expect(dialog).toContainText('第 1 页')
+  await expect(dialog.locator('.el-table__body tbody tr').first().locator('td').last()).toHaveText(
+    first,
+  )
+  await dialog.getByLabel('成员搜索', { exact: true }).fill('no-matching-fixture')
+  await dialog.getByRole('button', { name: '搜索成员', exact: true }).click()
+  await expect(dialog).toContainText('没有匹配的账户')
+  await expect(dialog).toContainText('冻结账户 45 个')
+  await dialog.getByRole('button', { name: '使用此范围', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('region', { name: '已选择范围' })).toContainText('已选择 45 个账户')
+  await page.getByRole('button', { name: '查看成员', exact: true }).click()
+  await expect(dialog.locator('.el-table__body tbody tr')).toHaveCount(45)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy()
+  await expect(dialog).toBeVisible()
+  await expect(dialog.locator('.el-loading-mask')).toHaveCount(0)
+  await page.screenshot({
+    animations: 'disabled',
+    path: path.join(process.env.ORBIT_E2E_OUTPUT!, `${info.project.name}-scopes.png`),
+  })
+  await dialog.getByRole('button', { name: '关闭', exact: true }).click()
+  await page.getByLabel('账户名称或外部ID', { exact: true }).fill('scope fixture 1')
+  await expect(page.getByRole('region', { name: '已选择范围' })).toHaveCount(0)
+  await page.getByRole('button', { name: '冻结并查看成员', exact: true }).click()
+  await expect(dialog).toContainText('冻结账户 11 个')
+  await dialog.getByRole('button', { name: '使用此范围', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('region', { name: '已选择范围' })).toContainText('已选择 11 个账户')
+  await page.getByRole('button', { name: '清除选择', exact: true }).click()
+  await expect(page.getByRole('region', { name: '已选择范围' })).toHaveCount(0)
+  await page.getByText('指定账户ID', { exact: true }).click()
+  await page.getByLabel('账户ID清单', { exact: true }).fill('invalid-id')
+  await page.getByRole('button', { name: '冻结并查看成员', exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText('有效账户ID')
+})

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.orbit.scope.AccountScopeMapper">
+    <!-- 事件与快照同事务；无更新、覆盖、忽略冲突或保存原始请求的审计写法。 -->
+    <insert id="recordFreezeAudit">
+        INSERT INTO orbit_account_scope_audit(id,target_tenant_id,snapshot_id,actor_id,home_tenant_id,data_role,action,request_hash,members_hash,member_count,home_version,target_version,actor_subject_id,actor_team_id,request_id)
+        VALUES(UUID(),#{row.tenantId},#{row.id},#{row.actorId},#{proof.homeTenant},#{proof.dataRole},'SCOPE_FROZEN',#{row.requestHash},#{row.membersHash},#{row.memberCount},#{proof.homeVersion},#{proof.targetVersion},#{actorIdentity.subjectId},#{actorIdentity.teamId},#{requestId})
+    </insert>
+    <!-- 双版本是内部快照上下文；绝不从客户端反序列化，也不代替当前身份授权。 -->
+    <insert id="bindTenantProof">
+        INSERT INTO orbit_account_scope_tenant_proof(tenant_id,snapshot_id,actor_id,home_tenant_id,data_role,home_version,target_version)
+        VALUES(#{tenant},#{id},#{proof.actorId},#{proof.homeTenant},#{proof.dataRole},#{proof.homeVersion},#{proof.targetVersion})
+    </insert>
+    <resultMap id="tenantProof" type="com.ruoyi.system.orbit.scope.TenantScopeVersionProof$Proof">
+        <constructor>
+            <arg column="actor_id" javaType="_long"/>
+            <arg column="home_tenant_id" javaType="java.lang.String"/>
+            <arg column="tenant_id" javaType="java.lang.String"/>
+            <arg column="data_role" javaType="java.lang.String"/>
+            <arg column="home_version" javaType="_long"/>
+            <arg column="target_version" javaType="_long"/>
+        </constructor>
+    </resultMap>
+    <select id="boundTenantProof" resultMap="tenantProof" flushCache="true" useCache="false">
+        SELECT * FROM orbit_account_scope_tenant_proof WHERE tenant_id=#{tenant} AND snapshot_id=#{id} FOR SHARE
+    </select>
+    <!-- 当前功能角色的菜单动作取并集；会话通配符不能代替实际授权。 -->
+    <select id="auditMenuIds" resultType="java.lang.Long" flushCache="true" useCache="false">
+        SELECT granted.menu_id FROM sys_menu a
+        JOIN sys_menu p ON p.menu_id=a.parent_id AND p.status='0'
+        JOIN sys_menu root ON root.menu_id=p.parent_id AND root.status='0'
+        JOIN sys_menu granted ON granted.menu_id IN(a.menu_id,p.menu_id,root.menu_id)
+        JOIN sys_user_role ur ON ur.user_id=#{actor}
+        JOIN sys_role r ON r.role_id=ur.role_id AND r.status='0' AND r.del_flag='0'
+        LEFT JOIN sys_role_menu rm ON rm.role_id=r.role_id AND rm.menu_id=granted.menu_id
+        WHERE a.menu_id=31082 AND p.menu_id=31080 AND root.menu_id=31000
+        AND a.perms='system.audit.read' AND a.status='0'
+        AND ((#{actor}=1 AND r.role_id=1) OR rm.menu_id IS NOT NULL) FOR SHARE
+    </select>
+    <!-- 页面授权与审计动作分别复核；缓存中的同名权限不能替代当前页面菜单授权。 -->
+    <select id="auditPageMenuIds" resultType="java.lang.Long" flushCache="true" useCache="false">
+        SELECT m.menu_id FROM sys_menu m
+        JOIN sys_user_role ur ON ur.user_id=#{actor}
+        JOIN sys_role r ON r.role_id=ur.role_id AND r.status='0' AND r.del_flag='0'
+        LEFT JOIN sys_role_menu rm ON rm.role_id=r.role_id AND rm.menu_id=m.menu_id
+        WHERE m.menu_id=31083 AND m.parent_id=31080 AND m.status='0' AND m.menu_type='C'
+        AND ((#{actor}=1 AND r.role_id=1) OR rm.menu_id IS NOT NULL) FOR SHARE
+    </select>
+    <resultMap id="freezeAudit" type="com.ruoyi.system.orbit.scope.ScopeFreezeAuditReader$Entry">
+        <result property="id" column="id"/><result property="targetTenantId" column="target_tenant_id"/>
+        <result property="snapshotId" column="snapshot_id"/><result property="actorId" column="actor_id"/>
+        <result property="homeTenantId" column="home_tenant_id"/><result property="dataRole" column="data_role"/>
+        <result property="action" column="action"/><result property="requestHash" column="request_hash"/>
+        <result property="membersHash" column="members_hash"/><result property="memberCount" column="member_count"/>
+        <result property="homeVersion" column="home_version"/><result property="targetVersion" column="target_version"/>
+        <result property="createdAt" column="created_at"/><result property="actorSubjectId" column="actor_subject_id"/>
+        <result property="actorTeamId" column="actor_team_id"/>
+        <result property="requestId" column="request_id"/>
+    </resultMap>
+    <select id="freezeAudit" resultMap="freezeAudit" flushCache="true" useCache="false">
+        SELECT * FROM orbit_account_scope_audit WHERE target_tenant_id=#{tenant} AND id=#{id} FOR SHARE
+    </select>
+    <!-- 只定位有界候选；每条仍需当前读取门禁，不将SQL候选作为数据授权。 -->
+    <select id="auditQueryTime" resultType="java.time.Instant">SELECT UTC_TIMESTAMP(3)</select>
+    <select id="auditCandidates" resultMap="freezeAudit" flushCache="true" useCache="false">
+        SELECT * FROM orbit_account_scope_audit WHERE target_tenant_id=#{tenant}
+        AND created_at &lt; #{cutoff}
+        <if test="q != ''">AND action LIKE CONCAT('%',#{q},'%') ESCAPE '!'</if>
+        <if test="operator != null">AND actor_subject_id=#{operator}</if>
+        <if test="from != null">AND created_at &gt;= #{from}</if>
+        <if test="until != null">AND created_at &lt; #{until}</if>
+        <if test="afterAt != null">AND (created_at &lt; #{afterAt} OR (created_at=#{afterAt} AND id &lt; #{afterId}))</if>
+        ORDER BY created_at DESC,id DESC LIMIT 201
+    </select>
+    <!-- 非锁定路由提示，只匹配当前操作者及服务端租户集合；真正读取仍锁定目录/版本并重新授权。 -->
+    <select id="snapshotTenants" resultType="java.lang.String" flushCache="true" useCache="false">
+        SELECT tenant_id FROM orbit_account_scope_snapshot
+        WHERE actor_id=#{actor} AND id=#{id} AND tenant_id IN
+        <foreach collection="tenants" item="tenant" open="(" separator="," close=")">#{tenant}</foreach>
+        ORDER BY tenant_id LIMIT 2
+    </select>
+    <!-- 仅在当前身份已复核为SUPER_ADMIN后使用，不查询平台未授权资产或跳过停用状态。 -->
+    <select id="enabledTenantIds" resultType="java.lang.String" flushCache="true" useCache="false">
+        SELECT id FROM orbit_tenant WHERE enabled=1 ORDER BY id FOR SHARE
+    </select>
+    <!-- 当前数据库授权取并集；只有若依内置用户1/角色1沿用内置管理员语义，不靠会话通配符放行。 -->
+    <select id="readableMenuIds" resultType="java.lang.Long" flushCache="true" useCache="false">
+        SELECT granted.menu_id FROM sys_menu m JOIN sys_menu p ON p.menu_id=m.parent_id AND p.status='0'
+        JOIN sys_menu page ON page.menu_id=31011 AND page.parent_id=p.menu_id AND page.status='0'
+        JOIN sys_menu granted ON granted.menu_id IN(m.menu_id,p.menu_id,page.menu_id)
+        JOIN sys_user_role ur ON ur.user_id=#{actor}
+        JOIN sys_role r ON r.role_id=ur.role_id AND r.status='0' AND r.del_flag='0'
+        LEFT JOIN sys_role_menu rm ON rm.role_id=r.role_id AND rm.menu_id=granted.menu_id
+        WHERE m.menu_id=31010 AND m.perms='accounts.read' AND m.status='0'
+        AND ((#{actor}=1 AND r.role_id=1) OR rm.menu_id IS NOT NULL) FOR SHARE
+    </select>
+    <select id="snapshotById" resultMap="snapshot" flushCache="true" useCache="false">
+        SELECT s.*,p.scope_version FROM orbit_account_scope_snapshot s
+        LEFT JOIN orbit_account_scope_permission p ON p.tenant_id=s.tenant_id AND p.snapshot_id=s.id
+        WHERE s.tenant_id=#{tenant} AND s.actor_id=#{actor} AND s.id=#{id} FOR SHARE
+    </select>
+    <select id="hasInvisibleMember" resultType="boolean" flushCache="true" useCache="false">
+        SELECT EXISTS(SELECT 1 FROM orbit_account_scope_member m
+        LEFT JOIN orbit_account_scope_directory d ON d.tenant_id=m.tenant_id AND d.id=m.account_id
+        WHERE m.tenant_id=#{tenant} AND m.snapshot_id=#{id} AND (d.id IS NULL
+        <choose>
+            <when test="access.role == 'SUPER_ADMIN'"></when>
+            <when test="access.role == 'USER'">OR NOT (d.operator_user_id &lt;=> #{access.subject})</when>
+            <when test="access.role == 'TEAM_ADMIN' and access.teams.size() > 0">
+                OR d.owner_team_id IS NULL OR d.owner_team_id NOT IN <foreach collection="access.teams" item="team" open="(" separator="," close=")">#{team}</foreach>
+            </when>
+            <otherwise>OR 1=1</otherwise>
+        </choose>
+        ) LIMIT 1 FOR SHARE)
+    </select>
+    <select id="memberPage" resultMap="member" useCache="false">
+        SELECT account_id AS id,external_id,name,directory_account_revision AS revision
+        FROM orbit_account_scope_member WHERE tenant_id=#{tenant} AND snapshot_id=#{id}
+        <if test="after != null">AND account_id &gt; #{after}</if>
+        <if test="q != ''">AND (name LIKE CONCAT('%',#{escaped},'%') ESCAPE '!' OR external_id=#{q})</if>
+        ORDER BY account_id LIMIT #{limit} FOR SHARE
+    </select>
+    <!-- 权限锁定读取禁止会话/二级缓存，避免同事务内JDBC授权变更后返回旧值。 -->
+    <select id="scopeVersion" resultType="java.lang.Long" flushCache="true" useCache="false">
+        SELECT version FROM orbit_scope_version WHERE tenant_id=#{tenant} FOR SHARE
+    </select>
+    <insert id="recordScopeVersion">
+        INSERT INTO orbit_account_scope_permission(tenant_id,snapshot_id,scope_version) VALUES(#{tenantId},#{id},#{scopeVersion})
+    </insert>
+    <select id="directoryExists" resultType="boolean">
+        SELECT COUNT(*) FROM orbit_account_scope_directory WHERE tenant_id=#{tenant} AND id=#{id}
+    </select>
+    <insert id="insertDirectory">
+        INSERT INTO orbit_account_scope_directory(tenant_id,id,external_id,name,operator_user_id,owner_team_id,vendor_id,currency,account_status,auth_status,source_state,revision)
+        VALUES(#{tenant},#{row.id},#{row.externalId},#{row.name},#{row.operator},#{row.team},#{row.vendor},#{row.currency},#{row.accountStatus},#{row.authStatus},'UNVERIFIED',#{revision})
+    </insert>
+    <update id="updateDirectory">
+        UPDATE orbit_account_scope_directory SET external_id=#{row.externalId},name=#{row.name},operator_user_id=#{row.operator},owner_team_id=#{row.team},vendor_id=#{row.vendor},currency=#{row.currency},account_status=#{row.accountStatus},auth_status=#{row.authStatus},source_state='UNVERIFIED',revision=#{revision}
+        WHERE tenant_id=#{tenant} AND id=#{row.id}
+    </update>
+    <delete id="deleteDirectory">DELETE FROM orbit_account_scope_directory WHERE tenant_id=#{tenant} AND id=#{id}</delete>
+    <update id="advanceClock">UPDATE orbit_account_scope_clock SET revision=#{revision} WHERE tenant_id=#{tenant}</update>
+    <resultMap id="snapshot" type="com.ruoyi.system.orbit.scope.AccountScopeService$Snapshot">
+        <result property="tenantId" column="tenant_id"/><result property="id" column="id"/>
+        <result property="actorId" column="actor_id"/><result property="requestKey" column="request_key"/>
+        <result property="requestJson" column="request_json"/><result property="requestHash" column="request_hash"/>
+        <result property="accessHash" column="access_hash"/><result property="directoryRevision" column="directory_revision"/>
+        <result property="scopeVersion" column="scope_version"/>
+        <result property="memberCount" column="member_count"/><result property="membersHash" column="members_hash"/>
+        <result property="ready" column="ready"/><result property="createdAt" column="created_at"/>
+    </resultMap>
+    <resultMap id="member" type="com.ruoyi.system.orbit.scope.AccountScopeService$Member">
+        <result property="accountId" column="id"/><result property="externalId" column="external_id"/>
+        <result property="name" column="name"/><result property="revision" column="revision"/>
+        <result property="accountStatus" column="account_status"/><result property="authStatus" column="auth_status"/>
+        <result property="sourceState" column="source_state"/>
+    </resultMap>
+    <insert id="reserveClock">
+        INSERT INTO orbit_account_scope_clock(tenant_id) VALUES(#{tenant}) ON DUPLICATE KEY UPDATE tenant_id=tenant_id
+    </insert>
+    <select id="clock" resultType="long">SELECT revision FROM orbit_account_scope_clock WHERE tenant_id=#{tenant} FOR SHARE</select>
+    <insert id="reserve">
+        INSERT INTO orbit_account_scope_snapshot(tenant_id,id,actor_id,request_key,request_json,request_hash,access_hash,directory_revision,created_at)
+        VALUES(#{tenantId},#{id},#{actorId},#{requestKey},#{requestJson},#{requestHash},#{accessHash},#{directoryRevision},#{createdAt})
+        ON DUPLICATE KEY UPDATE id=id
+    </insert>
+    <select id="locked" resultMap="snapshot">
+        SELECT s.*,p.scope_version FROM orbit_account_scope_snapshot s
+        LEFT JOIN orbit_account_scope_permission p ON p.tenant_id=s.tenant_id AND p.snapshot_id=s.id
+        WHERE s.tenant_id=#{tenant} AND s.actor_id=#{actor} AND s.request_key=#{key} FOR UPDATE
+    </select>
+    <select id="candidates" resultMap="member">
+        SELECT id,external_id,name,revision,account_status,auth_status,source_state
+        FROM orbit_account_scope_directory WHERE tenant_id=#{tenant}
+        <choose>
+            <when test="access.role == 'SUPER_ADMIN'"></when>
+            <when test="access.role == 'USER'">AND operator_user_id=#{access.subject}</when>
+            <when test="access.role == 'TEAM_ADMIN' and access.teams.size() > 0">
+                AND owner_team_id IN <foreach collection="access.teams" item="team" open="(" separator="," close=")">#{team}</foreach>
+            </when>
+            <otherwise>AND 1=0</otherwise>
+        </choose>
+        <choose>
+            <when test="request.mode == 'IDS'">
+                AND id IN <foreach collection="request.accountIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+            </when>
+            <otherwise>
+                <if test="request.q != ''">AND (name LIKE CONCAT('%',#{request.escapedQ},'%') ESCAPE '!' OR external_id=#{request.q})</if>
+                <if test="request.status != null">AND account_status=#{request.status}</if>
+                <if test="request.authStatus != null">AND auth_status=#{request.authStatus}</if>
+                <if test="request.operator != null">AND operator_user_id=#{request.operator}</if>
+                <if test="request.vendor != null">AND vendor_id=#{request.vendor}</if>
+            </otherwise>
+        </choose>
+        ORDER BY id LIMIT 50001 FOR SHARE
+    </select>
+    <insert id="insertMembers">
+        INSERT INTO orbit_account_scope_member(tenant_id,snapshot_id,account_id,external_id,name,directory_account_revision) VALUES
+        <foreach collection="members" item="row" separator=",">(#{tenant},#{snapshot},#{row.accountId},#{row.externalId},#{row.name},#{row.revision})</foreach>
+    </insert>
+    <select id="members" resultMap="member">
+        SELECT account_id AS id,external_id,name,directory_account_revision AS revision
+        FROM orbit_account_scope_member WHERE tenant_id=#{tenant} AND snapshot_id=#{id} ORDER BY account_id
+    </select>
+    <update id="finish">
+        UPDATE orbit_account_scope_snapshot SET members_hash=#{membersHash},member_count=#{memberCount},ready=1
+        WHERE tenant_id=#{tenantId} AND id=#{id} AND ready=0
+    </update>
+</mapper>

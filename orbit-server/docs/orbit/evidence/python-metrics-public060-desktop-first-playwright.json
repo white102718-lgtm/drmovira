@@ -1,0 +1,359 @@
+{
+  "config": {
+    "argv": [
+      "D:\\Program Files\\nodejs\\node.exe",
+      "D:\\progress\\orbit\\orbit-web\\node_modules\\.pnpm\\@playwright+test@1.61.1\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "playwright.python.config.ts",
+      "orbit-metrics.spec.ts",
+      "--project",
+      "desktop-1440"
+    ],
+    "configFile": "D:\\progress\\orbit\\orbit-web\\playwright.python.config.ts",
+    "rootDir": "D:/progress/orbit/orbit-web/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-1440",
+        "name": "desktop-1440",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-metrics.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "wide-1920",
+        "name": "wide-1920",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-metrics.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/progress/orbit/.runtime/python-browser-it/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "D:/progress/orbit/orbit-web/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "orbit-python-configuration.spec.ts",
+          "orbit-metrics.spec.ts",
+          "orbit-python-teams.spec.ts",
+          "orbit-python-roles.spec.ts",
+          "orbit-python-users.spec.ts",
+          "orbit-python-native-directory.spec.ts",
+          "orbit-python-authentication.spec.ts",
+          "orbit-python-channels.spec.ts",
+          "orbit-python-vendor-alias.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\progress\\orbit\\.runtime\\python-browser-it\\playwright-result.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm dev --port 18084 --config vite.python.config.js",
+      "url": "http://127.0.0.1:18084/login",
+      "reuseExistingServer": false,
+      "timeout": 60000
+    }
+  },
+  "suites": [
+    {
+      "title": "orbit-metrics.spec.ts",
+      "file": "orbit-metrics.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Metrics原七Tab四实体目录选择及公开查询真实集合",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2669,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n\n    at choose (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:211:65)\n    at prepare (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:199:3)\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:333:7\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:322:5",
+                    "location": {
+                      "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                      "column": 65,
+                      "line": 211
+                    },
+                    "snippet": "  209 |     .locator('xpath=ancestor::div[contains(@class,\"el-select__wrapper\")][1]')\n  210 |     .click()\n> 211 |   await page.getByRole('option', { name: option, exact: true }).click()\n      |                                                                 ^\n  212 | }\n  213 | async function read(\n  214 |   page: Page,"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                        "column": 65,
+                        "line": 211
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n\n\n  209 |     .locator('xpath=ancestor::div[contains(@class,\"el-select__wrapper\")][1]')\n  210 |     .click()\n> 211 |   await page.getByRole('option', { name: option, exact: true }).click()\n      |                                                                 ^\n  212 | }\n  213 | async function read(\n  214 |   page: Page,\n    at choose (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:211:65)\n    at prepare (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:199:3)\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:333:7\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:322:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "原登录、查询上下文与目录真实读取",
+                      "duration": 2407,
+                      "error": {
+                        "message": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n",
+                        "stack": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-5856-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-5856-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n\n    at choose (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:211:65)\n    at prepare (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:199:3)\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:333:7\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:322:5",
+                        "location": {
+                          "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                          "column": 65,
+                          "line": 211
+                        },
+                        "snippet": "  209 |     .locator('xpath=ancestor::div[contains(@class,\"el-select__wrapper\")][1]')\n  210 |     .click()\n> 211 |   await page.getByRole('option', { name: option, exact: true }).click()\n      |                                                                 ^\n  212 | }\n  213 | async function read(\n  214 |   page: Page,"
+                      }
+                    }
+                  ],
+                  "startTime": "2026-11-08T21:23:24.345Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\progress\\orbit\\.runtime\\python-browser-it\\artifacts\\orbit-metrics-Metrics原七Tab四实体目录选择及公开查询真实集合-desktop-1440\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                    "column": 65,
+                    "line": 211
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e6798877c19a17a74490-8db024eaac3e79550cf4",
+          "file": "orbit-metrics.spec.ts",
+          "line": 319,
+          "column": 1
+        },
+        {
+          "title": "Metrics广告22条四档游标历史DAY44及原币种完整totals",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1327,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-876-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-876-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-876-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-876-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-876-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-876-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-876-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-876-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n\n    at choose (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:211:65)\n    at prepare (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:199:3)\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:375:5",
+                    "location": {
+                      "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                      "column": 65,
+                      "line": 211
+                    },
+                    "snippet": "  209 |     .locator('xpath=ancestor::div[contains(@class,\"el-select__wrapper\")][1]')\n  210 |     .click()\n> 211 |   await page.getByRole('option', { name: option, exact: true }).click()\n      |                                                                 ^\n  212 | }\n  213 | async function read(\n  214 |   page: Page,"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                        "column": 65,
+                        "line": 211
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-876-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-876-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-876-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-876-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n\n\n  209 |     .locator('xpath=ancestor::div[contains(@class,\"el-select__wrapper\")][1]')\n  210 |     .click()\n> 211 |   await page.getByRole('option', { name: option, exact: true }).click()\n      |                                                                 ^\n  212 | }\n  213 | async function read(\n  214 |   page: Page,\n    at choose (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:211:65)\n    at prepare (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:199:3)\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:375:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T21:23:27.659Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\progress\\orbit\\.runtime\\python-browser-it\\artifacts\\orbit-metrics-Metrics广告22条四档游标历史DAY44及原币种完整totals-desktop-1440\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                    "column": 65,
+                    "line": 211
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e6798877c19a17a74490-d7f3bddd5ccc6234f46a",
+          "file": "orbit-metrics.spec.ts",
+          "line": 371,
+          "column": 1
+        },
+        {
+          "title": "Metrics字面通配符两日筛选全部字段详情与无结果恢复",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1391,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-764-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-764-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-764-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-764-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-764-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-764-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-764-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-764-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n\n    at choose (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:211:65)\n    at prepare (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:199:3)\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:439:5",
+                    "location": {
+                      "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                      "column": 65,
+                      "line": 211
+                    },
+                    "snippet": "  209 |     .locator('xpath=ancestor::div[contains(@class,\"el-select__wrapper\")][1]')\n  210 |     .click()\n> 211 |   await page.getByRole('option', { name: option, exact: true }).click()\n      |                                                                 ^\n  212 | }\n  213 | async function read(\n  214 |   page: Page,"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                        "column": 65,
+                        "line": 211
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true }) resolved to 2 elements:\n    1) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-764-105\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-764-105')\n    2) <li role=\"option\" data-v-17c78e42=\"\" id=\"el-id-764-108\" aria-selected=\"false\" class=\"el-select-dropdown__item\">…</li> aka locator('#el-id-764-108')\n\nCall log:\n\u001b[2m  - waiting for getByRole('option', { name: 'observed-v001 · 测试样本 · 已登记', exact: true })\u001b[22m\n\n\n  209 |     .locator('xpath=ancestor::div[contains(@class,\"el-select__wrapper\")][1]')\n  210 |     .click()\n> 211 |   await page.getByRole('option', { name: option, exact: true }).click()\n      |                                                                 ^\n  212 | }\n  213 | async function read(\n  214 |   page: Page,\n    at choose (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:211:65)\n    at prepare (D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:199:3)\n    at D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts:439:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T21:23:29.635Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\progress\\orbit\\.runtime\\python-browser-it\\artifacts\\orbit-metrics-Metrics字面通配符两日筛选全部字段详情与无结果恢复-desktop-1440\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\progress\\orbit\\orbit-web\\tests\\e2e\\orbit-metrics.spec.ts",
+                    "column": 65,
+                    "line": 211
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e6798877c19a17a74490-b9f26ab683fd61f910d3",
+          "file": "orbit-metrics.spec.ts",
+          "line": 435,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-08T21:23:20.837Z",
+    "duration": 10647.29,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

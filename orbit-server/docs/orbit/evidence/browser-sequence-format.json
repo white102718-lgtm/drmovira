@@ -1,0 +1,15 @@
+{
+  "name": "browser-sequence-format",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": "pnpm.cmd exec prettier --check tests/e2e/orbit-configuration.spec.ts",
+  "executed_at": "2026-11-07T12:35:55+08:00",
+  "environment": "本地开发验证；模拟传输/Mapper的测试不代表真实平台或MySQL集成",
+  "summary": {},
+  "phase": "testing",
+  "item_ids": [],
+  "scope": "仅本轮浏览器步骤文件格式检查，实际浏览器见application-browser-integration；非产品验收。",
+  "frontend_source_sha256": {
+    "tests/e2e/orbit-configuration.spec.ts": "06e0b697b6a77276d82ac62e6dbc2f7a8adc73a650fd4d24eefae010013b4b02"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ORBIT角色注册选项、内置保护与CSRF扩展",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/v1/roles/capabilities": {
+      "get": {
+        "operationId": "getRoleCapabilities",
+        "description": "当前真实会话角色管理授权下的完整八菜单与动作注册表；仅本租户内置角色UUID；CSRF会话绑定30分钟，仅内存使用，no-store。不是原Session全合同替代。",
+        "responses": {
+          "200": {
+            "description": "注册表与保护选项",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleCapabilities"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RoleCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "menus",
+          "permissions",
+          "built_in_role_ids",
+          "csrf_token"
+        ],
+        "properties": {
+          "menus": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "maxItems": 100,
+            "uniqueItems": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "maxItems": 500,
+            "uniqueItems": true
+          },
+          "built_in_role_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "uniqueItems": true
+          },
+          "csrf_token": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 255
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.orbit.config.ConfigurationMapper">
+    <!-- 显式映射，不依赖若依默认关闭的下划线转驼峰配置。 -->
+    <resultMap id="configurationRow" type="com.ruoyi.system.orbit.config.ConfigurationModels$Row">
+        <result property="id" column="id" />
+        <result property="tenantId" column="tenant_id" />
+        <result property="section" column="section" />
+        <result property="name" column="name" />
+        <result property="enabled" column="enabled" />
+        <result property="revision" column="revision" />
+        <result property="settingsJson" column="settings_json" />
+        <result property="secretsJson" column="secrets_json" />
+        <result property="verificationStatus" column="verification_status" />
+        <result property="verifiedAt" column="verified_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+    <resultMap id="auditRow" type="com.ruoyi.system.orbit.config.ConfigurationModels$AuditRow">
+        <result property="id" column="id" />
+        <result property="actorId" column="actor_id" />
+        <result property="action" column="action" />
+        <result property="revision" column="revision" />
+        <result property="beforeRevision" column="before_revision" />
+        <result property="beforeHash" column="before_hash" />
+        <result property="afterHash" column="after_hash" />
+        <result property="hashAlgorithm" column="hash_algorithm" />
+        <result property="changedFieldsJson" column="changed_fields_json" />
+        <result property="reason" column="reason" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+    <resultMap id="idempotencyRow" type="com.ruoyi.system.orbit.config.ConfigurationModels$IdempotencyRow">
+        <result property="payloadHash" column="payload_hash" />
+        <result property="responseJson" column="response_json" />
+    </resultMap>
+    <select id="findPrincipal" resultType="com.ruoyi.system.orbit.config.ConfigurationModels$Principal">
+        SELECT scope.tenant_id, scope.data_role
+        FROM orbit_user_scope scope
+        INNER JOIN orbit_tenant tenant ON tenant.id = scope.tenant_id AND tenant.enabled = 1
+        INNER JOIN sys_user actor ON actor.user_id = scope.user_id AND actor.status = '0' AND actor.del_flag = '0'
+        WHERE scope.user_id = #{userId} AND scope.enabled = 1
+    </select>
+    <sql id="columns">
+        id, tenant_id, section, name, enabled, revision, settings_json, secrets_json,
+        verification_status, verified_at, updated_at
+    </sql>
+    <select id="list" resultMap="configurationRow">
+        SELECT <include refid="columns" />
+        FROM orbit_system_configuration
+        WHERE tenant_id = #{tenantId}
+        ORDER BY section, name, id
+    </select>
+    <select id="find" resultMap="configurationRow">
+        SELECT <include refid="columns" />
+        FROM orbit_system_configuration
+        WHERE tenant_id = #{tenantId} AND id = #{id}
+    </select>
+    <select id="history" resultMap="auditRow">
+        SELECT id, actor_id, action, revision, before_revision, before_hash, after_hash, hash_algorithm, changed_fields_json, reason, created_at
+        FROM orbit_configuration_audit
+        WHERE tenant_id = #{tenantId} AND config_id = #{configId}
+            AND revision &lt; #{beforeRevision}
+        ORDER BY revision DESC
+        LIMIT #{limit}
+    </select>
+    <insert id="insert">
+        INSERT INTO orbit_system_configuration (
+            id, tenant_id, section, name, enabled, revision, settings_json, secrets_json,
+            verification_status, created_at, updated_at
+        ) VALUES (
+            #{id}, #{tenantId}, #{section}, #{name}, #{enabled}, #{revision}, #{settingsJson}, #{secretsJson},
+            'UNTESTED', UTC_TIMESTAMP(3), UTC_TIMESTAMP(3)
+        )
+    </insert>
+    <update id="update">
+        UPDATE orbit_system_configuration
+        SET name = #{row.name}, enabled = #{row.enabled}, revision = #{row.revision},
+            settings_json = #{row.settingsJson}, secrets_json = #{row.secretsJson},
+            verification_status = 'UNTESTED', verified_at = NULL, updated_at = UTC_TIMESTAMP(3)
+        WHERE tenant_id = #{row.tenantId} AND id = #{row.id} AND revision = #{expectedRevision}
+    </update>
+    <insert id="audit">
+        INSERT INTO orbit_configuration_audit (
+            id, tenant_id, config_id, actor_id, action, revision, before_revision, before_hash, after_hash, hash_algorithm, changed_fields_json, reason, created_at
+        ) VALUES (
+            #{id}, #{tenantId}, #{configId}, #{actorId}, #{action}, #{revision}, #{beforeRevision}, #{beforeHash}, #{afterHash}, #{hashAlgorithm}, #{changedFieldsJson}, #{reason}, UTC_TIMESTAMP(3)
+        )
+    </insert>
+    <update id="recordVerification">
+        UPDATE orbit_system_configuration
+        SET verification_status = #{status}, verified_at = UTC_TIMESTAMP(3),
+            revision = revision + 1, updated_at = UTC_TIMESTAMP(3)
+        WHERE tenant_id = #{tenantId} AND id = #{id} AND revision = #{revision}
+    </update>
+    <insert id="reserveRequest">
+        INSERT INTO orbit_configuration_idempotency (tenant_id, actor_id, request_key, payload_hash, created_at)
+        VALUES (#{tenantId}, #{actorId}, #{requestKey}, #{payloadHash}, UTC_TIMESTAMP(3))
+        ON DUPLICATE KEY UPDATE request_key = request_key
+    </insert>
+    <select id="requestForUpdate" resultMap="idempotencyRow">
+        SELECT payload_hash, response_json
+        FROM orbit_configuration_idempotency
+        WHERE tenant_id = #{tenantId} AND actor_id = #{actorId} AND request_key = #{requestKey}
+        FOR UPDATE
+    </select>
+    <update id="finishRequest">
+        UPDATE orbit_configuration_idempotency
+        SET response_json = #{responseJson}
+        WHERE tenant_id = #{tenantId} AND actor_id = #{actorId} AND request_key = #{requestKey}
+    </update>
+</mapper>

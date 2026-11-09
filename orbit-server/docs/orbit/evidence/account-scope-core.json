@@ -1,0 +1,57 @@
+{
+  "name": "account-scope-core",
+  "result": "PASS",
+  "phase": "testing",
+  "item_ids": [],
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-admin -am -Porbit-network-it verify",
+  "executed_at": "2026-11-07T19:59:50+08:00",
+  "exit_code": 0,
+  "environment": "Java21；network profile默认Surefire阶段的专项子集，数据库另见真实MySQL回执",
+  "summary": {
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "cannotInjectServerIdentityOrMemberData(String)[1]",
+      "cannotInjectServerIdentityOrMemberData(String)[2]",
+      "cannotInjectServerIdentityOrMemberData(String)[3]",
+      "cannotInjectServerIdentityOrMemberData(String)[4]",
+      "cannotInjectServerIdentityOrMemberData(String)[5]",
+      "likeMetacharactersAreEscapedAsLiteralSearch",
+      "acceptsEachAccountStatus(String)[1]",
+      "acceptsEachAccountStatus(String)[2]",
+      "acceptsEachAccountStatus(String)[3]",
+      "idsAreNormalizedDeduplicatedSortedAndFrozen",
+      "rejectsUnknownFiltersInvalidTypesAndUnboundedText",
+      "enforcesRaw50000CapWithoutTruncating",
+      "projectedFieldsMatchUnmodifiedProductContract",
+      "modesAreExclusiveAndRequireExpectedContainers",
+      "requiresAllFilterFieldsEvenWhenNull(String)[1]",
+      "requiresAllFilterFieldsEvenWhenNull(String)[2]",
+      "requiresAllFilterFieldsEvenWhenNull(String)[3]",
+      "requiresAllFilterFieldsEvenWhenNull(String)[4]",
+      "requiresAllFilterFieldsEvenWhenNull(String)[5]",
+      "acceptsEachAuthorizationStatus(String)[1]",
+      "acceptsEachAuthorizationStatus(String)[2]",
+      "acceptsEachAuthorizationStatus(String)[3]",
+      "acceptsEachAuthorizationStatus(String)[4]",
+      "requiresAllTopLevelFields(String)[1]",
+      "requiresAllTopLevelFields(String)[2]",
+      "requiresAllTopLevelFields(String)[3]"
+    ]
+  },
+  "scope": "仅完整ScopeRequest及过滤器投影/模式/数量/规范化；内部事务8项另有回执，非公开Scope接口或完整账户模块验收",
+  "related_evidence": [
+    "docs/orbit/evidence/account-scope-integration.json"
+  ],
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/scope/AccountScopeMapper.java": "6fa54d7b94534beb3a9af7d8c496ed5cd881e9db74f25b6b2dadad6ca9159cc7",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/scope/AccountScopeService.java": "dd08473a9ffc5b3b0ffac03248e0890a4bb05603b500263c5d1b4a3c6fac6b7a",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/scope/ScopeRequestGuard.java": "5d760e988ecaf0b4e9e8ab498c357a3e14d4a0aec47e00c44e58a4944be0ea96",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/scope/ScopeRequestGuardTest.java": "780a51409c142501e575d5414c87a0e851337b788e6f1fe176e7894493565f29",
+    "ruoyi-system/src/main/resources/mapper/orbit/AccountScopeMapper.xml": "8bd20acde4ed0d6a0ade6d8319cd4c49c371e8b1abc5bee45273aa2277655d9a",
+    "sql/orbit/V008__account_scope_snapshots.sql": "14ffc1f40453c1f5b5697ceab7040b3f135820ec7925616de482acddc61f75c9",
+    "docs/orbit/baseline/contracts/openapi-current.json": "d9cd12c7f219830a35817e74e7ce55d8d3a49ad7f0d2670aeb67815c84c9e64a"
+  }
+}

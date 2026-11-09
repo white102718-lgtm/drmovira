@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.orbit.metrics.MetricProfileMapper">
+    <resultMap id="row" type="com.ruoyi.system.orbit.metrics.MetricProfileRegistry$Row">
+        <result property="tenantId" column="tenant_id"/>
+        <result property="id" column="profile_id"/>
+        <result property="version" column="version"/>
+        <result property="source" column="source"/>
+        <result property="bodyJson" column="body_json"/>
+        <result property="bodyHash" column="body_hash"/>
+        <result property="verificationState" column="verification_state"/>
+        <result property="published" column="published"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+    <insert id="reserve">
+        INSERT INTO orbit_metric_profile_version(tenant_id,profile_id,version,source,body_json,body_hash,created_at)
+        VALUES(#{tenantId},#{id},#{version},#{source},#{bodyJson},#{bodyHash},#{createdAt})
+        ON DUPLICATE KEY UPDATE profile_id=profile_id
+    </insert>
+    <select id="lock" resultMap="row">
+        SELECT tenant_id,profile_id,version,source,body_json,body_hash,verification_state,published,created_at
+        FROM orbit_metric_profile_version
+        WHERE tenant_id=#{tenant} AND profile_id=#{id} AND version=#{version} FOR UPDATE
+    </select>
+    <update id="finish">
+        UPDATE orbit_metric_profile_version SET published=1
+        WHERE tenant_id=#{tenantId} AND profile_id=#{id} AND version=#{version} AND published=0
+    </update>
+    <insert id="audit">
+        INSERT INTO orbit_metric_profile_event(id,tenant_id,profile_id,version,actor_id,reason,created_at)
+        VALUES(UUID(),#{row.tenantId},#{row.id},#{row.version},#{actor},#{reason},#{row.createdAt})
+    </insert>
+</mapper>

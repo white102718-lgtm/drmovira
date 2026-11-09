@@ -1,0 +1,19 @@
+{
+  "name": "python-account-command-diagnostics-unit",
+  "executed_at": "2026-11-08T08:50:30.517580+00:00",
+  "result": "PASS",
+  "scope": "17项本人命令诊断纯测；真实权限/数据库另存107组回执",
+  "command": ".venv/Scripts/python.exe -m pytest python/tests/test_account_command_diagnostics.py -q",
+  "summary": {
+    "passed": 17,
+    "failed": 0,
+    "duration_seconds": 0.48
+  },
+  "source_sha256": {
+    "python/orbit_api/account_command_contract.py": "12b624e6de445f4585d976adadd69cf2360eeb8975cd6e15e09e20ffc5d1a96f",
+    "python/orbit_api/account_command_store.py": "1b25944aa97ce25fdedc48de26c1ef6c942a267e0ebdcc1385587bfdfaa0bc6b",
+    "python/orbit_api/account_command_routes.py": "14121d3613b6d478b564d6c96b0b80748a638dba4a3fc61bcb63036f7d780bd8",
+    "python/orbit_api/migrations/031_account_command_diagnostics.sql": "e100da032882deadce697e473a15715511c552d591702177375302c8361627b6",
+    "python/tests/test_account_command_diagnostics.py": "94843b071e56df411ea735d54d9d8fb6ff8f08a9704a30f2d578ee2e69256cac"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "rule-write-core",
+  "result": "PASS",
+  "phase": "testing",
+  "item_ids": [],
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-admin -am -Porbit-network-it verify",
+  "executed_at": "2026-11-07T19:59:50+08:00",
+  "exit_code": 0,
+  "environment": "Java21；network profile默认Surefire阶段的专项子集，数据库另见真实MySQL回执",
+  "summary": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "fullRequestCannotBypassSharedConditionsOrSchedule",
+      "namesUseCodePointsNfcAndRejectEmptyControlsOrOverflow",
+      "numericBoundariesAndTypesDoNotCoerce",
+      "cannotInjectServerFields(String)[1]",
+      "cannotInjectServerFields(String)[2]",
+      "cannotInjectServerFields(String)[3]",
+      "cannotInjectServerFields(String)[4]",
+      "cannotInjectServerFields(String)[5]",
+      "cannotInjectServerFields(String)[6]",
+      "allContractFieldsAreRequired(String)[1]",
+      "allContractFieldsAreRequired(String)[2]",
+      "allContractFieldsAreRequired(String)[3]",
+      "allContractFieldsAreRequired(String)[4]",
+      "allContractFieldsAreRequired(String)[5]",
+      "allContractFieldsAreRequired(String)[6]",
+      "allContractFieldsAreRequired(String)[7]",
+      "allContractFieldsAreRequired(String)[8]",
+      "allContractFieldsAreRequired(String)[9]",
+      "allContractFieldsAreRequired(String)[10]",
+      "allContractFieldsAreRequired(String)[11]",
+      "fieldsMatchOriginalRuleWriteContract",
+      "canonicalBodyAndHashAreIndependentOfPropertyOrder",
+      "acceptsAllTargetAndWindowEnumsButRejectsUnknown",
+      "ownershipRequiresTwoStrictUuidsAndNoExtraFields"
+    ]
+  },
+  "scope": "仅完整RuleWrite格式与冻结；草稿事务7项另见mysql-configuration-integration.json，不包含owner/scope/profile授权或完整规则验收",
+  "related_evidence": [
+    "docs/orbit/evidence/mysql-configuration-integration.json"
+  ],
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/rules/RuleConditions.java": "f3c9fc5a81afd1a2d238343034804bf67bf9999e364eaf37206a8a6482aaf088",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/rules/RuleDraftMapper.java": "e9bfbde42556a03a10179fe24357a99dbb52628bfbc56069d801dc158ac6e175",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/rules/RuleDraftStore.java": "cf08863210e1bc6cff82647c1db43a058982b488c2326189b58ba5bc9ab8acb3",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/rules/RuleSchedule.java": "5c31b3ec5a14f7b9eed47597a8fd4d1d025d5500864f712535f5c6fffa3762ed",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/rules/RuleWriteGuard.java": "31af4a4990ab4d6931c8c207b5bc2bf69aa23589514ef985d8f0422b56af1e08",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/rules/RuleWriteGuardTest.java": "a0dee62e08eab1775ba99f346d2ac0a3622d0506b7ba12675cbace9b8e1e3ea0",
+    "docs/orbit/baseline/contracts/openapi-current.json": "d9cd12c7f219830a35817e74e7ce55d8d3a49ad7f0d2670aeb67815c84c9e64a",
+    "sql/orbit/V005__rule_draft_versions.sql": "d5f63540bbb7cbad925470cfdd7599d21533a87edee05abbd94e0cabd49d87b1",
+    "ruoyi-system/src/main/resources/mapper/orbit/RuleDraftMapper.xml": "1c351d9a554858ebad07ccf2e4e1993e4c0666c8f226e689fcc73bd145fd03a0",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/config/ConfigurationMySqlIT.java": "c6b2e727fe60f59d8ca7b2e6151958ac979863a32ab585160de8bb3447c2d17c"
+  }
+}

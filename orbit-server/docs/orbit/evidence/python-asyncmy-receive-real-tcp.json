@@ -1,0 +1,62 @@
+{
+  "name": "python-asyncmy-receive-real-tcp",
+  "result": "PASS",
+  "executed_at": "2026-11-08T09:44:44.570704+00:00",
+  "source_sha256": {
+    "python/orbit_api/launch_allocation.py": "2a46ec0ea2ca47c24eb5349c537573fdd470c4fe82c8bf289c0dcb878d4d69b3",
+    "python/orbit_api/launch_dag.py": "c307aa10b230652d3a762a4acfd738935443410f227100e49b63691072ea3f71",
+    "python/orbit_api/launch_allocation_packet.py": "d55a1b784ac4c5c4893146a790e6c5e23086785c7b2f8ef166a45344c1eebab7",
+    "python/orbit_api/launch_allocation_runtime.py": "c845b56e2a44a53732f706ae7e6d67103b41239ee36089fec0f6ce06ebcd19df",
+    "python/orbit_api/launch_allocation_worker.py": "ff7f6123748a2f09a8b2ba131404b248f590660e70f9f251145a2e6b0769faaf",
+    "python/ruoyi_fastapi/config/asyncmy_compat.py": "ed44ba5ddf076796317a534e13be62a4779f7b1e7f1c4394e584f47f0ba9a7de",
+    "python/ruoyi_fastapi/config/database.py": "6164ddebf09c97e7b76434b1349409bf4526baa1611c3c06f3d00efe7ba1949b",
+    "tools/launch_allocation_runtime_checks.py": "824b097eb69700166d3c1c20fdf57fbebaaf4735ab05a9beace8da6b57a7379c",
+    "tools/launch_allocation_asyncmy_receive_probe.py": "eaa308bd1d71b7dbaf4de4d8cdc3475485292ca9b371e1312bf18f6eea99c35b",
+    "tools/run_python_framework_checks.py": "5fd29c5c429113f75a1a024e8796d3c93eea959fab1de1cf2677f98bb5e128ef",
+    "python/tests/test_launch_allocation.py": "8e4eeeb7eff77e3d99582932f4611ca9198634edb13fb2a1331788102535028d",
+    "python/tests/test_launch_dag.py": "0e4ad208dfb4e08d1189be2ee05476f1994cf769c1adef2471a09784600c6020",
+    "python/tests/test_launch_allocation_packet.py": "f7f14164dad70e6b55ef0938942abc484777f299b542dd1ab279d0c6668cda29",
+    "python/tests/test_launch_allocation_runtime.py": "7bd31fc3ccbfcbb748bba1cb28706cb38698a3d3c3394db2a8f08adc1d1c7007",
+    "python/tests/test_asyncmy_receive_probe.py": "3b7b0718460bef2398775992c2f3749bafb9913848d4adad494602fe8b105ec0",
+    "python/orbit_api/migrations/032_launch_allocation_runtime.sql": "41764b9532f06eb2c957c65527b3722b0f3e1f386c03a57091b70debdec32096"
+  },
+  "scope": "自有随机loopback端口、真实Proactor；原始负例确定BufferError，兼容5MiB完整二进制；无数据库/凭据",
+  "commands": [
+    "tools/launch_allocation_asyncmy_receive_probe.py --tcp-gated",
+    "tools/launch_allocation_asyncmy_receive_probe.py --tcp-gated --compat"
+  ],
+  "baseline": {
+    "asyncmy_version": "0.2.16",
+    "mode": "event-gated-loopback-tcp",
+    "event_loop": "ProactorEventLoop",
+    "expected_bytes": 5242880,
+    "received_bytes": 262144,
+    "complete": false,
+    "binary_exact": false,
+    "failure_type": "BufferError",
+    "callback_error_types": [
+      "BufferError"
+    ],
+    "elapsed_seconds": 0.003,
+    "real_transport_exercised": true,
+    "database_used": false,
+    "remaining_before_gate": 32768,
+    "tcp_buffer_error_reproduced": true
+  },
+  "fixed": {
+    "asyncmy_version": "0.2.16",
+    "mode": "event-gated-loopback-tcp",
+    "event_loop": "ProactorEventLoop",
+    "expected_bytes": 5242880,
+    "received_bytes": 5242880,
+    "complete": true,
+    "binary_exact": true,
+    "failure_type": null,
+    "callback_error_types": [],
+    "elapsed_seconds": 0.023,
+    "real_transport_exercised": true,
+    "database_used": false,
+    "remaining_before_gate": 32768,
+    "tcp_buffer_error_reproduced": false
+  }
+}

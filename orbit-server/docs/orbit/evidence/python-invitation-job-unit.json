@@ -1,0 +1,26 @@
+{
+  "name": "python-invitation-job-unit",
+  "phase": "testing",
+  "result": "PASS",
+  "exit_code": 0,
+  "item_ids": [],
+  "executed_at": "2026-11-08T11:52:42.168673+08:00",
+  "command": "python -m pytest python/tests/test_invitation_job.py tools/tests/test_invitation_worker_cli.py tools/tests/test_invitation_worker_lock.py tools/tests/test_invitation_worker_cli_checks.py",
+  "scope": "27项任务控制/参数/实际本机进程锁与夹具边界单测；通知HTTP另有真实CLI回执",
+  "summary": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "python/orbit_api/invitation_job.py": "c6003aa54c91244dcebd54b459bae31fdae9640b8b78cb8c4d088c888cd8f16d",
+    "python/tests/test_invitation_job.py": "4f945c69a6fcf039aba55e0c5b3cb4cdf1c7633e4dc2beadaf55f5aa25701f7f",
+    "tools/run_invitation_worker.py": "a2ad6201570863590ca6507d3433fcd7779f1ca81e5e51a2800993163a1681f7",
+    "tools/invitation_worker_lock.py": "6165479ea7966029caa1ee2ea13e8399128529a676dd5806e27a8654426111a7",
+    "tools/invitation_worker_cli_checks.py": "679c519cfc0077b401efb98f9f24d09f53eb23a260b6019b59b2725f5dffb549",
+    "tools/tests/test_invitation_worker_cli.py": "51ec814ec38b349c077da5dff6e76209f4c5ea45f00dd605d6a5f7cf20a19ba8",
+    "tools/tests/test_invitation_worker_lock.py": "463d019f98c4d1f0912306325f34be8a2cbd39cf572d3108f82cde4362eb1f36",
+    "tools/tests/test_invitation_worker_cli_checks.py": "081063b729a652cc3b4dcba4a49fd7e3871232395c9e3d549ad6c16a05f6b305"
+  }
+}

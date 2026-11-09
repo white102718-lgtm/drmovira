@@ -1,0 +1,18 @@
+{
+  "source": "AdPilot V1.2 fields.json + fields-extension.json",
+  "base_total": 156,
+  "retained": 116,
+  "retired_module_fields": 40,
+  "extension_total": 24,
+  "extension_retained": 22,
+  "policy": "Retained records preserve every original property exactly; source module labels are traceability labels, not menu entries.",
+  "retired_modules": [
+    "产品",
+    "客户",
+    "户商",
+    "户商账户",
+    "申请",
+    "马甲包"
+  ],
+  "baseline_sha256": "170f5c1a59cefbb9f4e90d5c833b44abe5e132b761a545150a5d0e9936fc5e09"
+}

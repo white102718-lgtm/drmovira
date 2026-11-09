@@ -1,0 +1,1710 @@
+{
+  "result": "PASS",
+  "account_count": 50000,
+  "snapshot_count": 3,
+  "member_count_per_snapshot": 50000,
+  "daily_fact_count": 0,
+  "cache_note": "装载后首读/暖读SQL微基准，不是冷缓存或完整HTTP容量验收",
+  "candidate_note": "覆盖索引只在同连接TEMPORARY影子表，不改变生产表/索引",
+  "measurements": [
+    {
+      "role": "SUPER_ADMIN",
+      "state": "all_visible",
+      "variant": "production_left",
+      "seconds": [
+        0.8036583000211976,
+        0.7205526000179816,
+        0.7410550999920815
+      ],
+      "median_seconds": 0.7410550999920815,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "18750.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "35625.22",
+            "data_read_per_join": "144M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=35625 rows=1) (actual time=743..743 rows=0 loops=1)\n    -> Filter: (a.id is null)  (cost=35625 rows=75000) (actual time=743..743 rows=0 loops=1)\n        -> Nested loop antijoin  (cost=35625 rows=75000) (actual time=743..743 rows=0 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.308..198 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.307..103 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=0.25 rows=1) (actual time=0.0108..0.0108 rows=1 loops=50000)\n                -> Single-row covering index lookup on a using PRIMARY (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=0.25 rows=1) (actual time=0.00981..0.00981 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "state": "all_visible",
+      "variant": "production_exists",
+      "seconds": [
+        1.2059280000103172,
+        1.1245494000031613,
+        1.1305375999945682
+      ],
+      "median_seconds": 1.1305375999945682,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "uk_account_external",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25000,
+          "rows_produced_per_join": 25000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "367.88",
+            "eval_cost": "2500.00",
+            "prefix_cost": "2867.88",
+            "data_read_per_join": "48M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1152..1152 rows=0 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1152..1152 rows=0 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.307..205 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.306..108 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.3..0.3 rows=1) (actual time=0.0188..0.0188 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=5368..5368 rows=1) (actual time=0.0178..0.0178 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=5368..5368 rows=25000) (actual time=478..478 rows=50000 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=2868 rows=25000) (actual time=0.234..95.1 rows=50000 loops=1)\n                        -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=2868 rows=25000) (actual time=0.234..92.2 rows=50000 loops=1)\n                            -> Covering index lookup on a using uk_account_external (tenant_id='<fixture-uuid>')  (cost=2868 rows=25000) (actual time=0.233..49.1 rows=50000 loops=1)\n"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "state": "all_visible",
+      "variant": "shadow_cover_left",
+      "seconds": [
+        0.7087847999937367,
+        0.6810879999829922,
+        0.6840799000055995
+      ],
+      "median_seconds": 0.6840799000055995,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "75000.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "91875.23",
+            "data_read_per_join": "144M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=91875 rows=1) (actual time=697..697 rows=0 loops=1)\n    -> Filter: (a.id is null)  (cost=91875 rows=75000) (actual time=697..697 rows=0 loops=1)\n        -> Nested loop antijoin  (cost=91875 rows=75000) (actual time=697..697 rows=0 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.308..193 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.306..102 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=1 rows=1) (actual time=0.00998..0.00998 rows=1 loops=50000)\n                -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=1 rows=1) (actual time=0.00898..0.00898 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "state": "all_visible",
+      "variant": "shadow_cover_exists",
+      "seconds": [
+        1.6358250000048429,
+        1.6381001999834552,
+        1.621670799999265
+      ],
+      "median_seconds": 1.6358250000048429,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25017,
+          "rows_produced_per_join": 25017,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2502.60",
+            "eval_cost": "2501.70",
+            "prefix_cost": "5004.30",
+            "data_read_per_join": "48M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1648..1648 rows=0 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1648..1648 rows=0 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.302..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.3..107 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.3..0.3 rows=1) (actual time=0.0288..0.0288 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=7506..7506 rows=1) (actual time=0.0277..0.0277 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=7506..7506 rows=25017) (actual time=967..967 rows=50000 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=5004 rows=25017) (actual time=0.237..88.3 rows=50000 loops=1)\n                        -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.237..85.4 rows=50000 loops=1)\n                            -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.236..45.3 rows=50000 loops=1)\n"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "production_left",
+      "seconds": [
+        0.719234400021378,
+        0.733122400008142,
+        0.7155531999887899
+      ],
+      "median_seconds": 0.719234400021378,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "18750.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "35625.22",
+            "data_read_per_join": "144M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=35625 rows=1) (actual time=752..752 rows=1 loops=1)\n    -> Filter: (a.id is null)  (cost=35625 rows=75000) (actual time=752..752 rows=1 loops=1)\n        -> Nested loop antijoin  (cost=35625 rows=75000) (actual time=752..752 rows=1 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.304..199 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.302..104 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=0.25 rows=1) (actual time=0.011..0.011 rows=1 loops=50000)\n                -> Single-row covering index lookup on a using PRIMARY (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=0.25 rows=1) (actual time=0.00993..0.00993 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "production_exists",
+      "seconds": [
+        1.1329644999932498,
+        1.114627200004179,
+        1.1251227000029758
+      ],
+      "median_seconds": 1.1251227000029758,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "uk_account_external",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 24999,
+          "rows_produced_per_join": 24999,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "367.87",
+            "eval_cost": "2499.90",
+            "prefix_cost": "2867.77",
+            "data_read_per_join": "48M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1145..1145 rows=1 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1145..1145 rows=1 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.304..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.303..107 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.3..0.3 rows=1) (actual time=0.0187..0.0187 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=5368..5368 rows=1) (actual time=0.0177..0.0177 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=5368..5368 rows=24999) (actual time=474..474 rows=49999 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=2868 rows=24999) (actual time=0.231..98.6 rows=49999 loops=1)\n                        -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=2868 rows=24999) (actual time=0.231..95.6 rows=49999 loops=1)\n                            -> Covering index lookup on a using uk_account_external (tenant_id='<fixture-uuid>')  (cost=2868 rows=24999) (actual time=0.23..50.9 rows=49999 loops=1)\n"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "shadow_cover_left",
+      "seconds": [
+        0.6748097999952734,
+        0.6740977999870665,
+        0.679432100005215
+      ],
+      "median_seconds": 0.6748097999952734,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "75000.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "91875.23",
+            "data_read_per_join": "144M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=91875 rows=1) (actual time=697..697 rows=1 loops=1)\n    -> Filter: (a.id is null)  (cost=91875 rows=75000) (actual time=697..697 rows=1 loops=1)\n        -> Nested loop antijoin  (cost=91875 rows=75000) (actual time=697..697 rows=1 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.306..194 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.304..102 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=1 rows=1) (actual time=0.00998..0.00998 rows=1 loops=50000)\n                -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=1 rows=1) (actual time=0.00898..0.00898 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "shadow_cover_exists",
+      "seconds": [
+        1.6380843999795616,
+        1.6332475999952294,
+        1.632866700005252
+      ],
+      "median_seconds": 1.6332475999952294,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25017,
+          "rows_produced_per_join": 25017,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2502.60",
+            "eval_cost": "2501.70",
+            "prefix_cost": "5004.30",
+            "data_read_per_join": "48M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1655..1655 rows=1 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1655..1655 rows=1 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.302..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.301..106 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.3..0.3 rows=1) (actual time=0.0289..0.0289 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=7506..7506 rows=1) (actual time=0.0279..0.0279 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=7506..7506 rows=25017) (actual time=987..987 rows=49999 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=5004 rows=25017) (actual time=0.235..97.5 rows=49999 loops=1)\n                        -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.235..94.5 rows=49999 loops=1)\n                            -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.234..50.1 rows=49999 loops=1)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "all_visible",
+      "variant": "production_left",
+      "seconds": [
+        1.0667522000148892,
+        1.0391654999984894,
+        1.0580279000278097
+      ],
+      "median_seconds": 1.0580279000278097,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "18750.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "35625.22",
+            "data_read_per_join": "144M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=35625 rows=1) (actual time=1055..1055 rows=0 loops=1)\n    -> Filter: ((a.id is null) or ((a.owner_user_id <> '<fixture-uuid>') and exists(select #2) is false))  (cost=35625 rows=75000) (actual time=1055..1055 rows=0 loops=1)\n        -> Nested loop left join  (cost=35625 rows=75000) (actual time=0.313..761 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.302..200 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.3..105 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=0.25 rows=1) (actual time=0.011..0.0111 rows=1 loops=50000)\n                -> Single-row index lookup on a using PRIMARY (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=0.25 rows=1) (actual time=0.01..0.01 rows=1 loops=50000)\n        -> Select #2 (subquery in condition; dependent)\n            -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.0051..0.00512 rows=1 loops=50000)\n                -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.005..0.005 rows=1 loops=50000)\n                    -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00485..0.00485 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "all_visible",
+      "variant": "production_exists",
+      "seconds": [
+        1.9642132000008132,
+        1.9157781999965664,
+        1.9473565999942366
+      ],
+      "median_seconds": 1.9473565999942366,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25000,
+          "rows_produced_per_join": 25000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "2500.00",
+            "prefix_cost": "2500.25",
+            "data_read_per_join": "48M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1954..1954 rows=0 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1954..1954 rows=0 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.304..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.302..106 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.3..0.3 rows=1) (actual time=0.0349..0.0349 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=5001..5001 rows=1) (actual time=0.0339..0.0339 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=5000..5000 rows=25000) (actual time=1285..1285 rows=50000 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=2500 rows=25000) (actual time=0.0697..387 rows=50000 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and ((a.owner_user_id = '<fixture-uuid>') or exists(select #3)))  (cost=2500 rows=25000) (actual time=0.0694..383 rows=50000 loops=1)\n                            -> Index lookup on a using PRIMARY (tenant_id='<fixture-uuid>')  (cost=2500 rows=25000) (actual time=0.0604..60.4 rows=50000 loops=1)\n                            -> Select #3 (subquery in condition; dependent)\n                                -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.00496..0.00498 rows=1 loops=50000)\n                                    -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.00486..0.00486 rows=1 loops=50000)\n                                        -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00473..0.00473 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "all_visible",
+      "variant": "shadow_cover_left",
+      "seconds": [
+        1.0459884000010788,
+        1.0765214000130072,
+        1.0506181999808177
+      ],
+      "median_seconds": 1.0506181999808177,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "75000.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "91875.23",
+            "data_read_per_join": "144M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=91875 rows=1) (actual time=1113..1113 rows=0 loops=1)\n    -> Filter: ((a.id is null) or ((a.owner_user_id <> '<fixture-uuid>') and exists(select #2) is false))  (cost=91875 rows=75000) (actual time=1113..1113 rows=0 loops=1)\n        -> Nested loop left join  (cost=91875 rows=75000) (actual time=0.313..805 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.302..204 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.3..106 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=1 rows=1) (actual time=0.0105..0.0119 rows=1 loops=50000)\n                -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=1 rows=1) (actual time=0.00943..0.0108 rows=1 loops=50000)\n        -> Select #2 (subquery in condition; dependent)\n            -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.00529..0.00532 rows=1 loops=50000)\n                -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.0052..0.0052 rows=1 loops=50000)\n                    -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00503..0.00503 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "all_visible",
+      "variant": "shadow_cover_exists",
+      "seconds": [
+        1.9145565000071656,
+        1.9381040000007488,
+        1.912561499979347
+      ],
+      "median_seconds": 1.9145565000071656,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25017,
+          "rows_produced_per_join": 25017,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2502.60",
+            "eval_cost": "2501.70",
+            "prefix_cost": "5004.30",
+            "data_read_per_join": "48M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1956..1956 rows=0 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1956..1956 rows=0 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.304..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.302..107 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.3..0.3 rows=1) (actual time=0.0349..0.0349 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=7506..7506 rows=1) (actual time=0.0339..0.0339 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=7506..7506 rows=25017) (actual time=1287..1287 rows=50000 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=5004 rows=25017) (actual time=0.0688..383 rows=50000 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and ((a.owner_user_id = '<fixture-uuid>') or exists(select #3)))  (cost=5004 rows=25017) (actual time=0.0685..378 rows=50000 loops=1)\n                            -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.06..57.4 rows=50000 loops=1)\n                            -> Select #3 (subquery in condition; dependent)\n                                -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.00492..0.00495 rows=1 loops=50000)\n                                    -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.00483..0.00483 rows=1 loops=50000)\n                                        -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00469..0.00469 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "production_left",
+      "seconds": [
+        1.012303499999689,
+        1.0269130000087898,
+        1.0280296000128146
+      ],
+      "median_seconds": 1.0269130000087898,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "18750.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "35625.22",
+            "data_read_per_join": "144M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=35625 rows=1) (actual time=1071..1071 rows=1 loops=1)\n    -> Filter: ((a.id is null) or ((a.owner_user_id <> '<fixture-uuid>') and exists(select #2) is false))  (cost=35625 rows=75000) (actual time=1071..1071 rows=1 loops=1)\n        -> Nested loop left join  (cost=35625 rows=75000) (actual time=0.325..773 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.314..204 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.312..107 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=0.25 rows=1) (actual time=0.0112..0.0112 rows=1 loops=50000)\n                -> Single-row index lookup on a using PRIMARY (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=0.25 rows=1) (actual time=0.0101..0.0102 rows=1 loops=50000)\n        -> Select #2 (subquery in condition; dependent)\n            -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.00519..0.00521 rows=1 loops=50000)\n                -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.00509..0.00509 rows=1 loops=50000)\n                    -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00494..0.00494 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "production_exists",
+      "seconds": [
+        1.919483899982879,
+        1.8972970999893732,
+        2.0534729000064544
+      ],
+      "median_seconds": 1.919483899982879,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 24444,
+          "rows_produced_per_join": 24444,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "15.15",
+            "eval_cost": "2444.40",
+            "prefix_cost": "2459.55",
+            "data_read_per_join": "46M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1961..1961 rows=1 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1961..1961 rows=1 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.305..203 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.303..106 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.307..0.307 rows=1) (actual time=0.035..0.035 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=4904..4904 rows=1) (actual time=0.034..0.034 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=4904..4904 rows=24444) (actual time=1292..1292 rows=49999 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=2460 rows=24444) (actual time=0.0668..389 rows=49999 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and ((a.owner_user_id = '<fixture-uuid>') or exists(select #3)))  (cost=2460 rows=24444) (actual time=0.0665..384 rows=49999 loops=1)\n                            -> Index lookup on a using PRIMARY (tenant_id='<fixture-uuid>')  (cost=2460 rows=24444) (actual time=0.0587..62.4 rows=50000 loops=1)\n                            -> Select #3 (subquery in condition; dependent)\n                                -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.00495..0.00497 rows=1 loops=50000)\n                                    -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.00485..0.00485 rows=1 loops=50000)\n                                        -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00471..0.00471 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "shadow_cover_left",
+      "seconds": [
+        1.0437898999953177,
+        1.0602277999860235,
+        1.0610090999980457
+      ],
+      "median_seconds": 1.0602277999860235,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "75000.00",
+            "eval_cost": "7500.00",
+            "prefix_cost": "91875.23",
+            "data_read_per_join": "144M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=91875 rows=1) (actual time=1104..1104 rows=1 loops=1)\n    -> Filter: ((a.id is null) or ((a.owner_user_id <> '<fixture-uuid>') and exists(select #2) is false))  (cost=91875 rows=75000) (actual time=1104..1104 rows=1 loops=1)\n        -> Nested loop left join  (cost=91875 rows=75000) (actual time=0.316..800 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.306..202 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.304..105 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=1 rows=1) (actual time=0.0104..0.0118 rows=1 loops=50000)\n                -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=1 rows=1) (actual time=0.00938..0.0107 rows=1 loops=50000)\n        -> Select #2 (subquery in condition; dependent)\n            -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.00524..0.00526 rows=1 loops=50000)\n                -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.00515..0.00515 rows=1 loops=50000)\n                    -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00499..0.00499 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "TEAM_ADMIN",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "shadow_cover_exists",
+      "seconds": [
+        1.9198419000022113,
+        1.91042080000625,
+        1.9648213000036776
+      ],
+      "median_seconds": 1.9198419000022113,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 75000,
+          "rows_produced_per_join": 75000,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1875.22",
+            "eval_cost": "7500.00",
+            "prefix_cost": "9375.23",
+            "data_read_per_join": "112M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25017,
+          "rows_produced_per_join": 25017,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2502.60",
+            "eval_cost": "2501.70",
+            "prefix_cost": "5004.30",
+            "data_read_per_join": "48M"
+          }
+        },
+        {
+          "table_name": "tm",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "tenant_id"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "manager_user_id",
+            "team_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 1,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.10",
+            "prefix_cost": "0.35",
+            "data_read_per_join": "312"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24375 rows=1) (actual time=1959..1959 rows=1 loops=1)\n    -> Nested loop antijoin  (cost=24375 rows=75000) (actual time=1959..1959 rows=1 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=9375 rows=75000) (actual time=0.314..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=9375 rows=75000) (actual time=0.312..107 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.3..0.3 rows=1) (actual time=0.035..0.035 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=7506..7506 rows=1) (actual time=0.034..0.034 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=7506..7506 rows=25017) (actual time=1289..1289 rows=49999 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=5004 rows=25017) (actual time=0.0658..381 rows=49999 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and ((a.owner_user_id = '<fixture-uuid>') or exists(select #3)))  (cost=5004 rows=25017) (actual time=0.0655..376 rows=49999 loops=1)\n                            -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.0573..56.7 rows=50000 loops=1)\n                            -> Select #3 (subquery in condition; dependent)\n                                -> Limit: 1 row(s)  (cost=0.35 rows=1) (actual time=0.00491..0.00493 rows=1 loops=50000)\n                                    -> Filter: (tm.enabled = 1)  (cost=0.35 rows=1) (actual time=0.00481..0.00481 rows=1 loops=50000)\n                                        -> Single-row index lookup on tm using PRIMARY (tenant_id=a.tenant_id, manager_user_id=990360, team_id=a.owner_team_id)  (cost=0.35 rows=1) (actual time=0.00467..0.00467 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "USER",
+      "state": "all_visible",
+      "variant": "production_left",
+      "seconds": [
+        0.7881510999868624,
+        0.7798403000051621,
+        0.7789110000012442
+      ],
+      "median_seconds": 0.7798403000051621,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2686.31",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10037.41",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "18377.75",
+            "eval_cost": "7351.10",
+            "prefix_cost": "35766.26",
+            "data_read_per_join": "141M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=35766 rows=1) (actual time=809..809 rows=0 loops=1)\n    -> Filter: ((a.id is null) or (a.owner_user_id <> '<fixture-uuid>'))  (cost=35766 rows=73511) (actual time=809..809 rows=0 loops=1)\n        -> Nested loop left join  (cost=35766 rows=73511) (actual time=0.329..758 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10037 rows=73511) (actual time=0.318..199 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10037 rows=73511) (actual time=0.316..105 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=0.25 rows=1) (actual time=0.011..0.011 rows=1 loops=50000)\n                -> Single-row index lookup on a using PRIMARY (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=0.25 rows=1) (actual time=0.00996..0.00998 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "USER",
+      "state": "all_visible",
+      "variant": "production_exists",
+      "seconds": [
+        1.674105599988252,
+        1.6806069999875035,
+        1.695036599994637
+      ],
+      "median_seconds": 1.6806069999875035,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2688.05",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10039.15",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 24444,
+          "rows_produced_per_join": 24444,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "15.15",
+            "eval_cost": "2444.40",
+            "prefix_cost": "2459.55",
+            "data_read_per_join": "46M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24741 rows=1) (actual time=1691..1691 rows=0 loops=1)\n    -> Nested loop antijoin  (cost=24741 rows=73511) (actual time=1691..1691 rows=0 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10039 rows=73511) (actual time=0.317..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10039 rows=73511) (actual time=0.315..107 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.301..0.301 rows=1) (actual time=0.0296..0.0296 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=4904..4904 rows=1) (actual time=0.0286..0.0286 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=4904..4904 rows=24444) (actual time=1022..1022 rows=50000 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=2460 rows=24444) (actual time=0.065..137 rows=50000 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and (a.owner_user_id = '<fixture-uuid>'))  (cost=2460 rows=24444) (actual time=0.0646..134 rows=50000 loops=1)\n                            -> Index lookup on a using PRIMARY (tenant_id='<fixture-uuid>')  (cost=2460 rows=24444) (actual time=0.0636..51.6 rows=50000 loops=1)\n"
+    },
+    {
+      "role": "USER",
+      "state": "all_visible",
+      "variant": "shadow_cover_left",
+      "seconds": [
+        0.8140029000060167,
+        0.8122203000239097,
+        0.8114620000123978
+      ],
+      "median_seconds": 0.8122203000239097,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2693.26",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10044.36",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "73511.00",
+            "eval_cost": "7351.10",
+            "prefix_cost": "90906.46",
+            "data_read_per_join": "141M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=90906 rows=1) (actual time=840..840 rows=0 loops=1)\n    -> Filter: ((a.id is null) or (a.owner_user_id <> '<fixture-uuid>'))  (cost=90906 rows=73511) (actual time=840..840 rows=0 loops=1)\n        -> Nested loop left join  (cost=90906 rows=73511) (actual time=0.35..786 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10044 rows=73511) (actual time=0.332..199 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10044 rows=73511) (actual time=0.33..104 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=1 rows=1) (actual time=0.0103..0.0116 rows=1 loops=50000)\n                -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=1 rows=1) (actual time=0.00923..0.0105 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "USER",
+      "state": "all_visible",
+      "variant": "shadow_cover_exists",
+      "seconds": [
+        1.6985060000151861,
+        1.6916950999875553,
+        1.6719995999883395
+      ],
+      "median_seconds": 1.6916950999875553,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2700.21",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10051.31",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25017,
+          "rows_produced_per_join": 25017,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2502.60",
+            "eval_cost": "2501.70",
+            "prefix_cost": "5004.30",
+            "data_read_per_join": "48M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24754 rows=1) (actual time=1700..1700 rows=0 loops=1)\n    -> Nested loop antijoin  (cost=24754 rows=73511) (actual time=1700..1700 rows=0 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10051 rows=73511) (actual time=0.315..205 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10051 rows=73511) (actual time=0.314..107 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.294..0.294 rows=1) (actual time=0.0298..0.0298 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=7506..7506 rows=1) (actual time=0.0287..0.0287 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=7506..7506 rows=25017) (actual time=1026..1026 rows=50000 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=5004 rows=25017) (actual time=0.065..134 rows=50000 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and (a.owner_user_id = '<fixture-uuid>'))  (cost=5004 rows=25017) (actual time=0.0644..131 rows=50000 loops=1)\n                            -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.0635..48.9 rows=50000 loops=1)\n"
+    },
+    {
+      "role": "USER",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "production_left",
+      "seconds": [
+        0.7679624000156764,
+        0.801509899989469,
+        0.7680115999828558
+      ],
+      "median_seconds": 0.7680115999828558,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2705.43",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10056.53",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "18377.75",
+            "eval_cost": "7351.10",
+            "prefix_cost": "35785.38",
+            "data_read_per_join": "141M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=35785 rows=1) (actual time=797..797 rows=1 loops=1)\n    -> Filter: ((a.id is null) or (a.owner_user_id <> '<fixture-uuid>'))  (cost=35785 rows=73511) (actual time=797..797 rows=1 loops=1)\n        -> Nested loop left join  (cost=35785 rows=73511) (actual time=0.338..747 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10057 rows=73511) (actual time=0.328..195 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10057 rows=73511) (actual time=0.326..103 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=0.25 rows=1) (actual time=0.0108..0.0109 rows=1 loops=50000)\n                -> Single-row index lookup on a using PRIMARY (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=0.25 rows=1) (actual time=0.00983..0.00986 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "USER",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "production_exists",
+      "seconds": [
+        1.6736052999913227,
+        1.6872184000094421,
+        1.6940769999928307
+      ],
+      "median_seconds": 1.6872184000094421,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2708.91",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10060.01",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "uk_account_external",
+            "idx_account_owner",
+            "idx_account_team",
+            "idx_account_state",
+            "idx_account_vendor",
+            "idx_account_name",
+            "idx_account_created"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 24444,
+          "rows_produced_per_join": 24444,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "15.15",
+            "eval_cost": "2444.40",
+            "prefix_cost": "2459.55",
+            "data_read_per_join": "46M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24762 rows=1) (actual time=1709..1709 rows=1 loops=1)\n    -> Nested loop antijoin  (cost=24762 rows=73511) (actual time=1709..1709 rows=1 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10060 rows=73511) (actual time=0.314..203 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10060 rows=73511) (actual time=0.312..106 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.301..0.301 rows=1) (actual time=0.03..0.03 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=4904..4904 rows=1) (actual time=0.029..0.029 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=4904..4904 rows=24444) (actual time=1038..1038 rows=49999 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=2460 rows=24444) (actual time=0.0642..148 rows=49999 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and (a.owner_user_id = '<fixture-uuid>'))  (cost=2460 rows=24444) (actual time=0.0639..145 rows=49999 loops=1)\n                            -> Index lookup on a using PRIMARY (tenant_id='<fixture-uuid>')  (cost=2460 rows=24444) (actual time=0.063..56.1 rows=50000 loops=1)\n"
+    },
+    {
+      "role": "USER",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "shadow_cover_left",
+      "seconds": [
+        0.8120305000047665,
+        0.8121705999947153,
+        0.8139769999834243
+      ],
+      "median_seconds": 0.8121705999947153,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2710.64",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10061.74",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id",
+            "id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "73511.00",
+            "eval_cost": "7351.10",
+            "prefix_cost": "90923.84",
+            "data_read_per_join": "141M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=90924 rows=1) (actual time=851..851 rows=1 loops=1)\n    -> Filter: ((a.id is null) or (a.owner_user_id <> '<fixture-uuid>'))  (cost=90924 rows=73511) (actual time=851..851 rows=1 loops=1)\n        -> Nested loop left join  (cost=90924 rows=73511) (actual time=0.327..797 rows=50000 loops=1)\n            -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10062 rows=73511) (actual time=0.316..202 rows=50000 loops=1)\n                -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10062 rows=73511) (actual time=0.315..105 rows=50000 loops=1)\n            -> Filter: (a.tenant_id = '<fixture-uuid>')  (cost=1 rows=1) (actual time=0.0104..0.0117 rows=1 loops=50000)\n                -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>', id=m.account_id)  (cost=1 rows=1) (actual time=0.00937..0.0106 rows=1 loops=50000)\n"
+    },
+    {
+      "role": "USER",
+      "state": "one_invisible_without_clock_bump",
+      "variant": "shadow_cover_exists",
+      "seconds": [
+        1.6536016000027303,
+        1.672451499995077,
+        1.6689039999910165
+      ],
+      "median_seconds": 1.6689039999910165,
+      "selected_plan_tables": [
+        {
+          "table_name": "m",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_account_scope_name"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "tenant_id",
+            "snapshot_id"
+          ],
+          "rows_examined_per_scan": 73511,
+          "rows_produced_per_join": 73511,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2712.38",
+            "eval_cost": "7351.10",
+            "prefix_cost": "10063.48",
+            "data_read_per_join": "110M"
+          }
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "<auto_distinct_key>",
+          "rows_examined_per_scan": 1
+        },
+        {
+          "table_name": "a",
+          "access_type": "ref",
+          "possible_keys": [
+            "fixture_visibility_cover"
+          ],
+          "key": "fixture_visibility_cover",
+          "used_key_parts": [
+            "tenant_id"
+          ],
+          "rows_examined_per_scan": 25017,
+          "rows_produced_per_join": 25017,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2502.60",
+            "eval_cost": "2501.70",
+            "prefix_cost": "5004.30",
+            "data_read_per_join": "48M"
+          }
+        }
+      ],
+      "analyze_tree": "-> Limit: 1 row(s)  (cost=24766 rows=1) (actual time=1704..1704 rows=1 loops=1)\n    -> Nested loop antijoin  (cost=24766 rows=73511) (actual time=1704..1704 rows=1 loops=1)\n        -> Filter: ((m.snapshot_id = '<fixture-uuid>') and (m.tenant_id = '<fixture-uuid>'))  (cost=10063 rows=73511) (actual time=0.31..204 rows=50000 loops=1)\n            -> Covering index lookup on m using PRIMARY (tenant_id='<fixture-uuid>', snapshot_id='<fixture-uuid>')  (cost=10063 rows=73511) (actual time=0.308..107 rows=50000 loops=1)\n        -> Filter: (`<subquery2>`.tenant_id = '<fixture-uuid>')  (cost=0.294..0.294 rows=1) (actual time=0.0299..0.0299 rows=1 loops=50000)\n            -> Single-row index lookup on <subquery2> using <auto_distinct_key> (tenant_id=m.tenant_id, id=m.account_id)  (cost=7506..7506 rows=1) (actual time=0.0289..0.0289 rows=1 loops=50000)\n                -> Materialize with deduplication  (cost=7506..7506 rows=25017) (actual time=1032..1032 rows=49999 loops=1)\n                    -> Filter: ((a.tenant_id is not null) and (a.id is not null))  (cost=5004 rows=25017) (actual time=0.0711..145 rows=49999 loops=1)\n                        -> Filter: ((a.tenant_id = '<fixture-uuid>') and (a.owner_user_id = '<fixture-uuid>'))  (cost=5004 rows=25017) (actual time=0.0707..142 rows=49999 loops=1)\n                            -> Covering index lookup on a using fixture_visibility_cover (tenant_id='<fixture-uuid>')  (cost=5004 rows=25017) (actual time=0.0695..52.8 rows=50000 loops=1)\n"
+    }
+  ],
+  "mysql_version": "8.4.13",
+  "seed_seconds": 12.561369000002742,
+  "cleanup": "PASS"
+}

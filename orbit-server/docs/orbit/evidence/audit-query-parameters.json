@@ -1,0 +1,32 @@
+{
+  "name": "audit-query-parameters",
+  "phase": "testing",
+  "result": "PASS",
+  "exit_code": 0,
+  "item_ids": [],
+  "executed_at": "2026-11-07T19:59:50+08:00",
+  "command": "D:/progress/adpulse-power-system/.codex-toolchain/maven/bin/mvn.cmd -B -ntp -pl ruoyi-admin -am -Porbit-network-it verify",
+  "environment": "Java21；本轮network profile默认Surefire阶段的7项参数单元测试；非HTTP/数据库验收",
+  "scope": "严格参数形状/重复或缺失值/身份字段注入/未知400/不支持422/页大小/游标长度/Unicode/UUID/UTC日期及原OpenAPI参数清单。解析与扫描复用字段校验；这是参数单测子集；公开API另见audit-public-http-integration，不等于完整审计事件源验收。",
+  "summary": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "parameterInventoryAndBoundsRemainTheUnmodifiedProductContract",
+      "defaultsNormalizeAllSupportedFieldsWithoutAcceptingIdentityContext",
+      "unsupportedKnownFiltersNeverDisappearOrPretendToHaveAnAuditStatusEnum",
+      "everyUnknownIdentityOrRetiredParameterIs400",
+      "everyKnownParameterRejectsDuplicateAndMissingValuesBeforeUnsupportedHandling",
+      "unicodeUuidCalendarAndUtcEndpointsRejectInvalidValuesWithoutEchoingInput",
+      "pageSizesAndCursorLengthFollowCanonicalContract"
+    ]
+  },
+  "source_sha256": {
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/scope/ScopeAuditQueryParameters.java": "4b10d9a1474bc00747ed5b730a5aa41e63f66bc2bcdb49e148d44f0daceb2f76",
+    "ruoyi-system/src/main/java/com/ruoyi/system/orbit/scope/ScopeFreezeAuditQuery.java": "67f890c3b66131a9fbef6c76096a32cfb66259524fc384a0adedbe490ec996a7",
+    "ruoyi-system/src/test/java/com/ruoyi/system/orbit/scope/ScopeAuditQueryParametersTest.java": "bdd9c546dc9e81f0efc7189cffa34ef2f994bab9512298400778e5e927000cc3",
+    "docs/orbit/baseline/contracts/openapi-current.json": "d9cd12c7f219830a35817e74e7ce55d8d3a49ad7f0d2670aeb67815c84c9e64a"
+  }
+}

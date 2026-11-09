@@ -1,0 +1,26 @@
+# 本项目专用本地配置；不回退到参考项目的DB_URL或现有服务端口。
+# 启动顺序使用druid,orbit，后者覆盖若依示例数据源。
+server:
+  port: ${ORBIT_SERVER_PORT:18080}
+
+spring:
+  datasource:
+    druid:
+      master:
+        url: ${ORBIT_DB_URL:jdbc:mysql://127.0.0.1:3306/orbit_local?useUnicode=true&characterEncoding=utf8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true}
+        username: ${ORBIT_DB_USERNAME:orbit_local}
+        password: ${ORBIT_DB_PASSWORD:}
+  data:
+    redis:
+      host: ${ORBIT_REDIS_HOST:127.0.0.1}
+      port: ${ORBIT_REDIS_PORT:16379}
+      database: ${ORBIT_REDIS_DATABASE:15}
+      password: ${ORBIT_REDIS_PASSWORD:}
+
+token:
+  # 登录密钥与凭据主密钥必须分别提供，不能互相派生。
+  secret: ${ORBIT_LOGIN_JWT_SECRET:}
+
+logging:
+  level:
+    com.ruoyi.system.orbit: info

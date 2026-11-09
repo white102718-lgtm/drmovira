@@ -1,0 +1,20 @@
+{
+  "name": "vendor-alias-browser-attempt-01",
+  "phase": "testing",
+  "result": "FAIL",
+  "exit_code": 1,
+  "item_ids": [],
+  "executed_at": "2026-11-08T05:42:51.877Z",
+  "command": ".venv/Scripts/python.exe tools/run_python_framework_checks.py --migration-through 18 --browser --browser-module vendor-alias --browser-only",
+  "browser_summary": {
+    "startTime": "2026-11-08T05:42:51.877Z",
+    "duration": 185289.144,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  },
+  "scope": "三视口均在隐藏checkbox input .check失败；前段NFC写入刷新到达，不算完整闭环",
+  "diagnostic": "真实Playwright失败产物保留。主线新增前端指纹Path键导致总回执序列化二次失败，原CLI日志保留.runtime/vendor-alias-browser.log。",
+  "test_harness_sha256_at_execution": "457a0666d6c82398e501bec8cd4b30a82058d9849456d004e0e2803610d05707"
+}

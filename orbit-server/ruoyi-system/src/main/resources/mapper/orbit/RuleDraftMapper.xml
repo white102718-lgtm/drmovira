@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.orbit.rules.RuleDraftMapper">
+    <select id="ownershipContextTenant" resultType="java.lang.String">
+        SELECT s.tenant_id FROM orbit_user_scope s
+        JOIN sys_user u ON u.user_id=s.user_id AND u.status='0' AND u.del_flag='0'
+        JOIN orbit_tenant t ON t.id=s.tenant_id AND t.enabled=1
+        WHERE s.user_id=#{user} AND s.enabled=1 FOR SHARE
+    </select>
+    <resultMap id="actor" type="com.ruoyi.system.orbit.rules.RuleOwnership$Actor">
+        <result property="subjectId" column="subject_id"/>
+        <result property="teamId" column="team_id"/>
+        <result property="dataRole" column="data_role"/>
+    </resultMap>
+    <resultMap id="owner" type="com.ruoyi.system.orbit.rules.RuleOwnership$Owner">
+        <result property="subjectId" column="subject_id"/>
+        <result property="teamId" column="team_id"/>
+        <result property="usable" column="usable"/>
+    </resultMap>
+    <select id="ownershipActor" resultMap="actor">
+        SELECT b.id AS subject_id,b.team_id,s.data_role
+        FROM orbit_business_user b
+        JOIN sys_user u ON u.user_id=b.user_id AND u.status='0' AND u.del_flag='0'
+        JOIN orbit_user_scope s ON s.user_id=b.user_id AND s.tenant_id=b.tenant_id AND s.enabled=1
+        JOIN orbit_business_team t ON t.tenant_id=b.tenant_id AND t.id=b.team_id AND t.enabled=1
+        WHERE b.tenant_id=#{tenant} AND b.user_id=#{user} AND b.enabled=1 FOR SHARE
+    </select>
+    <select id="ownershipOwner" resultMap="owner">
+        SELECT b.id AS subject_id,b.team_id,
+            (b.enabled=1 AND t.enabled=1 AND u.status='0' AND u.del_flag='0'
+                AND s.tenant_id=b.tenant_id AND s.enabled=1) AS usable
+        FROM orbit_business_user b
+        JOIN sys_user u ON u.user_id=b.user_id
+        JOIN orbit_business_team t ON t.tenant_id=b.tenant_id AND t.id=b.team_id
+        LEFT JOIN orbit_user_scope s ON s.user_id=b.user_id
+        WHERE b.tenant_id=#{tenant} AND b.id=#{owner} FOR SHARE
+    </select>
+    <select id="ownershipTeam" resultType="java.lang.Integer">
+        SELECT enabled FROM orbit_business_team WHERE tenant_id=#{tenant} AND id=#{team} FOR SHARE
+    </select>
+    <select id="managedTeams" resultType="java.lang.String">
+        SELECT m.team_id FROM orbit_business_team_manager m
+        JOIN orbit_business_team t ON t.tenant_id=m.tenant_id AND t.id=m.team_id AND t.enabled=1
+        WHERE m.tenant_id=#{tenant} AND m.manager_user_id=#{user} AND m.enabled=1 FOR SHARE
+    </select>
+    <resultMap id="row" type="com.ruoyi.system.orbit.rules.RuleDraftStore$Row">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="revision" column="revision"/>
+        <result property="state" column="state"/>
+        <result property="bodyJson" column="body_json"/>
+        <result property="bodyHash" column="body_hash"/>
+        <result property="requestHash" column="request_hash"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+    <select id="activeTenant" resultType="java.lang.Integer">
+        SELECT enabled FROM orbit_tenant WHERE id=#{tenant} FOR SHARE
+    </select>
+    <insert id="reserve">
+        INSERT INTO orbit_rule_draft_idempotency(tenant_id,actor_id,idem_key,request_hash)
+        VALUES(#{tenant},#{actor},#{key},#{hash}) ON DUPLICATE KEY UPDATE idem_key=idem_key
+    </insert>
+    <select id="replay" resultMap="row">
+        SELECT rule_id AS id,revision,request_hash FROM orbit_rule_draft_idempotency
+        WHERE tenant_id=#{tenant} AND actor_id=#{actor} AND idem_key=#{key} FOR UPDATE
+    </select>
+    <select id="lock" resultMap="row">
+        SELECT id,tenant_id,revision,state,body_json,body_hash,updated_at AS created_at
+        FROM orbit_rule_draft WHERE tenant_id=#{tenant} AND id=#{id} FOR UPDATE
+    </select>
+    <select id="version" resultMap="row">
+        SELECT rule_id AS id,tenant_id,revision,state,body_json,body_hash,created_at
+        FROM orbit_rule_draft_version WHERE tenant_id=#{tenant} AND rule_id=#{id} AND revision=#{revision}
+    </select>
+    <insert id="insert">
+        INSERT INTO orbit_rule_draft(id,tenant_id,revision,state,body_json,body_hash,updated_at)
+        VALUES(#{id},#{tenantId},#{revision},#{state},#{bodyJson},#{bodyHash},#{createdAt})
+    </insert>
+    <update id="update">
+        UPDATE orbit_rule_draft SET revision=#{revision},state=#{state},body_json=#{bodyJson},
+            body_hash=#{bodyHash},current_simulation_id=NULL,reference_status='PENDING_REFERENCES',updated_at=#{createdAt}
+        WHERE tenant_id=#{tenantId} AND id=#{id} AND revision=#{revision}-1
+    </update>
+    <insert id="freeze">
+        INSERT INTO orbit_rule_draft_version(tenant_id,rule_id,revision,state,body_json,body_hash,created_at)
+        VALUES(#{tenantId},#{id},#{revision},#{state},#{bodyJson},#{bodyHash},#{createdAt})
+    </insert>
+    <insert id="event">
+        INSERT INTO orbit_rule_draft_event(id,tenant_id,rule_id,revision,actor_id,action,reason,created_at)
+        VALUES(UUID(),#{row.tenantId},#{row.id},#{row.revision},#{actor},#{row.action},#{reason},#{row.createdAt})
+    </insert>
+    <update id="finish">
+        UPDATE orbit_rule_draft_idempotency SET rule_id=#{row.id},revision=#{row.revision}
+        WHERE tenant_id=#{tenant} AND actor_id=#{actor} AND idem_key=#{key}
+    </update>
+</mapper>

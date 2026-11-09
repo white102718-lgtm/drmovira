@@ -1,0 +1,35 @@
+{
+  "status": "FAIL",
+  "scope": "5万渠道及5万户商目录SQL技术样本；非真实来源、全部模块或生产冷启动容量",
+  "cache_note": "装载后首读及暖读；未清理数据库缓存，不宣称冷启动",
+  "concurrency": 20,
+  "samples_per_page_size": 200,
+  "target_p95_seconds": 1.0,
+  "machine": {
+    "os": "Windows-11-10.0.22631-SP0",
+    "logical_cpus": 20,
+    "memory_bytes": 34028830720
+  },
+  "errors": [
+    {
+      "type": "KeyError",
+      "code": "CAPACITY_RUN_FAILED"
+    }
+  ],
+  "mysql_version": "8.4.13",
+  "rss_before_bytes": 257904640,
+  "load_seconds": 23.018,
+  "seeded_counts": {
+    "channels": 50000,
+    "references": 50000
+  },
+  "full_reads": {
+    "channels": {
+      "count": 50000,
+      "pages": 250,
+      "seconds": 4.015,
+      "ordered_ids_sha256": "5b497514bc087a59a7fc51bbe9455fd7aca541d4df417fe5ebefe7eba42b77da"
+    }
+  },
+  "performance": {}
+}

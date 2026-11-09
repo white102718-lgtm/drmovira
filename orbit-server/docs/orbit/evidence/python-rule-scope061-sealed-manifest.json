@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "scope": "SEALED_SCOPE_MANIFEST_ONLY_NOT_RULE_VERSION_OR_BUSINESS_ACCEPTANCE",
+  "time": "2026-11-08T23:06:30.155286+00:00",
+  "candidate_sha256": "7bdcd1fa3adddcae8750600c72d120a3d93117dd4aa1cb500fd5acaa99eb97e8",
+  "tool_sha256": "c6da9f2313dceddfb533b3a0e388d3f0cded9f67c2cb47c8f10582c1c227fb0e",
+  "old_foreign_keys": [
+    [
+      "orbit_rule_scope_manifest_ibfk_1",
+      "tenant_id",
+      "orbit_tenant",
+      "id"
+    ],
+    [
+      "orbit_rule_scope_manifest_ibfk_2",
+      "tenant_id",
+      "orbit_account_scope_snapshot",
+      "tenant_id"
+    ],
+    [
+      "orbit_rule_scope_manifest_ibfk_2",
+      "source_snapshot_id",
+      "orbit_account_scope_snapshot",
+      "id"
+    ],
+    [
+      "orbit_rule_scope_manifest_ibfk_3",
+      "tenant_id",
+      "orbit_business_user",
+      "tenant_id"
+    ],
+    [
+      "orbit_rule_scope_manifest_ibfk_3",
+      "owner_user_id",
+      "orbit_business_user",
+      "id"
+    ],
+    [
+      "orbit_rule_scope_manifest_ibfk_4",
+      "tenant_id",
+      "orbit_business_team",
+      "tenant_id"
+    ],
+    [
+      "orbit_rule_scope_manifest_ibfk_4",
+      "owner_team_id",
+      "orbit_business_team",
+      "id"
+    ]
+  ],
+  "old_trigger_definitions_unchanged": true,
+  "legacy_four_tables_original_columns_unchanged": true,
+  "sealed_history_three_mutations_rejected_1644": true
+}
