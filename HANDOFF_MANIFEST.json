@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-09T11:59:23.279275+08:00",
+  "generated_at": "2026-11-09T12:05:21.283657+08:00",
   "scope": "Current handoff repository snapshot; excludes Git metadata and this self-referential manifest",
   "original_import_commit": "b881355b0266c59d16655aff59008460f7af5578",
   "files": [
@@ -17,21 +17,21 @@
     },
     {
       "path": "AGENTS.md",
-      "bytes": 2259,
-      "sha256": "e42635a4340cb495c8e20fedb7e84f7cfcc912d7987687b29423c9aea16b33cb",
-      "sha256_lf": "e42635a4340cb495c8e20fedb7e84f7cfcc912d7987687b29423c9aea16b33cb"
+      "bytes": 2405,
+      "sha256": "6237a995c5aad404fa50f15c1fcd4bb7d04333257392c167ad827c8fc7319960",
+      "sha256_lf": "6237a995c5aad404fa50f15c1fcd4bb7d04333257392c167ad827c8fc7319960"
     },
     {
       "path": "HANDOFF.md",
-      "bytes": 16904,
-      "sha256": "e6151a46eb080f0c7c1931379341579c4511b0ddeaee7a4640cf92b9e6a46d99",
-      "sha256_lf": "e6151a46eb080f0c7c1931379341579c4511b0ddeaee7a4640cf92b9e6a46d99"
+      "bytes": 17536,
+      "sha256": "f6fc4f4309af821bb215b2f061c2e502a6f37dddfd4740fb3b3d455a8e7f2cb5",
+      "sha256_lf": "f6fc4f4309af821bb215b2f061c2e502a6f37dddfd4740fb3b3d455a8e7f2cb5"
     },
     {
       "path": "README.md",
-      "bytes": 2550,
-      "sha256": "363707a634a643e65314ed9fa7b58230d1ccc7e43b2b00b06cb0df234c610f0d",
-      "sha256_lf": "363707a634a643e65314ed9fa7b58230d1ccc7e43b2b00b06cb0df234c610f0d"
+      "bytes": 2648,
+      "sha256": "ea1a1579242e9f1b88c5b8547a61e11f48743edc6295d9570a8c8f1c9716752e",
+      "sha256_lf": "ea1a1579242e9f1b88c5b8547a61e11f48743edc6295d9570a8c8f1c9716752e"
     },
     {
       "path": "SOURCE_MANIFEST.json",
@@ -260,10 +260,16 @@
       "sha256": "3852b80d49bf0895e2146da25856e0c59a8c368f8735e90a64ccd8fcd899fead"
     },
     {
+      "path": "docs/handoff/REFERENCE_PATHS.md",
+      "bytes": 4983,
+      "sha256": "486375763c28f7059b2cee722c430487fb2857837f1a1a46b10099e4d84ba66a",
+      "sha256_lf": "486375763c28f7059b2cee722c430487fb2857837f1a1a46b10099e4d84ba66a"
+    },
+    {
       "path": "docs/handoff/REFERENCE_SOURCES.json",
-      "bytes": 2645,
-      "sha256": "75d0a060eaf85464c234530d1c0fd4103691c18eda9f90d138ef96ca6d7b53ad",
-      "sha256_lf": "75d0a060eaf85464c234530d1c0fd4103691c18eda9f90d138ef96ca6d7b53ad"
+      "bytes": 4806,
+      "sha256": "6e35ffc9b80e92ae665191b75c92b3f1d95ce099972a596dfddb678c36725f6f",
+      "sha256_lf": "6e35ffc9b80e92ae665191b75c92b3f1d95ce099972a596dfddb678c36725f6f"
     },
     {
       "path": "docs/handoff/evidence/rule-list-frequency-q-final-format.log",
@@ -671,9 +677,9 @@
     },
     {
       "path": "orbit-server/docs/orbit/IMPLEMENTATION_PLAN.md",
-      "bytes": 82399,
-      "sha256": "8926779bcd9a7d496e79530250651855c09d9bafc167387873cc4fb33fb85617",
-      "sha256_lf": "8926779bcd9a7d496e79530250651855c09d9bafc167387873cc4fb33fb85617"
+      "bytes": 82828,
+      "sha256": "0c43c3cdf7b5be8827fd208357fc36226b0dd171e70053dea2a2ff87a7ceae37",
+      "sha256_lf": "0c43c3cdf7b5be8827fd208357fc36226b0dd171e70053dea2a2ff87a7ceae37"
     },
     {
       "path": "orbit-server/docs/orbit/INVITATION_DELIVERY.md",

@@ -12,7 +12,16 @@
     "files": 1843,
     "local_working_tree_included": false,
     "sanitized_read_only_snapshot": true,
-    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json"
+    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json",
+    "path_base": "repository_root",
+    "local_path": "reference-projects/ai-ad-platform-vben",
+    "entry_points": [
+      "reference-projects/ai-ad-platform-vben/plat/src/views",
+      "reference-projects/ai-ad-platform-vben/plat/src/api",
+      "reference-projects/ai-ad-platform-vben/plat/src/domain",
+      "reference-projects/ai-ad-platform-vben/plat/src/router"
+    ],
+    "previous_machine_path_usage": "provenance_only; do not navigate or load configuration from this path"
   },
   {
     "name": "adpulse-power-system",
@@ -27,7 +36,16 @@
     "files": 802,
     "local_working_tree_included": false,
     "sanitized_read_only_snapshot": true,
-    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json"
+    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json",
+    "path_base": "repository_root",
+    "local_path": "reference-projects/adpulse-power-system",
+    "entry_points": [
+      "reference-projects/adpulse-power-system/adpulse-main/src/main/java",
+      "reference-projects/adpulse-power-system/adpulse-system/src/main/java",
+      "reference-projects/adpulse-power-system/adpulse-common",
+      "reference-projects/adpulse-power-system/docs"
+    ],
+    "previous_machine_path_usage": "provenance_only; do not navigate or load configuration from this path"
   },
   {
     "name": "backend",
@@ -42,7 +60,18 @@
     "files": 179,
     "local_working_tree_included": false,
     "sanitized_read_only_snapshot": true,
-    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json"
+    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json",
+    "path_base": "repository_root",
+    "local_path": "reference-projects/backend",
+    "entry_points": [
+      "reference-projects/backend/app/api",
+      "reference-projects/backend/app/services",
+      "reference-projects/backend/app/db",
+      "reference-projects/backend/app/model_type_defs",
+      "reference-projects/backend/table",
+      "reference-projects/backend/tests"
+    ],
+    "previous_machine_path_usage": "provenance_only; do not navigate or load configuration from this path"
   },
   {
     "name": "schedulers",
@@ -57,6 +86,19 @@
     "files": 193,
     "local_working_tree_included": false,
     "sanitized_read_only_snapshot": true,
-    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json"
+    "snapshot_manifest": "reference-projects/SNAPSHOT_MANIFEST.json",
+    "path_base": "repository_root",
+    "local_path": "reference-projects/schedulers",
+    "entry_points": [
+      "reference-projects/schedulers/tasks/ad_config",
+      "reference-projects/schedulers/tasks/ad_operation",
+      "reference-projects/schedulers/tasks/ad_operation_new",
+      "reference-projects/schedulers/tasks/ad_sync_new",
+      "reference-projects/schedulers/tasks/fb_business_sync",
+      "reference-projects/schedulers/tasks/fb_material_push",
+      "reference-projects/schedulers/db",
+      "reference-projects/schedulers/model_type_defs"
+    ],
+    "previous_machine_path_usage": "provenance_only; do not navigate or load configuration from this path"
   }
 ]

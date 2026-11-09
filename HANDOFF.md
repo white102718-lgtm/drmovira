@@ -28,7 +28,7 @@ python tools/verify_handoff.py
 | Python替换与容量设计 | 同目录`PYTHON_BACKEND_MIGRATION.md` | 当前框架、大数据量要求、历史与新实现的边界 |
 | 真实验收回执与截图 | 同目录`evidence/` | 有限通过和失败都保留；先核源码及适用范围 |
 | 近期前端定向回执/日志 | `docs/handoff/evidence/` | 原本只在旧机.runtime内的有限回执，本次补入 |
-| 历史参考项目源码及索引 | `reference-projects/`、`docs/handoff/REFERENCE_SOURCES.json` | 四份已提交源码只读快照及来源，详见第7节 |
+| 历史参考项目源码及索引 | [本地路径导航](docs/handoff/REFERENCE_PATHS.md)、[来源清单](docs/handoff/REFERENCE_SOURCES.json) | 四份已提交源码的目录入口，克隆后直接可查，详见第7节 |
 
 阅读顺序：根`AGENTS.md` → 本文 → 实施计划第七节/末尾 → 当前规则闭环 → `PROGRESS.md`/`progress.json` → `MODULE_LOGIC.md` → 本次要做的原合同及字段 → 对应源码/证据。文档按时间追加，较早节点的“待实现”可能已有后续进展，不能只看文件开头。
 
@@ -130,7 +130,9 @@ python -m venv .venv
 
 ## 7. 需要负责人单独交接的外部依赖
 
-四个ad-mpower历史参考项目的已提交源码现已附在`reference-projects/`，不再要求同事有原仓库权限才能查看这些快照。来源/原分支/固定提交见`docs/handoff/REFERENCE_SOURCES.json`，逐文件指纹、排除项及脱敏次数见`reference-projects/SNAPSHOT_MANIFEST.json`。只导出Git提交对象，不含本地改动、node_modules、虚拟环境、构建运行数据或真实凭据；原项目工作区未改动。若需要快照之后的远端新版本才需另申请原仓库权限，不把快照等同于远端持续同步。
+先打开[历史参考代码本地路径导航](docs/handoff/REFERENCE_PATHS.md)，按业务进入四个仓库内源码目录；所有导航路径以本仓库根目录为基准，不要求存在旧机的D盘目录。
+
+四个ad-mpower历史参考项目的已提交源码现已附在[reference-projects/](reference-projects/README.md)，不再要求同事有原仓库权限才能查看这些快照。来源/原分支/固定提交见`docs/handoff/REFERENCE_SOURCES.json`，逐文件指纹、排除项及脱敏次数见`reference-projects/SNAPSHOT_MANIFEST.json`。只导出Git提交对象，不含本地改动、node_modules、虚拟环境、构建运行数据或真实凭据；原项目工作区未改动。若需要快照之后的远端新版本才需另申请原仓库权限，不把快照等同于远端持续同步。
 
 同事仍需目标仓库写权限、开发工具及隔离数据库、必要的私有配置/外部服务授权。参考快照仅用于查阅历史逻辑，不执行其中部署/广告脚本，不采用其框架替代ORBIT技术栈。Codex不会继承本聊天记忆、旧agent、浏览器登录、临时账号或机器文件。当前`orbit-10`已按用户要求暂停，不重建定时器来代替开发。
 
@@ -138,6 +140,8 @@ python -m venv .venv
 
 ```text
 请接续当前ORBIT项目，不从头重建。先阅读根AGENTS.md、HANDOFF.md，运行python tools/verify_handoff.py并核对当前Git分支/工作区；再读orbit-server/docs/orbit/IMPLEMENTATION_PLAN.md第七节及最新节点、RULE_DEFINITION_BUSINESS_FLOW.md、PROGRESS.md、progress.json、MODULE_LOGIC.md与本次相关原合同/证据。
+
+历史参考代码按docs/handoff/REFERENCE_PATHS.md和REFERENCE_SOURCES.json的local_path/entry_points从本仓库读取，统一位于reference-projects/下；previous_machine_path只记录来源，不用于定位。原始需求在data/ORBIT_Codex开发PRD/。不要寻找旧机D:/progress下的独立参考仓库。
 
 最终框架是Vue3/Element Plus + RuoYi-FastAPI/Python + MySQL8 + Redis。保留若依layout和原菜单，原需求除技术栈覆盖外都有效，全部字段、弹窗、二级页、权限和异常不得漏掉。只在当前统一仓库和当前分支工作，不新建branch/worktree，不部署、不真实写广告、不停未知预览、不泄密，不自动恢复已关闭的定时监督。提交推送目标是white102718-lgtm/drmovira。
 

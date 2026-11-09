@@ -6,8 +6,8 @@
 
 1. 直接以现成RuoYi-FastAPI（Python）替换Java框架底座，ORBIT业务重新开发；后端采用RuoYi-FastAPI（Python），数据库MySQL8，Redis用于会话与有限缓存/通知；不再采用Java业务后端，不强制MongoDB。
 2. 前端Vue3、TypeScript、原生Element Plus；可保留现有若依layout和原菜单，新增ORBIT菜单路由。用户允许类似框架，但已找到兼容Python底座，当前不进行无业务价值的前端重写。
-3. 需求唯一业务基线为D:/progress/orbit/data/ORBIT_Codex开发PRD及原型，技术选型被用户覆盖，其余功能、字段、条件、弹窗、二级页、权限、状态、任务和异常分支完整执行。
-4. 参考ad-mpower对应的ai-ad-platform-vben、adpulse-power-system、backend、schedulers全部相关业务调用链，参考仓库只读。需求已清晰的按PRD，不能把参考项目旧审批/履约/CRM等功能带回。
+3. 需求唯一业务基线为统一仓库内的[data/ORBIT_Codex开发PRD/](../../../data/ORBIT_Codex开发PRD/)及[原型](../../../data/ORBIT原型.html)，技术选型被用户覆盖，其余功能、字段、条件、弹窗、二级页、权限、状态、任务和异常分支完整执行。
+4. 参考ad-mpower对应的四个历史项目全部相关业务调用链；源码统一在仓库根目录`reference-projects/`，按[本地路径导航](../../../docs/handoff/REFERENCE_PATHS.md)进入前端、Java后端、Python后端及调度任务，参考源码只读，不再依赖旧机器的独立目录。需求已清晰的按PRD，不能把参考项目旧审批/履约/CRM等功能带回。
 5. 所有功能在Python框架重新开发和验收。Java旧实现只作参考，旧PASS不算新版本通过；已有前端页面也须连接Python重新验证。
 6. 前后端格式化，中文业务注释，数据库表/字段/索引对应说明与有效中文COMMENT；金额、时区、权限和并发逻辑重点解释。
 7. 系统配置页面覆盖GPT API、Claude API、Meta应用/BM Token等；AES-GCM只写不读、独立主密钥、租户隔离和脱敏审计，不使用Claude Code CLI或复用JWT密钥。
@@ -20,7 +20,7 @@
 采用insistence/RuoYi-FastAPI，MIT，固定提交7f7c66d373b6b344899961a42249ff51285cd865。真实源码位于python/ruoyi_fastapi，来源指纹见ruoyi-fastapi-upstream.json，许可证保留。上游原生支持MySQL/PostgreSQL，当前选MySQL异步驱动与SQLAlchemy，不额外重写成MongoDB。
 
 - Python独立.venv；锁定依赖，开发使用Ruff与pytest，路由/Service/Repository分层。
-- 私有配置仅从D:/progress/adpulse-power-system/.env.local读取ORBIT命名空间；Python使用ORBIT_PYTHON_子空间，禁止从样例.env、通用DB环境变量或参考项目变量回退读取。
+- 现有运行加载器仍固定从旧机D:/progress/adpulse-power-system/.env.local读取ORBIT命名空间；此处是实际私有配置限制，不是参考源码路径，新机按[交接文档第5节](../../../HANDOFF.md#5-新机环境与验证)显式适配受控来源；Python使用ORBIT_PYTHON_子空间，禁止从样例.env、通用DB环境变量或参考项目变量回退读取。
 - 开发进程不得启动时自动执行上游DROP/CREATE样例SQL或未知调度任务。数据库初始化/升级为显式工具，有目标路径/实例/数据库名检查和迁移版本。
 - Python新预览先使用18083及独立数据库/Redis空间；现有18080/18081不被静默替换。真实浏览器验证与用户预览分开。
 - 框架基础能力包括登录、退出、验证码、当前用户、角色、菜单、部门、字典、参数、日志、监控等；不能只保留菜单壳而不实现原后台API。
