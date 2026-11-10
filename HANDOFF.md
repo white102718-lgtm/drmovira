@@ -149,3 +149,8 @@ python -m venv .venv
 
 按依赖持续实际开发、定向测试、真实联调并逐项更新开发/测试/验收及证据；不要只汇报或重复无关容量档。旧证据按源码和适用范围复核，组件/构建/技术SQL状态不冒充全业务验收。新机私有配置或平台权限缺失只阻对应实测，继续其余可做功能。先告知核对到的实际状态与下一项，然后立即执行。
 ```
+
+
+## 2026-11-10：Meta 多应用后台绑定
+
+已增加后台绑定应用、授权时选择应用、来源版本隔离及原生登录会话转换，部署迁移至 076。操作说明见 `orbit-server/docs/orbit/meta-integration/MULTI_APP.md`，测试与外部验收边界见 `orbit-server/docs/orbit/meta-integration/MULTI_APP_VALIDATION.md`。真实 Meta 客户授权与数据对账仍需实际应用配置及授权，不视为已完成。

@@ -16,7 +16,26 @@
     <el-alert v-if="notice" :title="notice" type="success" :closable="false" />
     <div class="meta-toolbar">
       <el-button :loading="loading" :disabled="busy" @click="reload">刷新连接</el-button>
-      <el-button type="primary" :disabled="!canAuthorize" :loading="busy" @click="authorize()"
+      <el-select
+        v-if="capability?.applications?.length"
+        v-model="selectedApplication"
+        aria-label="选择授权应用"
+        placeholder="选择授权应用"
+        :disabled="locked"
+        style="width: 280px"
+      >
+        <el-option
+          v-for="app in capability?.applications || []"
+          :key="app.id"
+          :value="app.id"
+          :label="`${app.name} · ${app.app_id}`"
+        />
+      </el-select>
+      <el-button
+        type="primary"
+        :disabled="!canAuthorize || (!!capability?.applications?.length && !selectedApplication)"
+        :loading="busy"
+        @click="authorize()"
         >连接 Meta</el-button
       >
       <el-button
@@ -352,6 +371,7 @@ watch(
   },
 )
 const emit = defineEmits<{ accepted: [batch: AccountImportBatch] }>()
+const selectedApplication = ref('')
 const connections = ref<MetaConnection[]>([]),
   capability = ref<MetaCapabilities | null>(null),
   authorization = ref<MetaAuthorization | null>(null)
@@ -361,7 +381,7 @@ const loading = ref(false),
   notice = ref('')
 const statusLabels = { ACTIVE: '可读取', REAUTH_REQUIRED: '需要重新授权', DISCONNECTED: '已断开' }
 type Pending = (
-  | { kind: 'AUTH'; id?: string }
+  | { kind: 'AUTH'; id?: string; applicationId?: string }
   | { kind: 'DISCONNECT'; id: string; revision: number; reason: string }
   | { kind: 'IMPORT'; id: string; value: MetaAccountSelection }
 ) & { key: string }
@@ -418,6 +438,8 @@ const shownCandidates = computed(() =>
   filteredCandidates.value.slice((candidatePage.value - 1) * 50, candidatePage.value * 50),
 )
 function explain(cause: unknown) {
+  if (cause instanceof Error && 'code' in cause && cause.code === 'DIRECTORY_MAPPING_REQUIRED')
+    return '业务资料或角色映射尚未补全，请先在个人中心核对邮箱，再由管理员核对人员与角色目录。'
   return cause instanceof ReferenceApiError && cause.status === 403
     ? '没有此操作权限，请联系管理员。'
     : cause instanceof ReferenceApiError && cause.status === 401
@@ -436,6 +458,8 @@ async function reload() {
     const cap = await metaConnectionApi.capabilities(controller.signal)
     if (epoch !== generation) return
     capability.value = cap
+    if (!cap.applications?.some((app) => app.id === selectedApplication.value))
+      selectedApplication.value = ''
     const p = await metaConnectionApi.list(controller.signal)
     if (epoch === generation) connections.value = p.items
   } catch (cause) {
@@ -447,7 +471,12 @@ async function reload() {
 function authorize(id?: string) {
   if (!canAuthorize.value) return
   authorization.value = null
-  pending.value = { kind: 'AUTH', id, key: 'meta-auth-' + crypto.randomUUID() }
+  pending.value = {
+    kind: 'AUTH',
+    id,
+    applicationId: id ? undefined : selectedApplication.value || undefined,
+    key: 'meta-auth-' + crypto.randomUUID(),
+  }
   void executePending()
 }
 function openDisconnect(row: MetaConnection) {
@@ -480,7 +509,12 @@ async function executePending() {
     capability.value = cap
     if (intent.kind === 'AUTH') {
       if (!cap.configured) throw new ReferenceApiError(422, 'META_APP_UNCONFIGURED', '未配置')
-      const result = await metaConnectionApi.authorize(cap.csrf_token, intent.key, intent.id)
+      const result = await metaConnectionApi.authorize(
+        cap.csrf_token,
+        intent.key,
+        intent.id,
+        intent.applicationId,
+      )
       if (context !== props.contextKey) return
       authorization.value = result
       pending.value = null

@@ -85,13 +85,14 @@ async def ensure_cookie_current(session, actor: int, *, acting_subject=True):
             text("""SELECT bs.id FROM orbit_browser_session bs
                 JOIN sys_identity_subject subject ON subject.user_id=bs.user_id
                     AND subject.auth_version=bs.auth_version
-                JOIN orbit_system_configuration provider ON provider.id=bs.provider_id
+                LEFT JOIN orbit_system_configuration provider ON provider.id=bs.provider_id
                     AND provider.tenant_id=bs.tenant_id AND provider.section='OIDC'
                     AND provider.enabled=1 AND provider.revision=bs.provider_revision
                 WHERE bs.id=:id AND bs.tenant_id=:tenant AND bs.user_id=:actor
                     AND bs.auth_version=:version AND bs.status='ACTIVE'
                     AND bs.idle_expires_at>UTC_TIMESTAMP(3)
-                    AND bs.absolute_expires_at>UTC_TIMESTAMP(3) FOR SHARE"""),
+                    AND bs.absolute_expires_at>UTC_TIMESTAMP(3)
+                    AND (bs.authentication_kind='NATIVE' OR provider.id IS NOT NULL) FOR SHARE"""),
             {
                 "id": identity.session_id,
                 "tenant": identity.tenant_id,

@@ -3796,7 +3796,7 @@ app.add_middleware(DiagnosticProfile)
                 )
             if args.include_meta_connection_checks:
                 from meta_connection_checks import run_meta_connection_checks
-                result["meta_connections"] = run_meta_connection_checks(admin, database, cases, client, values, browser=args.environment_internal_browser)
+                result["meta_connections"] = run_meta_connection_checks(admin, database, cases, client, values, browser=args.environment_internal_browser, bearer_headers=headers)
                 if args.include_meta_pipeline_checks:
                     from meta_pipeline_checks import run_meta_pipeline_checks
                     run_meta_pipeline_checks(admin, database, cases, values)

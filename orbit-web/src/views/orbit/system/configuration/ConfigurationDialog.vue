@@ -95,13 +95,13 @@ watch(
 )
 
 /** 对话框使用公开数据回填，不尝试读取或回显已保存Token。 */
-async function open(value?: Configuration) {
+async function open(value?: Configuration, initialSection?: string) {
   saveIntent.reset()
   existing.value = value
-  form.section = value?.section ?? props.sections[0]?.key ?? 'AI_GPT'
+  form.section = value?.section ?? initialSection ?? props.sections[0]?.key ?? 'AI_GPT'
   resetSection()
   form.name = value?.name ?? ''
-  form.enabled = value?.enabled ?? false
+  form.enabled = value?.enabled ?? initialSection === 'META_APP'
   form.reason = ''
   // 新增字段只在编辑表单补默认值，确认保存后才写入新版本，不改变历史GET快照。
   if (value) form.settings = { ...form.settings, ...value.settings }
@@ -215,7 +215,31 @@ defineExpose({ open })
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="配置名称" prop="name" :rules="textRules(100, true)">
+      <el-alert
+        v-if="form.section === 'META_APP'"
+        type="info"
+        :closable="false"
+        title="OAuth回调：https://drmovira.com/api/v1/integrations/meta/callback。当前不使用JavaScript SDK，SDK网域可留空。市场营销Token仅加密保存，不代替客户授权。"
+      />
+      <template v-if="form.section === 'META_APP' && existing">
+        <el-form-item label="取消授权回调">
+          <el-input
+            readonly
+            :model-value="`https://drmovira.com/api/v1/integrations/meta/applications/${existing.id}/deauthorization`"
+          />
+        </el-form-item>
+        <el-form-item label="数据删除请求回调">
+          <el-input
+            readonly
+            :model-value="`https://drmovira.com/api/v1/integrations/meta/applications/${existing.id}/data-deletion`"
+          />
+        </el-form-item>
+      </template>
+      <el-form-item
+        :label="form.section === 'META_APP' ? '应用名称' : '配置名称'"
+        prop="name"
+        :rules="textRules(100, true)"
+      >
         <el-input v-model="form.name" />
       </el-form-item>
       <el-form-item label="启用配置">

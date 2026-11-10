@@ -41,6 +41,8 @@ class MetaApplication:
     app_secret: str
     graph_version: str
     login_config_id: str
+    configuration_id: str | None = None
+    configuration_revision: int | None = None
 
     def __post_init__(self):
         from orbit_api.meta_read_contract import MetaReadFailure, validate_api_version
@@ -62,6 +64,15 @@ class MetaApplication:
             or any(not 33 <= ord(c) <= 126 for c in self.app_secret)
         ):
             raise ValueError("Meta平台应用配置不完整")
+
+    @property
+    def principal_namespace(self):
+        """租户自己声明的App ID不能操作全局撤销锁；用服务端配置UUID隔离。"""
+        return (
+            hashlib.sha256(("META_CONFIG:" + self.configuration_id).encode()).hexdigest()
+            if self.configuration_id
+            else self.app_id
+        )
 
     def authorize_url(self, state):
         return (
@@ -161,3 +172,34 @@ def selected_accounts(values):
     ):
         raise ValueError("请选择1至500个不同的可访问账户")
     return tuple(values)
+
+
+def application_from_configuration(row, cipher, *, expected_revision=None):
+    """只从本租户服务端查询的配置构造应用；Token不参与登录换码。"""
+    from orbit_api.configuration_store import _decode
+    from orbit_api.errors import OrbitError
+
+    if (
+        row is None
+        or row["section"] != "META_APP"
+        or not row["enabled"]
+        or (expected_revision is not None and row["revision"] != expected_revision)
+    ):
+        raise OrbitError(409, "META_APP_CHANGED", "所选应用已停用或变更，请重新选择并授权")
+    settings, secrets = _decode(row["settings_json"]), _decode(row["secrets_json"])
+    try:
+        secret = cipher.decrypt_internal(
+            secrets["appSecret"], row["tenant_id"], row["id"], "appSecret"
+        )
+        return MetaApplication(
+            settings["appId"],
+            secret,
+            settings["graphVersion"],
+            settings["loginConfigId"],
+            row["id"],
+            row["revision"],
+        )
+    except (KeyError, ValueError):
+        raise OrbitError(
+            422, "META_APP_INCOMPLETE", "请补全应用编号、密钥、企业登录配置ID及受支持的Graph版本"
+        ) from None

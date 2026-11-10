@@ -164,10 +164,20 @@ async def callback(request: Request, service: ServiceDependency):
 async def session_read(request: Request, service: ServiceDependency):
     _boundary(request)
     cookie, binding = read_cookie(request, SESSION_COOKIE), read_cookie(request, BINDING_COOKIE)
-    async with service.sessions() as session, session.begin():
-        identity = await BrowserSessionStore(service.cipher).resolve(session, cookie, binding)
-        bind_verified_cookie(identity)
-        return await session_payload(session, identity)
+    try:
+        async with service.sessions() as session, session.begin():
+            identity = await BrowserSessionStore(service.cipher).resolve(session, cookie, binding)
+            bind_verified_cookie(identity)
+            return await session_payload(session, identity)
+    except OrbitError as error:
+        if error.status != 401:
+            raise
+        response = JSONResponse(
+            {"code": error.code, "message": "会话已失效，请重新登录"}, status_code=401
+        )
+        response.delete_cookie(SESSION_COOKIE, path="/", secure=True, httponly=True, samesite="lax")
+        response.delete_cookie(BINDING_COOKIE, path="/", secure=True, httponly=True, samesite="lax")
+        return response
 
 
 @router.delete("/session")
@@ -190,4 +200,66 @@ async def sign_out(request: Request, service: ServiceDependency):
         )
     response = JSONResponse(result)
     response.delete_cookie(SESSION_COOKIE, path="/", secure=True, httponly=True, samesite="lax")
+    return response
+
+
+@router.post("/native-session")
+async def native_session_bridge(
+    request: Request,
+    service: ServiceDependency,
+):
+    """已有有效Bearer转为服务端会话；同源、真实权限和身份版本校验后才发Cookie。"""
+    from common.enums import RedisInitKeyConfig
+    from config.env import AppConfig
+    from module_admin.service.login_service import _SESSION_LOGOUT_SCRIPT, LoginService
+    from utils.jwt_util import JwtUtil
+
+    from orbit_api.meta_connection_service import access
+
+    _boundary(request)
+    require_same_origin(request)
+    await _limit(request, "native-session", 10)
+    async for chunk in request.stream():
+        if chunk:
+            raise OrbitError(400, "INVALID_STRUCTURE", "会话转换不接受正文")
+    authorization = request.headers.getlist("authorization")
+    if len(authorization) != 1 or not authorization[0].startswith("Bearer "):
+        raise OrbitError(401, "SESSION_REQUIRED", "需要有效的后台登录")
+    native_token = authorization[0][7:]
+    # 此显式转换入口独立验证Bearer；其他接口绝不从失效Cookie回退Bearer。
+    async with service.sessions() as session:
+        user = await LoginService._resolve_current_user(
+            request, native_token, session, refresh_session=False
+        )
+    payload = JwtUtil.decode(native_token)
+    token_id = (
+        payload.get("session_id") if AppConfig.app_same_time_login else payload.get("user_id")
+    )
+    binding = opaque_token()
+    async with service.sessions() as session, session.begin():
+        current = await access(session, user.user.user_id)
+        cookie, identity = await BrowserSessionStore(service.cipher).issue(
+            session,
+            current.tenant_id,
+            current.actor_id,
+            None,
+            None,
+            binding,
+            request.state.orbit_request_id,
+            native=True,
+        )
+        bind_verified_cookie(identity)
+        result = await session_payload(session, identity)
+        # 消耗来源令牌后才提交新会话；任何失败不发Cookie。Redis先撤销、DB失败需重新登录。
+        consumed = await request.app.state.redis.eval(
+            _SESSION_LOGOUT_SCRIPT,
+            1,
+            f"{RedisInitKeyConfig.ACCESS_TOKEN.key}:{token_id}",
+            native_token,
+        )
+        if consumed != 1:
+            raise OrbitError(401, "SESSION_REQUIRED", "原登录已退出或已转换，请重新登录")
+    response = JSONResponse(result)
+    _set_cookie(response, SESSION_COOKIE, cookie)
+    _set_cookie(response, BINDING_COOKIE, binding)
     return response

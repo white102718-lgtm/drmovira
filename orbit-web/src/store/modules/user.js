@@ -6,7 +6,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
 import useLockStore from '@/store/modules/lock'
 import defAva from '@/assets/images/profile.jpg'
-import { cookieSessionActive, logoutCookieSession } from '@/api/orbit/authentication'
+import { cookieSessionActive, nativeSessionPending, logoutCookieSession } from '@/api/orbit/authentication'
 
 const useUserStore = defineStore(
   'user',
@@ -79,7 +79,7 @@ const useUserStore = defineStore(
       // 退出系统
       logOut() {
         return new Promise((resolve, reject) => {
-          (cookieSessionActive() ? logoutCookieSession() : logout(this.token)).then(() => {
+          ((cookieSessionActive() || nativeSessionPending()) ? logoutCookieSession() : logout(this.token)).then(() => {
             this.token = ''
             this.roles = []
             this.permissions = []

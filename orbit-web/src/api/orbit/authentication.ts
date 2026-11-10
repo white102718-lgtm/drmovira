@@ -1,4 +1,4 @@
-import { getToken } from '@/utils/auth'
+import { getToken, removeToken } from '@/utils/auth'
 import type { OrbitUser } from './users'
 
 export interface ProductSession {
@@ -102,7 +102,10 @@ async function json(response: Response) {
   } catch {
     throw new Error('登录服务响应无效，请重新发起登录')
   }
-  if (!response.ok) throw new Error(value?.message ?? '登录验证失败，请重新发起登录')
+  if (!response.ok)
+    throw Object.assign(new Error(value?.message ?? '登录验证失败，请重新发起登录'), {
+      code: typeof value?.code === 'string' ? value.code : undefined,
+    })
   return value
 }
 function remember(value: ProductSession): ProductSession {
@@ -211,6 +214,7 @@ export async function finishEnterpriseLogin(query: string): Promise<string> {
   }
 }
 export async function logoutCookieSession(): Promise<void> {
+  if (nativeBridge) await nativeBridge.catch(() => undefined)
   if (!current) return
   logoutKey ??= `session-logout-${crypto.randomUUID()}`
   const response = await request('/session', {
@@ -219,4 +223,40 @@ export async function logoutCookieSession(): Promise<void> {
   })
   if (response.status !== 401) await json(response)
   clearCookieSession()
+}
+
+let nativeBridge: Promise<void> | null = null
+export function nativeSessionPending() {
+  return nativeBridge !== null
+}
+/** 将已验证的原生登录换为同源HttpOnly会话，OAuth回跳不携带Bearer。 */
+export async function ensureMetaBrowserSession(): Promise<void> {
+  if (cookieSessionActive()) return
+  if (!nativeBridge) {
+    const started = epoch
+    nativeBridge = (async () => {
+      const token = getToken()
+      if (!token) throw new Error('请先登录后台')
+      const response = await request('/native-session', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const value = await json(response)
+      if (started !== epoch) {
+        await request('/session', {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-Token': value.csrf_token,
+            'Idempotency-Key': 'stale-bridge-' + crypto.randomUUID(),
+          },
+        })
+        throw new Error('登录身份已变化，请重新登录')
+      }
+      remember(value)
+      removeToken()
+    })().finally(() => {
+      nativeBridge = null
+    })
+  }
+  return nativeBridge
 }

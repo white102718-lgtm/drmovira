@@ -1,4 +1,4 @@
-"""系统配置11类62字段合同及凭据操作，逐边界验证Python实现。"""
+"""系统配置11类64字段合同及凭据操作，逐边界验证Python实现。"""
 
 import json
 from pathlib import Path
@@ -69,7 +69,7 @@ def test_python_catalog_matches_all_original_extension_fields_without_java_runti
         if section["key"] != "MATERIAL_SCANNER"
         for field in section["fields"]
     ]
-    assert len(fields) == len(original) == 62
+    assert len(fields) == len(original) == 64
     assert len(metadata()) == 12
     extension = [s for s in metadata() if s["key"] == "MATERIAL_SCANNER"]
     assert len(extension) == 1 and [f["key"] for f in extension[0]["fields"]] == ["profileId"]

@@ -1,5 +1,6 @@
 /** Meta连接只显示脱敏状态；授权URL仅在内存短期保存，不保存Token。 */
 import { referenceRequest, ReferenceApiError, writeHeaders } from './references'
+import { ensureMetaBrowserSession } from './authentication'
 import type { AccountImportBatch } from './accounts'
 export interface MetaConnection {
   id: string
@@ -11,7 +12,14 @@ export interface MetaConnection {
   data_access_expires_at: string | null
   updated_at: string
 }
+export interface MetaApplicationChoice {
+  id: string
+  name: string
+  app_id: string
+  revision: number
+}
 export interface MetaCapabilities {
+  applications?: MetaApplicationChoice[]
   csrf_token: string
   configured: boolean
 }
@@ -92,8 +100,26 @@ export function parseConnections(value: unknown): { items: MetaConnection[] } {
   return p as unknown as { items: MetaConnection[] }
 }
 export function parseMetaCapabilities(value: unknown): MetaCapabilities {
-  const p = object(value, ['csrf_token', 'configured'])
+  const p = object(value, ['csrf_token', 'configured'], ['applications'])
   if (!text(p.csrf_token, 4096) || typeof p.configured !== 'boolean') invalid()
+  if (p.applications !== undefined) {
+    if (!Array.isArray(p.applications) || p.applications.length > 200) invalid()
+    const seen = new Set<string>()
+    for (const candidate of p.applications) {
+      const app = object(candidate, ['id', 'name', 'app_id', 'revision'])
+      if (
+        !uuid(app.id) ||
+        seen.has(app.id) ||
+        !text(app.name, 100) ||
+        typeof app.app_id !== 'string' ||
+        !/^\d{1,64}$/.test(app.app_id) ||
+        !Number.isSafeInteger(app.revision) ||
+        Number(app.revision) < 1
+      )
+        invalid()
+      seen.add(app.id)
+    }
+  }
   return p as unknown as MetaCapabilities
 }
 export function parseAuthorization(value: unknown): MetaAuthorization {
@@ -164,18 +190,23 @@ function parseBatch(value: unknown): AccountImportBatch {
 }
 const root = '/integrations/meta'
 export const metaConnectionApi = {
-  capabilities: async (signal?: AbortSignal) =>
-    parseMetaCapabilities(await referenceRequest(root + '/capabilities', { signal })),
+  capabilities: async (signal?: AbortSignal) => {
+    await ensureMetaBrowserSession()
+    return parseMetaCapabilities(await referenceRequest(root + '/capabilities', { signal }))
+  },
   list: async (signal?: AbortSignal) =>
     parseConnections(await referenceRequest(root + '/connections', { signal })),
-  authorize: async (csrf: string, key: string, id?: string) =>
+  authorize: async (csrf: string, key: string, id?: string, applicationId?: string) =>
     parseAuthorization(
       await referenceRequest(
         root + (id ? `/connections/${encodeURIComponent(id)}` : '') + '/authorization-sessions',
         {
           method: 'POST',
           headers: writeHeaders(csrf, key),
-          body: JSON.stringify({ return_to: '/orbit/accounts' }),
+          body: JSON.stringify({
+            return_to: '/orbit/accounts',
+            ...(!id && applicationId ? { application_id: applicationId } : {}),
+          }),
         },
       ),
     ),

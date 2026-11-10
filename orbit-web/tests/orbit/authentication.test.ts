@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   clearCookieSession,
+  ensureMetaBrowserSession,
+  nativeSessionPending,
   cookieSessionActive,
   finishEnterpriseLogin,
   logoutCookieSession,
@@ -13,7 +15,7 @@ import {
 } from '@/api/orbit/authentication'
 import { captureAuthEntry, takeAuthEntry } from '@/api/orbit/auth-entry'
 
-vi.mock('@/utils/auth', () => ({ getToken: () => 'native-fixture-token' }))
+vi.mock('@/utils/auth', () => ({ getToken: () => 'native-fixture-token', removeToken: vi.fn() }))
 const session = {
   user: { id: 'fixture-user' },
   scope_version: 1,
@@ -189,4 +191,62 @@ describe('Cookie登录入口和会话边界', () => {
     expect(first.body).toBeUndefined()
     expect(cookieSessionActive()).toBe(false)
   })
+})
+
+it('原生转换结果晚于身份清除时撤销新Cookie，不能恢复旧身份', async () => {
+  let resolve!: (value: Response) => void
+  const fetch = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise<Response>((r) => {
+          resolve = r
+        }),
+    )
+    .mockResolvedValue(new Response('{}'))
+  vi.stubGlobal('fetch', fetch)
+  const promise = ensureMetaBrowserSession()
+  expect(nativeSessionPending()).toBe(true)
+  clearCookieSession()
+  resolve(new Response(JSON.stringify(session)))
+  await expect(promise).rejects.toThrow('身份已变化')
+  expect(cookieSessionActive()).toBe(false)
+  expect(fetch.mock.calls[1][1].method).toBe('DELETE')
+})
+it('退出等待进行中的原生转换并撤销新会话', async () => {
+  let resolve!: (value: Response) => void
+  const fetch = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise<Response>((r) => {
+          resolve = r
+        }),
+    )
+    .mockResolvedValue(new Response('{}'))
+  vi.stubGlobal('fetch', fetch)
+  const bridge = ensureMetaBrowserSession()
+  const logout = logoutCookieSession()
+  resolve(new Response(JSON.stringify(session)))
+  await Promise.all([bridge, logout])
+  expect(cookieSessionActive()).toBe(false)
+  expect(fetch.mock.calls[1][1].method).toBe('DELETE')
+})
+
+it('会话转换保留业务目录错误代码供页面说明修复方式', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({ code: 'DIRECTORY_MAPPING_REQUIRED', message: '资料需要补全' }),
+          { status: 409 },
+        ),
+      ),
+  )
+  await expect(ensureMetaBrowserSession()).rejects.toMatchObject({
+    code: 'DIRECTORY_MAPPING_REQUIRED',
+  })
+  expect(cookieSessionActive()).toBe(false)
 })

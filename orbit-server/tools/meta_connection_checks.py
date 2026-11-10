@@ -18,10 +18,11 @@ CASES = [
     "metaSqlExpiredAndCrossBrowserState",
     "metaSqlAuditRollback",
     "metaHttpCookiePermissionAndUnconfiguredApplication",
+    "metaSqlNativeSessionAndMultiApplicationIsolation",
 ]
 
 
-def run_meta_connection_checks(admin, database, cases, client, values, *, browser=False):
+def run_meta_connection_checks(admin, database, cases, client, values, *, browser=False, bearer_headers=None):
     if (
         admin.host != "127.0.0.1"
         or admin.port != 13306
@@ -236,6 +237,73 @@ def run_meta_connection_checks(admin, database, cases, client, values, *, browse
         )
         assert rejected.status_code == 503 and rejected.json()["code"] == "META_APP_NOT_CONFIGURED"
         cases.append(CASES[4])
+        # 原生Bearer必须能建立真实浏览器会话，不创建虚构OIDC提供商。
+        native_response = client.post('/api/v1/auth/native-session',
+            headers=(bearer_headers or {}) | {'Origin':'https://app.fixture.example'})
+        assert native_response.status_code == 200, native_response.status_code
+        native_cookies = native_response.cookies
+        native_header = SESSION_COOKIE + '=' + native_cookies[SESSION_COOKIE] + '; ' + BINDING_COOKIE + '=' + native_cookies[BINDING_COOKIE]
+        native_headers = {'Cookie':native_header}
+        cap = client.get('/api/v1/integrations/meta/capabilities',headers=native_headers)
+        assert cap.status_code == 200
+        async with sessions() as db, db.begin():
+            native_identity = await browser.resolve(db, native_cookies[SESSION_COOKIE], native_cookies[BINDING_COOKIE])
+        bind_verified_cookie(native_identity)
+        from orbit_api.meta_application_registry import load_application, resolve_application
+        app_ids = [str(uuid4()), str(uuid4())]
+        async with sessions() as db, db.begin():
+            for index, app_id in enumerate(app_ids):
+                await db.execute(text("INSERT INTO orbit_system_configuration(id,tenant_id,section,name,enabled,revision,settings_json,secrets_json,verification_status,updated_at) VALUES(:id,:tenant,'META_APP',:name,1,1,:settings,:secrets,'UNTESTED',UTC_TIMESTAMP(3))"),
+                    {'id':app_id,'tenant':tenant,'name':'多应用隔离'+app_id,
+                     'settings':json.dumps({'appId':str(123+index),'graphVersion':'v24.0','loginConfigId':str(456+index)}),
+                     'secrets':json.dumps({'appSecret':cipher.encrypt('isolated-secret',tenant,app_id,'appSecret'),
+                                          'marketingToken':cipher.encrypt('isolated-marketing-token',tenant,app_id,'marketingToken')})})
+            app_a = await load_application(db,cipher,tenant,app_ids[0])
+            app_b = await load_application(db,cipher,tenant,app_ids[1])
+        service_a = MetaConnectionService(sessions,cipher,app_a,TestTransport())
+        service_b = MetaConnectionService(sessions,cipher,app_b,TestTransport())
+        request_key = str(uuid4())
+        started = await service_a.start(1,'/orbit/accounts',request_key,str(uuid4()))
+        assert parse_qs(urlsplit(started['authorize_url']).query)['client_id'] == ['123']
+        try:
+            await service_b.start(1,'/orbit/accounts',request_key,str(uuid4()))
+        except OrbitError as exc:
+            assert exc.code == 'IDEMPOTENCY_CONFLICT'
+        else:
+            raise AssertionError('同幂等键换应用未拒绝')
+        resolved = await resolve_application(sessions,cipher,1,state=state(started))
+        assert resolved.configuration_id == app_ids[0]
+        async with sessions() as db, db.begin():
+            await db.execute(text('UPDATE orbit_system_configuration SET revision=2 WHERE id=:id'),{'id':app_ids[0]})
+        try:
+            await service_a.callback(1,state(started),'isolated-code',str(uuid4()))
+        except OrbitError as exc:
+            assert exc.code == 'META_APP_CHANGED'
+        else:
+            raise AssertionError('应用版本改变后仍交换授权码')
+        assert service_a.transport.calls == 0
+        # 租户绑定的同名App ID签名不得撤销历史平台来源或其他应用配置。
+        import base64, hmac
+        payload = base64.urlsafe_b64encode(json.dumps({'algorithm':'HMAC-SHA256','user_id':'12345',
+            'issued_at':int(datetime.now(UTC).timestamp())}).encode()).decode().rstrip('=')
+        signature = base64.urlsafe_b64encode(hmac.new(b'isolated-secret',payload.encode(),hashlib.sha256).digest()).decode().rstrip('=')
+        await service_a.provider_callback(signature+'.'+payload,'DEAUTHORIZE')
+        async with sessions() as db, db.begin():
+            legacy = (await db.execute(text('SELECT revision FROM orbit_meta_connection WHERE id=:id'),{'id':identifier})).scalar_one()
+            assert legacy == 3
+            revoked = (await db.execute(text('SELECT last_revoked_at FROM orbit_meta_principal_lock WHERE app_id=:id AND principal_id=:principal'),{'id':'123','principal':'12345'})).scalar_one()
+            assert revoked is None
+        # 来源Bearer转换后立即失效，旧令牌不能在Cookie退出后继续访问。
+        assert client.get('/getInfo',headers=bearer_headers).json().get('code') == 401
+        cap = client.get('/api/v1/integrations/meta/capabilities',headers=native_headers)
+        assert cap.status_code == 200 and len(cap.json()['applications']) == 2
+        assert 'isolated-secret' not in cap.text and 'isolated-marketing-token' not in cap.text
+        async with sessions() as db, db.begin():
+            await browser.logout(db,native_cookies[SESSION_COOKIE],native_cookies[BINDING_COOKIE],
+                native_identity.csrf_token,str(uuid4()),str(uuid4()))
+        assert client.get('/api/v1/integrations/meta/capabilities',headers=native_headers).status_code == 401
+        bind_verified_cookie(identity)
+        cases.append(CASES[5])
         if browser_requested:
             from pathlib import Path
 

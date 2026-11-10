@@ -104,10 +104,22 @@ class MetaConnectionService:
         if not isinstance(key, str) or not 1 <= len(key) <= 128 or not key.isascii():
             raise OrbitError(400, "IDEMPOTENCY_KEY_REQUIRED", "需要有效幂等键")
         payload = hashlib.sha256(
-            canonical({"return_to": target, "connection_id": connection_id}).encode()
+            canonical(
+                {
+                    "return_to": target,
+                    "connection_id": connection_id,
+                    "app": self.app.app_id,
+                    "application_id": self.app.configuration_id,
+                    "application_revision": self.app.configuration_revision,
+                }
+            ).encode()
         ).hexdigest()
         async with self.sessions() as session, session.begin():
             current = await access(session, actor)
+            if self.app is not None:
+                from orbit_api.meta_application_registry import verify_application
+
+                await verify_application(session, self.cipher, current.tenant_id, self.app)
             # 账户时钟串行同租户写入，避免将权限检查持有的浏览器共享锁升级造成死锁。
             await lock_account_clock(session, current.tenant_id)
             old = (
@@ -156,8 +168,8 @@ class MetaConnectionService:
             expires = now + timedelta(minutes=10)
             await session.execute(
                 text("""INSERT INTO orbit_meta_authorization_session
-                (id,tenant_id,actor_id,browser_session_id,state_digest,state_envelope,request_key,payload_hash,return_to,connection_id,connection_revision,app_id,status,expires_at,created_at)
-                VALUES(:id,:tenant,:actor,:browser,:digest,:envelope,:key,:hash,:target,:connection,:revision,:app,'PENDING',:expires,:now)"""),
+                (id,tenant_id,actor_id,browser_session_id,state_digest,state_envelope,request_key,payload_hash,return_to,connection_id,connection_revision,app_id,app_configuration_id,app_configuration_revision,status,expires_at,created_at)
+                VALUES(:id,:tenant,:actor,:browser,:digest,:envelope,:key,:hash,:target,:connection,:revision,:app,:app_config,:app_revision,'PENDING',:expires,:now)"""),
                 {
                     "id": identifier,
                     "tenant": current.tenant_id,
@@ -173,6 +185,8 @@ class MetaConnectionService:
                     "connection": connection_id,
                     "revision": revision,
                     "app": self.app.app_id,
+                    "app_config": self.app.configuration_id,
+                    "app_revision": self.app.configuration_revision,
                     "expires": expires,
                     "now": now,
                 },
@@ -191,6 +205,20 @@ class MetaConnectionService:
                 "authorize_url": self.app.authorize_url(state),
                 "expires_at": utc_string(expires),
             }
+
+    async def bind_application(self, session, tenant, identifier):
+        await session.execute(
+            text(
+                "UPDATE orbit_meta_connection SET app_configuration_id=:config, "
+                "app_configuration_revision=:revision WHERE tenant_id=:tenant AND id=:id"
+            ),
+            {
+                "config": self.app.configuration_id,
+                "revision": self.app.configuration_revision,
+                "tenant": tenant,
+                "id": identifier,
+            },
+        )
 
     async def connection(self, session, current, identifier, *, lock=False):
         row = (
@@ -219,6 +247,9 @@ class MetaConnectionService:
         digest = hashlib.sha256(state.encode()).digest()
         async with self.sessions() as session, session.begin():
             current = await access(session, actor)
+            from orbit_api.meta_application_registry import verify_application
+
+            await verify_application(session, self.cipher, current.tenant_id, self.app)
             await lock_account_clock(session, current.tenant_id)
             row = (
                 (
@@ -266,12 +297,15 @@ class MetaConnectionService:
             token, grant = await self.transport.exchange(code)
             async with self.sessions() as session, session.begin():
                 current = await access(session, actor)
+                await verify_application(session, self.cipher, current.tenant_id, self.app)
                 if (
                     current.tenant_id != row["tenant_id"]
                     or browser_identity(actor).session_id != row["browser_session_id"]
                 ):
                     raise OrbitError(403, "META_STATE_INVALID", "授权期间登录身份已变化")
-                revoked = await lock_principal(session, self.app.app_id, grant.principal_id)
+                revoked = await lock_principal(
+                    session, self.app.principal_namespace, grant.principal_id
+                )
                 require_publication_epoch(revoked, row["created_at"])
                 await lock_account_clock(session, current.tenant_id)
                 latest_state = (
@@ -384,6 +418,7 @@ class MetaConnectionService:
                         ),
                         values,
                     )
+                await self.bind_application(session, current.tenant_id, identifier)
                 await session.execute(
                     text(
                         "UPDATE orbit_meta_authorization_session SET "
@@ -660,8 +695,13 @@ class MetaConnectionService:
 
         async def load(session, *, publishing=False):
             current = await require_configuration_access(session, actor)
+            from orbit_api.meta_application_registry import verify_application
+
+            await verify_application(session, self.cipher, current.tenant_id, self.app)
             if publishing:
-                revoked = await lock_principal(session, self.app.app_id, grant.principal_id)
+                revoked = await lock_principal(
+                    session, self.app.principal_namespace, grant.principal_id
+                )
                 require_publication_epoch(revoked, validation_started_at)
                 await lock_account_clock(session, current.tenant_id)
             row = (
@@ -843,6 +883,7 @@ class MetaConnectionService:
                     ),
                     values,
                 )
+            await self.bind_application(session, current.tenant_id, identifier)
             result = {
                 "id": identifier,
                 "revision": revision,
@@ -890,9 +931,21 @@ class MetaConnectionService:
             data = signed_request(signed, self.app.app_secret, datetime.now(UTC))
         except ValueError:
             raise OrbitError(400, "META_SIGNATURE_INVALID", "Meta回调签名无效或过期") from None
-        digest = hashlib.sha256((kind + ":" + signed).encode()).hexdigest()
+        digest = hashlib.sha256(
+            (self.app.principal_namespace + ":" + kind + ":" + signed).encode()
+        ).hexdigest()
+        source_filter = (
+            " AND app_configuration_id=:config"
+            if self.app.configuration_id
+            else " AND app_configuration_id IS NULL"
+        )
+        source_params = {
+            "app": self.app.app_id,
+            "principal": data["user_id"],
+            "config": self.app.configuration_id,
+        }
         async with self.sessions() as session, session.begin():
-            await lock_principal(session, self.app.app_id, data["user_id"])
+            await lock_principal(session, self.app.principal_namespace, data["user_id"])
             prior = (
                 (
                     await session.execute(
@@ -914,9 +967,11 @@ class MetaConnectionService:
                     await session.execute(
                         text(
                             "SELECT DISTINCT tenant_id FROM orbit_meta_connection "
-                            "WHERE app_id=:app AND principal_id=:principal ORDER BY tenant_id"
+                            "WHERE app_id=:app AND principal_id=:principal"
+                            + source_filter
+                            + " ORDER BY tenant_id"
                         ),
-                        {"app": self.app.app_id, "principal": data["user_id"]},
+                        source_params,
                     )
                 )
                 .scalars()
@@ -929,16 +984,16 @@ class MetaConnectionService:
                     "UPDATE orbit_meta_principal_lock SET last_revoked_at=UTC_TIMESTAMP(6) "
                     "WHERE app_id=:app AND principal_id=:principal"
                 ),
-                {"app": self.app.app_id, "principal": data["user_id"]},
+                {"app": self.app.principal_namespace, "principal": data["user_id"]},
             )
             rows = (
                 (
                     await session.execute(
                         text(
                             "SELECT * FROM orbit_meta_connection WHERE app_id=:app AND princip"
-                            "al_id=:principal ORDER BY tenant_id,id FOR UPDATE"
+                            "al_id=:principal" + source_filter + " ORDER BY tenant_id,id FOR UPDATE"
                         ),
-                        {"app": self.app.app_id, "principal": data["user_id"]},
+                        source_params,
                     )
                 )
                 .mappings()

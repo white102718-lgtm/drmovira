@@ -84,11 +84,62 @@ class BrowserSessionStore:
             raise OrbitError(401, "SESSION_REAUTH_REQUIRED", "登录身份与受信提供者不一致")
         return row
 
+    @staticmethod
+    async def native_principal(session, tenant, actor):
+        """原生认证主体仍须复核租户、人员、团队和安全版本，不伪造OIDC映射。"""
+        row = (
+            (
+                await session.execute(
+                    text("""SELECT i.subject_id,i.auth_version
+            FROM sys_user u JOIN sys_identity_subject i ON i.user_id=u.user_id
+            JOIN orbit_user_scope s ON s.user_id=u.user_id AND s.tenant_id=:tenant
+            JOIN orbit_business_user b ON b.user_id=u.user_id AND b.tenant_id=s.tenant_id
+            JOIN orbit_business_team t ON t.id=b.team_id AND t.tenant_id=b.tenant_id
+            JOIN orbit_tenant tenant ON tenant.id=s.tenant_id
+            WHERE u.user_id=:actor AND u.status='0' AND u.del_flag='0'
+            AND b.enabled=1 AND b.invited=0 AND s.enabled=1 AND t.enabled=1
+            AND tenant.enabled=1 AND s.data_role IN ('USER','TEAM_ADMIN','SUPER_ADMIN')
+            FOR SHARE"""),
+                    {"tenant": tenant, "actor": actor},
+                )
+            )
+            .mappings()
+            .first()
+        )
+        if row is None:
+            raise OrbitError(401, "SESSION_REAUTH_REQUIRED", "本地登录身份已失效")
+        return row
+
     async def issue(
-        self, session, tenant, actor, provider_id, provider_revision, binding, request_id
+        self,
+        session,
+        tenant,
+        actor,
+        provider_id,
+        provider_revision,
+        binding,
+        request_id,
+        *,
+        native=False,
     ):
         """仅供已验证回调同事务调用；邀请绑定、启用、会话及审计任一失败均回滚。"""
-        principal = await self._principal(session, tenant, actor, provider_id, provider_revision)
+        if native:
+            from orbit_api.native_session import current_auth_snapshot
+
+            snapshot = current_auth_snapshot()
+            principal = await self.native_principal(session, tenant, actor)
+            if (
+                snapshot is None
+                or snapshot.actor_id != actor
+                or snapshot.version != principal["auth_version"]
+            ):
+                raise OrbitError(401, "SESSION_REQUIRED", "需要已验证的本地登录")
+            if provider_id is not None or provider_revision is not None:
+                raise OrbitError(400, "INVALID_STRUCTURE", "原生会话不能指定OIDC配置")
+        else:
+            principal = await self._principal(
+                session, tenant, actor, provider_id, provider_revision
+            )
         if not self.cipher.ready:
             raise OrbitError(503, "ENCRYPTION_UNAVAILABLE", "服务端认证主密钥尚未配置")
         now = (await session.execute(text("SELECT UTC_TIMESTAMP(3)"))).scalar_one()
@@ -100,6 +151,7 @@ class BrowserSessionStore:
             "auth_version": principal["auth_version"],
             "provider_id": provider_id,
             "provider_revision": provider_revision,
+            "authentication_kind": "NATIVE" if native else "OIDC",
             "token_digest": credential_digest("SESSION", cookie),
             "binding_digest": credential_digest("BROWSER_BINDING", binding),
             "csrf_key_id": self.cipher.active_key_id,
@@ -110,9 +162,9 @@ class BrowserSessionStore:
         }
         await session.execute(
             text("""INSERT INTO orbit_browser_session
-                (id,tenant_id,user_id,auth_version,provider_id,provider_revision,token_digest,
+                (id,tenant_id,user_id,auth_version,provider_id,provider_revision,authentication_kind,token_digest,
                  binding_digest,csrf_key_id,status,created_at,last_seen_at,idle_expires_at,absolute_expires_at)
-                VALUES(:id,:tenant_id,:user_id,:auth_version,:provider_id,:provider_revision,:token_digest,
+                VALUES(:id,:tenant_id,:user_id,:auth_version,:provider_id,:provider_revision,:authentication_kind,:token_digest,
                  :binding_digest,:csrf_key_id,'ACTIVE',:created_at,:last_seen_at,:idle_expires_at,:absolute_expires_at)"""),
             row,
         )
@@ -152,9 +204,16 @@ class BrowserSessionStore:
             or min(row["idle_expires_at"], row["absolute_expires_at"]) <= now
         ):
             raise OrbitError(401, "SESSION_REQUIRED", "会话已退出或过期，请重新登录")
-        principal = await self._principal(
-            session, row["tenant_id"], row["user_id"], row["provider_id"], row["provider_revision"]
-        )
+        if row.get("authentication_kind", "OIDC") == "NATIVE":
+            principal = await self.native_principal(session, row["tenant_id"], row["user_id"])
+        else:
+            principal = await self._principal(
+                session,
+                row["tenant_id"],
+                row["user_id"],
+                row["provider_id"],
+                row["provider_revision"],
+            )
         if principal["auth_version"] != row["auth_version"]:
             raise OrbitError(401, "SESSION_REAUTH_REQUIRED", "授权已更新，请重新登录")
         if touch and row["last_seen_at"] <= now - timedelta(seconds=60):

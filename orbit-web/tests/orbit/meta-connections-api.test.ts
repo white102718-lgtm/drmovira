@@ -33,3 +33,25 @@ it('只接受真实Meta HTTPS授权页', () => {
     }),
   ).toThrow()
 })
+it('应用候选只接收服务端公开身份，拒绝秘密字段和重复候选', () => {
+  const app = {
+    id: '00000000-0000-4000-8000-000000000001',
+    name: '客户应用',
+    app_id: '123',
+    revision: 1,
+  }
+  expect(
+    parseMetaCapabilities({ csrf_token: 'csrf', configured: true, applications: [app] })
+      .applications,
+  ).toEqual([app])
+  expect(() =>
+    parseMetaCapabilities({
+      csrf_token: 'csrf',
+      configured: true,
+      applications: [{ ...app, app_secret: 'leak' }],
+    }),
+  ).toThrow()
+  expect(() =>
+    parseMetaCapabilities({ csrf_token: 'csrf', configured: true, applications: [app, app] }),
+  ).toThrow()
+})

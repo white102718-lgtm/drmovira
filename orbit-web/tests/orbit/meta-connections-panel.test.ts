@@ -210,3 +210,42 @@ it('BM重新验证只引导系统配置，不调用个人登录授权', async ()
   expect(w.text()).toContain('对应 Meta/BM 配置行')
   expect(metaConnectionApi.authorize).not.toHaveBeenCalled()
 })
+it('新授权必须明确选择应用，重新授权沿用连接来源而不传其他应用', async () => {
+  vi.mocked(metaConnectionApi.capabilities).mockResolvedValue({
+    csrf_token: 'csrf',
+    configured: true,
+    applications: [
+      { id: owner, name: '应用A', app_id: '111', revision: 1 },
+      { id: team, name: '应用B', app_id: '222', revision: 1 },
+    ],
+  })
+  await start()
+  const connect = w.findAllComponents(ElButton).find((b) => b.text() === '连接 Meta')!
+  expect(connect.props('disabled')).toBe(true)
+  w.findComponent(ElSelect).vm.$emit('update:modelValue', team)
+  await flushPromises()
+  await click('连接 Meta')
+  expect(metaConnectionApi.authorize).toHaveBeenLastCalledWith(
+    'csrf',
+    expect.any(String),
+    undefined,
+    team,
+  )
+  await click('重新授权')
+  expect(metaConnectionApi.authorize).toHaveBeenLastCalledWith(
+    'csrf',
+    expect.any(String),
+    id,
+    undefined,
+  )
+})
+
+it('业务资料不完整时指出个人中心补全资料而非反复重试', async () => {
+  vi.mocked(metaConnectionApi.capabilities).mockRejectedValue(
+    Object.assign(new Error('internal detail'), { code: 'DIRECTORY_MAPPING_REQUIRED' }),
+  )
+  await start()
+  expect(w.text()).toContain('个人中心')
+  expect(w.text()).toContain('邮箱')
+  expect(w.text()).not.toContain('internal detail')
+})

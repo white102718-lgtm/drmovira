@@ -181,6 +181,8 @@ def parse_write(raw: bytes) -> ConfigurationWrite:
             "graphVersion": r"v[0-9]{1,3}\.[0-9]{1,2}",
             "appId" if request.section == "META_APP" else "businessId": r"[0-9]{1,64}",
         }
+        if request.section == "META_APP":
+            patterns["loginConfigId"] = r"[0-9]{1,64}"
         if request.section == "META_BM":
             patterns["systemUserId"] = r"[0-9]{1,64}"
     if request.section == "AI_CLAUDE":

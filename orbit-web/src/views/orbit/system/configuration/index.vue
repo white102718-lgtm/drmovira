@@ -204,6 +204,12 @@ onBeforeUnmount(() => {
     <h2>系统配置</h2>
     <el-alert v-if="bmNotice" :title="bmNotice" type="info" :closable="false" />
     <div class="configuration-meta-toolbar">
+      <el-button
+        type="primary"
+        :disabled="!sections.length"
+        @click="dialog?.open(undefined, 'META_APP')"
+        >绑定 Meta 应用</el-button
+      >
       <el-button @click="metaOpen = true">Meta 连接与授权状态</el-button>
       <el-button v-if="bmPending" :loading="bmBusy" @click="connectBm()"
         >重试 BM 接入原请求</el-button

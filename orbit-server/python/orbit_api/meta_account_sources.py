@@ -177,6 +177,28 @@ async def connection_row(session, tenant, identifier, revision):
         .first()
     )
     require_connection(row, identifier, revision)
+    if row.get("app_configuration_id"):
+        config = (
+            (
+                await session.execute(
+                    text(
+                        "SELECT revision,enabled,section,settings_json FROM "
+                        "orbit_system_configuration WHERE tenant_id=:tenant AND id=:id FOR SHARE"
+                    ),
+                    {"tenant": tenant, "id": row["app_configuration_id"]},
+                )
+            )
+            .mappings()
+            .first()
+        )
+        if (
+            config is None
+            or not config["enabled"]
+            or config["section"] != "META_APP"
+            or config["revision"] != row["app_configuration_revision"]
+            or _decode(config["settings_json"]).get("appId") != row["app_id"]
+        ):
+            raise AccountReadFailure("META_CONNECTION_SOURCE_CHANGED")
     return row
 
 

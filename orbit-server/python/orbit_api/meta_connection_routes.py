@@ -43,8 +43,8 @@ def application():
         ) from None
 
 
-def service():
-    app = application()
+def service(app=None):
+    app = app or application()
     return MetaConnectionService(
         lambda: DataSourceRegistry.session(log_sql=False),
         credential_cipher(),
@@ -83,19 +83,52 @@ async def capabilities(request: Request, user: User):
     boundary(request, user.user.user_id)
     async with DataSourceRegistry.session(log_sql=False) as session, session.begin():
         await access(session, user.user.user_id)
+    from orbit_api.meta_application_registry import choices
+
+    async with DataSourceRegistry.session(log_sql=False) as session, session.begin():
+        applications = await choices(session, credential_cipher(), user.user.user_id)
     try:
         application()
-        configured = credential_cipher().ready
+        legacy = credential_cipher().ready
     except OrbitError:
-        configured = False
-    return {"csrf_token": current_cookie_identity().csrf_token, "configured": configured}
+        legacy = False
+    return {
+        "csrf_token": current_cookie_identity().csrf_token,
+        "configured": bool(applications) or legacy,
+        "applications": applications,
+    }
+
+
+async def selected_service(actor, **selection):
+    from orbit_api.meta_application_registry import resolve_application
+
+    app = await resolve_application(
+        lambda: DataSourceRegistry.session(log_sql=False), credential_cipher(), actor, **selection
+    )
+    return service(app)
+
+
+def parse_start(raw, *, selecting=False):
+    import json
+
+    from orbit_api.configuration import _parse_json
+    from orbit_api.configuration_store import _uuid
+
+    value = _parse_json(raw)
+    if not isinstance(value, dict):
+        raise OrbitError(400, "INVALID_STRUCTURE", "授权请求结构无效")
+    identifier = value.pop("application_id", None) if selecting else None
+    if identifier is not None:
+        identifier = _uuid(identifier)
+    return parse_authorization_start(json.dumps(value).encode()), identifier
 
 
 @router.post("/authorization-sessions")
 async def start(request: Request, user: User):
     key = boundary(request, user.user.user_id, write=True)
-    value = parse_authorization_start(await body(request))
-    return await service().start(
+    value, selected = parse_start(await body(request), selecting=True)
+    instance = await selected_service(user.user.user_id, configuration_id=selected)
+    return await instance.start(
         user.user.user_id, value.return_to, key, request.state.orbit_request_id
     )
 
@@ -103,8 +136,9 @@ async def start(request: Request, user: User):
 @router.post("/connections/{identifier}/authorization-sessions")
 async def reauthorize(identifier: str, request: Request, user: User):
     key = boundary(request, user.user.user_id, write=True)
-    value = parse_authorization_start(await body(request))
-    return await service().start(
+    value, _ = parse_start(await body(request))
+    instance = await selected_service(user.user.user_id, connection_id=identifier, reauthorize=True)
+    return await instance.start(
         user.user.user_id, value.return_to, key, request.state.orbit_request_id, identifier
     )
 
@@ -130,7 +164,8 @@ async def callback(request: Request, user: User):
             raise ValueError
     except (ValueError, UnicodeError):
         raise OrbitError(400, "META_CALLBACK_INVALID", "Meta回调参数无效") from None
-    target, result = await service().callback(
+    instance = await selected_service(user.user.user_id, state=params["state"])
+    target, result = await instance.callback(
         user.user.user_id,
         params["state"],
         params.get("code"),
@@ -180,7 +215,8 @@ async def disconnect(identifier: str, request: Request, user: User):
 @router.get("/connections/{identifier}/accounts")
 async def candidates(identifier: str, request: Request, user: User):
     boundary(request, user.user.user_id)
-    return await service().candidates(user.user.user_id, identifier)
+    instance = await selected_service(user.user.user_id, connection_id=identifier)
+    return await instance.candidates(user.user.user_id, identifier)
 
 
 @router.post("/connections/{identifier}/accounts", status_code=202)
@@ -215,7 +251,7 @@ async def attach_accounts(identifier: str, request: Request, user: User):
         for field in ("operator_user_id", "owner_team_id", "vendor_id")
     )
     channel = _uuid(value["channel_id"], "/channel_id") if value["channel_id"] is not None else None
-    instance = service()
+    instance = await selected_service(user.user.user_id, connection_id=identifier)
     available = await instance.candidates(user.user.user_id, identifier)
     if not set(ids) <= {item["external_id"] for item in available["items"]}:
         raise OrbitError(403, "META_ACCOUNT_NOT_ACCESSIBLE", "选择的账户不在当前Meta授权范围")
@@ -289,12 +325,21 @@ async def connect_bm(request: Request, user: User):
     value = _parse_json(await body(request))
     if (
         not isinstance(value, dict)
-        or set(value) != {"configuration_id", "configuration_revision"}
+        or set(value) - {"configuration_id", "configuration_revision", "application_id"}
+        or not {"configuration_id", "configuration_revision"} <= set(value)
         or type(value["configuration_revision"]) is not int
         or value["configuration_revision"] < 1
     ):
         raise OrbitError(422, "FIELD_INVALID", "请选择BM配置及当前版本")
-    return await service().connect_bm(
+    instance = await selected_service(
+        user.user.user_id,
+        configuration_id=(
+            _uuid(value["application_id"], "/application_id")
+            if value.get("application_id")
+            else None
+        ),
+    )
+    return await instance.connect_bm(
         user.user.user_id,
         _uuid(value["configuration_id"], "/configuration_id"),
         value["configuration_revision"],
@@ -303,7 +348,7 @@ async def connect_bm(request: Request, user: User):
     )
 
 
-async def provider_callback(request, kind):
+async def provider_callback(request, kind, application_id=None):
     if request.query_params or "x-target-tenant" in request.headers:
         raise OrbitError(400, "UNKNOWN_FIELD", "回调不接受查询或租户参数")
     try:
@@ -317,7 +362,34 @@ async def provider_callback(request, kind):
             raise ValueError
     except (ValueError, UnicodeError):
         raise OrbitError(400, "META_CALLBACK_INVALID", "回调需要签名请求") from None
-    result = await service().provider_callback(values[0][1], kind)
+    if application_id:
+        from sqlalchemy import text
+
+        from orbit_api.configuration_store import _uuid
+        from orbit_api.meta_connection_contract import application_from_configuration
+
+        async with DataSourceRegistry.session(log_sql=False) as session, session.begin():
+            row = (
+                (
+                    await session.execute(
+                        text(
+                            "SELECT * FROM orbit_system_configuration WHERE id=:id AND "
+                            "section='META_APP' FOR SHARE"
+                        ),
+                        {"id": _uuid(application_id)},
+                    )
+                )
+                .mappings()
+                .first()
+            )
+            # 停用后仍需接收已验证的撤销/删除请求；不因此恢复授权能力。
+            app = application_from_configuration(
+                dict(row) | {"enabled": 1} if row else None, credential_cipher()
+            )
+        instance = service(app)
+    else:
+        instance = service()
+    result = await instance.provider_callback(values[0][1], kind)
     if kind == "DELETE":
         return {
             "url": "https://drmovira.com/api/v1/integrations/meta/deletion-status/" + result["id"],
@@ -357,3 +429,13 @@ async def deletion_status(confirmation: str, request: Request):
     if status is None:
         raise OrbitError(404, "NOT_FOUND", "删除请求不存在")
     return {"confirmation_code": confirmation, "status": status}
+
+
+@router.post("/applications/{application_id}/deauthorization")
+async def application_deauthorize(application_id: str, request: Request):
+    return await provider_callback(request, "DEAUTHORIZE", application_id)
+
+
+@router.post("/applications/{application_id}/data-deletion")
+async def application_delete_data(application_id: str, request: Request):
+    return await provider_callback(request, "DELETE", application_id)
