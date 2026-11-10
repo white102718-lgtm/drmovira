@@ -17,3 +17,14 @@
 本次单机部署使用SSH本地转发访问服务器回环mTLS端口，不新增公网开放端口。需要AdsPower及Mac监测进程持续运行；电脑休眠/关机或隧道中断后，90秒失联按OFFLINE展示。证书到期前须续签，不能关闭证书校验。
 
 API Key若需要，保存为本人私有普通文本文件（0600），不要粘贴到聊天、URL或GitHub。平台不因设备在线自动发放广告写权限。后台修改登记地址后，还需将执行机启动配置改成同一地址并重启监测进程。
+
+
+## 当前部署维护
+
+生产API版本目录为 `/opt/orbit/releases/20261110-adspower`；设备入口 `/opt/orbit/run_device.py`，服务 `orbit-device.service`。证书目录 `/etc/orbit/device`；CA私钥root独有，服务端密钥仅服务组可读。设备叶证书有效期90天，续签须注册新指纹并撤销旧指纹，不能只替换文件。
+
+Mac运行目录为 `~/Library/Application Support/ORBIT Agent`，包含独立venv、只读源码、设备证书/私钥、SSH隧道密钥、api-key.txt及spool。目录0700、私钥0600。两个LaunchAgent配置在 `~/Library/LaunchAgents/com.orbit.adspower-{monitor,tunnel}.plist`。Key只在Mac使用，不在服务器保存。
+
+修改API地址后更新Mac的 `start-monitor.sh` 对应 `--endpoint`，再执行 `launchctl kickstart -k gui/$(id -u)/com.orbit.adspower-monitor`。更新API Key时只修改私有api-key.txt，保持0600，并重启monitor。不要把此目录提交到版本库或公开分享日志。
+
+停止本机监测可执行 `launchctl bootout gui/$(id -u)/com.orbit.adspower-monitor`，停止隧道同理替换为 `com.orbit.adspower-tunnel`。设备因缺少新心跳在90秒后显示离线。停止服务器设备服务不会删除已有业务历史。

@@ -154,3 +154,8 @@ python -m venv .venv
 ## 2026-11-10：Meta 多应用后台绑定
 
 已增加后台绑定应用、授权时选择应用、来源版本隔离及原生登录会话转换，部署迁移至 076。操作说明见 `orbit-server/docs/orbit/meta-integration/MULTI_APP.md`，测试与外部验收边界见 `orbit-server/docs/orbit/meta-integration/MULTI_APP_VALIDATION.md`。真实 Meta 客户授权与数据对账仍需实际应用配置及授权，不视为已完成。
+
+
+## 2026-11-10：AdsPower 自定义地址与真实监测部署
+
+用户授权后已部署自定义API地址支持，并安装服务器mTLS接收服务及Mac常驻只读监测。test2真实心跳READY，完整Profile库存1条，无API认证错误；另一设备test未接入，保持OFFLINE。设备尚未绑定广告账户，此验收不代表Meta身份或广告写能力通过。部署维护和证据分别见 `orbit-server/docs/orbit/ADSPOWER_CONNECTION_SETUP.md`、`orbit-server/docs/orbit/ADSPOWER_CONNECTION_VALIDATION.md`。设备证书90天需续签；所有私钥、API Key和运行队列保留受控主机，不入库。
