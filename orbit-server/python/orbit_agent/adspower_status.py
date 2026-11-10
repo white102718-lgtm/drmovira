@@ -9,7 +9,6 @@ import asyncio
 import json
 import math
 import os
-import re
 import stat
 from pathlib import Path
 
@@ -28,15 +27,14 @@ class ProbeError(Exception):
         super().__init__(code)
 
 
-def canonical_endpoint(endpoint, *, allowed_ports=frozenset({50325})):
-    """严格白名单，localhost固定映射127.0.0.1，不进行DNS解析或接受等价IP拼写。"""
-    match = re.fullmatch(r"http://(?:127\.0\.0\.1|localhost):([1-9][0-9]{0,4})/?", endpoint)
-    if match is None:
-        raise ProbeError("ENDPOINT_REJECTED")
-    port = int(match[1])
-    if port > 65535 or port not in allowed_ports:
-        raise ProbeError("ENDPOINT_REJECTED")
-    return f"http://127.0.0.1:{port}"
+def canonical_endpoint(endpoint, *, allowed_ports=None):
+    """兼容旧调用参数，端口不再受固定白名单限制。"""
+    from orbit_agent.endpoint import normalize_endpoint
+
+    try:
+        return normalize_endpoint(endpoint)
+    except (ValueError, TypeError):
+        raise ProbeError("ENDPOINT_REJECTED") from None
 
 
 def read_api_key(path):
@@ -81,7 +79,7 @@ def _unique_object(items):
 async def probe_status(
     endpoint=DEFAULT_ENDPOINT,
     *,
-    allowed_ports=frozenset({50325}),
+    allowed_ports=None,
     api_key_file=None,
     timeout_seconds=3.0,
 ):

@@ -10,18 +10,11 @@ import pytest
 @pytest.mark.parametrize(
     "endpoint",
     [
-        "https://127.0.0.1:50325",
         "http://127.1:50325",
         "http://2130706433:50325",
-        "http://localhost.example:50325",
-        "http://local.adspower.net:50325",
-        "http://[::1]:50325",
         "http://user:secret@127.0.0.1:50325",
-        "http://127.0.0.1:50325/status",
         "http://127.0.0.1:50325?key=secret",
         "http://127.0.0.1:50325#fragment",
-        "http://127.0.0.1:50326",
-        "http://localhost",
         " http://localhost:50325",
         "http://localhost:050325",
         "http://localhost:50325/../",
@@ -225,3 +218,12 @@ def test_cli_defaults_to_status_and_serializes_only_safe_failure(monkeypatch, ca
     captured = capsys.readouterr()
     assert '"error_code": "CONNECTION_FAILED"' in captured.out
     assert captured.err == ""
+
+
+async def test_status_uses_custom_https_api_base_path():
+    def handler(request):
+        assert str(request.url) == "https://device.example:5443/adspower/status"
+        return httpx.Response(200, json={"code": 0})
+
+    result = await probe(handler, endpoint="https://device.example:5443/adspower/")
+    assert result["api_status"] == "AVAILABLE"

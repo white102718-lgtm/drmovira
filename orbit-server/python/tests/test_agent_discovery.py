@@ -95,3 +95,39 @@ async def test_bounded_response_and_redirect_do_not_follow_or_echo():
     ).discover()
     assert result.api_status == "UNREACHABLE" and result.coverage == "UNAVAILABLE"
     assert len(calls) == 1 and "private" not in repr(result)
+
+
+@pytest.mark.asyncio
+async def test_api_key_required_body_is_authentication_failure_not_generic_discovery_failure():
+    from orbit_agent.adspower_readonly import ReadonlyAdsPower
+    from orbit_agent.adspower_status import ProbeError
+
+    def handler(request):
+        return httpx.Response(200, json={"code": -1, "msg": "Require api-key"})
+
+    adapter = ReadonlyAdsPower(transport=httpx.MockTransport(handler))
+    with pytest.raises(ProbeError) as failure:
+        await adapter.get("/api/v1/browser/local-active")
+    assert failure.value.code == "ADSPOWER_AUTH_FAILED"
+
+
+@pytest.mark.asyncio
+async def test_profile_authentication_failure_survives_discovery_summary():
+    from orbit_agent.adspower_readonly import ReadonlyAdsPower
+
+    async def no_wait(_):
+        pass
+
+    def handler(request):
+        return httpx.Response(
+            200,
+            json={"code": 0}
+            if request.url.path == "/status"
+            else {"code": -1, "msg": "Require api-key"},
+        )
+
+    snapshot = await ReadonlyAdsPower(
+        transport=httpx.MockTransport(handler), sleep=no_wait
+    ).discover()
+    assert snapshot.coverage == "UNAVAILABLE"
+    assert snapshot.error_code == "ADSPOWER_AUTH_FAILED"

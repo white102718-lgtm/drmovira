@@ -56,14 +56,9 @@ def test_invalid_or_authority_injecting_fields_are_rejected(changes):
 @pytest.mark.parametrize(
     "endpoint",
     [
-        "http://local.adspower.net:50325",
         "http://127.1:50325",
-        "http://127.0.0.1:22",
         "http://127.0.0.1:50325?api_key=secret",
         "http://u:secret@localhost:50325",
-        "https://localhost:50325",
-        "http://[::1]:50325",
-        "http://localhost:50325/status",
     ],
 )
 def test_endpoint_matches_execution_machine_strict_rule(endpoint):
@@ -170,3 +165,20 @@ def test_unsupported_linked_filters_remain_in_parsed_contract_for_explicit_failu
 
     filters, _ = parse_agent_filters({"channel_id": "campaign-source", "entity_type": "AD"})
     assert filters["channel_id"] == "campaign-source" and filters["entity_type"] == "AD"
+
+
+@pytest.mark.parametrize(
+    "endpoint,expected",
+    [
+        ("http://local.adspower.net:50325", "http://local.adspower.net:50325"),
+        ("http://192.168.1.9:61000", "http://192.168.1.9:61000"),
+        ("https://api.example.com/ads/", "https://api.example.com/ads"),
+        ("http://[::1]:61001", "http://[::1]:61001"),
+        ("http://localhost:80", "http://127.0.0.1"),
+    ],
+)
+def test_custom_api_base_is_preserved_by_registry_and_agent(endpoint, expected):
+    from orbit_agent.adspower_status import canonical_endpoint
+
+    assert parse(body(endpoint=endpoint))["endpoint"] == expected
+    assert canonical_endpoint(endpoint) == expected

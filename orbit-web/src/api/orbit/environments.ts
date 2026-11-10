@@ -30,6 +30,49 @@ function object(value: unknown, keys: string[]): Record<string, unknown> {
     throw new AgentFieldError('', '执行机字段不符合合同')
   return value as Record<string, unknown>
 }
+/** 仅解析与保存，不由浏览器连接API。与执行机基址合同保持一致。 */
+export function parseAgentEndpoint(value: unknown): string {
+  const invalid = () =>
+    new AgentFieldError(
+      'endpoint',
+      '请输入有效 HTTP/HTTPS API 地址，可使用域名、IP和自定义端口；不能含密码或查询参数',
+    )
+  if (
+    typeof value !== 'string' ||
+    !value ||
+    value.length > 255 ||
+    /[^\x21-\x7e]|[\\?#@]/.test(value)
+  )
+    throw invalid()
+  const match =
+    /^(https?):\/\/(\[[0-9a-fA-F:]+\]|[A-Za-z0-9.-]+)(?::([1-9][0-9]{0,4}))?((?:\/[A-Za-z0-9_~.-]+)*\/?)$/.exec(
+      value,
+    )
+  if (
+    !match ||
+    (match[3] && Number(match[3]) > 65535) ||
+    match[4].split('/').some((p) => p === '.' || p === '..')
+  )
+    throw invalid()
+  const host = match[2].toLowerCase()
+  if (!host.startsWith('[')) {
+    if (/^[0-9.]+$/.test(host)) {
+      if (
+        !/^(0|[1-9][0-9]{0,2})(\.(0|[1-9][0-9]{0,2})){3}$/.test(host) ||
+        host.split('.').some((p) => Number(p) > 255)
+      )
+        throw invalid()
+    } else if (!host.split('.').every((p) => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(p)))
+      throw invalid()
+  }
+  try {
+    const url = new URL(value)
+    if (url.hostname === 'localhost') url.hostname = '127.0.0.1'
+    return url.origin + url.pathname.replace(/\/$/, '')
+  } catch {
+    throw invalid()
+  }
+}
 export function parseAgentWrite(value: unknown): AgentWrite {
   const row = object(value, ['name', 'endpoint', 'probe_interval'])
   if (
@@ -41,15 +84,7 @@ export function parseAgentWrite(value: unknown): AgentWrite {
   const name = row.name.normalize('NFC').trim()
   if (!name || [...name].length > 80)
     throw new AgentFieldError('name', '机器名称需为 1 至 80 个字符')
-  // 默认仅允许已配置的 50325 端口；允许端口变更须随服务端合同同步。
-  if (
-    typeof row.endpoint !== 'string' ||
-    !/^http:\/\/(?:127\.0\.0\.1|localhost):50325\/?$/.test(row.endpoint)
-  )
-    throw new AgentFieldError(
-      'endpoint',
-      '本地 API 地址仅允许 http://localhost:50325 或 http://127.0.0.1:50325',
-    )
+  const endpoint = parseAgentEndpoint(row.endpoint)
   if (
     typeof row.probe_interval !== 'number' ||
     !Number.isInteger(row.probe_interval) ||
@@ -57,7 +92,7 @@ export function parseAgentWrite(value: unknown): AgentWrite {
     row.probe_interval > 300
   )
     throw new AgentFieldError('probe_interval', '探测周期需为 10 至 300 秒的整数')
-  return { name, endpoint: 'http://127.0.0.1:50325', probe_interval: row.probe_interval }
+  return { name, endpoint, probe_interval: row.probe_interval }
 }
 export function parseAgent(value: unknown): Agent {
   const row = object(value, [

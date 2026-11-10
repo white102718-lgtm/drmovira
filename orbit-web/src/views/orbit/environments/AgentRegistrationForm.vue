@@ -21,7 +21,7 @@
         placeholder="填写执行机发现的本地地址"
       />
       <div class="agent-help">
-        仅登记 localhost / 127.0.0.1 的已允许端口（50325）。云端和浏览器不会连接该地址；Local API
+        支持 HTTP/HTTPS、域名、IP、自定义端口及代理路径。地址由 AdsPower 所在执行机访问；Local API
         Key 只留在执行机。
       </div>
     </el-form-item>

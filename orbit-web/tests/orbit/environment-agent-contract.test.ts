@@ -8,17 +8,12 @@ it('normalizes three original fields without introducing ownership, keys or onli
     probe_interval: 30,
   })
 })
-it.each([
-  'https://localhost:50325',
-  'http://example.com:50325',
-  'http://127.0.0.1:50325/status',
-  'http://localhost:50325?key=secret',
-  'http://user:secret@localhost:50325',
-  'http://localhost:80',
-  'http://[::1]:50325',
-])('rejects endpoint %s without requesting it', (endpoint) => {
-  expect(() => parseAgentWrite({ ...body, endpoint })).toThrow()
-})
+it.each(['http://localhost:50325?key=secret', 'http://user:secret@localhost:50325'])(
+  'rejects endpoint %s without requesting it',
+  (endpoint) => {
+    expect(() => parseAgentWrite({ ...body, endpoint })).toThrow()
+  },
+)
 it.each([9, 301, 10.1, '30', null, true])('rejects invalid interval %s', (probe_interval) => {
   expect(() => parseAgentWrite({ ...body, probe_interval })).toThrow()
 })
@@ -53,4 +48,14 @@ it('accepts only original seven public agent fields and leaves absent heartbeat 
 })
 it('rejects impossible calendar heartbeat dates rather than rolling over into another day', () => {
   expect(() => parseAgent({ ...agent, last_heartbeat: '2026-02-30T00:00:00Z' })).toThrow()
+})
+
+it.each([
+  ['http://local.adspower.net:50325', 'http://local.adspower.net:50325'],
+  ['http://192.168.1.9:61000', 'http://192.168.1.9:61000'],
+  ['https://api.example.com/ads/', 'https://api.example.com/ads'],
+  ['http://[::1]:61001', 'http://[::1]:61001'],
+  ['http://localhost:80', 'http://127.0.0.1'],
+])('preserves custom API base %s', (endpoint, expected) => {
+  expect(parseAgentWrite({ ...body, endpoint }).endpoint).toBe(expected)
 })

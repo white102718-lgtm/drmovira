@@ -10,7 +10,7 @@ from orbit_api.errors import OrbitError
 from orbit_api.reference_contract import StrictInput, schema_error
 
 STATES = frozenset({"READY", "SUSPECT", "OFFLINE", "REVOKED"})
-DEFAULT_ALLOWED_PORTS = frozenset({50325})
+DEFAULT_ALLOWED_PORTS = None
 
 
 class AgentWrite(StrictInput):
@@ -24,16 +24,18 @@ class AgentRevoke(StrictInput):
 
 
 def agent_endpoint(value, *, allowed_ports=DEFAULT_ALLOWED_PORTS):
-    """与本地适配器同一严格白名单；独立纯解析，不导入本地HTTP客户端到控制面。"""
-    match = re.fullmatch(r"http://(?:127\.0\.0\.1|localhost):([1-9][0-9]{0,4})/?", value)
-    if match is None or int(match[1]) > 65535 or int(match[1]) not in allowed_ports:
+    """登记任意合法HTTP(S)基址；控制面不访问此地址。"""
+    from orbit_agent.endpoint import normalize_endpoint
+
+    try:
+        return normalize_endpoint(value)
+    except (ValueError, TypeError):
         raise OrbitError(
             422,
             "FIELD_VALIDATION_FAILED",
-            "执行机地址仅允许localhost/127.0.0.1及已允许端口",
+            "请输入有效 HTTP/HTTPS API 地址，可使用域名、IP和自定义端口；不能含密码或查询参数",
             "/endpoint",
-        )
-    return f"http://127.0.0.1:{int(match[1])}"
+        ) from None
 
 
 def parse_agent(raw, mode="save", *, allowed_ports=DEFAULT_ALLOWED_PORTS):

@@ -95,7 +95,7 @@ def run_environment_registry_checks(
         ]
 
     def agent_body(name):
-        return {"name": name, "endpoint": "http://localhost:50325", "probe_interval": 30}
+        return {"name": name, "endpoint": "https://device.example:5443/adspower", "probe_interval": 30}
 
     body, create_headers = agent_body(marker + "_first"), wh()
     agent = checked(client.post(root, headers=create_headers, json=body), 201)
@@ -116,11 +116,11 @@ def run_environment_registry_checks(
     cases.append(ENVIRONMENT_REGISTRY_CASES[0])
 
     for wrong in [
-        body | {"endpoint": "http://example.com:50325"},
+        body | {"endpoint": "ftp://example.com:50325"},
         body | {"api_key": "isolated-forbidden-value"},
         body | {"state": "READY"},
         body | {"probe_interval": True},
-        body | {"endpoint": "http://localhost:50325/path"},
+        body | {"endpoint": "http://localhost:50325/path?token=secret"},
     ]:
         before = counts()
         checked(

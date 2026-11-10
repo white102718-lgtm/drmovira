@@ -64,7 +64,7 @@ class ReadonlyAdsPower:
         endpoint=DEFAULT_ENDPOINT,
         *,
         api_key_file=None,
-        allowed_ports=frozenset({50325}),
+        allowed_ports=None,
         transport=None,
         sleep=asyncio.sleep,
     ):
@@ -118,6 +118,11 @@ class ReadonlyAdsPower:
                 if type(result) is not dict or type(result.get("code")) is not int:
                     raise ProbeError("ADSPOWER_RESPONSE_INVALID")
                 if result["code"] != 0:
+                    if str(result.get("msg", "")).strip().lower() in {
+                        "require api-key",
+                        "invalid api-key",
+                    }:
+                        raise ProbeError("ADSPOWER_AUTH_FAILED")
                     if (
                         path == "/api/v1/user/list"
                         and result["code"] == -1
@@ -222,8 +227,8 @@ class ReadonlyAdsPower:
                 "ACTIVE_ONLY" if active_known else "UNAVAILABLE",
                 tuple((i, "ACTIVE") for i in sorted(active)),
                 (
-                    "ADSPOWER_SUBSCRIPTION_REQUIRED"
-                    if error.code == "ADSPOWER_SUBSCRIPTION_REQUIRED"
+                    error.code
+                    if error.code in {"ADSPOWER_SUBSCRIPTION_REQUIRED", "ADSPOWER_AUTH_FAILED"}
                     else "PROFILE_DISCOVERY_FAILED"
                 ),
                 endpoints,
