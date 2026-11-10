@@ -142,26 +142,30 @@ class AccountImportStore:
             "data_owner_user_ids": [value.owner_user_id],
         }
         await validate_ownership(session, current, ownership)
-        vendor = (await records(session, current.tenant_id, [value.vendor_id])).get(value.vendor_id)
-        if (
-            vendor is None
-            or vendor["kind"] != "VENDOR"
-            or not readable(current, managed, _decode(vendor["value_json"]))
-        ):
-            raise OrbitError(404, "NOT_FOUND", "户商不存在或不可见")
-        reference = _decode(vendor["value_json"])
-        if reference["availability"] != "AVAILABLE":
-            raise OrbitError(422, "VENDOR_DISABLED", "户商已停用，不能创建导入", "/vendor_id")
-        if (
-            reference["owner_team_id"] != value.owner_team_id
-            or value.owner_user_id not in reference["data_owner_user_ids"]
-        ):
-            raise OrbitError(
-                422,
-                "REFERENCE_OWNER_MISMATCH",
-                "户商必须同时对目标拥有者可读且属于目标团队",
-                "/vendor_id",
+        vendor = None
+        if value.vendor_id is not None:
+            vendor = (await records(session, current.tenant_id, [value.vendor_id])).get(
+                value.vendor_id
             )
+            if (
+                vendor is None
+                or vendor["kind"] != "VENDOR"
+                or not readable(current, managed, _decode(vendor["value_json"]))
+            ):
+                raise OrbitError(404, "NOT_FOUND", "户商不存在或不可见")
+            reference = _decode(vendor["value_json"])
+            if reference["availability"] != "AVAILABLE":
+                raise OrbitError(422, "VENDOR_DISABLED", "户商已停用，不能创建导入", "/vendor_id")
+            if (
+                reference["owner_team_id"] != value.owner_team_id
+                or value.owner_user_id not in reference["data_owner_user_ids"]
+            ):
+                raise OrbitError(
+                    422,
+                    "REFERENCE_OWNER_MISMATCH",
+                    "户商必须同时对目标拥有者可读且属于目标团队",
+                    "/vendor_id",
+                )
         identifier, input_ref = str(uuid4()), str(uuid4())
         rows = tokenize(value.account_ids_text)
         summary = batch_summary([row["state"] for row in rows], started=False)
@@ -178,7 +182,7 @@ class AccountImportStore:
             | {
                 "id": identifier,
                 "vendor": value.vendor_id,
-                "vendor_revision": vendor["revision"],
+                "vendor_revision": vendor["revision"] if vendor else None,
                 "owner": value.owner_user_id,
                 "team": value.owner_team_id,
                 "scope": version,
@@ -210,16 +214,17 @@ class AccountImportStore:
                 for public in public_rows
             ],
         )
-        await append_account_alias_snapshot(
-            session,
-            current,
-            vendor,
-            resource_type="IMPORT",
-            resource_id=identifier,
-            resource_revision=1,
-            request_id=request_id,
-            permission="accounts.import",
-        )
+        if vendor is not None:
+            await append_account_alias_snapshot(
+                session,
+                current,
+                vendor,
+                resource_type="IMPORT",
+                resource_id=identifier,
+                resource_revision=1,
+                request_id=request_id,
+                permission="accounts.import",
+            )
         await event(
             session,
             current,

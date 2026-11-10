@@ -359,3 +359,82 @@ async def test_adapter_translates_revoked_source_and_unavailable_credentials(mon
     loader.side_effect = RuntimeError("unexpected-programming-error")
     with pytest.raises(RuntimeError):
         await runtime.adapter(job)
+
+
+async def test_manual_metadata_sync_without_policy_does_not_require_metrics_profile(monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    from orbit_api.meta_sync_runtime import enqueue_metrics
+
+    missing = SimpleNamespace(mappings=lambda: SimpleNamespace(first=lambda: None))
+    session = SimpleNamespace(execute=AsyncMock(return_value=missing))
+    begin = AsyncMock()
+    monkeypatch.setattr("orbit_api.meta_metric_collection.MetaMetricCollectionStore.begin", begin)
+    assert (
+        await enqueue_metrics(
+            session,
+            SimpleNamespace(tenant_id="tenant"),
+            {"id": "account"},
+            "request",
+            require_policy=False,
+        )
+        is None
+    )
+    assert session.execute.await_count == 2
+    begin.assert_not_awaited()
+
+
+async def test_manual_metadata_sync_keeps_configured_policy_failures(monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    import pytest
+    from config import orbit_runtime
+
+    from orbit_api.errors import OrbitError
+    from orbit_api.meta_sync_runtime import enqueue_metrics
+
+    row = {"profile_id": "invalid-profile", "adapter_version": "adapter"}
+    session = SimpleNamespace(
+        execute=AsyncMock(
+            return_value=SimpleNamespace(mappings=lambda: SimpleNamespace(first=lambda: row))
+        )
+    )
+    error = OrbitError(409, "META_PROFILE_CHANGED", "configured profile invalid")
+    begin = AsyncMock(side_effect=error)
+    monkeypatch.setattr("orbit_api.meta_metric_collection.MetaMetricCollectionStore.begin", begin)
+    monkeypatch.setattr(
+        orbit_runtime, "private_values", lambda: {"ORBIT_META_GRAPH_VERSION": "v24.0"}
+    )
+    with pytest.raises(OrbitError) as caught:
+        await enqueue_metrics(
+            session,
+            SimpleNamespace(tenant_id="tenant", actor_id=1),
+            {"id": "account", "timezone_id": "UTC"},
+            "request",
+            require_policy=False,
+        )
+    assert caught.value is error
+    assert session.execute.await_count == 1
+    begin.assert_awaited_once()
+
+
+async def test_metric_only_call_still_requires_policy():
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    import pytest
+
+    from orbit_api.errors import OrbitError
+    from orbit_api.meta_sync_runtime import enqueue_metrics
+
+    missing = SimpleNamespace(mappings=lambda: SimpleNamespace(first=lambda: None))
+    with pytest.raises(OrbitError) as caught:
+        await enqueue_metrics(
+            SimpleNamespace(execute=AsyncMock(return_value=missing)),
+            SimpleNamespace(tenant_id="tenant"),
+            {"id": "account"},
+            "request",
+        )
+    assert caught.value.code == "META_METRIC_PROFILE_REQUIRED"

@@ -109,6 +109,21 @@ describe('账户导入弹窗，服务替身范围', () => {
     expect(wrapper.text()).toContain('状态：已排队')
     expect(wrapper.emitted('accepted')).toHaveLength(1)
   })
+  it('户商留空仍能提交，明确传null并保留投手团队', async () => {
+    api.createImport.mockResolvedValue({ ...batch, vendor_id: null })
+    const wrapper = await render()
+    await fill(wrapper)
+    wrapper.findAllComponents(ElSelect)[1].vm.$emit('update:modelValue', '')
+    await flushPromises()
+    expect(button(wrapper, '预检并提交导入').attributes('disabled')).toBeUndefined()
+    await button(wrapper, '预检并提交导入').trigger('click')
+    await flushPromises()
+    expect(api.createImport.mock.calls[0][0]).toMatchObject({
+      vendor_id: null,
+      owner_user_id: 'person',
+      owner_team_id: 'team',
+    })
+  })
   it('原始501重复项仍超限，不能仅凭去重后1项提交', async () => {
     const wrapper = await render()
     await fill(wrapper, '1 '.repeat(501))

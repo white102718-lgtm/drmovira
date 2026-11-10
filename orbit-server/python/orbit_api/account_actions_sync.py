@@ -14,7 +14,7 @@ from sqlalchemy import text
 from orbit_api.account_access import event, visible_clause
 from orbit_api.account_actions_store import ownership, require_projection_current
 from orbit_api.account_identities_store import identifier, utc
-from orbit_api.account_metadata import metadata
+from orbit_api.account_metadata import merge_observations, metadata
 from orbit_api.account_platform import (
     AccountReadFailure,
     MetaAccountPlatform,
@@ -384,7 +384,7 @@ class AccountSyncWorker:
                 raise AccountReadFailure("ACCOUNT_SYNC_CLAIM_LOST")
             await self.verify(session, account, command)
 
-    async def complete(self, claim, *, result=None, failure=None):
+    async def complete(self, claim, *, result=None, failure=None, spend=None):
         async with self.sessions() as session, session.begin():
             account, command = await self.lock(session, claim.command, claim.account, write=True)
             if not claim_matches(command, claim):
@@ -425,6 +425,10 @@ class AccountSyncWorker:
             except (OrbitError, AccountReadFailure) as error:
                 await self.transition(session, command, "FAILED", code=error.code)
                 return True
+            if spend is not None:
+                from orbit_api.meta_account_daily_spend import publish_daily_spend
+
+                await publish_daily_spend(session, current, account["id"], spend["facts"])
             details = _decode(account["details_json"]) | {
                 "source_config_id": command["source_config_id"],
                 "source_config_revision": command["source_config_revision"],
@@ -432,6 +436,15 @@ class AccountSyncWorker:
                     timespec="milliseconds"
                 ).replace("+00:00", "Z"),
             }
+            if spend is not None:
+                details["spend_sync"] = {
+                    "reason_code": spend["reason_code"],
+                    "observed_at": details["metadata_observed_at"],
+                }
+            details["business_managers"] = value.business_managers
+            details["observations"] = merge_observations(
+                details.get("observations", {}), value.observations
+            )
             await session.execute(
                 text(
                     "UPDATE orbit_ad_account SET name=:name,name_prefix=:prefix,"
@@ -451,7 +464,7 @@ class AccountSyncWorker:
                     "details": canonical(details),
                 },
             )
-            # 保留原金额观测/未知值和历史归属；元数据HTTP未返回金额，不能补零。
+            # 元数据与明确每日消费事实同事务；不推算可用余额、不改历史归属。
             await event(
                 session,
                 current,
@@ -493,8 +506,13 @@ class AccountSyncWorker:
                 reader.preflight = lambda captured=claim: self.preflight(captured)
                 await reader.prepare((claim.external_id,))
                 result = await reader.fetch_metadata(claim.external_id)
+                spend = None
+                if hasattr(reader, "fetch_daily_spend"):
+                    spend = await reader.fetch_daily_spend(
+                        claim.external_id, result["currency"], result["timezone_id"]
+                    )
             except AccountReadFailure as failure:
                 await self.complete(claim, failure=failure)
             else:
-                await self.complete(claim, result=result)
+                await self.complete(claim, result=result, spend=spend)
         return {"processed": processed, "recovered": recovered}

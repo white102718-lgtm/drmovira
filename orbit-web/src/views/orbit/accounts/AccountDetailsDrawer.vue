@@ -63,6 +63,7 @@ import {
   accountAmount,
   accountAuthorizations,
   accountPeriod,
+  accountSpendStatus,
   accountStates,
   accountText,
   accountTime,
@@ -143,6 +144,8 @@ const fields = computed(() => {
           ? '部分缺失，金额未知'
           : '尚未采集',
     ],
+    ['消耗读取状态', accountSpendStatus(d)],
+    ['消耗读取时间', accountTime(d.spend_sync?.observed_at ?? null)],
     ['封禁原因', accountText(d.blocked_reason)],
     ['封禁观测时间', accountTime(d.blocked_observed_at)],
     ['授权时间', accountTime(d.authorized_at)],

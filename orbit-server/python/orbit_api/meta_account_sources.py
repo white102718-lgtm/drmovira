@@ -22,6 +22,8 @@ class MetaAccountSource:
     kind: str
     business_id: str | None
     import_selection: tuple[int, str | None] | None = None
+    discovered: bool = False
+    principal_id: str | None = None
 
 
 async def optional_table(session, table):
@@ -241,7 +243,7 @@ async def load_connection(session, cipher, tenant, identifier, revision, graph_v
         raise
     except Exception:
         raise AccountReadFailure("META_CONNECTION_SOURCE_UNAVAILABLE") from None
-    return MetaAccountSource(configuration, row["kind"], business)
+    return MetaAccountSource(configuration, row["kind"], business, principal_id=row["principal_id"])
 
 
 async def validate_import_channel(session, current, channel_id):
@@ -358,6 +360,10 @@ class MetaAccountSourceReader:
             not isinstance(x, str) or not re.fullmatch("[0-9]{1,64}", x) for x in wanted
         ):
             raise AccountReadFailure("ACCOUNT_PLATFORM_REQUEST_REJECTED")
+        if self.source.discovered:
+            # 服务端已将发现页与批次原子持久化；每次account读取仍复验连接及当前平台权限。
+            self.authorized = frozenset(wanted)
+            return
         matched = set()
         edges = ("me",) if self.source.kind == "LOGIN" else ("owned", "client")
         try:
@@ -398,11 +404,31 @@ class MetaAccountSourceReader:
             if self.preflight is not None:
                 await self.preflight()
             value = await self.adapter.account(external_id)
+            if hasattr(self.adapter, "account_extras"):
+                extras, principal = await self.adapter.account_extras(
+                    external_id, principal=self.source.kind == "LOGIN"
+                )
+                if self.guard_failure is not None:
+                    raise self.guard_failure
+                if (
+                    principal is not None
+                    and self.source.principal_id is not None
+                    and principal["id"] != self.source.principal_id
+                ):
+                    raise AccountReadFailure("META_ACCOUNT_MISMATCH")
+                from orbit_api.meta_account_enrichment import business_managers, observations
+
+                managers = business_managers(extras)
+                enriched = observations(value | extras, datetime.now(UTC), principal=principal)
+            else:
+                enriched = {}
+                managers = None
         except MetaReadFailure as error:
             if self.guard_failure is not None:
                 raise self.guard_failure from None
             raise AccountReadFailure(error.code, retryable=error.retryable) from None
         return {
+            **({"observations": enriched, "business_managers": managers} if enriched else {}),
             "external_id": value["account_id"],
             "name": value["name"],
             "currency": value["currency"],
@@ -415,3 +441,25 @@ class MetaAccountSourceReader:
             "auth_status": "AUTHORIZED",
             "observed_at": datetime.now(UTC),
         }
+
+    async def fetch_daily_spend(self, external_id, currency, timezone):
+        """仅同步调用，复用相同授权连接、逐HTTP门禁与完整分页。"""
+        self.guard_failure = None
+        if self.authorized is None or external_id not in self.authorized:
+            raise AccountReadFailure("ACCOUNT_PLATFORM_FORBIDDEN")
+        from orbit_api.meta_account_daily_spend import read_daily_spend
+
+        try:
+            facts = await read_daily_spend(self.adapter, external_id, currency, timezone)
+        except MetaReadFailure as error:
+            if self.guard_failure is not None:
+                raise self.guard_failure from None
+            if error.code in {"META_READ_FORBIDDEN", "META_READ_REJECTED"}:
+                return {
+                    "facts": [],
+                    "reason_code": "NOT_AUTHORIZED"
+                    if error.code == "META_READ_FORBIDDEN"
+                    else "READ_REJECTED",
+                }
+            raise AccountReadFailure(error.code, retryable=error.retryable) from None
+        return {"facts": facts, "reason_code": None if facts else "NOT_PROVIDED"}

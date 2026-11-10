@@ -29,7 +29,7 @@ _DIGITS = re.compile(r"[0-9]{1,32}\Z")
 
 @dataclass(frozen=True)
 class AccountImport:
-    vendor_id: str
+    vendor_id: str | None
     account_ids_text: str
     owner_user_id: str
     owner_team_id: str
@@ -40,8 +40,12 @@ def parse_import(raw):
     if len(raw) > 100000:
         raise OrbitError(413, "BODY_TOO_LARGE", "账户导入请求正文超过上限")
     value = _parse_json(raw)
-    required = {"vendor_id", "account_ids_text", "owner_user_id", "owner_team_id"}
-    if not isinstance(value, dict) or set(value) != required:
+    required = {"account_ids_text", "owner_user_id", "owner_team_id"}
+    if (
+        not isinstance(value, dict)
+        or not required <= set(value)
+        or set(value) - required - {"vendor_id"}
+    ):
         raise OrbitError(400, "INVALID_STRUCTURE", "请提供户商、原始ID文本与目标拥有者和团队")
     if not isinstance(value["account_ids_text"], str):
         raise OrbitError(
@@ -49,7 +53,7 @@ def parse_import(raw):
         )
     tokenize(value["account_ids_text"])
     return AccountImport(
-        _uuid(value["vendor_id"], "/vendor_id"),
+        _uuid(value["vendor_id"], "/vendor_id") if value.get("vendor_id") is not None else None,
         value["account_ids_text"],
         _uuid(value["owner_user_id"], "/owner_user_id"),
         _uuid(value["owner_team_id"], "/owner_team_id"),

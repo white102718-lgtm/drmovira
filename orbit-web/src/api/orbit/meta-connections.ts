@@ -2,7 +2,21 @@
 import { referenceRequest, ReferenceApiError, writeHeaders } from './references'
 import { ensureMetaBrowserSession } from './authentication'
 import type { AccountImportBatch } from './accounts'
+export interface MetaAutoImportBatch {
+  id: string
+  state: AccountImportBatch['state']
+  total: number
+  success_count: number
+  failed_count: number
+  duplicate_count: number
+}
+export interface MetaAutoImport extends Omit<MetaAutoImportBatch, 'state'> {
+  state: 'QUEUED' | 'DISCOVERING' | 'IMPORTING' | 'SUCCEEDED' | 'PARTIAL_SUCCESS' | 'FAILED'
+  error_code: string | null
+  batches: MetaAutoImportBatch[]
+}
 export interface MetaConnection {
+  auto_import?: MetaAutoImport | null
   id: string
   kind: 'LOGIN' | 'BM'
   status: 'ACTIVE' | 'REAUTH_REQUIRED' | 'DISCONNECTED'
@@ -72,16 +86,20 @@ export function parseConnections(value: unknown): { items: MetaConnection[] } {
   if (!Array.isArray(p.items) || p.items.length > 10000) invalid()
   const seen = new Set<string>()
   for (const item of p.items) {
-    const r = object(item, [
-      'id',
-      'kind',
-      'status',
-      'revision',
-      'principal_id',
-      'expires_at',
-      'data_access_expires_at',
-      'updated_at',
-    ])
+    const r = object(
+      item,
+      [
+        'id',
+        'kind',
+        'status',
+        'revision',
+        'principal_id',
+        'expires_at',
+        'data_access_expires_at',
+        'updated_at',
+      ],
+      ['auto_import'],
+    )
     if (
       !uuid(r.id) ||
       seen.has(r.id) ||
@@ -95,6 +113,46 @@ export function parseConnections(value: unknown): { items: MetaConnection[] } {
       !stamp(r.updated_at)
     )
       invalid()
+    if (r.auto_import != null) {
+      const job = object(r.auto_import, [
+        'id',
+        'state',
+        'error_code',
+        'total',
+        'success_count',
+        'failed_count',
+        'duplicate_count',
+        'batches',
+      ])
+      if (
+        !['QUEUED', 'DISCOVERING', 'IMPORTING', 'SUCCEEDED', 'PARTIAL_SUCCESS', 'FAILED'].includes(
+          String(job.state),
+        ) ||
+        (job.error_code !== null && !text(job.error_code, 128)) ||
+        !Array.isArray(job.batches)
+      )
+        invalid()
+      for (const entry of [job, ...job.batches]) {
+        if (
+          !entry ||
+          typeof entry !== 'object' ||
+          !uuid(entry.id) ||
+          ['total', 'success_count', 'failed_count', 'duplicate_count'].some(
+            (k) => !Number.isSafeInteger(entry[k]) || Number(entry[k]) < 0,
+          )
+        )
+          invalid()
+      }
+      for (const batch of job.batches) {
+        object(batch, ['id', 'state', 'total', 'success_count', 'failed_count', 'duplicate_count'])
+        if (
+          !['QUEUED', 'RUNNING', 'SUCCEEDED', 'PARTIAL_SUCCESS', 'FAILED'].includes(
+            String(batch.state),
+          )
+        )
+          invalid()
+      }
+    }
     seen.add(r.id)
   }
   return p as unknown as { items: MetaConnection[] }
@@ -179,7 +237,7 @@ function parseBatch(value: unknown): AccountImportBatch {
     !['QUEUED', 'RUNNING', 'SUCCEEDED', 'PARTIAL_SUCCESS', 'FAILED'].includes(String(p.state)) ||
     !Array.isArray(p.rows) ||
     p.rows.length > 500 ||
-    !uuid(p.vendor_id) ||
+    (p.vendor_id !== null && !uuid(p.vendor_id)) ||
     ['total', 'success_count', 'failed_count', 'duplicate_count'].some(
       (k) => !Number.isSafeInteger(p[k]) || Number(p[k]) < 0,
     ) ||

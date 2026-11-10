@@ -105,11 +105,10 @@ it('未配置明确阻断，保留状态与有效期字段', async () => {
     expect(w.text()).toContain(name)
   expect(metaConnectionApi.authorize).not.toHaveBeenCalled()
 })
-it('授权不自动跳转，用户明确继续才前往Meta', async () => {
+it('点击连接立即前往Meta而不再二次确认', async () => {
   await start()
   await click('连接 Meta')
-  expect(metaConnectionApi.navigate).not.toHaveBeenCalled()
-  await click('继续前往 Meta')
+  expect(w.text()).not.toContain('继续前往 Meta')
   expect(metaConnectionApi.navigate).toHaveBeenCalledWith(authorization)
 })
 it('不确定授权结果只重试原幂等键', async () => {
@@ -140,54 +139,11 @@ it('取消断开不提交，确认包含原因和原版本', async () => {
     expect.stringMatching(/^meta-disconnect-/),
   )
 })
-it('导入额外权限拒绝时不枚举账户', async () => {
-  vi.mocked(accountApi.capabilities).mockRejectedValue(
-    new ReferenceApiError(403, 'PERMISSION_DENIED', 'denied'),
-  )
+it('已有连接只展示状态，不显示手工选择或静默启动导入', async () => {
   await start()
-  await click('选择账户')
+  expect(w.text()).not.toContain('选择账户')
   expect(metaConnectionApi.accounts).not.toHaveBeenCalled()
-  expect(w.text()).toContain('没有此操作权限')
-})
-it('选择账户复用投手团队户商并返回原批次结果', async () => {
-  const batch = {
-    id,
-    revision: 1,
-    vendor_id: vendor,
-    state: 'QUEUED' as const,
-    total: 1,
-    success_count: 0,
-    failed_count: 0,
-    duplicate_count: 0,
-    rows: [],
-    next_cursor: null,
-  }
-  vi.spyOn(metaConnectionApi, 'select').mockResolvedValue(batch)
-  await start()
-  await click('选择账户')
-  let selects = w.findAllComponents(ElSelect)
-  selects[0]!.vm.$emit('update:modelValue', owner)
-  selects[0]!.vm.$emit('change', owner)
-  await flushPromises()
-  selects = w.findAllComponents(ElSelect)
-  selects[1]!.vm.$emit('update:modelValue', vendor)
-  await flushPromises()
-  w.findComponent(ElCheckbox).vm.$emit('change', true)
-  await flushPromises()
-  await click('确认接入所选账户')
-  expect(metaConnectionApi.select).toHaveBeenCalledWith(
-    id,
-    {
-      account_ids: ['123'],
-      operator_user_id: owner,
-      owner_team_id: team,
-      vendor_id: vendor,
-      channel_id: null,
-    },
-    'csrf',
-    expect.stringMatching(/^meta-accounts-/),
-  )
-  expect(w.emitted('accepted')?.[0]).toEqual([batch])
+  expect(accountApi.owners).not.toHaveBeenCalled()
 })
 it('身份变化清除未确认动作与授权URL', async () => {
   vi.mocked(metaConnectionApi.authorize).mockRejectedValueOnce(
@@ -248,4 +204,149 @@ it('业务资料不完整时指出个人中心补全资料而非反复重试', a
   expect(w.text()).toContain('个人中心')
   expect(w.text()).toContain('邮箱')
   expect(w.text()).not.toContain('internal detail')
+})
+
+it('显示服务端真实自动接入进度，按批次打开逐项结果', async () => {
+  const batch = {
+    id,
+    state: 'RUNNING' as const,
+    total: 12,
+    success_count: 4,
+    failed_count: 1,
+    duplicate_count: 0,
+  }
+  vi.mocked(metaConnectionApi.list).mockResolvedValue({
+    items: [
+      {
+        ...connection,
+        auto_import: {
+          ...batch,
+          state: 'IMPORTING',
+          error_code: null,
+          batches: [batch],
+        },
+      },
+    ],
+  })
+  const detail = { ...batch, revision: 1, vendor_id: null, rows: [], next_cursor: null }
+  vi.spyOn(accountApi, 'getImport').mockResolvedValue(detail)
+  await start()
+  expect(w.text()).toContain('接入中')
+  expect(w.text()).toContain('成功 4')
+  expect(w.text()).toContain('失败 1')
+  await click('查看逐项结果')
+  expect(w.emitted('accepted')?.[0]).toEqual([detail])
+})
+
+it('自动接入处理中继续读取真实状态，关闭面板停止轮询', async () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  try {
+    vi.mocked(metaConnectionApi.list).mockResolvedValue({
+      items: [
+        {
+          ...connection,
+          auto_import: {
+            id,
+            state: 'DISCOVERING',
+            error_code: null,
+            total: 0,
+            success_count: 0,
+            failed_count: 0,
+            duplicate_count: 0,
+            batches: [],
+          },
+        },
+      ],
+    })
+    await start()
+    expect(w.text()).toContain('读取授权账户中')
+    await vi.advanceTimersByTimeAsync(3000)
+    await flushPromises()
+    expect(metaConnectionApi.list).toHaveBeenCalledTimes(2)
+    await w.setProps({ active: false })
+    await vi.advanceTimersByTimeAsync(6000)
+    expect(metaConnectionApi.list).toHaveBeenCalledTimes(2)
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
+it('枚举失败但已接收批次仍运行时继续读取进度，不误报全量成功', async () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  try {
+    vi.mocked(metaConnectionApi.list).mockResolvedValue({
+      items: [
+        {
+          ...connection,
+          auto_import: {
+            id,
+            state: 'FAILED',
+            error_code: 'META_DISCOVERY_FAILED',
+            total: 2,
+            success_count: 0,
+            failed_count: 0,
+            duplicate_count: 0,
+            batches: [
+              {
+                id,
+                state: 'QUEUED',
+                total: 2,
+                success_count: 0,
+                failed_count: 0,
+                duplicate_count: 0,
+              },
+            ],
+          },
+        },
+      ],
+    })
+    await start()
+    expect(w.text()).toContain('自动接入：失败')
+    await vi.advanceTimersByTimeAsync(3000)
+    await flushPromises()
+    expect(metaConnectionApi.list).toHaveBeenCalledTimes(2)
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
+it('后台进度请求未返回时保留应用选择框且不禁用授权', async () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  try {
+    vi.mocked(metaConnectionApi.capabilities).mockResolvedValue({
+      csrf_token: 'csrf',
+      configured: true,
+      applications: [{ id, name: '应用 A', app_id: '123' }],
+    })
+    vi.mocked(metaConnectionApi.list).mockResolvedValue({
+      items: [
+        {
+          ...connection,
+          auto_import: {
+            id,
+            state: 'QUEUED',
+            error_code: null,
+            total: 0,
+            success_count: 0,
+            failed_count: 0,
+            duplicate_count: 0,
+            batches: [],
+          },
+        },
+      ],
+    })
+    await start()
+    const select = w.findComponent(ElSelect)
+    select.vm.$emit('update:modelValue', id)
+    await flushPromises()
+    const element = select.element
+    vi.mocked(metaConnectionApi.capabilities).mockImplementationOnce(() => new Promise(() => {}))
+    await vi.advanceTimersByTimeAsync(3000)
+    await flushPromises()
+    expect(w.findComponent(ElSelect).element).toBe(element)
+    expect(w.findComponent(ElSelect).props('disabled')).toBe(false)
+    expect(w.findComponent(ElSelect).props('modelValue')).toBe(id)
+  } finally {
+    vi.useRealTimers()
+  }
 })

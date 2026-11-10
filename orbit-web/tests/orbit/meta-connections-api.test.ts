@@ -55,3 +55,34 @@ it('应用候选只接收服务端公开身份，拒绝秘密字段和重复候�
     parseMetaCapabilities({ csrf_token: 'csrf', configured: true, applications: [app, app] }),
   ).toThrow()
 })
+
+it('连接解析接受可空自动导入和真实进度，拒绝负计数', () => {
+  const row = {
+    id: '00000000-0000-4000-8000-000000000001',
+    kind: 'LOGIN',
+    status: 'ACTIVE',
+    revision: 1,
+    principal_id: null,
+    expires_at: null,
+    data_access_expires_at: null,
+    updated_at: '2026-11-10T00:00:00Z',
+    auto_import: null,
+  }
+  expect(parseConnections({ items: [row] }).items[0].auto_import).toBeNull()
+  const progress = {
+    id: row.id,
+    state: 'DISCOVERING',
+    error_code: null,
+    total: 0,
+    success_count: 0,
+    failed_count: 0,
+    duplicate_count: 0,
+    batches: [],
+  }
+  expect(
+    parseConnections({ items: [{ ...row, auto_import: progress }] }).items[0].auto_import?.state,
+  ).toBe('DISCOVERING')
+  expect(() =>
+    parseConnections({ items: [{ ...row, auto_import: { ...progress, total: -1 } }] }),
+  ).toThrow()
+})

@@ -59,6 +59,7 @@ def connection():
         tenant_id=str(uuid4()),
         revision=2,
         kind="LOGIN",
+        principal_id="456",
         status="ACTIVE",
         token_envelope="encrypted",
         scopes_json=["ads_read"],
@@ -78,6 +79,7 @@ async def test_explicit_connection_configuration_preserves_frozen_identity():
     assert value.configuration.source_config_id == row["id"]
     assert value.configuration.source_config_revision == 2
     assert value.kind == "LOGIN"
+    assert value.principal_id == row["principal_id"]
     assert "ISOLATED_READ_TOKEN" not in repr(value)
 
 
@@ -275,7 +277,8 @@ async def test_explicit_sync_source_selects_its_connection_without_querying_lega
 
     queued = []
 
-    async def enqueue(*args):
+    async def enqueue(*args, **kwargs):
+        assert kwargs == {"require_policy": False}
         queued.append(args)
 
     monkeypatch.setattr("orbit_api.meta_sync_runtime.enqueue_metrics", enqueue)

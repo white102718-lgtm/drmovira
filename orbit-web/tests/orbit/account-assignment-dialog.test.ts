@@ -109,7 +109,7 @@ it('五字段只用真实候选团队与服务端时间，显式null户商；SCH
   expect(wrapper.emitted('accepted')).toEqual([[ack]])
 })
 
-it('换投手必须重新明确户商选择，迟到候选不能串投手', async () => {
+it('换投手默认户商留空，迟到候选不能串投手', async () => {
   let resolve!: (value: unknown) => void
   api.vendors.mockImplementationOnce(
     () =>
@@ -121,7 +121,7 @@ it('换投手必须重新明确户商选择，迟到候选不能串投手', asyn
   await selectOwner(wrapper)
   await selectOwner(wrapper, peer.id)
   const vendors = wrapper.findAllComponents(ElSelect)[1]
-  expect(vendors.props('modelValue')).toBeUndefined()
+  expect(vendors.props('modelValue')).toBe('')
   expect(wrapper.text()).not.toContain('UNSET')
   resolve({
     items: [{ id: 'late-vendor', name: '旧投手迟到户商', alias: '旧代称' }],
@@ -129,7 +129,6 @@ it('换投手必须重新明确户商选择，迟到候选不能串投手', asyn
   })
   await flushPromises()
   expect(wrapper.text()).not.toContain('旧投手迟到户商')
-  vendors.vm.$emit('update:modelValue', '')
   await wrapper.find('textarea').setValue('新投手')
   await button(wrapper).trigger('click')
   await flushPromises()

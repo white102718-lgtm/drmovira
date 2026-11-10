@@ -1,7 +1,7 @@
 """只读平台元数据适配器边界；缺失数据保持未知，不以余额或充值推算消耗。"""
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Protocol
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -29,6 +29,8 @@ class AccountMetadata:
     account_status: str
     auth_status: str
     observed_at: datetime
+    observations: dict = field(default_factory=dict)
+    business_managers: list | None = None
 
 
 def metadata(value, expected_id, currencies):
@@ -42,7 +44,11 @@ def metadata(value, expected_id, currencies):
         "auth_status",
         "observed_at",
     }
-    if not isinstance(value, dict) or set(value) != required:
+    if (
+        not isinstance(value, dict)
+        or not required <= set(value)
+        or set(value) - required - {"observations", "business_managers"}
+    ):
         raise OrbitError(503, "ACCOUNT_METADATA_INVALID", "平台元数据字段缺失或未知")
     try:
         external = value["external_id"]
@@ -68,6 +74,30 @@ def metadata(value, expected_id, currencies):
         ZoneInfo(value["timezone_id"])
     except (ValueError, TypeError, ZoneInfoNotFoundError):
         raise OrbitError(503, "ACCOUNT_METADATA_INVALID", "平台账户身份、币种或时区无效") from None
+    from orbit_api.account_details_contract import observed_fields
+
+    if "observations" in value and not isinstance(value["observations"], dict):
+        raise OrbitError(503, "ACCOUNT_METADATA_INVALID", "平台附加元数据无效")
+    observations = (
+        observed_fields(value["observations"], value["currency"])
+        if value.get("observations")
+        else {}
+    )
+    managers = value.get("business_managers")
+    if managers is not None and (
+        not isinstance(managers, list)
+        or len(managers) > 500
+        or any(
+            not isinstance(item, dict)
+            or set(item) != {"external_id", "name"}
+            or not isinstance(item["external_id"], str)
+            or not re.fullmatch(r"[0-9]{1,64}", item["external_id"])
+            or not isinstance(item["name"], str)
+            or not 1 <= len(item["name"]) <= 255
+            for item in managers
+        )
+    ):
+        raise OrbitError(503, "ACCOUNT_METADATA_INVALID", "平台BM元数据无效")
     return AccountMetadata(
         external,
         name,
@@ -76,6 +106,8 @@ def metadata(value, expected_id, currencies):
         value["account_status"],
         value["auth_status"],
         observed.astimezone(UTC),
+        observations,
+        managers,
     )
 
 
@@ -108,3 +140,21 @@ def unknown_observation(currency, *, kind="UNKNOWN", status="UNSYNCED", source="
         "business_date": None,
         "observed_at": None,
     }
+
+
+def merge_observations(existing, incoming):
+    """逐字段比较真实观测时间；独立采集结果和元数据同步互不覆盖更新值。"""
+    result = dict(existing)
+    for key, value in incoming.items():
+        previous = result.get(key)
+        if (
+            previous is None
+            or not previous.get("observed_at")
+            or (
+                value.get("observed_at")
+                and datetime.fromisoformat(value["observed_at"].replace("Z", "+00:00"))
+                > datetime.fromisoformat(previous["observed_at"].replace("Z", "+00:00"))
+            )
+        ):
+            result[key] = value
+    return result

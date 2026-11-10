@@ -159,3 +159,8 @@ python -m venv .venv
 ## 2026-11-10：AdsPower 自定义地址与真实监测部署
 
 用户授权后已部署自定义API地址支持，并安装服务器mTLS接收服务及Mac常驻只读监测。test2真实心跳READY，完整Profile库存1条，无API认证错误；另一设备test未接入，保持OFFLINE。设备尚未绑定广告账户，此验收不代表Meta身份或广告写能力通过。部署维护和证据分别见 `orbit-server/docs/orbit/ADSPOWER_CONNECTION_SETUP.md`、`orbit-server/docs/orbit/ADSPOWER_CONNECTION_VALIDATION.md`。设备证书90天需续签；所有私钥、API Key和运行队列保留受控主机，不入库。
+
+
+## 2026-11-10：Meta 授权自动接入与账户列表真实同步
+
+已实现选应用直接跳转、授权后全量发现并沿原Worker接入、投放师归属授权发起人、户商可空后补。真实Meta完整分页对账2账户一致，归属及空户商通过；两账户资料同步成功。新增账户元数据和账户当地近90天日消耗接入原事实表；无指标策略不再阻止资料同步。缺失消耗不补零，余额不以应付账款替代。最终后端6328、前端1394、隔离数据库78项通过，gstack线上和隔离验收范围见 `orbit-server/docs/orbit/meta-integration/AUTO_IMPORT_VALIDATION.md`；字段、接口权限及仍未知内容见 `orbit-server/docs/orbit/META_ACCOUNT_LIST_ENRICHMENT.md`。迁移至077，最终生产目录 `/opt/orbit/releases/20261110-meta-fields`，API与只读Worker运行；AdsPower设备服务保持原发布。真实非零广告消耗、其他客户与广告写入仍未在本轮验收。

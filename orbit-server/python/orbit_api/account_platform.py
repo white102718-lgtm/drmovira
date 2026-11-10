@@ -44,7 +44,7 @@ class AccountReadFailure(Exception):
 class MetaAccountPlatform:
     """一个实例仅服务一轮冻结来源；prepare最多冻结500个目标，不跨轮长期缓存授权。"""
 
-    FIELDS = "id,account_id,name,currency,timezone_name,account_status"
+    FIELDS = "id,account_id,name,currency,timezone_name,account_status,amount_spent,balance"
 
     def __init__(self, configuration, *, network_backend=None, ssl_context=None):
         configuration.validate()
@@ -54,7 +54,7 @@ class MetaAccountPlatform:
         self.authorized = None
         self.preflight = None
 
-    async def _get(self, path, parameters):
+    async def _get(self, path, parameters, *, optional=False):
         if self.preflight is not None:
             await self.preflight()
         target = (
@@ -93,9 +93,9 @@ class MetaAccountPlatform:
                     raise AccountReadFailure("ACCOUNT_PLATFORM_UNAVAILABLE", retryable=True)
                 if 300 <= response.status < 400:
                     raise AccountReadFailure("ACCOUNT_PLATFORM_REDIRECT_REJECTED")
-                if response.status in {401, 403}:
+                if response.status == 401:
                     raise AccountReadFailure("ACCOUNT_PLATFORM_FORBIDDEN")
-                if response.status not in {200, 400}:
+                if response.status not in {200, 400, 403}:
                     raise AccountReadFailure("ACCOUNT_PLATFORM_REQUEST_REJECTED")
                 content = bytearray()
                 async for chunk in response.aiter_stream():
@@ -116,13 +116,23 @@ class MetaAccountPlatform:
                     code = error.get("code") if isinstance(error, dict) else None
                     if type(code) is int and code in {4, 17, 32, 613, 80004}:
                         raise AccountReadFailure("ACCOUNT_PLATFORM_RATE_LIMITED", retryable=True)
-                    if type(code) is int and code in {10, 190, 200}:
+                    if optional and type(code) is int and code in {10, 100, 200, 294}:
+                        return {}
+                    if type(code) is int and code in {10, 102, 190, 200}:
                         raise AccountReadFailure("ACCOUNT_PLATFORM_FORBIDDEN")
                     if isinstance(error, dict) and (
                         error.get("is_transient") is True or type(code) is int and code in {1, 2}
                     ):
                         raise AccountReadFailure("ACCOUNT_PLATFORM_UNAVAILABLE", retryable=True)
+                    if response.status == 403:
+                        if optional:
+                            return {}
+                        raise AccountReadFailure("ACCOUNT_PLATFORM_FORBIDDEN")
                     raise AccountReadFailure("ACCOUNT_PLATFORM_RESPONSE_INVALID")
+                if response.status == 403:
+                    if optional:
+                        return {}
+                    raise AccountReadFailure("ACCOUNT_PLATFORM_FORBIDDEN")
                 if response.status != 200:
                     raise AccountReadFailure("ACCOUNT_PLATFORM_REQUEST_REJECTED")
                 return value
@@ -219,7 +229,36 @@ class MetaAccountPlatform:
             value["name"].encode("utf-8")
         except UnicodeError:
             raise AccountReadFailure("ACCOUNT_METADATA_INVALID") from None
+        from orbit_api.meta_account_enrichment import (
+            OPTIONAL_FIELDS,
+            business_managers,
+            observations,
+        )
+
+        for field in OPTIONAL_FIELDS:
+            extra = await self._get(
+                "act_" + external_id, {"fields": "id,account_id," + field}, optional=True
+            )
+            if extra:
+                if (
+                    extra.get("id") != "act_" + external_id
+                    or extra.get("account_id") != external_id
+                ):
+                    raise AccountReadFailure("ACCOUNT_METADATA_INVALID")
+                key = field.split("{")[0]
+                value[key] = extra.get(key)
+        observed = datetime.now(UTC)
+        details = observations(
+            value
+            | {
+                "amount_spent_minor": value.get("amount_spent"),
+                "balance_minor": value.get("balance"),
+            },
+            observed,
+        )
         return {
+            "observations": details,
+            "business_managers": business_managers(value),
             "external_id": value["account_id"],
             "name": value["name"],
             "currency": value["currency"],
@@ -232,3 +271,43 @@ class MetaAccountPlatform:
             "auth_status": "AUTHORIZED",
             "observed_at": datetime.now(UTC),
         }
+
+    async def fetch_daily_spend(self, external_id, currency, timezone):
+        """旧BM入口复用统一Graph分页规范，仍由原_get执行逐请求授权复验。"""
+        if self.authorized is None or external_id not in self.authorized:
+            raise AccountReadFailure("ACCOUNT_PLATFORM_FORBIDDEN")
+        from uuid import UUID
+
+        from orbit_api.meta_account_daily_spend import read_daily_spend
+        from orbit_api.meta_read_adapter import (
+            GraphResponse,
+            MetaReadAdapter,
+            validate_graph_parameters,
+        )
+        from orbit_api.meta_read_contract import MetaReadConfiguration, MetaReadFailure
+
+        reader = self
+        failure = None
+
+        class Transport:
+            async def request(self, method, path, parameters, token, *, maximum_bytes):
+                nonlocal failure
+                validate_graph_parameters(method, path, parameters)
+                try:
+                    value = await reader._get(path.split("/", 2)[2], parameters)
+                except AccountReadFailure as error:
+                    failure = error
+                    raise MetaReadFailure("META_READ_FORBIDDEN") from None
+                return GraphResponse(200, json.dumps(value).encode())
+
+        configuration = MetaReadConfiguration(
+            str(UUID(int=0)), 1, self.configuration.graph_version, self.configuration.token
+        )
+        adapter = MetaReadAdapter(configuration, transport=Transport())
+        try:
+            facts = await read_daily_spend(adapter, external_id, currency, timezone)
+        except MetaReadFailure as error:
+            if failure is not None:
+                raise failure from None
+            raise AccountReadFailure(error.code, retryable=error.retryable) from None
+        return {"facts": facts, "reason_code": None if facts else "NOT_PROVIDED"}

@@ -216,6 +216,7 @@ import {
   accountAuthorizations,
   accountDateModes,
   accountPeriod,
+  accountSpendStatus,
   accountStates,
   accountText,
   accountTime,
@@ -338,7 +339,9 @@ function cell(row: ExtendedAccount, id: string) {
     case 'lifetime':
       return accountAmount(d.lifetime_spend)
     case 'spend':
-      return accountAmount(a.spend)
+      return a.spend.amount !== null || !d.spend_sync?.reason_code
+        ? accountAmount(a.spend)
+        : accountSpendStatus(d)
     case 'period':
       return accountPeriod(row)
     case 'identities':

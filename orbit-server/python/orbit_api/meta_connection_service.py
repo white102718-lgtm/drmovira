@@ -14,6 +14,7 @@ from orbit_api.authorization import require_system_access
 from orbit_api.cookie_identity import current_cookie_identity
 from orbit_api.directory_tokens import canonical
 from orbit_api.errors import OrbitError
+from orbit_api.meta_auto_import import authorizing_owner, enqueue, latest_status
 from orbit_api.meta_connection_contract import return_path
 
 
@@ -116,6 +117,7 @@ class MetaConnectionService:
         ).hexdigest()
         async with self.sessions() as session, session.begin():
             current = await access(session, actor)
+            owner = await authorizing_owner(session, actor, current.tenant_id)
             if self.app is not None:
                 from orbit_api.meta_application_registry import verify_application
 
@@ -168,12 +170,14 @@ class MetaConnectionService:
             expires = now + timedelta(minutes=10)
             await session.execute(
                 text("""INSERT INTO orbit_meta_authorization_session
-                (id,tenant_id,actor_id,browser_session_id,state_digest,state_envelope,request_key,payload_hash,return_to,connection_id,connection_revision,app_id,app_configuration_id,app_configuration_revision,status,expires_at,created_at)
-                VALUES(:id,:tenant,:actor,:browser,:digest,:envelope,:key,:hash,:target,:connection,:revision,:app,:app_config,:app_revision,'PENDING',:expires,:now)"""),
+                (id,tenant_id,actor_id,owner_user_id,owner_team_id,browser_session_id,state_digest,state_envelope,request_key,payload_hash,return_to,connection_id,connection_revision,app_id,app_configuration_id,app_configuration_revision,status,expires_at,created_at)
+                VALUES(:id,:tenant,:actor,:owner,:team,:browser,:digest,:envelope,:key,:hash,:target,:connection,:revision,:app,:app_config,:app_revision,'PENDING',:expires,:now)"""),
                 {
                     "id": identifier,
                     "tenant": current.tenant_id,
                     "actor": actor,
+                    "owner": owner.subject_id,
+                    "team": owner.team_id,
                     "browser": identity.session_id,
                     "digest": hashlib.sha256(state.encode()).digest(),
                     "envelope": self.cipher.encrypt(
@@ -419,6 +423,7 @@ class MetaConnectionService:
                         values,
                     )
                 await self.bind_application(session, current.tenant_id, identifier)
+                await enqueue(session, row, identifier, revision, request_id)
                 await session.execute(
                     text(
                         "UPDATE orbit_meta_authorization_session SET "
@@ -438,7 +443,10 @@ class MetaConnectionService:
                     {"kind": "LOGIN"},
                 )
             return row["return_to"], "connected"
-        except Exception:
+        except Exception as cause:
+            # 仅传递固定业务错误，不输出平台异常或凭据；重复连接须从原连接重新授权。
+            duplicate = isinstance(cause, OrbitError) and cause.code == "META_ALREADY_CONNECTED"
+            failure_code = "META_ALREADY_CONNECTED" if duplicate else "META_AUTHORIZATION_FAILED"
             # state已消耗，不重放授权码。仅更新状态，不保存外部异常原文。
             async with self.sessions() as session, session.begin():
                 await lock_account_clock(session, row["tenant_id"])
@@ -462,8 +470,14 @@ class MetaConnectionService:
                         3,
                         "META_AUTHORIZATION_FAILED",
                         request_id,
-                        {"error_code": "META_AUTHORIZATION_FAILED"},
+                        {"error_code": failure_code},
                     )
+            if duplicate:
+                raise OrbitError(
+                    409,
+                    "META_ALREADY_CONNECTED",
+                    "此Meta身份已有连接，请返回Meta连接列表点击该连接的重新授权",
+                ) from None
             raise OrbitError(
                 400, "META_AUTHORIZATION_FAILED", "Meta授权未完成，请重新发起并确认读取权限"
             ) from None
@@ -508,6 +522,7 @@ class MetaConnectionService:
                         "expires_at": utc_string(r["expires_at"]),
                         "data_access_expires_at": utc_string(r["data_access_expires_at"]),
                         "updated_at": utc_string(r["updated_at"]),
+                        "auto_import": await latest_status(session, current.tenant_id, r["id"]),
                     }
                     for r in rows
                 ]

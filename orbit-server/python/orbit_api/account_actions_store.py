@@ -416,7 +416,7 @@ class AccountActionsStore:
                 ) from None
             from orbit_api.meta_sync_runtime import enqueue_metrics
 
-            await enqueue_metrics(session, current, account, request_id)
+            await enqueue_metrics(session, current, account, request_id, require_policy=False)
             return await self.command(
                 session,
                 current,

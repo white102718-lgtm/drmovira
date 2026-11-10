@@ -42,7 +42,7 @@
       <p v-if="selectedOwner">目标团队：{{ selectedOwner.team_name }}</p>
       <el-alert v-if="ownersError" :title="ownersError" type="error" :closable="false" />
       <el-button v-if="ownersError" link @click="loadOwners(false)">重新读取投手候选</el-button>
-      <el-form-item label="目标户商" required>
+      <el-form-item label="目标户商（可留空后补）">
         <el-select
           v-model="vendorChoice"
           :disabled="!selectedOwner"
@@ -327,7 +327,7 @@ function ownerChanged(value: string) {
   ++vendorGeneration
   vendorController?.abort()
   selectedOwner.value = ownerRows.value.find((row) => row.id === value) ?? null
-  vendorChoice.value = undefined
+  vendorChoice.value = ''
   vendorRows.value = []
   vendorCursor.value = null
   vendorsLoading.value = false
@@ -348,7 +348,7 @@ function open(value: OrbitAccount) {
   ownerId.value = ''
   selectedOwner.value = null
   vendorRows.value = []
-  vendorChoice.value = undefined
+  vendorChoice.value = ''
   ownerCursor.value = vendorCursor.value = null
   ownersError.value = vendorsError.value = ''
   ownerQuery.value = vendorQuery.value = ''

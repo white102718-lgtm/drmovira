@@ -35,6 +35,7 @@ def account(vendor):
         "synced_at": None,
         "unbound_at": None,
         "value_json": "{}",
+        "details_json": "{}",
     }
 
 

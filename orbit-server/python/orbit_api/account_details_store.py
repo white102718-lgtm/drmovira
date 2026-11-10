@@ -19,7 +19,7 @@ from orbit_api.account_details_contract import (
     timestamp,
     window,
 )
-from orbit_api.account_metadata import unknown_observation
+from orbit_api.account_metadata import merge_observations, unknown_observation
 from orbit_api.account_selection import selection_sql
 from orbit_api.account_store import AccountStore
 from orbit_api.configuration_store import MAX_REVISION, _decode
@@ -406,7 +406,10 @@ class AccountDetailsStore:
             alias = aliases.get(row["vendor_id"])
             core["vendor_alias"] = alias["alias"] if alias else None
             record = observations.get(row["id"])
-            saved = _decode(record["value_json"]) if record else {}
+            saved = merge_observations(
+                _decode(record["value_json"]) if record else {},
+                _decode(row["details_json"]).get("observations", {}),
+            )
             if "balance" in saved:
                 core["balance"] = saved["balance"]
             start, end = windows[row["id"]]
@@ -437,7 +440,8 @@ class AccountDetailsStore:
                     "lifetime_spend": saved.get(
                         "lifetime_spend", unknown_observation(row["currency"], kind="SPEND")
                     ),
-                    "business_managers": None,
+                    "business_managers": _decode(row["details_json"]).get("business_managers"),
+                    "spend_sync": _decode(row["details_json"]).get("spend_sync"),
                     "identity_status": "UNSYNCED",
                     "identity_observed_at": None,
                     "identity_count": None,

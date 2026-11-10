@@ -12,6 +12,8 @@ from urllib.parse import parse_qsl, urlencode, urlsplit
 import httpcore
 
 from orbit_api.directory_tokens import canonical
+from orbit_api.meta_account_daily_spend import SPEND_FIELDS
+from orbit_api.meta_account_enrichment import OPTIONAL_FIELDS
 from orbit_api.meta_read_contract import (
     AsyncReport,
     InsightWindow,
@@ -60,7 +62,7 @@ class GraphReadTransport:
 
     async def request(self, method, path, parameters, token, *, maximum_bytes):
         allowed = (
-            r"/v[0-9]{1,3}\.[0-9]{1,2}/(?:me/adaccounts|[0-9]{1,64}/"
+            r"/v[0-9]{1,3}\.[0-9]{1,2}/(?:me|me/adaccounts|[0-9]{1,64}/"
             r"(?:owned_ad_accounts|client_ad_accounts|insights)|[0-9]{1,64}|"
             r"act_[0-9]{1,64}(?:/(?:campaigns|adsets|ads|insights))?)"
         )
@@ -147,10 +149,36 @@ def validate_graph_parameters(method, path, parameters):
     if resource.endswith(("/adaccounts", "/owned_ad_accounts", "/client_ad_accounts")):
         fields = ACCOUNT_FIELDS
         paged = True
+    elif resource == "me":
+        fields = "id,name"
     elif re.fullmatch(r"act_[0-9]{1,64}", resource):
-        fields = ACCOUNT_FIELDS
+        fields = parameters.get("fields")
+        if fields not in (ACCOUNT_FIELDS, *("id,account_id," + item for item in OPTIONAL_FIELDS)):
+            fail("META_REQUEST_INVALID")
     elif re.fullmatch(r"[0-9]{1,64}", resource):
         fields = "id,account_id,async_status,async_percent_completion"
+    elif resource.endswith("/insights") and parameters.get("fields") == SPEND_FIELDS:
+        fields = SPEND_FIELDS
+        paged = True
+        required |= {"level", "time_range", "time_increment"}
+        if (
+            method != "GET"
+            or not re.fullmatch(r"act_[0-9]{1,64}/insights", resource)
+            or parameters.get("level") != "account"
+            or parameters.get("time_increment") != "1"
+        ):
+            fail("META_REQUEST_INVALID")
+        try:
+            from datetime import date
+
+            window = json.loads(parameters["time_range"], object_pairs_hook=_object)
+            if set(window) != {"since", "until"}:
+                fail("META_REQUEST_INVALID")
+            InsightWindow(
+                date.fromisoformat(window["since"]), date.fromisoformat(window["until"]), "UTC"
+            )
+        except (ValueError, KeyError, TypeError):
+            fail("META_REQUEST_INVALID")
     elif resource.endswith("/insights"):
         fields = INSIGHT_FIELDS
         paged = True
@@ -290,8 +318,6 @@ class MetaReadAdapter:
                     fail("META_TRANSIENT_FAILURE", retryable=True)
                 if response.status == 401:
                     fail("META_AUTH_FAILED")
-                if response.status == 403:
-                    fail("META_READ_FORBIDDEN")
                 try:
                     value = json.loads(
                         response.body.decode(), object_pairs_hook=_object, parse_constant=_constant
@@ -313,7 +339,11 @@ class MetaReadAdapter:
                         error.get("is_transient") is True or code in (1, 2)
                     ):
                         fail("META_TRANSIENT_FAILURE", retryable=True)
+                    if response.status == 403:
+                        fail("META_READ_FORBIDDEN")
                     fail("META_READ_REJECTED")
+                if response.status == 403:
+                    fail("META_READ_FORBIDDEN")
                 if response.status != 200:
                     fail("META_READ_REJECTED")
                 return value, response.body
@@ -471,6 +501,33 @@ class MetaReadAdapter:
 
     async def account(self, account_id):
         return (await self.account_page(account_id)).items[0]
+
+    async def account_extras(self, account_id, *, principal=False):
+        """可选字段独立读取；字段无权限不影响基础账户，认证/限流/撤权仍传播。"""
+        account_id = external_id(account_id)
+        result = {}
+        for field in OPTIONAL_FIELDS:
+            try:
+                row, _ = await self._request(
+                    "GET", "act_" + account_id, {"fields": "id,account_id," + field}
+                )
+            except MetaReadFailure as error:
+                if error.code in {"META_READ_FORBIDDEN", "META_READ_REJECTED"}:
+                    continue
+                raise
+            if row.get("id") != "act_" + account_id or row.get("account_id") != account_id:
+                fail("META_ACCOUNT_MISMATCH")
+            key = field.split("{")[0]
+            result[key] = row.get(key)
+        person = None
+        if principal:
+            try:
+                row, _ = await self._request("GET", "me", {"fields": "id,name"})
+                person = {"id": external_id(row.get("id")), "name": optional_text(row.get("name"))}
+            except MetaReadFailure as error:
+                if error.code not in {"META_READ_FORBIDDEN", "META_READ_REJECTED"}:
+                    raise
+        return result, person
 
     async def structure_page(self, account_id, kind, *, checkpoint=None):
         account_id = external_id(account_id)

@@ -37,6 +37,10 @@ export interface AccountDetails {
   unbound_at: string | null
   blocked_observed_at: string | null
   note: string | null
+  spend_sync?: {
+    reason_code: 'NOT_AUTHORIZED' | 'READ_REJECTED' | 'NOT_PROVIDED' | null
+    observed_at: string
+  } | null
   spend_window: {
     mode: string
     date_from: string | null
@@ -130,4 +134,14 @@ export function accountPeriod(row: ExtendedAccount) {
   return w.date_from && w.date_to
     ? `${w.date_from}${w.date_from === w.date_to ? '' : ` 至 ${w.date_to}`}（账户当地日）`
     : '尚无已发布业务日'
+}
+
+/** 采集尝试成功不代表日期覆盖完整，金额仍由原覆盖合同决定。 */
+export function accountSpendStatus(details: AccountDetails) {
+  const sync = details.spend_sync
+  if (!sync) return '尚未读取消耗'
+  if (sync.reason_code === 'NOT_AUTHORIZED') return '未获消耗读取权限'
+  if (sync.reason_code === 'READ_REJECTED') return 'Meta 拒绝读取消耗'
+  if (sync.reason_code === 'NOT_PROVIDED') return 'Meta 未返回日消耗，不能视为零'
+  return '已读取返回的日消耗；完整性以日期覆盖为准'
 }

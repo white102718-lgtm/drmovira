@@ -126,7 +126,11 @@ async def test_start_serializes_on_account_clock_without_browser_lock_upgrade(mo
             return Result()
 
     current = SimpleNamespace(
-        tenant_id=str(uuid4()), actor_id=7, subject_id=str(uuid4()), data_role="SUPER_ADMIN"
+        tenant_id=str(uuid4()),
+        actor_id=7,
+        subject_id=str(uuid4()),
+        team_id=str(uuid4()),
+        data_role="SUPER_ADMIN",
     )
 
     async def access(*args):
@@ -136,6 +140,7 @@ async def test_start_serializes_on_account_clock_without_browser_lock_upgrade(mo
         calls.append("AUDIT")
 
     monkeypatch.setattr(m, "access", access)
+    monkeypatch.setattr(m, "authorizing_owner", access)
     monkeypatch.setattr(m, "event", event)
     monkeypatch.setattr(
         m, "browser_identity", lambda actor: SimpleNamespace(session_id=str(uuid4()))
@@ -148,7 +153,8 @@ async def test_start_serializes_on_account_clock_without_browser_lock_upgrade(mo
 
 
 @pytest.mark.asyncio
-async def test_exchange_failure_persists_failed_state_with_sanitized_audit(monkeypatch):
+@pytest.mark.parametrize("duplicate", [False, True])
+async def test_exchange_failure_persists_failed_state_with_sanitized_audit(monkeypatch, duplicate):
     from contextlib import asynccontextmanager
     from types import SimpleNamespace
     from uuid import uuid4
@@ -224,6 +230,8 @@ async def test_exchange_failure_persists_failed_state_with_sanitized_audit(monke
         audits.append(args[5])
 
     async def exchange(code):
+        if duplicate:
+            raise OrbitError(409, "META_ALREADY_CONNECTED", "private-token-do-not-echo")
         raise ValueError("private-token-do-not-echo")
 
     monkeypatch.setattr(m, "access", access)
@@ -237,7 +245,9 @@ async def test_exchange_failure_persists_failed_state_with_sanitized_audit(monke
     )
     with pytest.raises(OrbitError) as error:
         await service.callback(7, "s" * 32, "code", str(uuid4()))
-    assert error.value.code == "META_AUTHORIZATION_FAILED"
+    assert error.value.code == (
+        "META_ALREADY_CONNECTED" if duplicate else "META_AUTHORIZATION_FAILED"
+    )
     assert "private-token" not in str(error.value)
     assert audits == ["META_AUTHORIZATION_CONSUMED", "META_AUTHORIZATION_FAILED"]
     assert any("status='FAILED',state_envelope=''" in sql for sql in calls)

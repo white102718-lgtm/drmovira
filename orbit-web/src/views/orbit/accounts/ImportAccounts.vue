@@ -34,9 +34,10 @@
         </el-select>
         <el-button v-if="ownerCursor" link @click="loadOwners(true)">加载更多人员</el-button>
       </el-form-item>
-      <el-form-item label="户商" required>
+      <el-form-item label="户商（可留空后补）">
         <el-select
           v-model="vendorId"
+          clearable
           :loading="loadingVendors"
           placeholder="请选择可用且对目标投手可读的户商"
         >
@@ -181,7 +182,6 @@ const codepoints = computed(() => [...text.value].length),
 const canSubmit = computed(
   () =>
     ownerId.value &&
-    vendorId.value &&
     codepoints.value > 0 &&
     codepoints.value <= 20000 &&
     tokenCount.value > 0 &&
@@ -275,7 +275,7 @@ async function submit() {
     }
     intent = {
       value: {
-        vendor_id: vendorId.value,
+        vendor_id: vendorId.value || null,
         account_ids_text: text.value,
         owner_user_id: owner.id,
         owner_team_id: owner.team_id,

@@ -385,3 +385,30 @@ async def test_live_verify_current_scope_source_and_versions(monkeypatch, change
     else:
         result, version, configuration = await worker.verify(LiveSession(), account, command)
         assert result is current and version == 9 and configuration.business_id == "42"
+
+
+@pytest.mark.asyncio
+async def test_complete_persists_enriched_fields_with_source_and_revision(harness):
+    import json
+
+    from orbit_api.meta_account_enrichment import observations
+
+    worker, session, account, command, value, transitions, events = harness
+    details = observations(
+        {"currency": "USD", "amount_spent_minor": "1234", "balance_minor": "567"},
+        value["observed_at"],
+    )
+    managers = [{"external_id": "9", "name": "BM"}]
+    assert await worker.complete(
+        CLAIM, result=value | {"observations": details, "business_managers": managers}
+    )
+    params = next(
+        params for sql, params in session.calls if sql.startswith("UPDATE orbit_ad_account")
+    )
+    saved = json.loads(params["details"])
+    assert saved["observations"]["payable"]["amount"] == "5.67"
+    assert saved["observations"]["lifetime_spend"]["amount"] == "12.34"
+    assert saved["business_managers"] == managers
+    assert saved["kept"] is True
+    assert saved["source_config_revision"] == command["source_config_revision"]
+    assert transitions == [("SUCCEEDED", {})]

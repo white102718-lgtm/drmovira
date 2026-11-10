@@ -12,6 +12,8 @@ from uuid import uuid4
 from sqlalchemy import URL, text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from meta_auto_import_checks import CASES as AUTO_IMPORT_CASES
+
 CASES = [
     "metaSqlSingleUseAndEncryptedGrant",
     "metaSqlReauthorizationAndDisconnectVersion",
@@ -19,7 +21,7 @@ CASES = [
     "metaSqlAuditRollback",
     "metaHttpCookiePermissionAndUnconfiguredApplication",
     "metaSqlNativeSessionAndMultiApplicationIsolation",
-]
+] + AUTO_IMPORT_CASES
 
 
 def run_meta_connection_checks(admin, database, cases, client, values, *, browser=False, bearer_headers=None):
@@ -143,6 +145,8 @@ def run_meta_connection_checks(admin, database, cases, client, values, *, browse
             )
             identifier = row["id"]
         cases.append(CASES[0])
+        from meta_auto_import_checks import run_meta_auto_import_checks
+        await run_meta_auto_import_checks(sessions, cipher, tenant, identifier, cases)
         start = await service.start(1, "/orbit/accounts", str(uuid4()), str(uuid4()), identifier)
         await service.callback(1, state(start), "isolated-code", str(uuid4()))
         rows = await service.list_connections(1)

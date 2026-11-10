@@ -17,7 +17,8 @@ def business_window(timezone, now, days):
     return end - timedelta(days=days - 1), end
 
 
-async def enqueue_metrics(session, current, account, request_id, *, days=90):
+async def enqueue_metrics(session, current, account, request_id, *, days=90, require_policy=True):
+    """元数据同步允许未配置指标策略；已存在策略的错误仍传播，定时采集默认严格。"""
     from config.orbit_runtime import private_values
 
     from orbit_api.meta_metric_collection import MetaMetricCollectionStore
@@ -49,6 +50,8 @@ async def enqueue_metrics(session, current, account, request_id, *, days=90):
             .first()
         )
     if row is None:
+        if not require_policy:
+            return None
         raise OrbitError(
             503, "META_METRIC_PROFILE_REQUIRED", "请在Meta采集设置中选择已验证指标口径"
         )

@@ -103,6 +103,8 @@ class PipelineGraph:
                 "async_status": "Job Running" if self.pending else "Job Completed",
                 "async_percent_completion": 10 if self.pending else 100,
             }
+        elif path.endswith("/me"):
+            payload = {"id": self.external, "name": "管线授权主体"}
         elif path.endswith("/adaccounts"):
             payload = {"data": [account]}
         elif path.endswith("/act_" + self.external):

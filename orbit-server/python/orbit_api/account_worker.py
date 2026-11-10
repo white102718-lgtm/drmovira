@@ -176,21 +176,22 @@ class AccountImportWorker:
                     "data_owner_user_ids": [batch["owner_user_id"]],
                 },
             )
-            vendor = (await records(session, current.tenant_id, [batch["vendor_id"]])).get(
-                batch["vendor_id"]
-            )
-            if vendor is None or vendor["kind"] != "VENDOR":
-                raise AccountReadFailure("ACCOUNT_IMPORT_REFERENCE_CHANGED")
-            value = _decode(vendor["value_json"])
-            if value["availability"] != "AVAILABLE":
-                raise AccountReadFailure("VENDOR_DISABLED")
-            if (
-                vendor["revision"] != batch["vendor_revision"]
-                or value["owner_team_id"] != batch["owner_team_id"]
-                or batch["owner_user_id"] not in value["data_owner_user_ids"]
-                or not readable(current, await managed_teams(session, current), value)
-            ):
-                raise AccountReadFailure("ACCOUNT_IMPORT_REFERENCE_CHANGED")
+            if batch["vendor_id"] is not None:
+                vendor = (await records(session, current.tenant_id, [batch["vendor_id"]])).get(
+                    batch["vendor_id"]
+                )
+                if vendor is None or vendor["kind"] != "VENDOR":
+                    raise AccountReadFailure("ACCOUNT_IMPORT_REFERENCE_CHANGED")
+                value = _decode(vendor["value_json"])
+                if value["availability"] != "AVAILABLE":
+                    raise AccountReadFailure("VENDOR_DISABLED")
+                if (
+                    vendor["revision"] != batch["vendor_revision"]
+                    or value["owner_team_id"] != batch["owner_team_id"]
+                    or batch["owner_user_id"] not in value["data_owner_user_ids"]
+                    or not readable(current, await managed_teams(session, current), value)
+                ):
+                    raise AccountReadFailure("ACCOUNT_IMPORT_REFERENCE_CHANGED")
             selected = await import_source(session, current.tenant_id, batch["id"])
             if selected is not None:
                 configuration = await load_connection(
@@ -203,7 +204,9 @@ class AccountImportWorker:
                 )
                 await validate_import_channel(session, current, selected["channel_id"])
                 configuration = replace(
-                    configuration, import_selection=(selected["revision"], selected["channel_id"])
+                    configuration,
+                    import_selection=(selected["revision"], selected["channel_id"]),
+                    discovered=selected.get("discovery_task_id") is not None,
                 )
                 if batch["source_config_id"] is not None and (
                     batch["source_config_id"] != selected["connection_id"]
@@ -481,7 +484,7 @@ class AccountImportWorker:
                             session, batch, row, "FORBIDDEN", code="ACCOUNT_NOT_READABLE"
                         )
                         return None, True
-                    if old["vendor_id"] == batch["vendor_id"]:
+                    if batch["vendor_id"] is None or old["vendor_id"] == batch["vendor_id"]:
                         await self.record(
                             session,
                             batch,
@@ -647,7 +650,7 @@ class AccountImportWorker:
                 ).scalar_one_or_none()
                 if visible is None:
                     await self.record(session, batch, row, "FORBIDDEN", code="ACCOUNT_NOT_READABLE")
-                elif old["vendor_id"] == batch["vendor_id"]:
+                elif batch["vendor_id"] is None or old["vendor_id"] == batch["vendor_id"]:
                     await self.record(
                         session,
                         batch,
@@ -764,6 +767,8 @@ class AccountImportWorker:
                         {
                             "source_config_id": claim.source_id,
                             "source_config_revision": claim.source_revision,
+                            "observations": value.observations,
+                            "business_managers": value.business_managers,
                         }
                     ),
                     "now": now.replace(tzinfo=None),
@@ -791,31 +796,32 @@ class AccountImportWorker:
                     "starts": local_start,
                 },
             )
-            snapshot_vendor = (await records(session, claim.tenant, [batch["vendor_id"]]))[
-                batch["vendor_id"]
-            ]
-            await append_account_alias_snapshot(
-                session,
-                current,
-                snapshot_vendor,
-                resource_type="ACCOUNT_BINDING",
-                resource_id=identifier,
-                resource_revision=1,
-                request_id=claim.request_id,
-                permission="accounts.import",
-                acting_subject=False,
-            )
-            await append_account_alias_snapshot(
-                session,
-                current,
-                snapshot_vendor,
-                resource_type="IMPORT_ASSIGNMENT",
-                resource_id=assignment_id,
-                resource_revision=1,
-                request_id=claim.request_id,
-                permission="accounts.import",
-                acting_subject=False,
-            )
+            if batch["vendor_id"] is not None:
+                snapshot_vendor = (await records(session, claim.tenant, [batch["vendor_id"]]))[
+                    batch["vendor_id"]
+                ]
+                await append_account_alias_snapshot(
+                    session,
+                    current,
+                    snapshot_vendor,
+                    resource_type="ACCOUNT_BINDING",
+                    resource_id=identifier,
+                    resource_revision=1,
+                    request_id=claim.request_id,
+                    permission="accounts.import",
+                    acting_subject=False,
+                )
+                await append_account_alias_snapshot(
+                    session,
+                    current,
+                    snapshot_vendor,
+                    resource_type="IMPORT_ASSIGNMENT",
+                    resource_id=assignment_id,
+                    resource_revision=1,
+                    request_id=claim.request_id,
+                    permission="accounts.import",
+                    acting_subject=False,
+                )
             await event(
                 session,
                 self.audit_context(batch),
@@ -830,6 +836,15 @@ class AccountImportWorker:
                     "source_revision": claim.source_revision,
                 },
             )
+            if (
+                isinstance(claim.configuration, MetaAccountSource)
+                and claim.configuration.discovered
+            ):
+                from orbit_api.meta_account_daily_spend import enqueue_initial_sync
+
+                await enqueue_initial_sync(
+                    session, current, identifier, claim.configuration, claim.request_id
+                )
             await self.record(
                 session,
                 batch,
@@ -968,6 +983,15 @@ class AccountImportWorker:
     async def run_once(self, limit=10):
         if type(limit) is not int or not 1 <= limit <= 100:
             raise ValueError("单轮账户读取批次仅允许1至100")
+        if self.target is None and self.meta_graph_version is not None:
+            from orbit_api.meta_auto_import import MetaAutoImportWorker
+
+            await MetaAutoImportWorker(
+                self.sessions,
+                self.cipher,
+                self.meta_graph_version,
+                adapter_factory=self.meta_adapter_factory,
+            ).run_once(limit=limit)
         recovered = await self.recover_interrupted(limit)
         processed, readers, source_failures = 0, {}, {}
         for _ in range(limit):

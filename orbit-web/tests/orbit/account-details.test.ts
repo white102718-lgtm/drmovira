@@ -4,7 +4,11 @@ import { flushPromises, mount } from '@vue/test-utils'
 import ElementPlus, { ElCheckboxGroup, ElDrawer, ElRadioGroup } from 'element-plus'
 import Accounts from '@/views/orbit/accounts/index.vue'
 import Drawer from '@/views/orbit/accounts/AccountDetailsDrawer.vue'
-import type { ExtendedAccount } from '@/api/orbit/account-details'
+import {
+  accountSpendStatus,
+  type ExtendedAccount,
+  type AccountDetails,
+} from '@/api/orbit/account-details'
 import { ReferenceApiError } from '@/api/orbit/references'
 import { accountChannelApi } from '@/api/orbit/account-channel'
 import { ElDropdown, ElDropdownItem } from 'element-plus'
@@ -376,4 +380,15 @@ it('账户只读列表保留渠道查看入口，不借分配权限', async () =
       .props('disabled'),
   ).toBe(true)
   get.mockRestore()
+})
+
+it('消耗读取空响应和权限不足不伪装为零或完整覆盖', () => {
+  const status = (reason_code: NonNullable<AccountDetails['spend_sync']>['reason_code']) =>
+    accountSpendStatus({
+      spend_sync: { reason_code, observed_at: '2026-11-10T00:00:00Z' },
+    } as AccountDetails)
+  expect(status('NOT_PROVIDED')).toContain('不能视为零')
+  expect(status('NOT_AUTHORIZED')).toContain('权限')
+  expect(status('READ_REJECTED')).toContain('拒绝')
+  expect(status(null)).toContain('完整性以日期覆盖为准')
 })

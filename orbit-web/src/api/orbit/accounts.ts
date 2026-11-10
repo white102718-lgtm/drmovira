@@ -11,7 +11,7 @@ export interface AccountObservation {
   observed_at: string | null
 }
 export interface AccountImportInput {
-  vendor_id: string
+  vendor_id: string | null
   account_ids_text: string
   owner_user_id: string
   owner_team_id: string
@@ -44,7 +44,7 @@ export interface AccountImportRow {
 export interface AccountImportBatch {
   id: string
   revision: number
-  vendor_id: string
+  vendor_id: string | null
   state: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'PARTIAL_SUCCESS' | 'FAILED'
   total: number
   success_count: number

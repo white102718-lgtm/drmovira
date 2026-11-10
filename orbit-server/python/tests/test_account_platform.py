@@ -20,7 +20,7 @@ async def test_actual_tls_membership_then_metadata_only_get_and_token_not_url(gr
     assert value["external_id"] == "001" and value["currency"] == "USD"
     assert value["timezone_id"] == "America/New_York"
     assert "balance" not in value and "spend" not in value
-    assert len(graph.requests) == 2
+    assert len(graph.requests) == 7  # 基础读取加五个独立可选字段，拒绝不阻断其他字段。
     for method, path, headers in graph.requests:
         assert method == "GET" and "fixture-secret-token" not in path and "access_token" not in path
         assert headers["Authorization"] == "Bearer fixture-secret-token"
