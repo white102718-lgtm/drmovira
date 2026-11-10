@@ -124,3 +124,15 @@ def test_configuration_errors_do_not_echo_input_secrets():
         runtime.construct(DataBaseSettings, {"ORBIT_PYTHON_DB_SOURCES": "fixture-secret-value"})
     assert "fixture-secret-value" not in str(error.value)
     assert error.value.__cause__ is None
+
+
+def test_controlled_meta_app_keys_are_loaded_without_legacy_credentials(tmp_path, monkeypatch):
+    source = tmp_path / "meta.env"
+    source.write_text(
+        "ORBIT_META_APP_ID=123\nORBIT_META_APP_SECRET=fixture-only\nORBIT_META_GRAPH_VERSION=v24.0\nORBIT_META_LOGIN_CONFIG_ID=456\nORBIT_DB_PASSWORD=must-not-load\n"
+    )
+    monkeypatch.setattr(runtime, "PRIVATE_ENV", source)
+    values = runtime.private_values()
+    assert values["ORBIT_META_APP_ID"] == "123"
+    assert values["ORBIT_META_GRAPH_VERSION"] == "v24.0"
+    assert "ORBIT_DB_PASSWORD" not in values

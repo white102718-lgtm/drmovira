@@ -64,7 +64,7 @@ def private_values() -> dict[str, Any]:
     return {
         key: value
         for key, value in dotenv_values(PRIVATE_ENV, interpolate=False).items()
-        if key.startswith("ORBIT_PYTHON_") and value is not None
+        if (key.startswith("ORBIT_PYTHON_") or key in {"ORBIT_META_APP_ID", "ORBIT_META_APP_SECRET", "ORBIT_META_GRAPH_VERSION", "ORBIT_META_LOGIN_CONFIG_ID"}) and value is not None
     }
 
 

@@ -28,7 +28,7 @@ from orbit_api.metrics_aggregation import MetricGroup
 from orbit_api.metrics_contract import (
     MetricRow,
     MetricTotal,
-    parse_metric_query,
+    parse_internal_metric_query,
     validate_account_local_today,
 )
 from orbit_api.metrics_query_result import (
@@ -485,7 +485,7 @@ class MetricsQueryResultStore:
             or any(ord(char) < 32 or ord(char) > 126 for char in key)
         ):
             raise OrbitError(400, "IDEMPOTENCY_KEY_INVALID", "幂等键格式不符合原合同")
-        parsed = parse_metric_query(canonical(query).encode())
+        parsed = parse_internal_metric_query(canonical(query).encode())
         request_hash = digest(query)  # 第一次await前冻结原请求，不改成解析后或恢复时的新意图。
         # 在查key前仍须当前真实monitor权限，不借同key跳过撤权。
         current = await authorize_metric_scope(session, actor, None)
@@ -1658,7 +1658,7 @@ class MetricsQueryResultStore:
         self._providers()
         if not isinstance(self.tokens, DirectoryTokens):
             unverified()
-        parsed = parse_metric_query(canonical(body).encode())
+        parsed = parse_internal_metric_query(canonical(body).encode())
         context = await self.read.resume_persisted_query(session, actor, query_id)
         metadata, manifest = await self._manifest(session, actor, context)
         header = await self._header(session, metadata["tenant_id"], query_id)

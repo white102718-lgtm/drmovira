@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 
-def serve(directory):
+def serve(directory, *, meta_origin_fixture=False):
     directory = Path(directory).resolve(strict=True)
     if not (directory / "index.html").is_file():
         raise ValueError("BUILT_FRONTEND_REQUIRED")
@@ -50,6 +50,10 @@ def serve(directory):
                     return
                 excluded = {"host", "connection", "transfer-encoding", "content-length"}
                 headers = {k: v for k, v in self.headers.items() if k.lower() not in excluded}
+                # 隔离测试库固定HTTPS来源；仅显式Meta验收将本地浏览器来源映射给该库。
+                # 任意其他Origin保持原样，不能借测试代理绕过来源拒绝测试。
+                if meta_origin_fixture and headers.get("Origin") == "http://localhost:18084":
+                    headers["Origin"] = "https://app.fixture.example"
                 upstream = http.client.HTTPConnection("127.0.0.1", 18083, timeout=15)
                 try:
                     target = parsed.path[len(prefix) - 1 :] + (
@@ -101,4 +105,6 @@ def serve(directory):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
-    serve(parser.parse_args().directory)
+    parser.add_argument("--meta-origin-fixture", action="store_true")
+    args = parser.parse_args()
+    serve(args.directory, meta_origin_fixture=args.meta_origin_fixture)

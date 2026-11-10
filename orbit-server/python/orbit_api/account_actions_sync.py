@@ -24,6 +24,12 @@ from orbit_api.authorization import require_business_access
 from orbit_api.configuration_store import MAX_REVISION, _decode
 from orbit_api.directory_tokens import canonical
 from orbit_api.errors import OrbitError
+from orbit_api.meta_account_sources import (
+    MetaAccountSource,
+    MetaAccountSourceReader,
+    invalidate_meta_read_source,
+    load_sync_source,
+)
 
 LEASE_SECONDS = 120
 MAX_ATTEMPTS = 4
@@ -48,7 +54,7 @@ class SyncClaim:
     claim_id: str
     revision: int
     external_id: str
-    configuration: MetaReadConfiguration
+    configuration: MetaReadConfiguration | MetaAccountSource
 
 
 def claim_matches(command, claim):
@@ -66,12 +72,24 @@ def claim_matches(command, claim):
 
 class AccountSyncWorker:
     def __init__(
-        self, sessions, cipher, currencies, tenant_id, *, platform_factory=MetaAccountPlatform
+        self,
+        sessions,
+        cipher,
+        currencies,
+        tenant_id,
+        *,
+        platform_factory=MetaAccountPlatform,
+        meta_graph_version=None,
+        meta_adapter_factory=None,
     ):
         self.sessions, self.cipher = sessions, cipher
         self.currencies = frozenset(currencies)
         self.tenant = identifier(tenant_id, "/tenant_id")
         self.platform_factory = platform_factory
+        self.meta_graph_version, self.meta_adapter_factory = (
+            meta_graph_version,
+            meta_adapter_factory,
+        )
 
     @staticmethod
     def audit(command):
@@ -169,6 +187,13 @@ class AccountSyncWorker:
                 raise AccountReadFailure("ACCOUNT_SYNC_ACCOUNT_CHANGED")
             if account["revision"] >= MAX_REVISION:
                 raise AccountReadFailure("ACCOUNT_SYNC_REVISION_EXHAUSTED")
+            configuration = await load_sync_source(
+                session, self.cipher, self.tenant, account["id"], command, self.meta_graph_version
+            )
+            if configuration is not None:
+                if not self.currencies:
+                    raise AccountReadFailure("ACCOUNT_CURRENCY_POLICY_REQUIRED")
+                return current, auth_version, configuration
             source = (
                 (
                     await session.execute(
@@ -367,11 +392,16 @@ class AccountSyncWorker:
             now = utc((await session.execute(text("SELECT UTC_TIMESTAMP(6)"))).scalar_one())
             if utc(command["claimed_at"]) + timedelta(seconds=LEASE_SECONDS) <= now:
                 return False  # 交给有界租约回收，迟到结果不得落库。
+            current = None
             try:
                 current, _auth, _configuration = await self.verify(session, account, command)
             except AccountReadFailure as changed:
                 failure = changed
             if failure is not None:
+                if current is not None:
+                    await invalidate_meta_read_source(
+                        session, current, claim.configuration, failure.code, command["request_id"]
+                    )
                 due = retry_at(command["attempt_count"], now) if failure.retryable else None
                 await self.transition(
                     session,
@@ -453,7 +483,13 @@ class AccountSyncWorker:
                 continue
             processed += 1
             try:
-                reader = self.platform_factory(claim.configuration)
+                reader = (
+                    MetaAccountSourceReader(
+                        claim.configuration, adapter_factory=self.meta_adapter_factory
+                    )
+                    if isinstance(claim.configuration, MetaAccountSource)
+                    else self.platform_factory(claim.configuration)
+                )
                 reader.preflight = lambda captured=claim: self.preflight(captured)
                 await reader.prepare((claim.external_id,))
                 result = await reader.fetch_metadata(claim.external_id)

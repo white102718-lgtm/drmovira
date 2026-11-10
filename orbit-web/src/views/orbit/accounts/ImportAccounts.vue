@@ -287,15 +287,10 @@ async function submit() {
   error.value = ''
   try {
     const result = await accountApi.createImport(intent.value, csrf, intent.key)
-    resultVersion++
-    reading.value = false
     intent = null
     uncertain.value = false
     visible.value = false
-    batch.value = result
-    rows.value = result.rows
-    resultCursor.value = result.next_cursor
-    resultVisible.value = true
+    showResult(result)
     emit('accepted', result)
   } catch (cause) {
     const rejected =
@@ -328,7 +323,17 @@ async function readResult(more: boolean) {
     if (version === resultVersion) reading.value = false
   }
 }
-defineExpose({ open })
+/** Meta连接接入复用同一逐项回执与刷新入口，不另造结果页。 */
+function showResult(result: AccountImportBatch) {
+  resultVersion++
+  reading.value = false
+  resultError.value = ''
+  batch.value = result
+  rows.value = result.rows
+  resultCursor.value = result.next_cursor
+  resultVisible.value = true
+}
+defineExpose({ open, showResult })
 </script>
 <style>
 .account-import-dialog {

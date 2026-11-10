@@ -76,3 +76,27 @@ async def query(request: Request, user: User):
             authorization,
         )
         return JSONResponse(value)
+
+
+@router.post("/history/query")
+async def history_query(request: Request, user: User):
+    from orbit_api.metrics_contract import parse_history_metric_query
+
+    key, csrf, _, body = await write_boundary(request)
+    parsed = parse_history_metric_query(body)
+    authorization = request.headers.get("authorization", "")
+    async with DataSourceRegistry.session(log_sql=False) as session:
+        async with session.begin():
+            current = await require_business_access(
+                session, user.user.user_id, "monitor", "monitor.read"
+            )
+            verify_csrf(DirectoryTokens(credential_cipher()), current, authorization, csrf)
+        value = await result_service(request).run(
+            session.bind,
+            user.user.user_id,
+            parsed,
+            key,
+            request.state.orbit_request_id,
+            authorization,
+        )
+        return JSONResponse(value)

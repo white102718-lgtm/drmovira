@@ -11,10 +11,13 @@ from orbit_api.http_boundary import OrbitApiBoundary, register_errors
 
 
 @pytest.mark.asyncio
-async def test_callback_query_is_hidden_before_inner_middleware_and_access_log():
+@pytest.mark.parametrize(
+    "callback_path", ["/api/v1/auth/callback", "/api/v1/integrations/meta/callback"]
+)
+async def test_callback_query_is_hidden_before_inner_middleware_and_access_log(callback_path):
     scope = {
         "type": "http",
-        "path": "/api/v1/auth/callback",
+        "path": callback_path,
         "query_string": b"state=fixture-state&code=fixture-secret-code",
     }
     events = []

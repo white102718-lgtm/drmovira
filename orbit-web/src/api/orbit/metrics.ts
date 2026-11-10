@@ -346,132 +346,154 @@ export const metricsApi = {
     }
   },
   /** 一次原POST，无自动重试；调用方保管冻结意图，任何请求体不进入URL或Storage。 */
-  async query(
+  query(value: MetricQuery, frozen: FrozenMetricsRequest, signal?: AbortSignal): Promise<Metrics> {
+    return metricRequest(value, frozen, signal)
+  },
+  historyQuery(
     value: MetricQuery,
+    profileVersion: string,
     frozen: FrozenMetricsRequest,
     signal?: AbortSignal,
   ): Promise<Metrics> {
-    const body = JSON.stringify(parseMetricQuery(value))
     if (
-      !object(frozen, ['csrf_token', 'idempotency_key']) ||
-      !string(frozen.csrf_token, 255, 16) ||
-      typeof frozen.idempotency_key !== 'string' ||
-      !/^[\x20-\x7e]{16,128}$/.test(frozen.idempotency_key)
+      typeof profileVersion !== 'string' ||
+      profileVersion.length < 1 ||
+      [...profileVersion].length > 64
     )
       invalid(true)
-    signal?.throwIfAborted()
-    const headers = orbitAuthHeaders({
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': frozen.csrf_token,
-      'Idempotency-Key': frozen.idempotency_key,
-    })
-    if (headers['X-CSRF-Token'] !== frozen.csrf_token)
-      throw new MetricsError(
-        409,
-        'CSRF_CONTEXT_CHANGED',
-        '会话上下文已变化，请确认原查询后重新查询',
-      )
-    const controller = new AbortController(),
-      abort = () => controller.abort(),
-      timer = setTimeout(abort, 15000)
-    signal?.addEventListener('abort', abort, { once: true })
-    let status = 0
-    try {
-      const response = await fetch(`${import.meta.env.VITE_APP_BASE_API}/api/v1/metrics/query`, {
+    return metricRequest(value, frozen, signal, profileVersion)
+  },
+}
+async function metricRequest(
+  value: MetricQuery,
+  frozen: FrozenMetricsRequest,
+  signal?: AbortSignal,
+  profileVersion?: string,
+): Promise<Metrics> {
+  const parsed = parseMetricQuery(value)
+  const body = JSON.stringify(
+    profileVersion === undefined
+      ? parsed
+      : { query: parsed, metric_profile_version: profileVersion },
+  )
+  if (
+    !object(frozen, ['csrf_token', 'idempotency_key']) ||
+    !string(frozen.csrf_token, 255, 16) ||
+    typeof frozen.idempotency_key !== 'string' ||
+    !/^[\x20-\x7e]{16,128}$/.test(frozen.idempotency_key)
+  )
+    invalid(true)
+  signal?.throwIfAborted()
+  const headers = orbitAuthHeaders({
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'X-CSRF-Token': frozen.csrf_token,
+    'Idempotency-Key': frozen.idempotency_key,
+  })
+  if (headers['X-CSRF-Token'] !== frozen.csrf_token)
+    throw new MetricsError(409, 'CSRF_CONTEXT_CHANGED', '会话上下文已变化，请确认原查询后重新查询')
+  const controller = new AbortController(),
+    abort = () => controller.abort(),
+    timer = setTimeout(abort, 15000)
+  signal?.addEventListener('abort', abort, { once: true })
+  let status = 0
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_APP_BASE_API}/api/v1/metrics/${profileVersion === undefined ? 'query' : 'history/query'}`,
+      {
         method: 'POST',
         headers,
         credentials: orbitCredentials(),
         cache: 'no-store',
         signal: controller.signal,
         body,
-      })
-      status = response.status
-      let data: unknown
-      try {
-        data = await response.json()
-      } catch {
-        throw new MetricsError(
-          status,
-          'INVALID_RESPONSE',
-          '服务响应无法确认，请保留原查询并重试',
-          [],
-          false,
-          null,
-          true,
-        )
-      }
-      if (controller.signal.aborted) throw new Error('aborted')
-      if (status !== 200) {
-        let fields: PlanFieldError[]
-        try {
-          if (
-            !object(data, ['code', 'message', 'field_errors', 'retryable', 'request_id']) ||
-            !string(data.code, 64) ||
-            !string(data.message, 1000) ||
-            !Array.isArray(data.field_errors) ||
-            data.field_errors.length > 100 ||
-            typeof data.retryable !== 'boolean' ||
-            !uuid(data.request_id)
-          )
-            invalid()
-          fields = data.field_errors.map(parsePlanFieldError)
-        } catch {
-          throw new MetricsError(
-            status,
-            'INVALID_ERROR_RESPONSE',
-            '服务错误格式无法确认，请保留原查询并重试',
-            [],
-            false,
-            null,
-            true,
-          )
-        }
-        const error = data as {
-          code: string
-          message: string
-          retryable: boolean
-          request_id: string
-        }
-        throw new MetricsError(
-          status,
-          error.code,
-          error.message,
-          fields,
-          error.retryable,
-          error.request_id,
-          false,
-          'server',
-        )
-      }
-      try {
-        return parseMetrics(data)
-      } catch {
-        throw new MetricsError(
-          status,
-          'INVALID_RESPONSE',
-          '查询响应未能完整核验，请保留原意图重试',
-          [],
-          false,
-          null,
-          true,
-        )
-      }
-    } catch (error) {
-      if (signal?.aborted) throw new DOMException('指标请求已取消', 'AbortError')
-      if (error instanceof MetricsError) throw error
+      },
+    )
+    status = response.status
+    let data: unknown
+    try {
+      data = await response.json()
+    } catch {
       throw new MetricsError(
         status,
-        'NETWORK_UNAVAILABLE',
-        '指标服务连接中断，结果未知，请使用原查询重试',
+        'INVALID_RESPONSE',
+        '服务响应无法确认，请保留原查询并重试',
         [],
-        true,
+        false,
         null,
         true,
       )
-    } finally {
-      clearTimeout(timer)
-      signal?.removeEventListener('abort', abort)
     }
-  },
+    if (controller.signal.aborted) throw new Error('aborted')
+    if (status !== 200) {
+      let fields: PlanFieldError[]
+      try {
+        if (
+          !object(data, ['code', 'message', 'field_errors', 'retryable', 'request_id']) ||
+          !string(data.code, 64) ||
+          !string(data.message, 1000) ||
+          !Array.isArray(data.field_errors) ||
+          data.field_errors.length > 100 ||
+          typeof data.retryable !== 'boolean' ||
+          !uuid(data.request_id)
+        )
+          invalid()
+        fields = data.field_errors.map(parsePlanFieldError)
+      } catch {
+        throw new MetricsError(
+          status,
+          'INVALID_ERROR_RESPONSE',
+          '服务错误格式无法确认，请保留原查询并重试',
+          [],
+          false,
+          null,
+          true,
+        )
+      }
+      const error = data as {
+        code: string
+        message: string
+        retryable: boolean
+        request_id: string
+      }
+      throw new MetricsError(
+        status,
+        error.code,
+        error.message,
+        fields,
+        error.retryable,
+        error.request_id,
+        false,
+        'server',
+      )
+    }
+    try {
+      return parseMetrics(data)
+    } catch {
+      throw new MetricsError(
+        status,
+        'INVALID_RESPONSE',
+        '查询响应未能完整核验，请保留原意图重试',
+        [],
+        false,
+        null,
+        true,
+      )
+    }
+  } catch (error) {
+    if (signal?.aborted) throw new DOMException('指标请求已取消', 'AbortError')
+    if (error instanceof MetricsError) throw error
+    throw new MetricsError(
+      status,
+      'NETWORK_UNAVAILABLE',
+      '指标服务连接中断，结果未知，请使用原查询重试',
+      [],
+      true,
+      null,
+      true,
+    )
+  } finally {
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', abort)
+  }
 }

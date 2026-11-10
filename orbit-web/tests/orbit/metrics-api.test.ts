@@ -353,3 +353,13 @@ it('上下文403保留Error并非写入未知，坏响应不回显原文', async
   fetcher.mockResolvedValueOnce(new Response('secret_gateway_body', { status: 502 }))
   await expect(metricsApi.capabilities()).rejects.not.toThrow('secret_gateway_body')
 })
+
+it('历史版本走独立wrapper，原query完整13字段且不污染普通查询', async () => {
+  fetcher.mockResolvedValue(new Response(JSON.stringify(result()), { status: 200 }))
+  await metricsApi.historyQuery(query(), 'old.v1', frozen())
+  expect(fetcher.mock.calls[0][0]).toMatch(/\/api\/v1\/metrics\/history\/query$/)
+  const payload = JSON.parse(fetcher.mock.calls[0][1].body)
+  expect(payload).toEqual({ query: query(), metric_profile_version: 'old.v1' })
+  expect(Object.keys(payload.query)).toHaveLength(13)
+  expect(fetcher.mock.calls[0][1].headers['Idempotency-Key']).toBe(frozen().idempotency_key)
+})

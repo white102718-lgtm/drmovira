@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import useUserStore from '@/store/modules/user'
+import MetaConnectionsPanel from '../../accounts/components/MetaConnectionsPanel.vue'
+import ImportAccounts from '../../accounts/ImportAccounts.vue'
+import { metaConnectionApi } from '@/api/orbit/meta-connections'
+import { ReferenceApiError } from '@/api/orbit/references'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   getConfigurationMetadata,
@@ -9,8 +14,88 @@ import {
   type ConfigSection,
 } from '@/api/orbit/configuration'
 import ConfigurationDialog from './ConfigurationDialog.vue'
+import MetricPublicationPanel from './MetricPublicationPanel.vue'
 import ConfigurationHistory from './ConfigurationHistory.vue'
 import { configurationTextError } from './validation'
+
+const user = useUserStore()
+const metaOpen = ref(false)
+const publicationOpen = ref(false)
+const publicationId = ref('')
+function openPublication(id: string) {
+  publicationId.value = id
+  publicationOpen.value = true
+}
+const canPublish = computed(
+  () => user.permissions.includes('*:*:*') || user.permissions.includes('system.release.manage'),
+)
+const importResult = ref<InstanceType<typeof ImportAccounts>>()
+const bmBusy = ref(false)
+const bmNotice = ref('')
+const bmPending = ref<{ id: string; revision: number; name: string; key: string } | null>(null)
+const contextKey = computed(() => JSON.stringify([user.id, user.permissions]))
+watch(contextKey, () => {
+  bmPending.value = null
+  bmBusy.value = false
+  bmNotice.value = ''
+})
+async function connectBm(row?: Configuration) {
+  if (bmBusy.value) return
+  if (!bmPending.value) {
+    if (!row || row.section !== 'META_BM' || !row.enabled) return
+    try {
+      await ElMessageBox.confirm(
+        `配置：${row.name}（版本${row.revision}）。验证系统用户权限并枚举可读账户，成功后登记读取连接；不创建或修改广告。`,
+        '接入 Meta/BM 读取',
+        {
+          confirmButtonText: '验证并接入',
+          cancelButtonText: '取消',
+          type: 'info',
+          closeOnClickModal: false,
+        },
+      )
+    } catch {
+      return
+    }
+    bmPending.value = {
+      id: row.id,
+      revision: row.revision,
+      name: row.name,
+      key: 'meta-bm-' + crypto.randomUUID(),
+    }
+  }
+  const intent = bmPending.value,
+    context = contextKey.value
+  bmBusy.value = true
+  bmNotice.value = ''
+  try {
+    const cap = await metaConnectionApi.capabilities()
+    if (context !== contextKey.value) return
+    if (!cap.configured)
+      throw new ReferenceApiError(422, 'META_APP_UNCONFIGURED', '平台应用未配置完整')
+    const result = await metaConnectionApi.connectBm(
+      intent.id,
+      intent.revision,
+      cap.csrf_token,
+      intent.key,
+    )
+    if (context !== contextKey.value) return
+    bmPending.value = null
+    bmNotice.value = `BM 读取连接已登记，实际可读账户 ${result.accessible_account_count} 个。请在 Meta 连接中选择要接入的平台账户。`
+    metaOpen.value = true
+  } catch (error) {
+    if (context !== contextKey.value) return
+    const rejected =
+      error instanceof ReferenceApiError &&
+      [400, 401, 403, 404, 409, 410, 422].includes(error.status)
+    if (rejected) bmPending.value = null
+    bmNotice.value = rejected
+      ? 'BM 接入未通过，请检查配置版本、权限和平台应用后重试。'
+      : 'BM 接入结果尚未确认，请使用重试原请求，保留原配置版本和幂等键。'
+  } finally {
+    if (context === contextKey.value) bmBusy.value = false
+  }
+}
 
 const history = ref<InstanceType<typeof ConfigurationHistory>>()
 const loading = ref(false)
@@ -117,6 +202,13 @@ onBeforeUnmount(() => {
 <template>
   <div class="app-container">
     <h2>系统配置</h2>
+    <el-alert v-if="bmNotice" :title="bmNotice" type="info" :closable="false" />
+    <div class="configuration-meta-toolbar">
+      <el-button @click="metaOpen = true">Meta 连接与授权状态</el-button>
+      <el-button v-if="bmPending" :loading="bmBusy" @click="connectBm()"
+        >重试 BM 接入原请求</el-button
+      >
+    </div>
     <p class="configuration-summary">
       集中维护AI建议、GPT、Claude、Meta/BM及业务集成配置。凭据加密保存，页面只展示脱敏状态。
     </p>
@@ -198,7 +290,7 @@ onBeforeUnmount(() => {
       >
       <el-table-column prop="revision" label="版本" width="80" />
       <el-table-column prop="updatedAt" label="最近更新（UTC）" min-width="220" />
-      <el-table-column label="操作" width="280" fixed="right">
+      <el-table-column label="操作" width="390" fixed="right">
         <template #default="{ row }">
           <el-button link type="primary" @click="dialog?.open(row)">编辑</el-button>
           <el-button link type="primary" @click="history?.open(row)">变更历史</el-button>
@@ -210,9 +302,53 @@ onBeforeUnmount(() => {
             @click="test(row)"
             >只读连接测试</el-button
           >
+          <el-button
+            v-if="row.section === 'META_BM'"
+            link
+            type="primary"
+            :disabled="!row.enabled || !encryptionReady || bmBusy || !!bmPending"
+            @click="connectBm(row)"
+            >接入账户读取</el-button
+          >
+          <el-button
+            v-if="row.section === 'METRICS' && canPublish"
+            link
+            type="primary"
+            :disabled="!row.enabled"
+            @click="openPublication(row.id)"
+            >发布指标口径</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog
+      v-model="metaOpen"
+      title="Meta 连接与授权状态"
+      width="min(1200px, calc(100vw - 24px))"
+    >
+      <MetaConnectionsPanel
+        :active="metaOpen"
+        :context-key="contextKey"
+        @accepted="
+          (batch) => {
+            metaOpen = false
+            importResult?.showResult(batch)
+          }
+        "
+      />
+    </el-dialog>
+    <el-dialog
+      v-model="publicationOpen"
+      title="验证并发布指标口径"
+      width="min(800px, calc(100vw - 24px))"
+    >
+      <MetricPublicationPanel
+        :active="publicationOpen"
+        :configuration-id="publicationId"
+        :context-key="contextKey"
+      />
+    </el-dialog>
+    <ImportAccounts ref="importResult" />
     <ConfigurationHistory ref="history" />
     <ConfigurationDialog
       ref="dialog"
@@ -225,6 +361,12 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.configuration-meta-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
 .configuration-summary {
   color: var(--el-text-color-secondary);
   line-height: 1.7;

@@ -116,7 +116,7 @@ export function parseMetricProfile(v: unknown): MetricProfile {
     invalid()
   return v as unknown as MetricProfile
 }
-export function parseMetricProfilePage(v: unknown): MetricProfilePage {
+export function parseMetricProfilePage(v: unknown, historical = false): MetricProfilePage {
   if (
     !object(v, ['items', 'next_cursor', 'data_as_of', 'scope_version']) ||
     !Array.isArray(v.items) ||
@@ -131,8 +131,11 @@ export function parseMetricProfilePage(v: unknown): MetricProfilePage {
   const seen = new Set<string>()
   for (const entry of v.items) {
     const item = parseMetricProfile(entry)
-    if (seen.has(item.id.toLowerCase())) invalid()
-    seen.add(item.id.toLowerCase())
+    const key = historical
+      ? JSON.stringify([item.id.toLowerCase(), item.version])
+      : item.id.toLowerCase()
+    if (seen.has(key)) invalid()
+    seen.add(key)
   }
   return v as unknown as MetricProfilePage
 }
@@ -154,76 +157,86 @@ export function metricProfileQuery(v: MetricProfileQuery): URLSearchParams {
   return q
 }
 export const metricProfilesApi = {
-  async list(query: MetricProfileQuery, signal?: AbortSignal): Promise<MetricProfilePage> {
-    const params = metricProfileQuery(query)
-    signal?.throwIfAborted()
-    const controller = new AbortController(),
-      timer = setTimeout(() => controller.abort(), 15000)
-    const abort = () => controller.abort()
-    signal?.addEventListener('abort', abort, { once: true })
+  list(query: MetricProfileQuery, signal?: AbortSignal): Promise<MetricProfilePage> {
+    return metricProfilePageRequest(query, signal, false)
+  },
+  history(query: MetricProfileQuery, signal?: AbortSignal): Promise<MetricProfilePage> {
+    return metricProfilePageRequest(query, signal, true)
+  },
+}
+async function metricProfilePageRequest(
+  query: MetricProfileQuery,
+  signal: AbortSignal | undefined,
+  historical: boolean,
+): Promise<MetricProfilePage> {
+  const params = metricProfileQuery(query)
+  signal?.throwIfAborted()
+  const controller = new AbortController(),
+    timer = setTimeout(() => controller.abort(), 15000)
+  const abort = () => controller.abort()
+  signal?.addEventListener('abort', abort, { once: true })
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_APP_BASE_API}/api/v1/metric-profiles${historical ? '/history-candidates' : ''}?${params}`,
+      {
+        method: 'GET',
+        cache: 'no-store',
+        credentials: orbitCredentials(),
+        headers: orbitAuthHeaders({ Accept: 'application/json' }),
+        signal: controller.signal,
+      },
+    )
+    let body: unknown
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_APP_BASE_API}/api/v1/metric-profiles?${params}`,
-        {
-          method: 'GET',
-          cache: 'no-store',
-          credentials: orbitCredentials(),
-          headers: orbitAuthHeaders({ Accept: 'application/json' }),
-          signal: controller.signal,
-        },
+      body = await response.json()
+    } catch {
+      throw new MetricProfileError(
+        response.status,
+        'INVALID_RESPONSE',
+        '指标服务返回了无法识别的响应，请重试',
       )
-      let body: unknown
+    }
+    if (response.status !== 200) {
+      if (
+        !object(body, ['code', 'message', 'field_errors', 'retryable', 'request_id']) ||
+        !text(body.code, 64) ||
+        !text(body.message, 1000) ||
+        !Array.isArray(body.field_errors) ||
+        body.field_errors.length > 100 ||
+        typeof body.retryable !== 'boolean' ||
+        !uuid(body.request_id)
+      )
+        throw new MetricProfileError(
+          response.status,
+          'INVALID_RESPONSE',
+          '指标服务响应异常，请重试',
+        )
+      let fields: PlanHttpFieldError[]
       try {
-        body = await response.json()
+        fields = body.field_errors.map(parsePlanHttpFieldError)
       } catch {
         throw new MetricProfileError(
           response.status,
           'INVALID_RESPONSE',
-          '指标服务返回了无法识别的响应，请重试',
+          '指标服务错误字段不符合合同，请重试',
         )
       }
-      if (response.status !== 200) {
-        if (
-          !object(body, ['code', 'message', 'field_errors', 'retryable', 'request_id']) ||
-          !text(body.code, 64) ||
-          !text(body.message, 1000) ||
-          !Array.isArray(body.field_errors) ||
-          body.field_errors.length > 100 ||
-          typeof body.retryable !== 'boolean' ||
-          !uuid(body.request_id)
-        )
-          throw new MetricProfileError(
-            response.status,
-            'INVALID_RESPONSE',
-            '指标服务响应异常，请重试',
-          )
-        let fields: PlanHttpFieldError[]
-        try {
-          fields = body.field_errors.map(parsePlanHttpFieldError)
-        } catch {
-          throw new MetricProfileError(
-            response.status,
-            'INVALID_RESPONSE',
-            '指标服务错误字段不符合合同，请重试',
-          )
-        }
-        throw new MetricProfileError(
-          response.status,
-          body.code,
-          body.message,
-          fields,
-          body.retryable,
-          body.request_id,
-        )
-      }
-      return parseMetricProfilePage(body)
-    } catch (error) {
-      if (signal?.aborted) throw new DOMException('读取已取消', 'AbortError')
-      if (error instanceof MetricProfileError) throw error
-      throw new MetricProfileError(0, 'NETWORK_UNAVAILABLE', '指标目录读取中断，请重试', [], true)
-    } finally {
-      clearTimeout(timer)
-      signal?.removeEventListener('abort', abort)
+      throw new MetricProfileError(
+        response.status,
+        body.code,
+        body.message,
+        fields,
+        body.retryable,
+        body.request_id,
+      )
     }
-  },
+    return parseMetricProfilePage(body, historical)
+  } catch (error) {
+    if (signal?.aborted) throw new DOMException('读取已取消', 'AbortError')
+    if (error instanceof MetricProfileError) throw error
+    throw new MetricProfileError(0, 'NETWORK_UNAVAILABLE', '指标目录读取中断，请重试', [], true)
+  } finally {
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', abort)
+  }
 }

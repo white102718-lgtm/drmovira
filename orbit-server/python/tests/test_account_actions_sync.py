@@ -294,6 +294,9 @@ async def test_live_verify_current_scope_source_and_versions(monkeypatch, change
         def scalar_one_or_none(self):
             return self.value
 
+        def scalar_one(self):
+            return self.value
+
         def mappings(self):
             return self
 
@@ -314,6 +317,9 @@ async def test_live_verify_current_scope_source_and_versions(monkeypatch, change
     class LiveSession:
         async def execute(self, statement, params=None):
             sql = str(statement)
+            if "information_schema.TABLES" in sql:
+                assert params == {"table": "orbit_meta_account_source"}
+                return LiveResult(0)  # 此旧来源场景明确未安装Meta来源扩展。
             if "sys_identity_subject" in sql:
                 return LiveResult(10 if change == "auth" else 9)
             if "SELECT 1 FROM orbit_ad_account" in sql:

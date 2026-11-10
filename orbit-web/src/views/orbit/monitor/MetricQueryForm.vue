@@ -13,7 +13,7 @@
     /></el-form-item>
     <el-form-item label="指标配置"
       ><el-select
-        v-model="form.metric_profile_id"
+        v-model="selectedKey"
         aria-label="指标配置"
         placeholder="选择版本与来源"
         filterable
@@ -23,9 +23,9 @@
         @change="selectProfile"
         ><el-option
           v-for="profile in options"
-          :key="profile.id"
+          :key="profileKey(profile)"
           :label="profileLabel(profile)"
-          :value="profile.id"
+          :value="profileKey(profile)"
       /></el-select>
       <p class="query-note">输入版本筛选当前页；完整配置ID可精确查询。</p>
       <div class="profile-pages">
@@ -126,7 +126,9 @@ const props = withDefaults(
   }>(),
   { disabled: false, loading: false, contextKey: '' },
 )
-const emit = defineEmits<{ query: [value: MetricQuery]; changed: [] }>()
+const emit = defineEmits<{ query: [value: MetricQuery, profileVersion?: string]; changed: [] }>()
+const selectedKey = ref('')
+const profileKey = (profile: MetricProfile) => JSON.stringify([profile.id, profile.version])
 const initial = (): MetricQuery => ({
   date_from: '',
   date_to: '',
@@ -168,7 +170,10 @@ const options = computed(() => {
       profileLabel(profile).toLowerCase().includes(profileSearch.value.toLowerCase()),
   )
   return selectedProfile.value &&
-    !visible.some((profile) => profile.id === selectedProfile.value?.id)
+    !visible.some(
+      (profile) =>
+        profileKey(profile) === (selectedProfile.value ? profileKey(selectedProfile.value) : null),
+    )
     ? [selectedProfile.value, ...visible]
     : visible
 })
@@ -180,6 +185,7 @@ function clearProfiles() {
   profileLoaded.value = false
   profiles.value = []
   selectedProfile.value = null
+  selectedKey.value = ''
   profileError.value = ''
   profileSearch.value = ''
   profileNext.value = null
@@ -203,7 +209,7 @@ async function loadProfiles(cursor: string | null, index: number) {
   loadingFingerprint = fingerprint
   profileError.value = ''
   try {
-    const page = await metricProfilesApi.list(
+    const page = await metricProfilesApi.history(
       { q: remoteQuery, metric_profile_id: null, cursor, page_size: 50 },
       signal,
     )
@@ -224,6 +230,7 @@ async function loadProfiles(cursor: string | null, index: number) {
           : '配置暂不可用，请重试。'
     if (caught instanceof MetricProfileError && [401, 403].includes(caught.status)) {
       selectedProfile.value = null
+      selectedKey.value = ''
       form.metric_profile_id = ''
     }
   } finally {
@@ -251,7 +258,12 @@ function nextProfiles() {
 }
 function selectProfile(value: string) {
   selectedProfile.value =
-    profiles.value.find((profile) => profile.id === value) ?? selectedProfile.value
+    profiles.value.find((profile) => profileKey(profile) === value) ??
+    (profiles.value.filter((profile) => profile.id === value).length === 1
+      ? profiles.value.find((profile) => profile.id === value)!
+      : null)
+  form.metric_profile_id = selectedProfile.value?.id ?? ''
+  selectedKey.value = selectedProfile.value ? profileKey(selectedProfile.value) : ''
 }
 const sortLabels = {
   spend: '消耗',
@@ -285,7 +297,11 @@ watch(
 function submit() {
   if (props.disabled) return
   try {
-    emit('query', parseMetricQuery({ ...form, dataset: props.dataset, cursor: null }))
+    emit(
+      'query',
+      parseMetricQuery({ ...form, dataset: props.dataset, cursor: null }),
+      selectedProfile.value?.version,
+    )
   } catch {
     localError.value = '请选择指标配置并检查日期和筛选；日期范围须为1至93个业务日。'
   }

@@ -110,10 +110,9 @@ def create_app() -> FastAPI:
     from orbit_api.team_routes import router as team_router
 
     app.include_router(team_router)
+    from orbit_api.agent_capability_routes import router as agent_capability_router
     from orbit_api.execution_agent_routes import router as execution_agent_router
     from orbit_api.profile_binding_routes import router as profile_binding_router
-
-    from orbit_api.agent_capability_routes import router as agent_capability_router
 
     app.include_router(agent_capability_router)
     app.include_router(execution_agent_router)
@@ -157,8 +156,13 @@ def create_app() -> FastAPI:
     from orbit_api.metric_profile_routes import router as metric_profile_router
 
     app.include_router(metric_profile_router)
+    from orbit_api.meta_metrics_provider import MetaExpectedUnitProvider, MetaMetricReadSource
     from orbit_api.metrics_routes import router as metrics_router
 
+    app.state.metrics_source_provider = MetaMetricReadSource()
+    app.state.metrics_expected_provider = MetaExpectedUnitProvider(
+        app.state.metrics_source_provider
+    )
     app.include_router(metrics_router)
     from orbit_api.rule_display_metadata_routes import router as rule_display_metadata_router
     from orbit_api.rule_editor_definition_routes import router as rule_editor_definition_router
@@ -218,6 +222,12 @@ def create_app() -> FastAPI:
     from orbit_api.account_command_routes import router as account_command_router
 
     app.include_router(account_assignment_options_router)
+    from orbit_api.meta_connection_routes import router as meta_connection_router
+
+    app.include_router(meta_connection_router)
+    from orbit_api.meta_sync_routes import router as meta_sync_router
+
+    app.include_router(meta_sync_router)
     app.include_router(account_actions_router)
     app.include_router(account_command_router)
     app.include_router(accounts_router)

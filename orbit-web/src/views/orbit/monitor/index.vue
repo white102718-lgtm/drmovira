@@ -12,6 +12,7 @@
       type="warning"
       :closable="false"
     />
+    <MetaSyncStatus v-if="canRead" :active="props.active" :context-key="context" />
     <el-tabs v-model="tab" aria-label="广告投放数据维度" :before-leave="confirmDiscard">
       <el-tab-pane v-for="item in tabs" :key="item.name" :name="item.name" :label="item.label" />
     </el-tabs>
@@ -132,6 +133,7 @@ import {
   type MetricRow,
   type Metrics,
 } from '@/api/orbit/metrics'
+import MetaSyncStatus from './components/MetaSyncStatus.vue'
 import MetricQueryForm from './MetricQueryForm.vue'
 import MetricRows from './MetricRows.vue'
 import MetricRowDetails from './MetricRowDetails.vue'
@@ -176,6 +178,7 @@ const data = ref<Metrics | null>(null),
 const history = ref<(string | null)[]>([]),
   currentCursor = ref<string | null>(null)
 interface Intent {
+  profileVersion?: string
   body: MetricQuery
   frozen: FrozenMetricsRequest
   history: (string | null)[]
@@ -275,7 +278,15 @@ async function send(intent: Intent) {
   detail.value = null
   loading.value = true
   try {
-    const value = await metricsApi.query(structuredClone(intent.body), { ...intent.frozen }, signal)
+    const value =
+      intent.profileVersion === undefined
+        ? await metricsApi.query(structuredClone(intent.body), { ...intent.frozen }, signal)
+        : await metricsApi.historyQuery(
+            structuredClone(intent.body),
+            intent.profileVersion,
+            { ...intent.frozen },
+            signal,
+          )
     if (version !== epoch || requestContext !== context.value || signal.aborted) return
     data.value = value
     history.value = [...intent.history]
@@ -311,10 +322,11 @@ async function send(intent: Intent) {
     if (version === epoch) loading.value = false
   }
 }
-function query(body: MetricQuery) {
+function query(body: MetricQuery, profileVersion?: string) {
   if (error.value?.unknown_result || !csrf.value) return
   void send({
     body: structuredClone(body),
+    profileVersion,
     frozen: { csrf_token: csrf.value, idempotency_key: crypto.randomUUID() },
     history: [],
     cursor: null,
@@ -331,6 +343,7 @@ function next() {
     const cursor = data.value.next_cursor
     void send({
       body: { ...pending.value.body, cursor },
+      profileVersion: pending.value.profileVersion,
       frozen: { csrf_token: csrf.value, idempotency_key: crypto.randomUUID() },
       history: [...history.value, currentCursor.value],
       cursor,
@@ -343,6 +356,7 @@ function previous() {
       cursor = previousHistory.pop() ?? null
     void send({
       body: { ...pending.value.body, cursor },
+      profileVersion: pending.value.profileVersion,
       frozen: { csrf_token: csrf.value, idempotency_key: crypto.randomUUID() },
       history: previousHistory,
       cursor,

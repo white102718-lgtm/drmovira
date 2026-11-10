@@ -2,7 +2,7 @@
 
 import json
 import secrets
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from uuid import uuid4
@@ -24,6 +24,15 @@ from orbit_api.configuration_store import MAX_REVISION, _decode
 from orbit_api.directory_tokens import canonical
 from orbit_api.errors import OrbitError
 from orbit_api.identity_contract import _uuid
+from orbit_api.meta_account_sources import (
+    MetaAccountSource,
+    MetaAccountSourceReader,
+    attach_import_source,
+    import_source,
+    invalidate_meta_read_source,
+    load_connection,
+    validate_import_channel,
+)
 from orbit_api.reference_access import managed_teams, readable, validate_ownership
 from orbit_api.reference_store import records
 
@@ -38,7 +47,7 @@ class AccountClaim:
     external_id: str
     source_id: str
     source_revision: int
-    configuration: MetaReadConfiguration
+    configuration: MetaReadConfiguration | MetaAccountSource
     identifiers: tuple[str, ...]
 
 
@@ -52,10 +61,22 @@ class AccountImportWorker:
     """不会自动启动或调用平台写方法；平台读取替换必须显式注入，仅用于隔离协议验收。"""
 
     def __init__(
-        self, sessions, cipher, currencies, *, platform_factory=MetaAccountPlatform, target=None
+        self,
+        sessions,
+        cipher,
+        currencies,
+        *,
+        platform_factory=MetaAccountPlatform,
+        target=None,
+        meta_graph_version=None,
+        meta_adapter_factory=None,
     ):
         self.sessions, self.cipher = sessions, cipher
         self.currencies, self.platform_factory = frozenset(currencies), platform_factory
+        self.meta_graph_version, self.meta_adapter_factory = (
+            meta_graph_version,
+            meta_adapter_factory,
+        )
         if target is not None and (not isinstance(target, tuple) or len(target) != 2):
             raise ValueError("受控批次目标必须为租户与批次两个UUID")
         self.target = (
@@ -170,6 +191,52 @@ class AccountImportWorker:
                 or not readable(current, await managed_teams(session, current), value)
             ):
                 raise AccountReadFailure("ACCOUNT_IMPORT_REFERENCE_CHANGED")
+            selected = await import_source(session, current.tenant_id, batch["id"])
+            if selected is not None:
+                configuration = await load_connection(
+                    session,
+                    self.cipher,
+                    current.tenant_id,
+                    selected["connection_id"],
+                    selected["connection_revision"],
+                    self.meta_graph_version,
+                )
+                await validate_import_channel(session, current, selected["channel_id"])
+                configuration = replace(
+                    configuration, import_selection=(selected["revision"], selected["channel_id"])
+                )
+                if batch["source_config_id"] is not None and (
+                    batch["source_config_id"] != selected["connection_id"]
+                    or batch["source_config_revision"] != selected["connection_revision"]
+                ):
+                    raise AccountReadFailure("ACCOUNT_IMPORT_SOURCE_CHANGED")
+                if batch["source_config_id"] is None and require_source:
+                    if not freeze:
+                        raise AccountReadFailure("ACCOUNT_IMPORT_SOURCE_UNFROZEN")
+                    request_id = str(uuid4())
+                    await session.execute(
+                        text(
+                            "UPDATE orbit_account_import SET source_config_id=:source,"
+                            "source_config_revision=:revision,actor_auth_version=:auth,"
+                            "request_id=:request "
+                            "WHERE tenant_id=:tenant AND id=:id AND source_config_id IS NULL"
+                        ),
+                        {
+                            "tenant": current.tenant_id,
+                            "id": batch["id"],
+                            "source": selected["connection_id"],
+                            "revision": selected["connection_revision"],
+                            "auth": version,
+                            "request": request_id,
+                        },
+                    )
+                    batch = dict(batch) | {
+                        "source_config_id": selected["connection_id"],
+                        "source_config_revision": selected["connection_revision"],
+                        "actor_auth_version": version,
+                        "request_id": request_id,
+                    }
+                return current, batch, configuration if require_source else None
             if not require_source:
                 # 已有账户可免平台读取，但不能绕过已停用户商/变化归属的实时复核。
                 return current, batch, None
@@ -519,11 +586,19 @@ class AccountImportWorker:
                 )
                 return True
             try:
-                current, batch, _ = await self.verify(session, batch)
+                current, batch, checked = await self.verify(session, batch)
+                if (
+                    isinstance(claim.configuration, MetaAccountSource)
+                    and checked != claim.configuration
+                ):
+                    raise AccountReadFailure("ACCOUNT_IMPORT_SOURCE_CHANGED")
             except AccountReadFailure as error:
                 await self.record(session, batch, row, "FAILED", code=error.code)
                 return True
             if failure is not None:
+                await invalidate_meta_read_source(
+                    session, current, claim.configuration, failure.code, claim.request_id
+                )
                 retry = failure.retryable and row["attempts"] <= 3
                 await self.record(
                     session,
@@ -694,6 +769,7 @@ class AccountImportWorker:
                     "now": now.replace(tzinfo=None),
                 },
             )
+            await attach_import_source(session, current, batch["id"], identifier, claim.request_id)
             local_start = (
                 now.astimezone(ZoneInfo(value.timezone_id))
                 .replace(hour=0, minute=0, second=0, microsecond=0)
@@ -824,7 +900,12 @@ class AccountImportWorker:
                 or batch["source_config_revision"] != claim.source_revision
             ):
                 raise AccountReadFailure("ACCOUNT_IMPORT_SOURCE_CHANGED")
-            await self.verify(session, batch)
+            _, _, checked = await self.verify(session, batch)
+            if (
+                isinstance(claim.configuration, MetaAccountSource)
+                and checked != claim.configuration
+            ):
+                raise AccountReadFailure("ACCOUNT_IMPORT_SOURCE_CHANGED")
 
     async def recover_interrupted(self, limit=100):
         if type(limit) is not int or not 1 <= limit <= 100:
@@ -902,7 +983,13 @@ class AccountImportWorker:
                 if source_key in source_failures:
                     raise source_failures[source_key]
                 if reader_key not in readers:
-                    reader = self.platform_factory(claim.configuration)
+                    reader = (
+                        MetaAccountSourceReader(
+                            claim.configuration, adapter_factory=self.meta_adapter_factory
+                        )
+                        if isinstance(claim.configuration, MetaAccountSource)
+                        else self.platform_factory(claim.configuration)
+                    )
                     reader.preflight = lambda captured=claim: self.preflight(captured)
                     try:
                         await reader.prepare(claim.identifiers)

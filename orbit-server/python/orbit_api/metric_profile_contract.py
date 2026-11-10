@@ -28,6 +28,8 @@ class MetricSourceProof:
     evidence_ref: str
     source_config_id: str | None
     source_config_revision: int | None
+    source_connection_id: str | None = None
+    source_connection_revision: int | None = None
 
 
 def check_proof(proof, source):
@@ -51,7 +53,19 @@ def check_proof(proof, source):
             or not 1 <= proof.source_config_revision <= MAX_REVISION
         ):
             unavailable()
-    if source == "META" and proof.source_config_id is None:
+    if (proof.source_connection_id is None) != (proof.source_connection_revision is None):
+        unavailable()
+    if proof.source_connection_id is not None:
+        uuid_field(proof.source_connection_id, ("source_connection_id",))
+        if (
+            type(proof.source_connection_revision) is not int
+            or not 1 <= proof.source_connection_revision <= MAX_REVISION
+        ):
+            unavailable()
+    if (
+        source == "META"
+        and ((proof.source_config_id is not None) + (proof.source_connection_id is not None)) != 1
+    ):
         unavailable()
     return proof
 
@@ -97,6 +111,8 @@ def proof_values(proof):
         "evidence": proof.evidence_ref,
         "config": proof.source_config_id,
         "config_revision": proof.source_config_revision,
+        "connection": proof.source_connection_id,
+        "connection_revision": proof.source_connection_revision,
     }
 
 
@@ -107,3 +123,32 @@ __all__ = [
     "MetricPublication",
     "publication",
 ]
+
+
+def parse_source_proof(value, source):
+    """兼容历史五字段证明；连接证明须完整两字段，不接受未知字段。"""
+    expected = {
+        "source_sha256",
+        "observed_at",
+        "evidence_ref",
+        "source_config_id",
+        "source_config_revision",
+    }
+    if not isinstance(value, dict) or set(value) not in (
+        expected,
+        expected | {"source_connection_id", "source_connection_revision"},
+    ):
+        unavailable()
+    try:
+        proof = MetricSourceProof(
+            value["source_sha256"],
+            datetime.fromisoformat(value["observed_at"]),
+            value["evidence_ref"],
+            value["source_config_id"],
+            value["source_config_revision"],
+            value.get("source_connection_id"),
+            value.get("source_connection_revision"),
+        )
+        return check_proof(proof, source)
+    except (ValueError, TypeError, KeyError):
+        unavailable()

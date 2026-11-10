@@ -19,7 +19,7 @@ from orbit_api.errors import OrbitError
 from orbit_api.metric_profile_store import fixture_boundary
 from orbit_api.metrics_contract import (
     MAX_SAFE_INTEGER,
-    parse_metric_query,
+    parse_internal_metric_query,
     validate_account_local_today,
 )
 from orbit_api.metrics_query_result_contract import EXPECTED_STREAM_VERSION
@@ -132,7 +132,9 @@ def publication_validation_binding(head):
         if result["authority_kind"] not in {"TRUSTED", "ISOLATED_TEST"}:
             unavailable()
         if result["authority_kind"] == "TRUSTED" and result["source_config_id"] is None:
-            unavailable()
+            from orbit_api.meta_metrics_provider import validate_meta_proof
+
+            validate_meta_proof(source)
         if (
             result["state"] != "PUBLISHED"
             or result["cell_count"] != result["expected_cell_count"]
@@ -298,6 +300,34 @@ class MetricsQueryStore:
         return provider
 
     async def _profile(self, session, scope, query):
+        if "_history_profile_version" in query:
+            from orbit_api.metric_profile_query import history_source_clause
+
+            predicate = history_source_clause(scope.current).replace(
+                "hp.published_at<=:as_of", "hp.published_at<=UTC_TIMESTAMP(3)"
+            )
+            result = await rows(
+                session,
+                "SELECT v.profile_id AS id,v.version AS current_version,v.payload_hash,"
+                "(SELECT MIN(ma.registry_revision) FROM orbit_metric_profile_adapter ma "
+                "WHERE ma.tenant_id=v.tenant_id AND ma.profile_id=v.profile_id "
+                "AND ma.profile_version=v.version AND ma.profile_hash=v.payload_hash) AS revision "
+                "FROM orbit_metric_profile_version v WHERE v.tenant_id=:tenant "
+                "AND v.profile_id=:profile AND v.version=:version AND " + predicate,
+                {
+                    "tenant": scope.current.tenant_id,
+                    "profile": query["metric_profile_id"],
+                    "version": query["_history_profile_version"],
+                    "subject": scope.current.subject_id,
+                    "actor": scope.current.actor_id,
+                },
+            )
+            if len(result) != 1:
+                unavailable()
+            value = result[0]
+            safe_integer(value["revision"], minimum=1)
+            hash_text(value["payload_hash"])
+            return (value["id"], value["current_version"], value["revision"], value["payload_hash"])
         result = await rows(
             session,
             PROFILE_SQL,
@@ -316,6 +346,11 @@ class MetricsQueryStore:
             unavailable()
         expected = {}
         for head in heads:
+            if head["authority_kind"] == "TRUSTED" and head["source_config_id"] is None:
+                from orbit_api.meta_metrics_provider import MetaMetricReadSource
+
+                if type(provider) is not MetaMetricReadSource:
+                    unavailable()
             binding = publication_validation_binding(head)
             if (
                 head["tenant_id"] != scope.current.tenant_id
@@ -360,7 +395,7 @@ class MetricsQueryStore:
         provider = self._provider()  # 默认缺来源时0SQL，不先查询账户/权限或创建空结果。
         current_transaction = transaction(session)
         safe_integer(actor, minimum=1)
-        parsed = parse_metric_query(canonical(query).encode())
+        parsed = parse_internal_metric_query(canonical(query).encode())
         if parsed["dataset"] not in DATASETS:
             unavailable()
         if parsed["cursor"] is not None:
@@ -494,7 +529,9 @@ class MetricsQueryStore:
         try:
             raw = header["query_json"]
             try:
-                query = parse_metric_query((canonical(raw) if type(raw) is dict else raw).encode())
+                query = parse_internal_metric_query(
+                    (canonical(raw) if type(raw) is dict else raw).encode()
+                )
             except OrbitError:
                 unavailable()  # 持久化坏输入不是当前用户的422，不发布半包。
             if query["cursor"] is not None or query["dataset"] not in DATASETS:

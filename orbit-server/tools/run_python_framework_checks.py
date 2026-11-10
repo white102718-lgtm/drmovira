@@ -250,6 +250,8 @@ def main() -> int:
     parser.add_argument(
         "--environment-live-only", action="store_true", help="独立mTLS心跳与监测真实档"
     )
+    parser.add_argument("--include-meta-connection-checks", action="store_true")
+    parser.add_argument("--include-meta-pipeline-checks", action="store_true")
     parser.add_argument(
         "--include-local-adspower", action="store_true", help="显式只读访问当前机器AdsPower"
     )
@@ -1657,6 +1659,10 @@ def main() -> int:
         parser.error("Meta预期文件必须伴随显式本机AdsPower验收")
     if args.include_local_adspower and not args.environment_live_only:
         parser.error("本机AdsPower访问仅允许显式独立监测档")
+    if args.include_meta_connection_checks and (not args.environment_live_only or "071_meta_connections.sql" not in args.migration_extra):
+        parser.error("Meta连接SQL专项需要隔离监测档及071迁移")
+    if args.include_meta_pipeline_checks and (not args.include_meta_connection_checks or not {"072_meta_metric_collection.sql", "073_meta_import_source.sql", "074_meta_metric_profile_connections.sql", "075_meta_sync_policy.sql"}.issubset(args.migration_extra)):
+        parser.error("Meta采集专项需要连接专项及071至075显式迁移")
     if args.environment_live_only and (
         args.migration_through != 62
         or not {"066_execution_agent_registry.sql", "067_agent_live_monitoring.sql", "068_agent_probe_requests.sql", "069_agent_action_capabilities.sql", "070_agent_execution_leases.sql"}.issubset(
@@ -1669,6 +1675,8 @@ def main() -> int:
                 "environment_live_only",
                 "environment_internal_browser",
                 "include_local_adspower",
+                "include_meta_connection_checks",
+                "include_meta_pipeline_checks",
             }
             for key, value in vars(args).items()
         )
@@ -2482,6 +2490,12 @@ def main() -> int:
         planned = (
             planned[:5] + USER_CASES + ENVIRONMENT_LIVE_CASES + ["pythonLogoutRevokesSameToken"]
         )
+    if args.include_meta_connection_checks:
+        from meta_connection_checks import CASES as META_CONNECTION_CASES
+        planned += META_CONNECTION_CASES
+    if args.include_meta_pipeline_checks:
+        from meta_pipeline_checks import PIPELINE_CASES
+        planned += list(PIPELINE_CASES)
     if args.environment_registry_only:
         from environment_registry_checks import (
             ENVIRONMENT_REGISTRY_CASES,
@@ -3778,8 +3792,17 @@ app.add_middleware(DiagnosticProfile)
                     cases,
                     real_adspower=args.include_local_adspower,
                     meta_expectation_file=args.meta_expectation_file,
-                    browser=args.environment_internal_browser,
+                    browser=args.environment_internal_browser and not args.include_meta_connection_checks,
                 )
+            if args.include_meta_connection_checks:
+                from meta_connection_checks import run_meta_connection_checks
+                result["meta_connections"] = run_meta_connection_checks(admin, database, cases, client, values, browser=args.environment_internal_browser)
+                if args.include_meta_pipeline_checks:
+                    from meta_pipeline_checks import run_meta_pipeline_checks
+                    run_meta_pipeline_checks(admin, database, cases, values)
+                if args.environment_internal_browser:
+                    from rules_internal_browser_checkpoint import run_rules_internal_browser_checkpoint
+                    result["meta_browser"] = run_rules_internal_browser_checkpoint(admin, database, password, static_dist=ROOT.parent / "orbit-web/dist", meta_origin_fixture=True)
             if args.environment_registry_only:
                 user_fixture = run_user_checks(client, admin, headers, password, cases)
                 result["environment_registry"] = run_environment_registry_checks(

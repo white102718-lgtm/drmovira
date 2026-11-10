@@ -91,6 +91,7 @@ class CredentialCipher:
             "MATERIAL_TAXONOMY_CURSOR_V1",
             "METRIC_PROFILE_CURSOR_V1",
             "METRICS_QUERY_CURSOR_V1",
+            "META_SYNC_STATUS_CURSOR_V1",
             "IDENTITY_SUMMARY_SEAL_V1",
             "RULE_CURSOR_V1",
             "RULE_EDITOR_CURSOR_V1",

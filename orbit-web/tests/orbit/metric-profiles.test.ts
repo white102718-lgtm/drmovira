@@ -204,3 +204,31 @@ it('外部Abort在发送前不发请求，发送后实际传递到fetch signal',
   await expect(pending).rejects.toMatchObject({ name: 'AbortError' })
   expect(fetcher.mock.calls[0][1].signal.aborted).toBe(true)
 })
+
+it('历史查询候选使用独立路径，不改变投放可用目录', async () => {
+  const controller = new AbortController()
+  const fetcher = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        items: [],
+        next_cursor: null,
+        data_as_of: '2026-11-10T00:00:00.000Z',
+        scope_version: 1,
+      }),
+      { status: 200 },
+    ),
+  )
+  await api.history(
+    { q: '', metric_profile_id: null, cursor: null, page_size: 50 },
+    controller.signal,
+  )
+  expect(String(fetcher.mock.calls[0][0])).toContain('/metric-profiles/history-candidates?')
+})
+
+it('历史候选允许同ID的不同版本，拒绝同一版本重复', () => {
+  const first = { ...profile(), version: 'old.v1' },
+    second = { ...profile(), version: 'new.v2' }
+  expect(parseMetricProfilePage({ ...page(), items: [first, second] }, true).items).toHaveLength(2)
+  expect(() => parseMetricProfilePage({ ...page(), items: [first, second] })).toThrow()
+  expect(() => parseMetricProfilePage({ ...page(), items: [first, first] }, true)).toThrow()
+})

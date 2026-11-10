@@ -16,6 +16,7 @@ from orbit_api.account_platform import AccountReadFailure, MetaReadConfiguration
 from orbit_api.configuration_store import MAX_REVISION, _decode
 from orbit_api.directory_tokens import canonical
 from orbit_api.errors import OrbitError
+from orbit_api.meta_account_sources import account_source, connection_row, source_marker
 from orbit_api.reference_access import readable, validate_ownership, verify_csrf
 from orbit_api.reference_store import records
 from orbit_api.vendor_alias_snapshot import freeze_vendor_alias_snapshots
@@ -264,6 +265,11 @@ class AccountActionsStore:
                         "timezone_id": account["timezone_id"],
                         "currency": account["currency"],
                     }
+                    | (
+                        {"meta_connection_source": source["meta_source"]}
+                        if source and "meta_source" in source
+                        else {}
+                    )
                 ),
                 "body": canonical(payload),
                 "ack": canonical(ack),
@@ -395,6 +401,38 @@ class AccountActionsStore:
         )
         if old:
             return old
+        selected = await account_source(session, current.tenant_id, account["id"])
+        if selected is not None:
+            try:
+                await connection_row(
+                    session,
+                    current.tenant_id,
+                    selected["connection_id"],
+                    selected["connection_revision"],
+                )
+            except AccountReadFailure:
+                raise OrbitError(
+                    409, "ACCOUNT_SYNC_SOURCE_CHANGED", "账户明确关联的Meta连接已失效"
+                ) from None
+            from orbit_api.meta_sync_runtime import enqueue_metrics
+
+            await enqueue_metrics(session, current, account, request_id)
+            return await self.command(
+                session,
+                current,
+                account,
+                "SYNC",
+                "WAITING_EXECUTOR",
+                key,
+                digest,
+                payload,
+                request_id,
+                source={
+                    "id": selected["connection_id"],
+                    "revision": selected["connection_revision"],
+                    "meta_source": source_marker(selected),
+                },
+            )
         sources = list(
             (
                 await session.execute(

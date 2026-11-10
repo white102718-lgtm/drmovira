@@ -1,6 +1,13 @@
 <template>
   <div class="app-container account-page">
     <h2>广告账户</h2>
+    <el-alert
+      v-if="metaReturnNotice"
+      :title="metaReturnNotice"
+      type="info"
+      :closable="true"
+      @close="metaReturnNotice = ''"
+    />
     <el-form inline @submit.prevent="reload">
       <el-form-item label="名称或完整账户ID"
         ><el-input
@@ -51,6 +58,8 @@
         ><el-button :disabled="loading" @click="reset">重置</el-button
         ><el-button @click="openColumns">列设置</el-button
         ><el-button @click="router.push('/orbit/account-scopes')">账户范围</el-button
+        ><el-button v-if="can('system.integrations.manage')" @click="metaOpen = true"
+          >Meta 连接</el-button
         ><el-button v-if="canImport" @click="importer?.open()">批量导入</el-button></el-form-item
       >
     </el-form>
@@ -124,9 +133,21 @@
       ><el-button :disabled="loading || !nextCursor" @click="next">下一页</el-button>
     </div>
     <p>
-      同步与未来分配的受理回执不代表已执行；当前资料和归属以真实完成观察为准。OAuth授权与备注编辑尚未接通。
+      同步与未来分配的受理回执不代表已执行；当前资料和归属以真实完成观察为准。备注编辑尚未接通。
     </p>
     <ImportAccounts ref="importer" @accepted="reload" />
+    <el-dialog
+      v-model="metaOpen"
+      title="Meta 连接与账户接入"
+      width="min(1200px, calc(100vw - 24px))"
+      class="meta-connections-dialog"
+    >
+      <MetaConnectionsPanel
+        :active="metaOpen"
+        :context-key="JSON.stringify([user.id, user.permissions])"
+        @accepted="metaAccepted"
+      />
+    </el-dialog>
     <AccountDetailsDrawer ref="details" />
     <AccountChannelDialog
       ref="channelDialog"
@@ -201,10 +222,19 @@ import {
   type ExtendedAccount,
 } from '@/api/orbit/account-details'
 import ImportAccounts from './ImportAccounts.vue'
+import MetaConnectionsPanel from './components/MetaConnectionsPanel.vue'
+import type { AccountImportBatch } from '@/api/orbit/accounts'
 import AccountDetailsDrawer from './AccountDetailsDrawer.vue'
 import AccountActionDialog from './AccountActionDialog.vue'
 import AccountAssignmentDialog from './AccountAssignmentDialog.vue'
 import AccountChannelDialog from './AccountChannelDialog.vue'
+const metaOpen = ref(false)
+const metaReturnNotice = ref('')
+function metaAccepted(batch: AccountImportBatch) {
+  metaOpen.value = false
+  importer.value?.showResult(batch)
+  void reload()
+}
 const router = useRouter()
 const user = useUserStore()
 // 若依当前权限仅控制入口展示；打开弹窗/提交时仍由Python当前动作和对象范围复验。
@@ -458,6 +488,14 @@ watch(
   { flush: 'sync' },
 )
 onMounted(() => {
+  const returned = router.currentRoute?.value?.query?.meta_result
+  if (returned === 'connected' || returned === 'cancelled') {
+    metaReturnNotice.value =
+      returned === 'cancelled'
+        ? '本次 Meta 授权已取消；可在 Meta 连接中查看现有状态。'
+        : '已从 Meta 返回；请查看连接列表确认当前状态。'
+    if (can('system.integrations.manage')) metaOpen.value = true
+  }
   try {
     const saved = JSON.parse(localStorage.getItem('orbit-account-columns-v1') || 'null')
     if (Array.isArray(saved) && saved.every((x) => typeof x === 'string'))

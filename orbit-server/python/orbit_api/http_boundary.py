@@ -43,7 +43,10 @@ class OrbitApiBoundary:
             return
         request_id = str(uuid4())
         scope.setdefault("state", {})["orbit_request_id"] = request_id
-        callback = scope.get("path") == "/api/v1/auth/callback"
+        callback = scope.get("path") in {
+            "/api/v1/auth/callback",
+            "/api/v1/integrations/meta/callback",
+        }
         if callback:
             # 在原中间件及访问日志看到请求前移走授权码；仅回调处理器读取请求内存。
             scope["state"]["orbit_callback_query"] = scope.get("query_string", b"")
@@ -64,7 +67,7 @@ class OrbitApiBoundary:
                     (b"cache-control", b"no-store"),
                     (b"pragma", b"no-cache"),
                 ]
-                if scope.get("path", "").startswith("/api/v1/auth/"):
+                if callback or scope.get("path", "").startswith("/api/v1/auth/"):
                     message["headers"].append((b"referrer-policy", b"no-referrer"))
             await send(message)
 

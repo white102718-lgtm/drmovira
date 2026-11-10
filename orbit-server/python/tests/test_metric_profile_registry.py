@@ -295,6 +295,8 @@ def test_exact_read_keeps_explicit_profile_mapping_and_rejects_changed_sources(m
         "revoked_at": None,
         "source_config_id": None,
         "source_config_revision": None,
+        "source_connection_id": None,
+        "source_connection_revision": None,
         "version_proof": module.proof_document(prepared.proof),
         "adapter_proof": module.proof_document(prepared.proof),
     }
@@ -426,6 +428,9 @@ def test_meta_read_uses_source_then_registry_then_exact_head_and_rejects_revoked
                 "source": "META",
                 "source_config_id": proof.source_config_id,
                 "source_config_revision": 1,
+                "source_proof_json": module.proof_document(proof),
+                "source_connection_id": None,
+                "source_connection_revision": None,
             }
         if "orbit_system_configuration" in sql:
             events.append("source-config-lock")

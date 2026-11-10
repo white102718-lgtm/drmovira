@@ -275,3 +275,39 @@ def parse_metrics(raw: bytes):
         raise OrbitError(
             503, "METRICS_DATA_UNVERIFIED", "指标数据尚未完整核实，暂不可读取"
         ) from None
+
+
+HISTORY_VERSION_KEY = "_history_profile_version"
+
+
+def _history_version(value):
+    if type(value) is not str or not 1 <= len(value) <= 64:
+        invalid(("metric_profile_version",), "历史查询必须指定完整指标版本")
+    return value
+
+
+def parse_history_metric_query(raw):
+    """独立公开wrapper；原query仍严格13字段，版本只进入内部冻结上下文。"""
+    try:
+        value = json.loads(raw)
+    except (ValueError, TypeError, UnicodeError):
+        invalid((), "历史查询正文无效")
+    if type(value) is not dict or set(value) != {"query", "metric_profile_version"}:
+        invalid((), "历史查询需明确query与metric_profile_version")
+    return parse_metric_query(json.dumps(value["query"], ensure_ascii=False).encode()) | {
+        HISTORY_VERSION_KEY: _history_version(value["metric_profile_version"])
+    }
+
+
+def parse_internal_metric_query(raw):
+    """仅持久层和可信wrapper使用；无历史上下文时保持原规范输入字节语义。"""
+    try:
+        value = json.loads(raw)
+    except (ValueError, TypeError, UnicodeError):
+        return parse_metric_query(raw)
+    if type(value) is dict and HISTORY_VERSION_KEY in value:
+        version = _history_version(value.pop(HISTORY_VERSION_KEY))
+        return parse_metric_query(json.dumps(value, ensure_ascii=False).encode()) | {
+            HISTORY_VERSION_KEY: version
+        }
+    return parse_metric_query(raw)

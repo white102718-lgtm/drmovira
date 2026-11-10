@@ -32,6 +32,9 @@ class Result:
     def scalar_one_or_none(self):
         return self.scalar
 
+    def scalar_one(self):
+        return self.scalar
+
     def __iter__(self):
         return iter(self.rows)
 
@@ -74,6 +77,9 @@ class Session:
                     }
                 ]
             )
+        if "information_schema.TABLES" in sql:
+            assert params == {"table": "orbit_meta_account_source"}
+            return Result(scalar=0)  # 旧来源合同场景未安装新连接关联表。
         if "FROM orbit_system_configuration" in sql:
             return Result(self.sources)
         return Result()

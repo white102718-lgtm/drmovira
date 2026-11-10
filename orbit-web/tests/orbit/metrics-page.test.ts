@@ -47,7 +47,7 @@ beforeEach(() => {
   state.cookie = ''
   vi.spyOn(metricsApi, 'query').mockResolvedValue(page())
   vi.spyOn(metricsApi, 'capabilities').mockResolvedValue({ csrf_token: csrf })
-  vi.spyOn(metricProfilesApi, 'list').mockResolvedValue({
+  vi.spyOn(metricProfilesApi, 'history').mockResolvedValue({
     items: [],
     next_cursor: null,
     data_as_of: '2026-11-08T00:00:00Z',
@@ -322,4 +322,27 @@ it('上下文GET在身份变化后abort，旧CSRF不能覆盖新用户', async (
   expect(vi.mocked(metricsApi.query).mock.calls[0][1].csrf_token).toBe(
     'new_actor_context_csrf_12345',
   )
+})
+
+it('旧版本查询翻页和返回都冻结原版本，不回退当前口径接口', async () => {
+  const historical = vi
+    .spyOn(metricsApi, 'historyQuery')
+    .mockResolvedValueOnce(page('next_old'))
+    .mockResolvedValueOnce(page())
+    .mockResolvedValueOnce(page('next_old'))
+  await start()
+  await tab()
+  wrapper!.findComponent(Form).vm.$emit('query', body, 'archived.v1')
+  await flushPromises()
+  await click('下一页')
+  await click('上一页')
+  expect(historical).toHaveBeenCalledTimes(3)
+  expect(historical.mock.calls.map((c) => c[1])).toEqual([
+    'archived.v1',
+    'archived.v1',
+    'archived.v1',
+  ])
+  expect(historical.mock.calls[1][0].cursor).toBe('next_old')
+  expect(historical.mock.calls[2][0].cursor).toBeNull()
+  expect(metricsApi.query).not.toHaveBeenCalled()
 })

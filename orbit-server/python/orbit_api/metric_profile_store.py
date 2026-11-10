@@ -16,8 +16,8 @@ from orbit_api.launch_contract import uuid_field
 from orbit_api.metric_profile_contract import (
     MAX_REVISION,
     MetricPublication,
-    MetricSourceProof,
     check_proof,
+    parse_source_proof,
     proof_values,
     publication,
     unavailable,
@@ -70,6 +70,14 @@ def proof_document(proof):
             "evidence_ref": proof.evidence_ref,
             "source_config_id": proof.source_config_id,
             "source_config_revision": proof.source_config_revision,
+            **(
+                {
+                    "source_connection_id": proof.source_connection_id,
+                    "source_connection_revision": proof.source_connection_revision,
+                }
+                if proof.source_connection_id is not None
+                else {}
+            ),
         }
     )
 
@@ -193,19 +201,7 @@ class MetricProfileStore:
             raise OrbitError(409, "METRIC_PROFILE_SOURCE_CHANGED", "指标配置来源已变化")
         check_proof(fresh_proof, profile["source"])
         if profile["source"] == "META":
-            source = await one(
-                session,
-                "SELECT revision,enabled,section FROM orbit_system_configuration "
-                "WHERE tenant_id=:tenant AND id=:id FOR SHARE",
-                {"tenant": current.tenant_id, "id": fresh_proof.source_config_id},
-            )
-            if (
-                source is None
-                or source["revision"] != fresh_proof.source_config_revision
-                or not source["enabled"]
-                or source["section"] != "META_BM"
-            ):
-                raise OrbitError(409, "METRIC_PROFILE_SOURCE_CHANGED", "当前META来源已撤销或变更")
+            await validate_current_source(session, current.tenant_id, fresh_proof)
         now = (await session.execute(text("SELECT UTC_TIMESTAMP(3)"))).scalar_one()
         if not isinstance(now, datetime):
             unavailable()
@@ -298,10 +294,12 @@ class MetricProfileStore:
                     "INSERT INTO orbit_metric_profile_version(tenant_id,"
                     "profile_id,version,payload_json,"
                     "payload_hash,source,authority_kind,source_config_id,"
-                    "source_config_revision,observed_at,evidence_ref,"
+                    "source_config_revision,source_connection_id,source_connection_revision,obs"
+                    "erved_at,evidence_ref,"
                     "source_sha256,source_proof_json,created_by) "
                     "VALUES(:tenant,:id,:version,:profile,:profile_hash,"
-                    ":source,:kind,:config,:config_revision,:observed,"
+                    ":source,:kind,:config,:config_revision,:connection,:connection_revision,:o"
+                    "bserved,"
                     ":evidence,:source_sha,:proof,:actor)"
                 ),
                 params,
@@ -425,7 +423,9 @@ class MetricProfileStore:
             raise OrbitError(422, "FIELD_INVALID", "需要明确指标及适配版本")
         metadata = await one(
             session,
-            "SELECT source,source_config_id,source_config_revision "
+            "SELECT "
+            "source,source_config_id,source_config_revision,source_connection_id,source_connect"
+            "ion_revision,source_proof_json "
             "FROM orbit_metric_profile_version "
             "WHERE tenant_id=:tenant AND profile_id=:id AND version=:version",
             params,
@@ -435,26 +435,22 @@ class MetricProfileStore:
         if metadata["source"] == "FIXTURE":
             await fixture_boundary(session)
         elif metadata["source"] == "META":
-            source = await one(
+            proof_value = metadata["source_proof_json"]
+            await validate_current_source(
                 session,
-                "SELECT revision,enabled,section FROM orbit_system_configuration "
-                "WHERE tenant_id=:tenant AND id=:id FOR SHARE",
-                {"tenant": current.tenant_id, "id": metadata["source_config_id"]},
+                current.tenant_id,
+                parse_source_proof(
+                    json.loads(proof_value) if isinstance(proof_value, str) else proof_value, "META"
+                ),
             )
-            if (
-                source is None
-                or source["revision"] != metadata["source_config_revision"]
-                or not source["enabled"]
-                or source["section"] != "META_BM"
-            ):
-                raise OrbitError(409, "METRIC_PROFILE_SOURCE_CHANGED", "指标来源版本已变化或被停用")
         else:
             unavailable()
         await self._clock(session, current.tenant_id, write=False)
         row = await one(
             session,
             "SELECT h.current_version,h.state,v.payload_json,v.payload_hash,v.source,"
-            "v.source_config_id,v.source_config_revision,v.source_proof_json AS version_proof,"
+            "v.source_config_id,v.source_config_revision,v.source_connection_id,v.source_connec"
+            "tion_revision,v.source_proof_json AS version_proof,"
             "a.source_proof_json AS adapter_proof,"
             "a.mapping_json,a.mapping_hash,a.profile_hash,a.registry_revision,a.revoked_at "
             "FROM orbit_metric_profile_head h JOIN "
@@ -474,7 +470,13 @@ class MetricProfileStore:
             raise OrbitError(404, "METRIC_PROFILE_UNAVAILABLE", "精确指标版本或适配映射不可用")
         if any(
             row[key] != metadata[key]
-            for key in ("source", "source_config_id", "source_config_revision")
+            for key in (
+                "source",
+                "source_config_id",
+                "source_config_revision",
+                "source_connection_id",
+                "source_connection_revision",
+            )
         ):
             unavailable()
         version_proof = (
@@ -490,17 +492,13 @@ class MetricProfileStore:
         if canonical(version_proof) != canonical(adapter_proof):
             unavailable()
         try:
-            proof = MetricSourceProof(
-                version_proof["source_sha256"],
-                datetime.fromisoformat(version_proof["observed_at"]),
-                version_proof["evidence_ref"],
-                version_proof["source_config_id"],
-                version_proof["source_config_revision"],
-            )
+            proof = parse_source_proof(version_proof, row["source"])
             check_proof(proof, row["source"])
             if (
                 proof.source_config_id != row["source_config_id"]
                 or proof.source_config_revision != row["source_config_revision"]
+                or proof.source_connection_id != row.get("source_connection_id")
+                or proof.source_connection_revision != row.get("source_connection_revision")
             ):
                 unavailable()
         except (KeyError, ValueError, TypeError):
@@ -670,10 +668,10 @@ class MetricProfileStore:
                         "AND v.profile_id=h.id AND v.version=h.current_version "
                         "LEFT JOIN orbit_system_configuration c ON c.tenant_id=v.tenant_id "
                         "AND c.id=v.source_config_id "
-                        "WHERE h.tenant_id=:tenant AND h.state='ENABLED' AND h.id>:after AND "
-                        "(v.source='FIXTURE' OR (c.enabled=1 AND c.section='META_BM' AND "
-                        "c.revision=v.source_config_revision)) "
-                        "ORDER BY h.id LIMIT :limit"
+                        + SOURCE_JOINS
+                        + "WHERE h.tenant_id=:tenant AND h.state='ENABLED' AND h.id>:after AND "
+                        + SOURCE_AVAILABLE
+                        + " ORDER BY h.id LIMIT :limit"
                     ),
                     {"tenant": current.tenant_id, "after": after, "limit": limit + 1},
                 )
@@ -702,3 +700,98 @@ class MetricProfileStore:
             "after": rows[limit - 1]["id"] if len(rows) > limit else None,
             "registry_revision": water["revision"],
         }
+
+
+async def validate_current_source(session, tenant, proof):
+    """发行/消费共享来源锁：版本、撤销、期限和BM原配置全部复验。"""
+    check_proof(proof, "META")
+    if proof.source_connection_id is not None:
+        from orbit_api.account_platform import AccountReadFailure
+        from orbit_api.meta_account_sources import connection_row
+
+        try:
+            row = await connection_row(
+                session, tenant, proof.source_connection_id, proof.source_connection_revision
+            )
+        except AccountReadFailure:
+            raise OrbitError(
+                409, "METRIC_PROFILE_SOURCE_CHANGED", "指标连接已撤销、到期或变更"
+            ) from None
+        if row["kind"] != "BM":
+            return
+        identifier, revision = row["configuration_id"], row["configuration_revision"]
+    else:
+        identifier, revision = proof.source_config_id, proof.source_config_revision
+    source = await one(
+        session,
+        "SELECT revision,enabled,section FROM orbit_system_configuration WHERE "
+        "tenant_id=:tenant AND id=:id FOR SHARE",
+        {"tenant": tenant, "id": identifier},
+    )
+    if (
+        source is None
+        or source["revision"] != revision
+        or not source["enabled"]
+        or source["section"] != "META_BM"
+    ):
+        raise OrbitError(409, "METRIC_PROFILE_SOURCE_CHANGED", "当前META来源已撤销或变更")
+
+
+# 列表使用同一真实来源条件；连接撤销即时隐藏，旧META_BM来源仍兼容。
+SOURCE_JOINS = (
+    " LEFT JOIN orbit_meta_connection mc ON mc.tenant_id=v.tenant_id AND "
+    "mc.id=v.source_connection_id "
+    " LEFT JOIN orbit_system_configuration bc ON bc.tenant_id=mc.tenant_id AND "
+    "bc.id=mc.configuration_id "
+)
+SOURCE_AVAILABLE = (
+    "(v.source='FIXTURE' OR (v.source='META' AND ((v.source_connection_id IS NULL AND "
+    "c.enabled=1 AND c.section='META_BM' AND c.revision=v.source_config_revision) "
+    "OR (v.source_config_id IS NULL AND mc.status='ACTIVE' AND "
+    "mc.revision=v.source_connection_revision AND mc.token_envelope IS NOT NULL "
+    "AND (mc.expires_at IS NULL OR mc.expires_at>UTC_TIMESTAMP(3)) AND "
+    "(mc.data_access_expires_at IS NULL OR mc.data_access_expires_at>UTC_TIMESTAMP(3)) "
+    "AND (mc.kind='LOGIN' OR (mc.kind='BM' AND bc.enabled=1 AND bc.section='META_BM' AND "
+    "bc.revision=mc.configuration_revision))))))"
+)
+
+
+async def validate_collection_source(session, tenant, proof, connection_id, connection_revision):
+    """仅采集复用已核口径：同主体重授权不改映射，当前读取仍须独立真实账户收据。
+
+    OAuth/BM接入服务只对同app/主体更新原连接ID；改变主体创建新连接。
+    旧job自身connection/account-source版本仍精确匹配，不调用本函数放宽租约。
+    """
+    from orbit_api.account_platform import AccountReadFailure
+    from orbit_api.meta_account_sources import connection_row
+
+    check_proof(proof, "META")
+    if proof.source_connection_id is None:
+        await validate_current_source(session, tenant, proof)
+        return
+    if (
+        connection_id != proof.source_connection_id
+        or type(connection_revision) is not int
+        or connection_revision < proof.source_connection_revision
+    ):
+        raise OrbitError(409, "METRIC_PROFILE_SOURCE_CHANGED", "指标口径来源与本次连接不连续")
+    try:
+        row = await connection_row(session, tenant, connection_id, connection_revision)
+    except AccountReadFailure:
+        raise OrbitError(409, "METRIC_PROFILE_SOURCE_CHANGED", "本次采集连接已失效") from None
+    if row["kind"] == "BM":
+        # BM还须核本轮配置，不把旧Token配置的验证状态沿用到新配置。
+        source = await one(
+            session,
+            "SELECT revision,enabled,section,verification_status FROM "
+            "orbit_system_configuration WHERE tenant_id=:tenant AND id=:id FOR SHARE",
+            {"tenant": tenant, "id": row["configuration_id"]},
+        )
+        if (
+            source is None
+            or source["revision"] != row["configuration_revision"]
+            or not source["enabled"]
+            or source["section"] != "META_BM"
+            or source["verification_status"] != "READ_VERIFIED"
+        ):
+            raise OrbitError(409, "METRIC_PROFILE_SOURCE_CHANGED", "本次BM读取配置不可用")
