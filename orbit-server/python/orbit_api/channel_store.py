@@ -22,13 +22,18 @@ from orbit_api.reference_access import (
     verify_csrf,
 )
 from orbit_api.reference_contract import uuid_value
-from orbit_api.reference_store import records, utc_text
+from orbit_api.reference_store import utc_text
 from orbit_api.team_store import state_hash
+
+
+def active_channel_value(value):
+    """Retired dictionary fields are never exposed or carried into new writes."""
+    return {key: item for key, item in value.items() if key not in {"product_id", "agent_id", "product_locked"}}
 
 
 def public_channel(row):
     return {
-        **_decode(row["value_json"]),
+        **active_channel_value(_decode(row["value_json"])),
         "id": row["id"],
         "revision": row["revision"],
         "created_at": utc_text(row["created_at"]),
@@ -92,25 +97,8 @@ class ChannelStore:
 
     async def edit_context(self, session, actor, channel_id):
         context = await self.context(session, actor)
-        row = await self.row(session, context, channel_id)
-        value = _decode(row["value_json"])
-        linked = await records(session, context.tenant_id, [value["product_id"], value["agent_id"]])
-        # 已保存渠道有权解释自己的历史关联；不暴露来源键、其他拥有者或目录导入人。
-        return {
-            "product_locked": bool(row["product_locked"]),
-            "references": {
-                key: {
-                    "id": identifier,
-                    "name": _decode(linked[identifier]["value_json"])["name"],
-                    "availability": _decode(linked[identifier]["value_json"])["availability"],
-                }
-                for key, identifier in (
-                    ("product", value["product_id"]),
-                    ("agent", value["agent_id"]),
-                )
-                if identifier in linked
-            },
-        }
+        await self.row(session, context, channel_id)
+        return {"references": {}}
 
     async def list(self, session, actor, filters, cursor=None):
         context = await self.context(session, actor)
@@ -144,7 +132,7 @@ class ChannelStore:
         if filters.get("q"):
             clauses.append("(INSTR(c.name,:q)>0 OR INSTR(c.code,:q)>0)")
             params["q"] = filters["q"]
-        for field in ("status", "product_id"):
+        for field in ("status",):
             if filters.get(field):
                 clauses.append(f"c.{field}=:{field}")
                 params[field] = filters[field]
@@ -188,66 +176,6 @@ class ChannelStore:
             "data_as_of": watermark,
         }
 
-    async def validate_references(self, session, context, value, previous=None):
-        reactivating = (
-            previous and previous["status"] == "DISABLED" and value["status"] == "ENABLED"
-        )
-        references = await records(
-            session, context.tenant_id, [value["product_id"], value["agent_id"]]
-        )
-        for key, kind in (("product_id", "PRODUCT"), ("agent_id", "BUSINESS_AGENT")):
-            row = references.get(value[key])
-            reference = _decode(row["value_json"]) if row else None
-            if reference is None or reference["kind"] != kind:
-                raise OrbitError(
-                    422, "REFERENCE_UNAVAILABLE", "产品或总代不存在或不可用", "/" + key
-                )
-            unchanged = (
-                previous
-                and not reactivating
-                and previous[key] == value[key]
-                and previous["ownership"] == value["ownership"]
-            )
-            # 原关联失效时允许保留历史并停用或修改非关联字段；一旦更换或扩展归属必须全部复验。
-            if not unchanged and (
-                reference["availability"] != "AVAILABLE"
-                or reference["owner_team_id"] != value["ownership"]["owner_team_id"]
-                or not set(value["ownership"]["data_owner_user_ids"]).issubset(
-                    reference["data_owner_user_ids"]
-                )
-            ):
-                raise OrbitError(
-                    422,
-                    "REFERENCE_UNAVAILABLE",
-                    "新引用必须有效、同团队且对全部渠道拥有者可用",
-                    "/" + key,
-                )
-        relation = (
-            await session.execute(
-                text(
-                    """
-                    SELECT 1 FROM orbit_reference_product_agent WHERE tenant_id=:tenant AND
-                    product_id=:product AND agent_id=:agent FOR SHARE
-                    """
-                ),
-                {
-                    "tenant": context.tenant_id,
-                    "product": value["product_id"],
-                    "agent": value["agent_id"],
-                },
-            )
-        ).first()
-        if relation is None and not (
-            previous
-            and not reactivating
-            and previous["product_id"] == value["product_id"]
-            and previous["agent_id"] == value["agent_id"]
-            and previous["ownership"] == value["ownership"]
-        ):
-            raise OrbitError(
-                422, "PRODUCT_AGENT_MISMATCH", "总代不属于当前产品允许的集合", "/agent_id"
-            )
-
     async def save(
         self,
         session,
@@ -275,7 +203,7 @@ class ChannelStore:
         if previous_result is not None:
             # 创建重放也不能在撤销拥有者范围后泄露原对象。
             await self.row(session, context, channel_id or previous_result["id"])
-            return previous_result
+            return active_channel_value(previous_result)
         before_row = (
             await self.row(session, context, channel_id, write=True) if channel_id else None
         )
@@ -297,17 +225,6 @@ class ChannelStore:
             after = {**prior, "ownership": value["ownership"]}
         else:
             after = value
-            if (
-                before_row
-                and before_row["product_locked"]
-                and prior["product_id"] != after["product_id"]
-            ):
-                raise OrbitError(
-                    422,
-                    "PRODUCT_BOUND",
-                    "此渠道有历史包绑定，产品不可修改；请新建渠道",
-                    "/product_id",
-                )
             if prior and prior["ownership"] != after["ownership"]:
                 # 编辑权限不能旁路专门的分配动作。
                 await self.context(session, actor, "assign")
@@ -315,7 +232,7 @@ class ChannelStore:
             await validate_ownership(
                 session, context, after["ownership"], previous=prior["ownership"] if prior else None
             )
-            await self.validate_references(session, context, after, previous=prior)
+        after = active_channel_value(after)
         channel_id = channel_id or str(uuid4())
         params = {
             "tenant": context.tenant_id,
@@ -323,8 +240,8 @@ class ChannelStore:
             "code": after["code"],
             "name": after["name"],
             "team": after["ownership"]["owner_team_id"],
-            "product": after["product_id"],
-            "agent": after["agent_id"],
+            "product": None,
+            "agent": None,
             "status": after["status"],
         }
         from orbit_api.directory_tokens import canonical
@@ -425,10 +342,8 @@ class ChannelStore:
                 await session.execute(
                     text(
                         """
-            SELECT c.id,p.name AS product_name,a.name AS agent_name,t.name AS team_name
+            SELECT c.id,t.name AS team_name
             FROM orbit_channel c
-            JOIN orbit_reference_record p ON p.tenant_id=c.tenant_id AND p.id=c.product_id
-            JOIN orbit_reference_record a ON a.tenant_id=c.tenant_id AND a.id=c.agent_id
             JOIN orbit_business_team t ON t.tenant_id=c.tenant_id AND t.id=c.owner_team_id
             WHERE c.tenant_id=:tenant AND c.id IN :ids AND (
             """

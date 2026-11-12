@@ -11,7 +11,7 @@
         </div></template
       >
       <el-alert
-        title="仅维护产品、总代、户商的最小引用字段。先导入总代，再导入产品；预检不会写入目录，审核差异后再原子提交。失效资料保留历史显示。"
+        title="维护户商引用资料；预检不会写入目录，审核差异后再原子提交。失效资料保留历史显示。"
         type="info"
         :closable="false"
         show-icon
@@ -26,29 +26,13 @@
               :label="label"
               :value="value" /></el-select
         ></el-form-item>
-        <el-form-item v-if="kind === 'BUSINESS_AGENT'" label="所属产品"
-          ><el-select
-            v-model="productId"
-            filterable
-            placeholder="请选择产品"
-            class="filter"
-            @change="reload"
-            ><el-option
-              v-for="item in products"
-              :key="item.value.id"
-              :label="item.value.name"
-              :value="item.value.id" /></el-select
-          ><el-button v-if="productCursor" link @click="loadProducts(true)"
-            >更多产品</el-button
-          ></el-form-item
-        >
         <el-form-item><el-button :loading="loading" @click="reload">刷新</el-button></el-form-item>
       </el-form>
       <el-table
         v-loading="loading"
         :data="items"
         border
-        empty-text="暂无可见资料；总代候选需先选择已关联产品，新总代可先通过受控导入创建"
+        empty-text="暂无可见户商资料；可通过导入预检创建"
       >
         <el-table-column prop="value.id" label="稳定UUID" min-width="290" />
         <el-table-column prop="value.name" label="名称" min-width="180" />
@@ -64,11 +48,6 @@
         <el-table-column label="拥有者UUID" min-width="300"
           ><template #default="{ row }">{{
             row.value.data_owner_user_ids.join('、')
-          }}</template></el-table-column
-        >
-        <el-table-column v-if="kind === 'PRODUCT'" label="允许总代UUID" min-width="300"
-          ><template #default="{ row }">{{
-            row.value.allowed_agent_ids?.join('、')
           }}</template></el-table-column
         >
         <el-table-column prop="revision" label="资料版本" width="100" /><el-table-column
@@ -218,17 +197,15 @@ import {
   type ReferenceImportInput,
   type ReferenceDifference,
 } from '@/api/orbit/references'
-const labels = { PRODUCT: '产品', BUSINESS_AGENT: '总代', VENDOR: '户商' }
+const labels = { VENDOR: '户商' }
 const states = {
   VALIDATED: '预检通过，尚未提交',
   REJECTED: '预检拒绝，请修正问题',
   COMMITTED: '已提交',
   EXPIRED: '已过期，请重新预检',
 }
-const kind = ref<ReferenceKind>('PRODUCT'),
-  importKind = ref<ReferenceKind>('PRODUCT'),
-  productId = ref(''),
-  products = ref<ReferenceRecord[]>([]),
+const kind = ref<ReferenceKind>('VENDOR'),
+  importKind = ref<ReferenceKind>('VENDOR'),
   items = ref<ReferenceRecord[]>([])
 const loading = ref(false),
   busy = ref(false),
@@ -240,8 +217,7 @@ const loading = ref(false),
 const pageSize = ref(50),
   page = ref(0),
   cursors = ref<(string | null)[]>([null]),
-  nextCursor = ref<string | null>(null),
-  productCursor = ref<string | null>(null)
+  nextCursor = ref<string | null>(null)
 const catalogRevision = ref(0),
   csrf = ref(''),
   source = ref(''),
@@ -255,21 +231,6 @@ let previewKey = '',
 const message = (cause: unknown) => (cause instanceof Error ? cause.message : '请求失败，请重试')
 const unknown = (cause: unknown) =>
   cause instanceof ReferenceApiError && (cause.status === 0 || cause.status >= 500)
-async function loadProducts(more = false) {
-  try {
-    const result = await referenceApi.list(
-      'PRODUCT',
-      new URLSearchParams({
-        page_size: '200',
-        ...(more && productCursor.value ? { cursor: productCursor.value } : {}),
-      }),
-    )
-    products.value = more ? [...products.value, ...result.items] : result.items
-    productCursor.value = result.next_cursor
-  } catch (cause) {
-    error.value = message(cause)
-  }
-}
 async function load() {
   loading.value = true
   error.value = ''
@@ -277,13 +238,7 @@ async function load() {
     const caps = await referenceApi.capabilities()
     catalogRevision.value = caps.catalog_revision
     csrf.value = caps.csrf_token
-    if (kind.value === 'BUSINESS_AGENT' && !productId.value) {
-      items.value = []
-      nextCursor.value = null
-      return
-    }
     const query = new URLSearchParams({ page_size: String(pageSize.value) })
-    if (kind.value === 'BUSINESS_AGENT') query.set('product_id', productId.value)
     if (cursors.value[page.value]) query.set('cursor', cursors.value[page.value]!)
     const result = await referenceApi.list(kind.value, query)
     items.value = result.items
@@ -403,7 +358,7 @@ async function commit() {
   try {
     preview.value = await referenceApi.commit(preview.value, csrf.value, commitKey)
     uncertain.value = false
-    await Promise.all([reload(), loadProducts()])
+    await reload()
   } catch (cause) {
     importError.value = message(cause)
     uncertain.value = unknown(cause)
@@ -421,9 +376,6 @@ function downloadTemplate() {
     owner_team_id: '00000000-0000-4000-8000-000000000001',
     data_owner_user_ids: ['00000000-0000-4000-8000-000000000002'],
     source_key: '请填写稳定来源键',
-    ...(kind.value === 'PRODUCT'
-      ? { allowed_agent_ids: ['00000000-0000-4000-8000-000000000003'] }
-      : {}),
   }
   const url = URL.createObjectURL(
     new Blob([JSON.stringify([item], null, 2)], { type: 'application/json' }),
@@ -435,7 +387,7 @@ function downloadTemplate() {
   URL.revokeObjectURL(url)
 }
 onMounted(async () => {
-  await Promise.all([load(), loadProducts()])
+  await load()
 })
 </script>
 

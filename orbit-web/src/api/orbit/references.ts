@@ -1,6 +1,6 @@
 import { orbitAuthHeaders, orbitCredentials } from './authentication'
 
-export type ReferenceKind = 'PRODUCT' | 'BUSINESS_AGENT' | 'VENDOR'
+export type ReferenceKind = 'VENDOR'
 export interface Ownership {
   owner_team_id: string
   data_owner_user_ids: string[]
@@ -11,7 +11,6 @@ export interface ReferenceInput extends Ownership {
   name: string
   availability: 'AVAILABLE' | 'UNAVAILABLE'
   source_key: string
-  allowed_agent_ids?: string[]
 }
 export interface ReferenceRecord {
   value: ReferenceInput

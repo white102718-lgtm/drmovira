@@ -8,6 +8,7 @@ from sqlalchemy import bindparam, text
 from orbit_api.configuration_store import MAX_REVISION, _decode
 from orbit_api.directory_tokens import canonical
 from orbit_api.errors import OrbitError
+from orbit_api.reference_contract import require_active_kind
 from orbit_api.reference_access import (
     active_owner_teams,
     assert_write_ownership,
@@ -61,7 +62,7 @@ class ReferenceStore:
         self.tokens = tokens
 
     async def capabilities(self, session, actor, authorization):
-        context = await reference_context(session, actor, "PRODUCT", maintenance=True)
+        context = await reference_context(session, actor, "VENDOR", maintenance=True)
         version = await clock(session, context)
         return {
             "catalog_revision": version["revision"],
@@ -72,25 +73,14 @@ class ReferenceStore:
         }
 
     async def list(self, session, actor, kind, filters, cursor=None):
+        require_active_kind(kind)
         if kind not in KINDS:
             raise OrbitError(422, "FIELD_INVALID", "引用资料类别无效")
         context = await reference_context(session, actor, kind)
         managed = await managed_teams(session, context)
         version = await clock(session, context)
         scope = await scope_version(session, context)
-        product = filters.get("product_id")
         owner = filters.get("owner_user_id")
-        if kind == "BUSINESS_AGENT" and not product:
-            raise OrbitError(422, "PRODUCT_REQUIRED", "请先选择产品", "/product_id")
-        if product:
-            product = uuid_value(product, "/product_id")
-            row = (await records(session, context.tenant_id, [product])).get(product)
-            if (
-                row is None
-                or row["kind"] != "PRODUCT"
-                or not readable(context, managed, _decode(row["value_json"]))
-            ):
-                raise OrbitError(404, "NOT_FOUND", "产品不存在或不可见")
         if owner:
             owner = uuid_value(owner, "/owner_user_id")
             if context.data_role == "USER" and owner != context.subject_id:
@@ -120,13 +110,6 @@ class ReferenceStore:
                 and target["team_id"] not in managed
             ):
                 raise OrbitError(404, "NOT_FOUND", "拥有者不存在或不可见")
-            if product:
-                product_value = _decode(row["value_json"])
-                if (
-                    product_value["owner_team_id"] != target["team_id"]
-                    or owner not in product_value["data_owner_user_ids"]
-                ):
-                    raise OrbitError(404, "NOT_FOUND", "产品对目标拥有者不可用")
         scope_hash = state_hash(
             [
                 actor,
@@ -161,14 +144,6 @@ class ReferenceStore:
             "after": after,
             "limit": filters.get("page_size", 50) + 1,
         }
-        if kind == "BUSINESS_AGENT":
-            clauses.append(
-                """
-                EXISTS(SELECT 1 FROM orbit_reference_product_agent pa WHERE
-                pa.tenant_id=r.tenant_id AND pa.product_id=:product AND pa.agent_id=r.id)
-                """
-            )
-            params["product"] = product
         if owner:
             clauses.append(
                 """
@@ -212,6 +187,7 @@ class ReferenceStore:
         }
 
     async def validate(self, session, context, value):
+        require_active_kind(value.kind)
         normalized, issues, seen_ids, seen_sources = [], [], set(), set()
         for index, raw in enumerate(value.items):
             try:
@@ -226,8 +202,7 @@ class ReferenceStore:
         old = await records(
             session,
             context.tenant_id,
-            [row["id"] for _, row in normalized]
-            + [agent for _, row in normalized for agent in row.get("allowed_agent_ids", [])],
+            [row["id"] for _, row in normalized],
         )
         sources = {}
         if seen_sources:
@@ -305,23 +280,6 @@ class ReferenceStore:
                     and sources[row["source_key"]] != row["id"]
                 ):
                     raise OrbitError(422, "SOURCE_CONFLICT", "来源键与稳定UUID绑定冲突")
-                for agent_id in row.get("allowed_agent_ids", []):
-                    agent_row = old.get(agent_id)
-                    agent = _decode(agent_row["value_json"]) if agent_row else None
-                    if (
-                        not agent
-                        or agent["kind"] != "BUSINESS_AGENT"
-                        or agent["availability"] != "AVAILABLE"
-                        or agent["owner_team_id"] != row["owner_team_id"]
-                        or not set(row["data_owner_user_ids"]).issubset(
-                            agent["data_owner_user_ids"]
-                        )
-                    ):
-                        raise OrbitError(
-                            422,
-                            "AGENT_UNAVAILABLE",
-                            "总代必须已导入、有效、同团队且对全部产品拥有者可用",
-                        )
                 if before and before["revision"] >= MAX_REVISION:
                     raise OrbitError(422, "REVISION_EXHAUSTED", "资料版本已达上限")
                 valid.append(row)
@@ -341,6 +299,7 @@ class ReferenceStore:
         return valid, sorted(issues, key=lambda item: item["row"]), differences
 
     async def preview(self, session, actor, authorization, csrf, key, value, request_id):
+        require_active_kind(value.kind)
         context = await reference_context(session, actor, value.kind, maintenance=True)
         verify_csrf(self.tokens, context, authorization, csrf)
         version = await clock(session, context, write=True)
@@ -436,7 +395,7 @@ class ReferenceStore:
                 )
 
     async def get(self, session, actor, import_id, *, differences=False):
-        context = await reference_context(session, actor, "PRODUCT", maintenance=True)
+        context = await reference_context(session, actor, "VENDOR", maintenance=True)
         row = (
             (
                 await session.execute(
@@ -455,6 +414,7 @@ class ReferenceStore:
         )
         if row is None:
             raise OrbitError(404, "NOT_FOUND", "导入预览不存在或不可见")
+        require_active_kind(_decode(row["input_json"])["kind"])
         await self.assert_preview_scope(session, context, row)
         result = _decode(row["result_json"])
         if row["state"] != "COMMITTED" and row["expires_at"] <= datetime.now(UTC).replace(
@@ -476,7 +436,7 @@ class ReferenceStore:
     ):
         from orbit_api.reference_contract import ReferenceImport
 
-        context = await reference_context(session, actor, "PRODUCT", maintenance=True)
+        context = await reference_context(session, actor, "VENDOR", maintenance=True)
         verify_csrf(self.tokens, context, authorization, csrf)
         version = await clock(session, context, write=True)
         import_id = uuid_value(import_id, "/id")
@@ -503,6 +463,7 @@ class ReferenceStore:
         )
         if row is None:
             raise OrbitError(404, "NOT_FOUND", "导入预览不存在或不可见")
+        require_active_kind(_decode(row["input_json"])["kind"])
         await self.assert_preview_scope(session, context, row, committing=True)
         if row["revision"] != expected:
             raise OrbitError(409, "REVISION_CONFLICT", "预览版本已变化")
@@ -566,25 +527,6 @@ class ReferenceStore:
                 (tenant_id,reference_id,user_id) VALUES(:tenant,:id,:user)"""),
                 owner_rows[offset : offset + 500],
             )
-        if value.kind == "PRODUCT":
-            await session.execute(
-                text("""DELETE FROM orbit_reference_product_agent
-                WHERE tenant_id=:tenant AND product_id IN :ids""").bindparams(
-                    bindparam("ids", expanding=True)
-                ),
-                {"tenant": context.tenant_id, "ids": identifiers},
-            )
-            agent_rows = [
-                {"tenant": context.tenant_id, "id": item["id"], "agent": agent}
-                for item in valid
-                for agent in item["allowed_agent_ids"]
-            ]
-            for offset in range(0, len(agent_rows), 500):
-                await session.execute(
-                    text("""INSERT INTO orbit_reference_product_agent
-                    (tenant_id,product_id,agent_id) VALUES(:tenant,:id,:agent)"""),
-                    agent_rows[offset : offset + 500],
-                )
         before = _decode(row["result_json"])
         result = {**before, "state": "COMMITTED", "revision": expected + 1}
         await session.execute(

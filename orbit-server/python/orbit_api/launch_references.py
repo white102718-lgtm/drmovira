@@ -16,8 +16,6 @@ from orbit_api.launch_identity_references import (
 )
 from orbit_api.material_references import require_allocation_assets
 from orbit_api.reference_access import clock as reference_clock
-from orbit_api.reference_access import managed_teams, readable
-from orbit_api.reference_store import records
 
 
 async def source_contexts(session, current, ownership, owner_actor, menu):
@@ -174,34 +172,7 @@ async def validate_sources(session, current, value, *, permission, isolated_fixt
             raise OrbitError(
                 422, "CHANNEL_UNAVAILABLE", "渠道须启用且允许目标拥有者使用", "/channel_id"
             )
-        linked = await records(session, current.tenant_id, [data["product_id"], data["agent_id"]])
-        caller_teams, target_teams = (
-            await managed_teams(session, caller),
-            await managed_teams(session, target),
-        )
-        for key, kind in (("product_id", "PRODUCT"), ("agent_id", "BUSINESS_AGENT")):
-            row = linked.get(data[key])
-            reference = _decode(row["value_json"]) if row else None
-            if (
-                reference is None
-                or reference["kind"] != kind
-                or not readable(caller, caller_teams, reference)
-                or not readable(target, target_teams, reference)
-            ):
-                raise OrbitError(404, "NOT_FOUND", "渠道关联资料不存在或双方不可读")
-        probe = data | {
-            "ownership": {
-                "owner_team_id": ownership["owner_team_id"],
-                "data_owner_user_ids": [ownership["owner_user_id"]],
-            }
-        }
-        # 新计划引用不享受渠道编辑时保留失效历史关联的豁免。
-        await store.validate_references(session, caller, probe)
         result["channel"] = {"id": channel["id"], "revision": channel["revision"]}
-        result["channel_references"] = {
-            identifier: {"revision": row["revision"], "catalog_revision": row["catalog_revision"]}
-            for identifier, row in linked.items()
-        }
     result.update(await resolve_identity_dependencies(session, current, value, identity_sources))
     return result
 

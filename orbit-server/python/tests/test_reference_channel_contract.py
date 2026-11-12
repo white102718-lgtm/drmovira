@@ -36,8 +36,6 @@ def channel():
         "code": "CH_001",
         "name": " 渠道一 ",
         "ownership": {"owner_team_id": TEAM, "data_owner_user_ids": [USER]},
-        "product_id": PRODUCT,
-        "agent_id": AGENT,
         "type": "WEBSITE",
         "media": "META",
         "url": "https://example.com/path?a=1&b=%E4%B8%AD",
@@ -96,11 +94,11 @@ def test_import_count_boundaries(count):
         parse_import(
             raw(
                 {
-                    "kind": "PRODUCT",
+                    "kind": "VENDOR",
                     "source": "source",
                     "reason": "reason",
                     "base_catalog_revision": 0,
-                    "items": [row()] * count,
+                    "items": [row("VENDOR")] * count,
                 }
             )
         )
@@ -109,11 +107,11 @@ def test_import_count_boundaries(count):
 
 def test_import_unknown_fields_and_bool_revision_rejected():
     value = {
-        "kind": "PRODUCT",
+        "kind": "VENDOR",
         "source": "source",
         "reason": "reason",
         "base_catalog_revision": 0,
-        "items": [row()],
+        "items": [row("VENDOR")],
     }
     assert parse_import(raw(value)).base_catalog_revision == 0
     with pytest.raises(OrbitError):
@@ -247,7 +245,7 @@ def test_manager_own_scope_is_not_whole_team_scope():
         ("name", None, 400, "/name"),
         ("ownership", [], 400, "/ownership"),
         ("code", "bad code", 422, "/code"),
-        ("product_id", "wrong", 422, "/product_id"),
+        ("product_id", "wrong", 400, "/product_id"),
         ("media", "FACEBOOK", 422, "/media"),
         ("bad/~field", "unknown", 400, "/bad~1~0field"),
     ],
@@ -272,18 +270,22 @@ def test_channel_exact_structure_boundary_and_pointer(field, value, status, path
         ({"items": {}}, 400, "/items"),
         ({"items": []}, 422, "/items"),
         ({"items": ["wrong"]}, 400, "/items/0"),
-        ({"items": [row() | {"name": 42}]}, 400, "/items/0/name"),
-        ({"items": [row() | {"data_owner_user_ids": [42]}]}, 400, "/items/0/data_owner_user_ids/0"),
-        ({"items": [row() | {"bad/~field": "unknown"}]}, 400, "/items/0/bad~1~0field"),
+        ({"items": [row("VENDOR") | {"name": 42}]}, 400, "/items/0/name"),
+        (
+            {"items": [row("VENDOR") | {"data_owner_user_ids": [42]}]},
+            400,
+            "/items/0/data_owner_user_ids/0",
+        ),
+        ({"items": [row("VENDOR") | {"bad/~field": "unknown"}]}, 400, "/items/0/bad~1~0field"),
     ],
 )
 def test_import_exact_structure_boundary_and_pointer(changes, status, path):
     value = {
-        "kind": "PRODUCT",
+        "kind": "VENDOR",
         "source": "source",
         "reason": "reason",
         "base_catalog_revision": 0,
-        "items": [row()],
+        "items": [row("VENDOR")],
     }
     with pytest.raises(OrbitError) as failure:
         parse_import(raw(value | changes))
@@ -291,11 +293,11 @@ def test_import_exact_structure_boundary_and_pointer(changes, status, path):
 
 
 def test_business_row_value_errors_are_deferred_to_preview_not_structure():
-    item = row()
+    item = row("VENDOR")
     item["name"] = ""
     item["availability"] = "INVALID"
     value = {
-        "kind": "PRODUCT",
+        "kind": "VENDOR",
         "source": "source",
         "reason": "reason",
         "base_catalog_revision": 0,
@@ -303,5 +305,32 @@ def test_business_row_value_errors_are_deferred_to_preview_not_structure():
     }
     assert parse_import(raw(value)).items == [item]
     with pytest.raises(OrbitError) as failure:
-        normalize_row(item, "PRODUCT")
+        normalize_row(item, "VENDOR")
     assert failure.value.status == 422
+
+
+@pytest.mark.parametrize("kind", ["PRODUCT", "BUSINESS_AGENT"])
+def test_retired_imports_cannot_be_created(kind):
+    with pytest.raises(OrbitError) as failure:
+        parse_import(
+            raw(
+                {
+                    "kind": kind,
+                    "source": "source",
+                    "reason": "reason",
+                    "base_catalog_revision": 0,
+                    "items": [row(kind)],
+                }
+            )
+        )
+    assert failure.value.code == "REFERENCE_KIND_RETIRED"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kind", ["PRODUCT", "BUSINESS_AGENT"])
+async def test_retired_catalog_cannot_be_listed(kind):
+    from orbit_api.reference_store import ReferenceStore
+
+    with pytest.raises(OrbitError) as failure:
+        await ReferenceStore(None).list(None, 1, kind, {"page_size": 20})
+    assert failure.value.code == "REFERENCE_KIND_RETIRED"

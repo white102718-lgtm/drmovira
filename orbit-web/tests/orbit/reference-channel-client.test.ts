@@ -13,8 +13,6 @@ const fetcher = vi.fn()
 const value: ChannelWrite = {
   code: 'CHANNEL_1',
   name: '渠道',
-  product_id: 'p',
-  agent_id: 'a',
   ownership: { owner_team_id: 'team', data_owner_user_ids: ['user'] },
   type: 'WEBSITE',
   media: 'META',
@@ -72,12 +70,12 @@ describe('引用资料与渠道真实客户端边界', () => {
     expect(fetcher.mock.calls[0][1].body).toBeUndefined()
     expect(fetcher.mock.calls[0][1].headers['If-Match']).toBe('"2"')
   })
-  it('总代候选绑定产品与目标拥有者，游标原样编码', async () => {
+  it('户商候选绑定目标拥有者，游标原样编码', async () => {
     await referenceApi.list(
-      'BUSINESS_AGENT',
-      new URLSearchParams({ product_id: 'p', owner_user_id: 'u', cursor: 'cursor+/' }),
+      'VENDOR',
+      new URLSearchParams({ owner_user_id: 'u', cursor: 'cursor+/' }),
     )
-    expect(fetcher.mock.calls[0][0]).toContain('product_id=p&owner_user_id=u&cursor=cursor%2B%2F')
+    expect(fetcher.mock.calls[0][0]).toContain('owner_user_id=u&cursor=cursor%2B%2F')
   })
   it('权限/版本/过期错误保留服务端语义', async () => {
     fetcher.mockResolvedValue(

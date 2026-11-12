@@ -82,7 +82,7 @@ async def capabilities(
 async def list_references(
     kind: str, request: Request, user: Annotated[CurrentUserModel, CurrentUserDependency()]
 ):
-    _read_boundary(request, {"product_id", "owner_user_id", "page_size", "cursor"})
+    _read_boundary(request, {"owner_user_id", "page_size", "cursor"})
     query = dict(request.query_params)
     size = query.pop("page_size", "50")
     if size not in {"20", "50", "100", "200"}:

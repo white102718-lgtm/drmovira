@@ -8,15 +8,13 @@ from pydantic import Field, ValidationError
 
 from orbit_api.configuration import _parse_json, short_text
 from orbit_api.errors import OrbitError
-from orbit_api.reference_contract import StrictInput, ownership, schema_error, uuid_value
+from orbit_api.reference_contract import StrictInput, ownership, schema_error
 
 
 class ChannelWrite(StrictInput):
     ownership: dict
     code: str
     name: str
-    product_id: str
-    agent_id: str
     type: str
     media: str
     url: str
@@ -83,8 +81,6 @@ def parse_channel(raw, mode="save"):
     if not re.fullmatch(r"[A-Za-z0-9_-]+", value["code"]):
         raise OrbitError(422, "FIELD_INVALID", "渠道ID只允许字母、数字、下划线和短横线", "/code")
     value["name"] = short_text(value["name"], 100, "/name", required=False)
-    for key in ("product_id", "agent_id"):
-        value[key] = uuid_value(value[key], "/" + key)
     for key, options in (
         ("type", {"APP", "WEBSITE", "OTHER"}),
         ("media", {"META", "GOOGLE", "TIKTOK", "OTHER"}),

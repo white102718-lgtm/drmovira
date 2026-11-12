@@ -53,28 +53,7 @@ async def ownership_options(
 async def list_channels(
     request: Request, user: Annotated[CurrentUserModel, CurrentUserDependency()]
 ):
-    # 原合同共用筛选之外的product_id是保留产品筛选的显式扩展。
-    product = request.query_params.get("product_id")
-    if product is not None:
-        _read_boundary(
-            request, {"q", "cursor", "page_size", "status", "date_from", "date_to", "product_id"}
-        )
-        from urllib.parse import urlencode
-
-        from starlette.requests import Request as StarletteRequest
-
-        scope = dict(request.scope)
-        scope["query_string"] = urlencode(
-            [
-                (key, value)
-                for key, value in request.query_params.multi_items()
-                if key != "product_id"
-            ]
-        ).encode()
-        filters, cursor = list_filters(StarletteRequest(scope), "渠道")
-        filters["product_id"] = uuid_value(product, "/product_id")
-    else:
-        filters, cursor = list_filters(request, "渠道")
+    filters, cursor = list_filters(request, "渠道")
     return await transaction(
         lambda session: store().list(session, user.user.user_id, filters, cursor)
     )

@@ -12,19 +12,6 @@
         <el-form-item label="名称 / 渠道ID"
           ><el-input v-model="query" clearable @keyup.enter="reload"
         /></el-form-item>
-        <el-form-item label="产品"
-          ><el-select
-            v-model="productFilter"
-            clearable
-            filterable
-            placeholder="全部产品"
-            class="filter"
-            ><el-option
-              v-for="item in products"
-              :key="item.value.id"
-              :label="item.value.name"
-              :value="item.value.id" /></el-select
-        ></el-form-item>
         <el-form-item label="状态"
           ><el-select v-model="status" clearable placeholder="全部状态" class="filter"
             ><el-option label="启用" value="ENABLED" /><el-option
@@ -39,23 +26,13 @@
       <el-table
         v-loading="loading"
         :data="items"
-        empty-text="暂无可见渠道；请先由管理员导入引用资料，再新增渠道"
+        empty-text="暂无可见渠道；可直接新增渠道并分配用户"
         border
       >
         <el-table-column prop="code" label="渠道ID" min-width="140" />
         <el-table-column label="渠道名称" min-width="160">
           <template #default="{ row }">{{ row.name || row.code }}</template>
         </el-table-column>
-        <el-table-column label="产品" min-width="180"
-          ><template #default="{ row }">{{
-            labels[row.id]?.product_name || productName(row.product_id)
-          }}</template></el-table-column
-        >
-        <el-table-column label="总代" min-width="180"
-          ><template #default="{ row }">{{
-            labels[row.id]?.agent_name || row.agent_id
-          }}</template></el-table-column
-        >
         <el-table-column label="类型" width="100"
           ><template #default="{ row }">{{
             types[row.type as keyof typeof types]
@@ -125,18 +102,6 @@
         type="warning"
         :closable="false"
       />
-      <el-alert
-        v-if="!products.length"
-        title="请由管理员在系统管理 → 字典与引用资料导入产品及总代，不能用自由文本绕过关联。"
-        type="warning"
-        :closable="false"
-      />
-      <el-alert
-        v-if="editContext?.product_locked"
-        title="历史马甲包绑定：产品不可修改，需要其他产品请新建渠道。"
-        type="info"
-        :closable="false"
-      />
       <el-form label-position="top" :disabled="blocked">
         <div class="form-grid">
           <el-form-item label="渠道ID（必填，同租户唯一）"
@@ -188,38 +153,6 @@
               </p>
             </div>
           </el-form-item>
-          <el-form-item label="产品（必填）"
-            ><el-select
-              v-model="form.product_id"
-              filterable
-              :disabled="blocked || editContext?.product_locked"
-              @change="productChanged"
-              ><el-option
-                v-for="item in productOptions"
-                :key="item.value.id"
-                :label="`${item.value.name}${item.value.availability !== 'AVAILABLE' ? '（已失效）' : ''}`"
-                :value="item.value.id"
-                :disabled="item.value.availability !== 'AVAILABLE'" /></el-select
-            ><el-button v-if="productCursor" link @click="loadProducts(true)"
-              >加载更多产品</el-button
-            ></el-form-item
-          >
-          <el-form-item label="总代（仅限产品已关联）"
-            ><el-select
-              v-model="form.agent_id"
-              filterable
-              :loading="agentLoading"
-              :disabled="!form.product_id"
-              ><el-option
-                v-for="item in agentOptions"
-                :key="item.value.id"
-                :label="`${item.value.name}${item.value.availability !== 'AVAILABLE' ? '（已失效）' : ''}`"
-                :value="item.value.id"
-                :disabled="item.value.availability !== 'AVAILABLE'" /></el-select
-            ><el-button v-if="agentCursor" link @click="loadAgents(true)"
-              >加载更多总代</el-button
-            ></el-form-item
-          >
           <el-form-item label="类型"
             ><el-select v-model="form.type"
               ><el-option
@@ -271,12 +204,6 @@
 
     <el-drawer v-model="detailOpen" title="渠道详情" size="min(760px, 100%)">
       <el-alert v-if="detailError" :title="detailError" type="error" :closable="false" />
-      <el-alert
-        v-if="detailContext?.product_locked"
-        title="历史马甲包绑定：产品为只读关系；需要其他产品时请新建渠道，保留原历史绑定。"
-        type="info"
-        :closable="false"
-      />
       <el-descriptions v-if="detail" :column="1" border>
         <el-descriptions-item v-for="(value, label) in detailFields" :key="label" :label="label">{{
           value
@@ -387,22 +314,14 @@ import {
   type Channel,
   type ChannelWrite,
   type ChannelCapabilities,
-  type ChannelEditContext,
   type ChannelOwner,
   type ChannelLabels,
 } from '@/api/orbit/channels'
-import {
-  referenceApi,
-  ReferenceApiError,
-  type ReferenceRecord,
-  type Ownership,
-} from '@/api/orbit/references'
+import { ReferenceApiError, type Ownership } from '@/api/orbit/references'
 
 const types = { APP: '应用', WEBSITE: '网站', OTHER: '其他' }
 const labels = ref<Record<string, ChannelLabels>>({})
 const items = ref<Channel[]>([]),
-  products = ref<ReferenceRecord[]>([]),
-  agents = ref<ReferenceRecord[]>([]),
   owners = ref<ChannelOwner[]>([])
 const loading = ref(false),
   saving = ref(false),
@@ -411,25 +330,19 @@ const loading = ref(false),
   detailError = ref('')
 const query = ref(''),
   status = ref(''),
-  productFilter = ref(''),
   pageSize = ref(50),
   page = ref(0),
   nextCursor = ref<string | null>(null)
 const cursors = ref<(string | null)[]>([null]),
-  productCursor = ref<string | null>(null),
-  agentCursor = ref<string | null>(null),
   ownerAfter = ref<string | null>(null)
 const capabilities = ref<ChannelCapabilities | null>(null),
   dialog = ref(false),
   detailOpen = ref(false),
-  actionOpen = ref(false),
-  agentLoading = ref(false)
+  actionOpen = ref(false)
 const ownerLoading = ref(false)
 const ownerError = ref('')
 const existing = ref<Channel>(),
   detail = ref<Channel>(),
-  editContext = ref<ChannelEditContext>(),
-  detailContext = ref<ChannelEditContext>(),
   actionTarget = ref<Channel>(),
   actionMode = ref<'owners' | 'archive'>('owners')
 const reason = ref(''),
@@ -438,8 +351,6 @@ const fresh = (): ChannelWrite => ({
   ownership: { owner_team_id: '', data_owner_user_ids: [] },
   code: '',
   name: '',
-  product_id: '',
-  agent_id: '',
   type: 'APP',
   media: 'META',
   url: '',
@@ -458,8 +369,6 @@ const teamOptions = computed(() => [
     owners.value.map((owner) => [owner.team_id, { id: owner.team_id, name: owner.team_name }]),
   ).values(),
 ])
-const productName = (id: string) =>
-  products.value.find((item) => item.value.id === id)?.value.name || id
 const ownerNames = (ids: string[], channelId?: string) =>
   ids
     .map(
@@ -469,40 +378,12 @@ const ownerNames = (ids: string[], channelId?: string) =>
         id,
     )
     .join('、')
-function withHistorical(options: ReferenceRecord[], type: 'product' | 'agent') {
-  const historical = editContext.value?.references[type]
-  if (!historical || options.some((item) => item.value.id === historical.id)) return options
-  return [
-    ...options,
-    {
-      value: {
-        ...historical,
-        kind: type === 'product' ? 'PRODUCT' : 'BUSINESS_AGENT',
-        source_key: '',
-        owner_team_id: '',
-        data_owner_user_ids: [],
-      },
-      revision: 1,
-      catalog_revision: 1,
-      updated_at: '',
-    } as ReferenceRecord,
-  ]
-}
-const productOptions = computed(() => withHistorical(products.value, 'product'))
-const agentOptions = computed(() => withHistorical(agents.value, 'agent'))
 const detailFields = computed(() =>
   detail.value
     ? {
         业务UUID: detail.value.id,
         渠道ID: detail.value.code,
         渠道名称: detail.value.name || detail.value.code,
-        产品: labels.value[detail.value.id]?.product_name || productName(detail.value.product_id),
-        总代: labels.value[detail.value.id]?.agent_name || detail.value.agent_id,
-        产品UUID: detail.value.product_id,
-        总代UUID: detail.value.agent_id,
-        产品引用状态: detailContext.value?.references.product?.availability ?? '未知',
-        总代引用状态: detailContext.value?.references.agent?.availability ?? '未知',
-        历史产品绑定: detailContext.value?.product_locked ? '只读，换产品请新建渠道' : '当前未锁定',
         类型: types[detail.value.type],
         媒体: detail.value.media,
         投放链接: detail.value.url,
@@ -516,17 +397,6 @@ const detailFields = computed(() =>
     : {},
 )
 const message = (cause: unknown) => (cause instanceof Error ? cause.message : '请求失败，请重试')
-async function loadProducts(more = false) {
-  const result = await referenceApi.list(
-    'PRODUCT',
-    new URLSearchParams({
-      page_size: '200',
-      ...(more && productCursor.value ? { cursor: productCursor.value } : {}),
-    }),
-  )
-  products.value = more ? [...products.value, ...result.items] : result.items
-  productCursor.value = result.next_cursor
-}
 async function loadOwners(more = false) {
   if (ownerLoading.value) return
   ownerLoading.value = true
@@ -569,32 +439,6 @@ function selectLoadedOwners(mode: 'create' | 'owners') {
   ownership.data_owner_user_ids = merged
   formError.value = ''
 }
-async function loadAgents(more = false) {
-  if (!form.product_id) return
-  agentLoading.value = true
-  try {
-    const result = await referenceApi.list(
-      'BUSINESS_AGENT',
-      new URLSearchParams({
-        product_id: form.product_id,
-        page_size: '200',
-        ...(more && agentCursor.value ? { cursor: agentCursor.value } : {}),
-      }),
-    )
-    agents.value = more ? [...agents.value, ...result.items] : result.items
-    agentCursor.value = result.next_cursor
-  } catch (cause) {
-    formError.value = message(cause)
-  } finally {
-    agentLoading.value = false
-  }
-}
-async function productChanged() {
-  form.agent_id = ''
-  agents.value = []
-  agentCursor.value = null
-  await loadAgents()
-}
 function teamChanged() {
   form.ownership.data_owner_user_ids = []
 }
@@ -605,7 +449,6 @@ async function load() {
     const params = new URLSearchParams({ page_size: String(pageSize.value) })
     if (query.value) params.set('q', query.value)
     if (status.value) params.set('status', status.value)
-    if (productFilter.value) params.set('product_id', productFilter.value)
     const cursor = cursors.value[page.value]
     if (cursor) params.set('cursor', cursor)
     const result = await channelApi.list(params)
@@ -646,7 +489,6 @@ async function previous() {
 async function reset() {
   query.value = ''
   status.value = ''
-  productFilter.value = ''
   await reload()
 }
 function resetIntent() {
@@ -657,9 +499,7 @@ function resetIntent() {
 }
 async function openCreate() {
   existing.value = undefined
-  editContext.value = undefined
   Object.assign(form, fresh())
-  agents.value = []
   resetIntent()
   dialog.value = true
   await loadOwners()
@@ -672,16 +512,12 @@ async function openCreate() {
 async function openEdit(row: Channel) {
   resetIntent()
   try {
-    const [current, context] = await Promise.all([
-      channelApi.get(row.id),
-      channelApi.context(row.id),
-    ])
+    const current = await channelApi.get(row.id)
     existing.value = current
-    editContext.value = context
     const { id, revision, created_at, updated_at, ...value } = current
     Object.assign(form, structuredClone(value))
     dialog.value = true
-    await Promise.all([loadOwners(), loadAgents()])
+    await loadOwners()
     return true
   } catch (cause) {
     error.value = message(cause)
@@ -690,17 +526,14 @@ async function openEdit(row: Channel) {
 }
 async function openDetail(row: Channel) {
   detail.value = undefined
-  detailContext.value = undefined
   detailError.value = ''
   detailOpen.value = true
   try {
-    const [current, context, names] = await Promise.all([
+    const [current, names] = await Promise.all([
       channelApi.get(row.id),
-      channelApi.context(row.id),
       channelApi.labels([row.id]),
     ])
     detail.value = current
-    detailContext.value = context
     for (const name of names.items) labels.value[name.id] = name
   } catch (cause) {
     detailError.value = message(cause)
@@ -822,7 +655,7 @@ async function submitAction() {
 onMounted(async () => {
   try {
     capabilities.value = await channelApi.capabilities()
-    await Promise.all([load(), loadProducts(), loadOwners()])
+    await Promise.all([load(), loadOwners()])
   } catch (cause) {
     error.value = message(cause)
   }

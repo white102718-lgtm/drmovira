@@ -149,6 +149,11 @@ def ownership(value):
     }
 
 
+def require_active_kind(kind):
+    if kind in {"PRODUCT", "BUSINESS_AGENT"}:
+        raise OrbitError(410, "REFERENCE_KIND_RETIRED", "产品和总代字典已移除，请刷新页面", "/kind")
+
+
 def parse_import(raw):
     value = _parse_json(raw)
     if isinstance(value, dict) and "kind" in value and not isinstance(value["kind"], str):
@@ -157,6 +162,7 @@ def parse_import(raw):
         result = ReferenceImport.model_validate(value)
     except ValidationError as error:
         raise schema_error(error) from None
+    require_active_kind(result.kind)
     for index, row in enumerate(result.items):
         row_structure(row, index, result.kind)
     result.source = short_text(result.source, 255, "/source")

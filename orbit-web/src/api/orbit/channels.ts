@@ -4,8 +4,6 @@ export interface ChannelWrite {
   ownership: Ownership
   code: string
   name: string
-  product_id: string
-  agent_id: string
   type: 'APP' | 'WEBSITE' | 'OTHER'
   media: 'META' | 'GOOGLE' | 'TIKTOK' | 'OTHER'
   url: string
@@ -29,7 +27,6 @@ export interface ChannelCapabilities {
   csrf_token: string
 }
 export interface ChannelEditContext {
-  product_locked: boolean
   references: Record<string, { id: string; name: string; availability: string }>
 }
 export interface ChannelOwner {
@@ -40,8 +37,6 @@ export interface ChannelOwner {
 }
 export interface ChannelLabels {
   id: string
-  product_name: string
-  agent_name: string
   team_name: string
   owners: { id: string; name: string }[]
 }

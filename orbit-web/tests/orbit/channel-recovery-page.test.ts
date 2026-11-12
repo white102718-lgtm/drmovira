@@ -9,8 +9,6 @@ const channel: Channel = {
   id: 'channel',
   code: 'CODE',
   name: '原名称',
-  product_id: 'product',
-  agent_id: 'agent',
   ownership: { owner_team_id: 'team', data_owner_user_ids: ['owner'] },
   type: 'APP',
   media: 'META',
@@ -19,13 +17,6 @@ const channel: Channel = {
   revision: 1,
   created_at: '2026-11-08T00:00:00Z',
   updated_at: '2026-11-08T00:00:00Z',
-}
-const context = {
-  product_locked: false,
-  references: {
-    product: { id: 'product', name: '产品', availability: 'AVAILABLE' },
-    agent: { id: 'agent', name: '总代', availability: 'AVAILABLE' },
-  },
 }
 let wrapper: VueWrapper
 beforeEach(() => {
@@ -41,13 +32,10 @@ beforeEach(() => {
     scope_version: 1,
   })
   vi.spyOn(channelApi, 'get').mockResolvedValue(channel)
-  vi.spyOn(channelApi, 'context').mockResolvedValue(context)
   vi.spyOn(channelApi, 'labels').mockResolvedValue({
     items: [
       {
         id: 'channel',
-        product_name: '产品',
-        agent_name: '总代',
         team_name: '团队',
         owners: [{ id: 'owner', name: '本人' }],
       },
@@ -57,27 +45,7 @@ beforeEach(() => {
     items: [{ id: 'owner', display_name: '本人', team_id: 'team', team_name: '团队' }],
     next_after: null,
   })
-  vi.spyOn(referenceApi, 'list').mockImplementation(async (kind) => ({
-    items: [
-      {
-        value: {
-          id: kind === 'PRODUCT' ? 'product' : 'agent',
-          kind,
-          name: kind === 'PRODUCT' ? '产品' : '总代',
-          availability: 'AVAILABLE',
-          source_key: 'source',
-          owner_team_id: 'team',
-          data_owner_user_ids: ['owner'],
-        },
-        revision: 1,
-        catalog_revision: 1,
-        updated_at: '',
-      },
-    ],
-    next_cursor: null,
-    catalog_revision: 1,
-    scope_version: 1,
-  }))
+  vi.spyOn(referenceApi, 'list').mockRejectedValue(new Error('已移除的字典不应被请求'))
 })
 afterEach(() => {
   wrapper?.unmount()
@@ -123,14 +91,13 @@ it('100个emoji完整保存，101码点拒绝而不是按UTF16截断', async () 
   expect(save.mock.calls[0][0].name).toBe('😀'.repeat(100))
 })
 
-it('未知结果冻结显式disabled产品选择，并禁止取消与Escape丢弃原键', async () => {
+it('未知结果冻结字段，并禁止取消与Escape丢弃原键', async () => {
   const save = vi
     .spyOn(channelApi, 'save')
     .mockRejectedValueOnce(new ReferenceApiError(0, 'NETWORK_UNAVAILABLE', '未知结果'))
     .mockResolvedValueOnce({ ...channel, revision: 2 })
   await openEdit()
   await click('保存')
-  expect(input('产品（必填）').disabled).toBe(true)
   expect(input('渠道名称').disabled).toBe(true)
   const cancel = [...document.querySelectorAll('button')].find(
     (element) => element.textContent?.trim() === '取消',
@@ -143,21 +110,25 @@ it('未知结果冻结显式disabled产品选择，并禁止取消与Escape丢�
   expect(save.mock.calls[0]).toEqual(save.mock.calls[1])
 })
 
-it('真实详情读取历史绑定和当前引用状态，禁止只显示旧列表快照', async () => {
-  vi.mocked(channelApi.context).mockResolvedValue({
-    ...context,
-    product_locked: true,
-    references: {
-      ...context.references,
-      product: { ...context.references.product, availability: 'UNAVAILABLE' },
-    },
-  })
+it('详情使用当前渠道且不再请求产品总代或历史绑定', async () => {
+  vi.mocked(channelApi.get).mockResolvedValue({ ...channel, name: '最新渠道名称' })
   wrapper = mount(Channels, { global: { plugins: [ElementPlus] }, attachTo: document.body })
   await flushPromises()
   await click('详情')
-  expect(vi.mocked(channelApi.context)).toHaveBeenCalledWith('channel')
-  expect(document.body.textContent).toContain('历史马甲包绑定：产品为只读关系')
-  expect(document.body.textContent).toContain('UNAVAILABLE')
+  expect(channelApi.get).toHaveBeenCalledWith('channel')
+  expect(document.body.textContent).toContain('最新渠道名称')
+  expect(document.body.textContent).not.toMatch(/产品|总代|历史马甲包/)
+  expect(referenceApi.list).not.toHaveBeenCalled()
+})
+
+it('渠道无产品总代即可保存，归属和地址仍完整提交', async () => {
+  const save = vi.spyOn(channelApi, 'save').mockResolvedValue({ ...channel, revision: 2 })
+  await openEdit()
+  await click('保存')
+  expect(save.mock.calls[0][0]).not.toHaveProperty('product_id')
+  expect(save.mock.calls[0][0]).not.toHaveProperty('agent_id')
+  expect(save.mock.calls[0][0]).toMatchObject({ ownership: channel.ownership, url: channel.url })
+  expect(referenceApi.list).not.toHaveBeenCalled()
 })
 
 it('409重新读取后用当前版本及新键，不重放旧CAS', async () => {
