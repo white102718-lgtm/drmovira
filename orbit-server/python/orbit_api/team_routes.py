@@ -101,7 +101,7 @@ async def get_team(
         return await store().get(session, user.user.user_id, team_id)
 
 
-async def save(request, user, team_id, *, kind="TEAM", store_factory=store):
+async def save(request, user, team_id, *, kind="TEAM", store_factory=store, parser=None):
     _read_boundary(request)
     keys = request.headers.getlist("idempotency-key")
     if len(keys) != 1 or not re.fullmatch(r"[ -~]{16,128}", keys[0]):
@@ -125,7 +125,7 @@ async def save(request, user, team_id, *, kind="TEAM", store_factory=store):
         if len(raw) + len(chunk) > limit:
             raise OrbitError(413, "BODY_TOO_LARGE", "目录请求超过大小限制")
         raw.extend(chunk)
-    value = parse_identity_write(kind, bytes(raw))
+    value = parser(bytes(raw)) if parser else parse_identity_write(kind, bytes(raw))
     # 原若依身份服务先锁身份行再进入目录锁；同一团队并发维护可能被MySQL选为死锁牺牲者。
     # 仅在数据库确认回滚后，重开整个事务并重新授权；外部副作用不在此事务，幂等键保持不变。
     for attempt in range(3):

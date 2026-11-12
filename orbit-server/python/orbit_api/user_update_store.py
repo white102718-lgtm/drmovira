@@ -1,4 +1,4 @@
-"""人员编辑：完整替换字段、CAS、事务幂等及身份撤销；不创建密码或验证身份。"""
+"""人员编辑：完整替换字段、CAS、事务幂等及身份撤销；密码通过独立重置接口设置。"""
 
 from sqlalchemy import text
 
@@ -75,18 +75,18 @@ class UserUpdateStore(UserCreateStore):
         )
         changed_claims = any(before[field] != getattr(value, field) for field in _CLAIMS)
         changed_status = before["status"] != value.status
+        if target["user_id"] == actor and changed_status:
+            raise OrbitError(403, "SELF_STATUS_CHANGE", "不能停用自己的账号")
         if target["user_id"] == actor and changed_claims:
             raise OrbitError(403, "SELF_ROLE_CHANGE", "不能修改自己的角色或数据范围")
         if target["user_id"] == 1 and (changed_claims or changed_status):
             raise OrbitError(403, "BUILT_IN_USER", "基础管理员账号及管理授权受保护")
         if value.status == "ENABLED" and before["identity_status"] == "UNVERIFIED":
             raise OrbitError(
-                422, "IDENTITY_UNVERIFIED", "须先完成受信身份验证，不能直接启用", "/status"
+                422, "IDENTITY_UNVERIFIED", "请先通过重置密码设置登录密码，再开启账号", "/status"
             )
-        if value.status == "INVITED" and not target["invited"]:
-            raise OrbitError(
-                422, "STATE_TRANSITION_INVALID", "已建立的账号不能通过编辑改为待邀请身份", "/status"
-            )
+        if value.status == "INVITED":
+            raise OrbitError(422, "FIELD_INVALID", "请选择开启或停用", "/status")
         native_roles = await self._references(session, context.tenant_id, value, before)
         fields = tuple(type(value).model_fields)
         if all(before[field] == getattr(value, field) for field in fields):
@@ -189,12 +189,7 @@ class UserUpdateStore(UserCreateStore):
                 raise OrbitError(
                     409, "LAST_ADMIN_REQUIRED", "必须保留至少一名启用且有团队管理权限的超级管理员"
                 )
-        response = {
-            "id": user_id,
-            "revision": expected + 1,
-            **value.model_dump(),
-            "identity_status": before["identity_status"],
-        }
+        response = await self.get(session, actor, user_id)
         await append_directory_change(
             session, context, key, digest, before, response, fields, request_id, "USER"
         )

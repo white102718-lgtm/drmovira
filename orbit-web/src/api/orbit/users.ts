@@ -12,7 +12,10 @@ export interface OrbitUser {
   role_ids: string[]
   data_role: 'USER' | 'TEAM_ADMIN' | 'SUPER_ADMIN'
   managed_team_ids: string[]
-  status: 'INVITED' | 'ENABLED' | 'DISABLED'
+  status: 'ENABLED' | 'DISABLED'
+  login_account: string
+  team_name: string
+  role_names: string[]
   identity_status: 'LOCAL_ACCOUNT' | 'UNVERIFIED' | 'OIDC_VERIFIED'
 }
 export interface UserPage {
@@ -21,7 +24,10 @@ export interface UserPage {
   data_as_of: string
   scope_version: number
 }
-export type UserWrite = Omit<OrbitUser, 'id' | 'revision' | 'identity_status'>
+export type UserWrite = Omit<
+  OrbitUser,
+  'id' | 'revision' | 'identity_status' | 'login_account' | 'team_name' | 'role_names'
+>
 export interface UserCapabilities {
   can_create: boolean
   csrf_token: string
@@ -88,6 +94,17 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return body
 }
 export const userApi = {
+  resetPassword: (id: string, password: string, revision: number, csrf: string, key: string) =>
+    request<OrbitUser>(`/${encodeURIComponent(id)}/password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrf,
+        'Idempotency-Key': key,
+        'If-Match': `"${revision}"`,
+      },
+      body: JSON.stringify({ password }),
+    }),
   invitationStatus: (id: string) =>
     request<InvitationStatus>(`/${encodeURIComponent(id)}/invitation`),
   invite: (id: string, revision: number, csrf: string, key: string) =>
@@ -112,7 +129,7 @@ export const userApi = {
     }),
   capabilities: () => request<UserCapabilities>('/capabilities'),
   options: (query: URLSearchParams) => request<ReferencePage>(`/reference-options?${query}`),
-  create: (value: UserWrite, csrf: string, key: string) =>
+  create: (value: UserWrite & { password: string }, csrf: string, key: string) =>
     request<OrbitUser>('', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf, 'Idempotency-Key': key },

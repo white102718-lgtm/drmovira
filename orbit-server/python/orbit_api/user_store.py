@@ -12,12 +12,11 @@ from orbit_api.errors import OrbitError
 from orbit_api.identity_contract import parse_identity_write
 
 _COLUMNS = """
-b.id,b.user_id,b.team_id,b.revision,b.invited,s.data_role,
+b.id,b.user_id,b.team_id,b.revision,b.invited,s.data_role,t.name AS team_name,
 COALESCE(NULLIF(b.display_name,''),NULLIF(u.nick_name,''),u.user_name) AS display_name,
 COALESCE(u.nick_name,'') AS nickname,COALESCE(u.email,'') AS email,
-COALESCE(u.phonenumber,'') AS phone,
-CASE WHEN b.invited=1 AND b.enabled=1 AND s.enabled=1 THEN 'INVITED'
-     WHEN u.status='0' AND b.enabled=1 AND s.enabled=1 THEN 'ENABLED' ELSE 'DISABLED' END AS status,
+COALESCE(u.phonenumber,'') AS phone,u.user_name AS login_account,
+CASE WHEN b.invited=0 AND u.status='0' AND b.enabled=1 AND s.enabled=1 THEN 'ENABLED' ELSE 'DISABLED' END AS status,
 CASE WHEN EXISTS(SELECT 1 FROM orbit_external_identity e
                   WHERE e.user_id=b.user_id AND e.tenant_id=b.tenant_id)
      THEN 'OIDC_VERIFIED'
@@ -27,6 +26,7 @@ CASE WHEN EXISTS(SELECT 1 FROM orbit_external_identity e
 _FROM = """
 FROM orbit_business_user b JOIN sys_user u ON u.user_id=b.user_id AND u.del_flag='0'
 JOIN orbit_user_scope s ON s.user_id=b.user_id AND s.tenant_id=b.tenant_id
+JOIN orbit_business_team t ON t.tenant_id=b.tenant_id AND t.id=b.team_id
 """
 
 
@@ -64,11 +64,12 @@ class UserStore:
             return []
         native = [r["user_id"] for r in rows]
         roles = {n: [] for n in native}
+        role_names = {n: [] for n in native}
         grants = (
             (
                 await session.execute(
                     text("""
-            SELECT ur.user_id,br.id FROM sys_user_role ur
+            SELECT ur.user_id,br.id,r.role_name FROM sys_user_role ur
             LEFT JOIN sys_role r ON r.role_id=ur.role_id AND r.del_flag='0'
             LEFT JOIN orbit_business_role br ON br.native_role_id=r.role_id
                 AND br.tenant_id=:tenant
@@ -86,6 +87,7 @@ class UserStore:
                     409, "DIRECTORY_MAPPING_REQUIRED", "原功能角色尚未完成业务映射，请先核对目录"
                 )
             roles[grant["user_id"]].append(grant["id"])
+            role_names[grant["user_id"]].append(grant["role_name"])
         managed = {n: [] for n in native}
         links = (
             (
@@ -135,6 +137,9 @@ class UserStore:
                     "revision": row["revision"],
                     **normalized.model_dump(),
                     "identity_status": row["identity_status"],
+                    "login_account": row["login_account"],
+                    "team_name": row["team_name"],
+                    "role_names": role_names[row["user_id"]],
                 }
             )
         return result
@@ -203,13 +208,12 @@ class UserStore:
             clauses.append(
                 "(INSTR(COALESCE(NULLIF(b.display_name,''),"
                 "NULLIF(u.nick_name,''),u.user_name),:q)>0 "
-                "OR INSTR(u.nick_name,:q)>0 OR INSTR(u.email,:q)>0 OR INSTR(u.phonenumber,:q)>0)"
+                "OR INSTR(u.user_name,:q)>0 OR INSTR(u.nick_name,:q)>0 OR INSTR(u.email,:q)>0 OR INSTR(u.phonenumber,:q)>0)"
             )
             params["q"] = filters["q"]
         if filters.get("status"):
             status_sql = (
-                "CASE WHEN b.invited=1 AND b.enabled=1 AND s.enabled=1 THEN 'INVITED' "
-                "WHEN u.status='0' AND b.enabled=1 AND s.enabled=1 "
+                "CASE WHEN b.invited=0 AND u.status='0' AND b.enabled=1 AND s.enabled=1 "
                 "THEN 'ENABLED' ELSE 'DISABLED' END"
             )
             clauses.append("(" + status_sql + ")=:status")

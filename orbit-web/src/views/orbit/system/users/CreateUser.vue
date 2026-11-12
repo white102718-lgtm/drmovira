@@ -8,19 +8,15 @@
     :close-on-click-modal="false"
     :close-on-press-escape="!saving && !opening"
     :show-close="!saving && !opening"
+    @closed="clearPasswords"
   >
-    <el-alert
-      v-if="!editing || editing.identity_status === 'UNVERIFIED'"
-      title="该人员尚未验证身份，不能直接启用；此操作不会发送邀请。"
-      type="info"
-      :closable="false"
-    />
     <el-alert v-if="error" :title="error" type="error" :closable="false" />
     <el-button v-if="editing && error" :disabled="saving" @click="reloadPerson"
       >重新读取人员</el-button
     >
     <el-form
       ref="form"
+      class="user-form-grid"
       :model="draft"
       :rules="rules"
       label-position="top"
@@ -34,7 +30,31 @@
         ><el-input v-model="draft.nickname"
       /></el-form-item>
       <el-form-item label="邮箱" prop="email"><el-input v-model="draft.email" /></el-form-item>
-      <el-form-item label="联系方式" prop="phone"><el-input v-model="draft.phone" /></el-form-item>
+      <el-form-item :label="editing ? '手机号 / 联系方式' : '手机号 / 登录账号'" prop="phone"
+        ><el-input v-model="draft.phone" autocomplete="off"
+      /></el-form-item>
+      <el-form-item v-if="editing" label="登录账号"
+        ><el-input :model-value="editing.login_account" disabled
+      /></el-form-item>
+      <template v-else>
+        <el-form-item label="登录密码" required
+          ><el-input
+            v-model="password"
+            type="password"
+            show-password
+            autocomplete="new-password"
+            maxlength="64"
+            placeholder="8至64个字符"
+        /></el-form-item>
+        <el-form-item label="确认密码" required
+          ><el-input
+            v-model="confirmation"
+            type="password"
+            show-password
+            autocomplete="new-password"
+            maxlength="64"
+        /></el-form-item>
+      </template>
       <el-form-item label="所属团队" prop="team_id">
         <ReferenceSelect
           :model-value="draft.team_id"
@@ -87,17 +107,8 @@
         />
       </el-form-item>
       <el-form-item label="账号状态" prop="status">
-        <el-select v-model="draft.status" aria-label="账号状态" :disabled="protectedUser">
-          <el-option
-            v-if="!editing || editing.identity_status === 'UNVERIFIED'"
-            label="待邀请验证"
-            value="INVITED"
-          />
-          <el-option
-            v-if="editing && editing.identity_status !== 'UNVERIFIED'"
-            label="启用"
-            value="ENABLED"
-          /><el-option label="停用" value="DISABLED" />
+        <el-select v-model="draft.status" aria-label="账号状态" :disabled="ownOrProtected">
+          <el-option label="开启" value="ENABLED" /><el-option label="停用" value="DISABLED" />
         </el-select>
       </el-form-item>
     </el-form>
@@ -130,6 +141,13 @@ const visible = ref(false),
   saving = ref(false),
   error = ref(''),
   csrf = ref('')
+const password = ref(''),
+  confirmation = ref('')
+function clearPasswords() {
+  password.value = ''
+  confirmation.value = ''
+  retry = null
+}
 const form = ref<FormInstance>()
 const blank = (): UserWrite => ({
   display_name: '',
@@ -140,7 +158,7 @@ const blank = (): UserWrite => ({
   role_ids: [],
   data_role: 'USER',
   managed_team_ids: [],
-  status: 'INVITED',
+  status: 'ENABLED',
 })
 const draft = ref<UserWrite>(blank())
 let retry: { payload: string; key: string } | null = null
@@ -186,6 +204,7 @@ async function open(person?: OrbitUser) {
   const sequence = ++openGeneration
   opening.value = true
   draft.value = blank()
+  clearPasswords()
   retry = null
   error.value = ''
   csrf.value = ''
@@ -198,7 +217,15 @@ async function open(person?: OrbitUser) {
     protectedIds.value = caps.protected_user_ids
     editing.value = current
     if (editing.value) {
-      const { id: _id, revision: _revision, identity_status: _identity, ...fields } = editing.value
+      const {
+        id: _id,
+        revision: _revision,
+        identity_status: _identity,
+        login_account: _login,
+        team_name: _teamName,
+        role_names: _roleNames,
+        ...fields
+      } = editing.value
       draft.value = {
         ...fields,
         role_ids: [...fields.role_ids],
@@ -218,6 +245,19 @@ async function open(person?: OrbitUser) {
 async function save() {
   if (saving.value || opening.value || !(await form.value?.validate().catch(() => false))) return
   error.value = ''
+  if (
+    !editing.value &&
+    (password.value.length < 8 ||
+      password.value.length > 64 ||
+      password.value !== confirmation.value)
+  ) {
+    error.value = '请输入8至64个字符的密码，并确认两次输入一致'
+    return
+  }
+  if (!editing.value && !/^\+?[0-9]{8,15}$/.test(draft.value.phone.replace(/[\s-]/g, ''))) {
+    error.value = '手机号作为登录账号，须为8至15位数字，可带国际区号'
+    return
+  }
   const value: UserWrite = {
     ...draft.value,
     display_name: draft.value.display_name.normalize('NFC').trim(),
@@ -227,7 +267,7 @@ async function save() {
     role_ids: [...draft.value.role_ids].sort(),
     managed_team_ids: [...draft.value.managed_team_ids].sort(),
   }
-  const payload = JSON.stringify(value)
+  const payload = JSON.stringify(editing.value ? value : { ...value, password: password.value })
   const securityFields = ['team_id', 'role_ids', 'data_role', 'managed_team_ids', 'status'] as const
   if (
     editing.value &&
@@ -257,9 +297,15 @@ async function save() {
           csrf.value,
           retry!.key,
         )
-      : await userApi.create(value, csrf.value, retry!.key)
+      : await userApi.create({ ...value, password: password.value }, csrf.value, retry!.key)
     visible.value = false
-    ElMessage.success(editing.value ? '人员修改已保存' : '人员已创建，尚未验证身份')
+    ElMessage.success(
+      editing.value
+        ? '人员修改已保存'
+        : value.status === 'ENABLED'
+          ? '人员已创建，可使用手机号和设置的密码登录'
+          : '人员已创建，当前为停用状态',
+    )
     if (editing.value?.id === actorId.value && value.status === 'DISABLED') {
       removeToken()
       await router.replace('/login')
@@ -305,5 +351,21 @@ defineExpose({ open })
 .user-create-dialog .el-dialog__header,
 .user-create-dialog .el-dialog__footer {
   flex-shrink: 0;
+}
+</style>
+
+<style scoped>
+.user-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+.user-form-grid :deep(.el-select) {
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .user-form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

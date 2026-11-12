@@ -14,6 +14,8 @@ from orbit_api.errors import OrbitError
 from orbit_api.identity_contract import _uuid
 from orbit_api.team_routes import list_filters, save
 from orbit_api.user_create_store import UserCreateStore
+from orbit_api.user_credentials import parse_local_user, parse_password_reset
+from orbit_api.user_password_store import UserPasswordStore
 from orbit_api.user_store import UserStore
 from orbit_api.user_update_store import UserUpdateStore
 
@@ -41,7 +43,9 @@ async def user_capabilities(
 
 @router.post("", status_code=201)
 async def create_user(request: Request, user: Annotated[CurrentUserModel, CurrentUserDependency()]):
-    return await save(request, user, None, kind="USER", store_factory=create_store)
+    return await save(
+        request, user, None, kind="USER", store_factory=create_store, parser=parse_local_user
+    )
 
 
 @router.get("/reference-options")
@@ -76,9 +80,7 @@ async def user_reference_options(
 
 @router.get("")
 async def list_users(request: Request, user: Annotated[CurrentUserModel, CurrentUserDependency()]):
-    filters, cursor = list_filters(
-        request, label="人员", statuses=("INVITED", "ENABLED", "DISABLED")
-    )
+    filters, cursor = list_filters(request, label="人员", statuses=("ENABLED", "DISABLED"))
     async with DataSourceRegistry.session(log_sql=False) as session, session.begin():
         return await UserStore(DirectoryTokens(credential_cipher())).list(
             session, user.user.user_id, filters, cursor
@@ -101,3 +103,17 @@ async def update_user(
     user_id: str, request: Request, user: Annotated[CurrentUserModel, CurrentUserDependency()]
 ):
     return await save(request, user, user_id, kind="USER", store_factory=update_store)
+
+
+@router.post("/{user_id}/password")
+async def reset_user_password(
+    user_id: str, request: Request, user: Annotated[CurrentUserModel, CurrentUserDependency()]
+):
+    return await save(
+        request,
+        user,
+        user_id,
+        kind="USER",
+        parser=parse_password_reset,
+        store_factory=lambda: UserPasswordStore(DirectoryTokens(credential_cipher())),
+    )

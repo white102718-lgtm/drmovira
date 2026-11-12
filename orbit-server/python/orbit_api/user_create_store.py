@@ -1,14 +1,16 @@
-"""人员创建：完整字段、受控角色/团队、无密码预置账号与同事务审计；不发送邀请。"""
+"""人员创建：完整字段、受控角色/团队、本地密码账号与同事务审计；不发送邀请。"""
 
-import base64
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from sqlalchemy import bindparam, text
+from sqlalchemy.exc import IntegrityError
 
 from orbit_api.configuration_store import MAX_REVISION, _decode
 from orbit_api.directory_write import append_directory_change, public_hash
 from orbit_api.errors import OrbitError
 from orbit_api.user_store import UserStore
+from orbit_api.user_credentials import secret_request_digest
+from utils.pwd_util import PwdUtil
 
 
 class UserCreateStore(UserStore):
@@ -168,13 +170,12 @@ class UserCreateStore(UserStore):
         ).scalar_one()
         if clock >= MAX_REVISION:
             raise OrbitError(409, "REVISION_EXHAUSTED", "目录版本已达上限")
-        digest = public_hash(["USER_CREATE", value.model_dump()])
         params = {"tenant": context.tenant_id, "actor": actor, "key": key}
         previous = (
             (
                 await session.execute(
                     text("""
-            SELECT payload_hash,response_json FROM orbit_directory_idempotency
+            SELECT payload_hash,response_json,digest_key_id FROM orbit_directory_idempotency
             WHERE tenant_id=:tenant AND actor_id=:actor AND request_key=:key FOR UPDATE
         """),
                     params,
@@ -183,39 +184,63 @@ class UserCreateStore(UserStore):
             .mappings()
             .first()
         )
+        key_id = previous["digest_key_id"] if previous else self.tokens.cipher.active_key_id
+        if not key_id:
+            raise OrbitError(503, "SIGNING_UNAVAILABLE", "密码操作签名密钥不可用")
+        digest = secret_request_digest(
+            self.tokens,
+            "LOCAL_USER_CREATE",
+            context.tenant_id,
+            actor,
+            value.model_dump(),
+            value.password,
+            key_id,
+        )
         if previous:
             if previous["payload_hash"] != digest:
                 raise OrbitError(409, "IDEMPOTENCY_CONFLICT", "同一幂等键不能用于不同操作")
             response = _decode(previous["response_json"])
             await self.get(session, actor, response["id"])
             return response
-        if value.status == "ENABLED":
-            raise OrbitError(
-                422, "IDENTITY_UNVERIFIED", "新人员须先完成受信身份验证，不能直接启用", "/status"
-            )
         native_roles = await self._references(session, context.tenant_id, value)
         identifier = str(uuid4())
-        # 保留完整128位随机UUID，生成小于30字符的内部账号；不把邮箱/手机号当身份键。
-        username = "o_" + base64.b32encode(UUID(identifier).bytes).decode().rstrip("=").lower()
+        username = value.phone
+        # 原生账号全局唯一；锁住相同账号候选，不能把同名账户附到另一个租户。
+        if (
+            await session.execute(
+                text(
+                    "SELECT user_id FROM sys_user WHERE user_name=:name OR phonenumber=:name FOR UPDATE"
+                ),
+                {"name": username},
+            )
+        ).first():
+            raise OrbitError(409, "LOGIN_ACCOUNT_CONFLICT", "手机号或登录账号已被使用", "/phone")
         actor_name = (
             await session.execute(
                 text("SELECT user_name FROM sys_user WHERE user_id=:actor"), {"actor": actor}
             )
         ).scalar_one()
-        native = await session.execute(
-            text("""
-            INSERT INTO sys_user
-            (user_name,nick_name,email,phonenumber,password,status,del_flag,user_type,create_by,create_time)
-            VALUES(:username,:nickname,:email,:phone,NULL,'1','0','00',:actor_name,UTC_TIMESTAMP(3))
-        """),
-            {
-                "username": username,
-                "nickname": value.nickname,
-                "email": value.email,
-                "phone": value.phone,
-                "actor_name": actor_name,
-            },
-        )
+        try:
+            native = await session.execute(
+                text("""
+                INSERT INTO sys_user
+                (user_name,nick_name,email,phonenumber,password,status,del_flag,user_type,create_by,create_time,pwd_update_date)
+                VALUES(:username,:nickname,:email,:phone,:password,:status,'0','00',:actor_name,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))
+            """),
+                {
+                    "username": username,
+                    "password": PwdUtil.get_password_hash(value.password.get_secret_value()),
+                    "status": "0" if value.status == "ENABLED" else "1",
+                    "nickname": value.nickname,
+                    "email": value.email,
+                    "phone": value.phone,
+                    "actor_name": actor_name,
+                },
+            )
+        except IntegrityError:
+            raise OrbitError(
+                409, "LOGIN_ACCOUNT_CONFLICT", "手机号或登录账号已被使用", "/phone"
+            ) from None
         native_id = native.lastrowid
         await session.execute(
             text("""
@@ -224,7 +249,7 @@ class UserCreateStore(UserStore):
         """),
             {"user": native_id, "subject": str(uuid4())},
         )
-        enabled = int(value.status == "INVITED")
+        enabled = int(value.status == "ENABLED")
         await session.execute(
             text("""
             INSERT INTO orbit_user_scope(user_id,tenant_id,data_role,enabled)
@@ -241,7 +266,7 @@ class UserCreateStore(UserStore):
             text("""
             INSERT INTO orbit_business_user
             (tenant_id,id,user_id,team_id,enabled,display_name,invited,created_at,updated_at)
-            VALUES(:tenant,:id,:user,:team,:enabled,:name,1,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))
+            VALUES(:tenant,:id,:user,:team,:enabled,:name,0,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))
         """),
             {
                 "tenant": context.tenant_id,
@@ -268,12 +293,7 @@ class UserCreateStore(UserStore):
                     for team in value.managed_team_ids
                 ],
             )
-        response = {
-            "id": identifier,
-            "revision": 1,
-            **value.model_dump(),
-            "identity_status": "UNVERIFIED",
-        }
+        response = await self.get(session, actor, identifier)
         await append_directory_change(
             session,
             context,
@@ -281,8 +301,14 @@ class UserCreateStore(UserStore):
             digest,
             None,
             response,
-            tuple(type(value).model_fields),
+            tuple(value.model_dump()),
             request_id,
             "USER",
+        )
+        await session.execute(
+            text(
+                "UPDATE orbit_directory_idempotency SET digest_key_id=:kid WHERE tenant_id=:tenant AND actor_id=:actor AND request_key=:key"
+            ),
+            params | {"kid": key_id},
         )
         return response
