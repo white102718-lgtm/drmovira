@@ -87,6 +87,12 @@ async function start(kind: 'plan' | 'template') {
           global: { plugins: [ElementPlus] },
         })
   await flushPromises()
+  // 新版默认进入创建广告；列表回归从草稿管理入口关闭内嵌编辑后继续。
+  const initialEditor = wrapper!.findComponent(DraftStub)
+  if (initialEditor.exists() && initialEditor.props('modelValue')) {
+    initialEditor.vm.$emit('update:modelValue', false)
+    await flushPromises()
+  }
 }
 const button = (name: string) =>
   [...document.querySelectorAll<HTMLButtonElement>('button')].find(
@@ -183,7 +189,7 @@ for (const kind of ['plan', 'template'] as const) {
     api(kind).mockRejectedValueOnce(new ReferenceApiError(403, 'PERMISSION_DENIED', '权限已撤回'))
     await click(`下一页${noun(kind)}`)
     expect(button(`下一页${noun(kind)}`)).toBeUndefined()
-    expect(button(kind === 'plan' ? '新建服务器草稿' : '新建配置模板')).toBeUndefined()
+    expect(button(kind === 'plan' ? '创建广告' : '新建配置模板')).toBeUndefined()
   })
   it(`${kind}网络错误保留上次成功页和筛选，重试仍沿用同一下一页游标`, async () => {
     await start(kind)
@@ -247,9 +253,9 @@ it('计划切tab后旧读取失效，新查询完成后迟到页不覆盖当前�
     .mockResolvedValueOnce(page([{ ...plan(), name: '新的计划页' }], null) as never)
   await start('plan')
   const tabs = wrapper!.findAll('[role="tab"]')
-  await tabs.find((row) => row.text() === '任务')!.trigger('click')
+  await tabs.find((row) => row.text() === '执行任务')!.trigger('click')
   await flushPromises()
-  await tabs.find((row) => row.text() === '计划与草稿')!.trigger('click')
+  await tabs.find((row) => row.text() === '创建广告')!.trigger('click')
   await flushPromises()
   await click('查询计划')
   resolve(page([{ ...plan(), name: '迟到计划页' }], 'old'))

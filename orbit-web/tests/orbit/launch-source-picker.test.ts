@@ -80,3 +80,13 @@ it('读取403保留已有选择，不伪成功或清空未读关联', async () =
   await click('确认选择 1 项')
   expect(wrapper.emitted('choose')?.[0]).toEqual([['saved-unloaded']])
 })
+it('原型素材池按广告数选择，不重复不足时阻止确认，保留未知指标列', async () => {
+  vi.spyOn(globalThis,'fetch').mockImplementation(async url=>String(url).includes('/assets?')?response([{id:'asset1',name:'素材1',kind:'IMAGE',state:'READY',tag_ids:[],ownership}]):response([]))
+  wrapper=mount(SourcePicker,{attachTo:document.body,props:{modelValue:true,kind:'assets',ownership,selected:[],prototype:true,adCount:2,allowRepeat:false},global:{plugins:[ElementPlus]}})
+  await flushPromises();await click('按广告数选择当前结果');await click('确认选择 1 项')
+  expect(wrapper.emitted('choose')).toBeUndefined()
+  expect(document.body.textContent).toContain('请按广告数量选择素材')
+  expect(document.body.textContent).toContain('ROAS')
+  await wrapper.setProps({allowRepeat:true});await click('确认选择 1 项')
+  expect(wrapper.emitted('choose')?.[0]).toEqual([['asset1']])
+})

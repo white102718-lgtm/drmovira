@@ -1,5 +1,6 @@
 <template>
-  <el-drawer
+  <DraftSurface
+    :inline="prototype"
     :model-value="modelValue"
     :title="readOnly ? '投放计划详情' : existing ? '编辑投放草稿' : '新建投放草稿'"
     size="min(1240px, 100%)"
@@ -12,7 +13,267 @@
     @closed="emit('closed')"
     @open-auto-focus="locationFocusTrigger++"
   >
-    <div ref="editorFields" class="draft-content">
+    <div v-if="prototype" ref="editorFields" class="prototype-create">
+      <nav class="prototype-nav" aria-label="创建广告导航">
+        <button v-for="s in prototypeSections" :key="s.key" @click="goToSection(s.key)">
+          {{ s.label }}
+        </button>
+      </nav>
+      <div class="prototype-card draft-state">
+        <div>
+          <b>{{ existing ? '草稿已保存' : '新建草稿' }}</b
+          ><small>{{
+            savedSignature === signature
+              ? '更改已保存到服务器'
+              : '保存后可继续编辑；未保存内容保留在当前浏览器。'
+          }}</small>
+        </div>
+        <el-button :disabled="locked" @click="requestClose">草稿管理</el-button>
+      </div>
+      <el-alert v-if="error" :title="error" type="error" :closable="false" />
+      <el-alert
+        v-if="uncertain"
+        title="本次保存结果尚未确认，请重试同一次保存。"
+        type="warning"
+        :closable="false"
+      />
+      <el-alert v-if="cacheWarning" :title="cacheWarning" type="warning" :closable="false" />
+      <div v-if="saveFieldErrors.length" role="alert">
+        <p v-for="f in saveFieldErrors" :key="f.path">{{ f.message }} · {{ f.path }}</p>
+      </div>
+      <section class="prototype-card" data-launch-section="accounts">
+        <h3>
+          1. 选择广告账户 <el-tag>已选 {{ accountCount ?? '待解析' }} 个</el-tag>
+        </h3>
+
+        <PrototypeAccountTable
+          v-if="!form.account_scope_snapshot_id"
+          :selected="form.account_ids"
+          :ownership="form.ownership"
+          :can-read="identityReadAllowed"
+          :disabled="prototypeLocked"
+          :context-key="accountContextKey"
+          @update:selected="applyPrototypeAccounts"
+          @identity="identityOpen = true"
+          ><template #owner
+            ><div class="prototype-owner">
+              计划负责人
+              <el-select
+                :model-value="form.ownership.owner_user_id"
+                :disabled="locked || readOnly"
+                @change="changeOwner"
+                ><el-option
+                  v-for="p in owners"
+                  :key="p.id"
+                  :value="p.id"
+                  :label="p.name + (p.team_name ? ' / ' + p.team_name : '')" /></el-select
+              ><el-button
+                v-if="ownerCursor"
+                :disabled="ownerLoading || locked"
+                @click="loadOwners(true)"
+                >加载更多</el-button
+              ><small>同一计划仅允许该负责人持有的账户、素材及渠道。</small>
+            </div></template
+          ></PrototypeAccountTable
+        >
+        <div v-else>
+          <p>已保存账户范围，需保存解析后显示实际成员。</p>
+          <el-button :disabled="prototypeLocked" @click="pick('accounts')">重新选择账户</el-button>
+        </div>
+        <details>
+          <summary>核对账户主页与像素</summary>
+          <el-button :disabled="prototypeLocked" @click="identityOpen = true"
+            >核对身份资产</el-button
+          >
+        </details>
+      </section>
+      <PrototypeCampaignFields
+        :form="form"
+        :disabled="prototypeLocked"
+        :campaign-name="campaignDisplayName"
+        @clone-branch="cloneIdentityReferences"
+        @remove-branch="removeIdentityReferences"
+        ><template #channel
+          ><div class="prototype-channel">
+            <b>投放渠道 *</b
+            ><el-select
+              v-model="form.channel_id"
+              placeholder="请选择投放渠道"
+              clearable
+              :disabled="prototypeLocked"
+              ><el-option
+                v-for="c in channelOptions"
+                :key="c.id"
+                :value="c.id"
+                :label="c.name || c.code"
+                :disabled="!channelEligible(c)" /><el-option
+                v-if="form.channel_id && !channelOptions.some((c) => c.id === form.channel_id)"
+                :value="form.channel_id"
+                label="已保存渠道（名称待读取）" /></el-select
+            ><el-button
+              v-if="channelCursor"
+              :disabled="prototypeLocked"
+              @click="loadChannels(channelCursor)"
+              >加载更多</el-button
+            ><small>渠道名称 + 用户昵称 + 年月日 + 自动编号</small
+            ><span v-if="channelError" role="alert">{{ channelError }}</span>
+          </div></template
+        ></PrototypeCampaignFields
+      >
+      <section class="prototype-card" data-launch-section="assets">
+        <h3>5. 组合数量与素材分配</h3>
+        <div v-for="(c, ci) in form.campaigns" :key="c.local_id" class="prototype-tree">
+          <div class="quantity-row">
+            <b>广告系列：系列 {{ ci + 1 }}</b
+            ><label
+              >每个账户创建
+              <el-input-number
+                v-model="c.copies"
+                :min="1"
+                :max="50"
+                :precision="0"
+                :disabled="prototypeLocked"
+              />
+              份</label
+            >
+          </div>
+          <div v-for="g in c.adsets" :key="g.local_id" class="prototype-tree-group">
+            <div class="quantity-row">
+              <b>└ 广告组：{{ g.name || '未命名' }}</b
+              ><label
+                >每个系列创建
+                <el-input-number
+                  v-model="g.copies"
+                  :min="1"
+                  :max="50"
+                  :precision="0"
+                  :disabled="prototypeLocked"
+                />
+                份</label
+              >
+            </div>
+            <div v-for="a in g.ads" :key="a.local_id" class="quantity-row prototype-tree-ad">
+              <span>└ 广告：{{ a.name || '未命名' }}</span
+              ><label
+                >每个组创建
+                <el-input-number
+                  v-model="a.copies"
+                  :min="1"
+                  :max="50"
+                  :precision="0"
+                  :disabled="prototypeLocked"
+                />
+                份</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="prototype-stats">
+          <div>
+            <strong>{{ counts?.campaignCount ?? '—' }}</strong> 个系列
+          </div>
+          <div>
+            <strong>{{ counts?.adsetCount ?? '—' }}</strong> 个广告组
+          </div>
+          <div>
+            <strong>{{ counts?.adCount ?? '—' }}</strong> 条实际广告
+          </div>
+          <div>
+            <template v-for="b in budgetTotals" :key="b.currency + b.type"
+              ><strong>{{ b.amount }}</strong> {{ b.currency }}
+              {{ b.type === 'DAILY' ? '单日预算' : '总预算' }}<br /></template
+            ><span v-if="!budgetTotals.length">预算尚未配置</span>
+          </div>
+        </div>
+        <small
+          >示例：2 个账户 × 每账户 1 系列 × 每系列 2 组 × 每组 3 广告 = 12
+          条广告。总预算与日预算不混加；预算合计不是实际消耗。</small
+        >
+        <div class="prototype-actions">
+          <el-button type="primary" :disabled="prototypeLocked" @click="pick('assets')"
+            >按 {{ counts?.adCount ?? '—' }} 条广告选择素材</el-button
+          ><el-button :disabled="prototypeLocked || !validationAvailable" @click="prepareValidation"
+            >随机分配 / 重新分配</el-button
+          ><el-button :disabled="prototypeLocked || !validationAvailable" @click="prepareValidation"
+            >查看逐条分配</el-button
+          ><span
+            >已选 {{ form.asset_ids.length }} 个素材 ·
+            {{ savedSignature === signature ? '待服务端核对分配' : '需要重新分配' }}</span
+          >
+        </div>
+        <el-checkbox v-model="form.allow_repeat" :disabled="prototypeLocked"
+          >允许同一素材分配给多个广告（尽量均匀使用）</el-checkbox
+        >
+      </section>
+      <section class="prototype-card" data-launch-section="summary">
+        <div class="prototype-owner">
+          默认暂停创建。<el-checkbox
+            v-model="form.activate_after_create"
+            :disabled="prototypeLocked"
+            >创建核验后另行启用</el-checkbox
+          >
+        </div>
+        <h3>6. 确认执行</h3>
+        <el-form label-width="145px" :disabled="prototypeLocked"
+          ><el-form-item label="执行方式"
+            ><el-select v-model="form.execution_mode"
+              ><el-option label="官方 API" value="META_API" /><el-option
+                label="AdsPower 浏览器"
+                value="ADSPOWER_UI" /></el-select></el-form-item></el-form
+        ><small v-if="!validationAvailable"
+          >预检服务尚未就绪或当前账号没有预检权限；可保存草稿，不会提交广告。</small
+        >
+        <details>
+          <summary>草稿名称与已保存高级配置</summary>
+          <el-input
+            v-model="form.name"
+            placeholder="草稿名称（可选）"
+            :disabled="prototypeLocked"
+          /><el-button @click="previewOpen = true">查看全部已保存字段</el-button>
+        </details>
+      </section>
+      <el-dialog
+        v-model="identityOpen"
+        title="核对账户主页与像素"
+        width="min(1100px,96vw)"
+        append-to-body
+        :close-on-click-modal="false"
+        :close-on-press-escape="!identityEditing"
+        :before-close="closeIdentity"
+        ><PlanIdentityBindings
+          ref="identityBindings"
+          v-model="form.identity_bindings"
+          :account-ids="form.account_ids"
+          :campaigns="form.campaigns"
+          :ownership-key="JSON.stringify(form.ownership)"
+          :can-read="identityReadAllowed"
+          :disabled="locked"
+          :read-only="readOnly"
+          @editing="identityEditing = $event"
+      /></el-dialog>
+      <SourcePicker
+        prototype
+        :ad-count="counts?.adCount ?? null"
+        :allow-repeat="form.allow_repeat"
+        v-model="sourceOpen"
+        :kind="sourceKind"
+        :selected="sourceSelection"
+        :ownership="form.ownership"
+        :disabled="locked"
+        @choose="choose"
+      />
+      <PlanAccountScopePicker
+        v-model="accountOpen"
+        :ownership="form.ownership"
+        :selected="accountSelection"
+        :can-read="identityReadAllowed"
+        :disabled="locked || readOnly"
+        :context-key="accountContextKey"
+        @choose="chooseAccounts"
+        @locked="accountScopeLocked = $event"
+      />
+    </div>
+    <div v-else ref="editorFields" class="draft-content">
       <nav class="draft-nav" aria-label="投放配置导航">
         <button
           v-for="section in sections"
@@ -203,7 +464,29 @@
     </div>
     <DraftConfigPreview v-model="previewOpen" :plan="form" :account-count="accountCount" />
     <template #footer
-      ><div class="drawer-actions">
+      ><div v-if="prototype" class="prototype-actions">
+        <b>{{ counts?.adCount ?? '—' }} 条广告 · 草稿 v{{ existing?.revision ?? 1 }}</b
+        ><span style="flex: 1" />
+        <el-button :disabled="prototypeLocked || !validationAvailable" @click="prepareValidation"
+          >校验并预览</el-button
+        >
+        <el-button :disabled="prototypeLocked" @click="emit('template', cloneValue(form.campaigns))"
+          >保存为模板</el-button
+        >
+        <el-button v-if="uncertain" type="warning" :loading="saving" @click="retry"
+          >重试本次保存</el-button
+        >
+        <el-button v-else type="primary" :disabled="prototypeLocked" @click="save"
+          >保存草稿</el-button
+        >
+        <el-button
+          type="primary"
+          :disabled="prototypeLocked || !validationAvailable"
+          @click="prepareValidation"
+          >确认创建</el-button
+        >
+      </div>
+      <div v-else class="drawer-actions">
         <span class="footer-status"
           >{{ savedSignature === signature ? '更改已保存' : '更改尚未保存' }} ·
           {{ accountCount ?? '待解析' }} 个账户</span
@@ -247,7 +530,7 @@
         >
       </div></template
     >
-  </el-drawer>
+  </DraftSurface>
 </template>
 
 <script setup lang="ts">
@@ -273,12 +556,20 @@ import {
   treeCounts,
 } from '@/api/orbit/launch-form'
 import CampaignTree from './CampaignTree.vue'
+import DraftSurface from './DraftSurface.vue'
+import PrototypeAccountTable from './PrototypeAccountTable.vue'
+import PrototypeCampaignFields from './PrototypeCampaignFields.vue'
+import { prototypeCampaign, prototypeBudgetTotals } from '@/api/orbit/launch-prototype'
+import { channelApi, type Channel } from '@/api/orbit/channels'
+import './prototype-create.scss'
 import DraftConfigPreview from './DraftConfigPreview.vue'
 import SourcePicker from './SourcePicker.vue'
 import PlanIdentityBindings from './PlanIdentityBindings.vue'
 import PlanAccountScopePicker from './PlanAccountScopePicker.vue'
 import type { PlanAccountSelection, ScopeSnapshot } from '@/api/orbit/launch-account-scopes'
 const props = defineProps<{
+  prototype?: boolean
+  validationAvailable?: boolean
   modelValue: boolean
   plan?: LaunchPlan
   capabilities?: LaunchCapabilities
@@ -294,6 +585,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   saved: [plan: LaunchPlan]
+  validate: [plan: LaunchPlan]
   template: [campaigns: CampaignConfig[]]
   locked: [value: boolean]
   closed: []
@@ -348,6 +640,90 @@ const hasExtendedConfiguration = computed(() =>
       ),
   ),
 )
+async function applyPrototypeAccounts(ids: string[], currency: string | null) {
+  if (prototypeLocked.value) return
+  if (ids.length && !currency) {
+    error.value = '一个计划只能选择同币种账户，请分别创建广告。'
+    return
+  }
+  const budgets = form.value.campaigns
+    .flatMap((c) => [c.budget, ...c.adsets.map((g) => g.budget)])
+    .filter(Boolean)
+  if (currency && budgets.some((b) => b!.currency !== currency)) {
+    try {
+      await ElMessageBox.confirm(
+        `所选账户使用 ${currency}，预算币种将同步修改，金额数值保持不变，请重新核对预算。`,
+        '核对预算币种',
+      )
+    } catch {
+      return
+    }
+    budgets.forEach((b) => (b!.currency = currency))
+  }
+  form.value.account_ids = ids
+  error.value = ''
+}
+function closeIdentity(done: () => void) {
+  if (!identityEditing.value) done()
+}
+const identityOpen = ref(false)
+const prototypeLocked = computed(
+  () =>
+    locked.value || sourceOpen.value || accountOpen.value || identityOpen.value || !!props.readOnly,
+)
+const channelOptions = ref<Channel[]>([]),
+  channelCursor = ref<string | null>(null),
+  channelError = ref('')
+let channelEpoch = 0
+function channelEligible(c: Channel) {
+  return (
+    c.status === 'ENABLED' &&
+    c.ownership.owner_team_id === form.value.ownership.owner_team_id &&
+    c.ownership.data_owner_user_ids.includes(form.value.ownership.owner_user_id)
+  )
+}
+async function loadChannels(after = '') {
+  const epoch = ++channelEpoch
+  try {
+    const result = await channelApi.list(
+      new URLSearchParams({ page_size: '50', ...(after ? { cursor: after } : {}) }),
+    )
+    if (epoch !== channelEpoch || !props.modelValue) return
+    channelOptions.value = after ? [...channelOptions.value, ...result.items] : result.items
+    channelCursor.value = result.next_cursor
+    channelError.value = ''
+  } catch (e) {
+    if (epoch === channelEpoch) channelError.value = e instanceof Error ? e.message : '渠道读取失败'
+  }
+}
+const campaignDisplayName = computed(
+  () =>
+    [
+      channelOptions.value.find((c) => c.id === form.value.channel_id)?.name,
+      owners.value.find((p) => p.id === form.value.ownership.owner_user_id)?.name,
+    ]
+      .filter(Boolean)
+      .join(' · ') || '选择投放渠道后自动生成',
+)
+const budgetTotals = computed(() =>
+  accountCount.value === null
+    ? []
+    : prototypeBudgetTotals(accountCount.value, form.value.campaigns),
+)
+const prototypeSections = [
+  { key: 'accounts', label: '1. 选择账户' },
+  { key: 'campaign', label: '2. 广告系列设置' },
+  { key: 'adset', label: '3. 广告组设置' },
+  { key: 'ad', label: '4. 广告设置' },
+  { key: 'assets', label: '5. 组合与素材' },
+  { key: 'summary', label: '6. 确认执行' },
+]
+async function prepareValidation() {
+  if (prototypeLocked.value || !props.validationAvailable) return
+  if (savedSignature.value !== signature.value) await save()
+  if (existing.value && savedSignature.value === signature.value && !uncertain.value)
+    emit('validate', existing.value)
+}
 const previewOpen = ref(false)
 const sections = [
   { key: 'accounts', label: '1 账户' },
@@ -449,6 +825,9 @@ watch(
           owner_user_id: props.capabilities.actor_user_id,
           owner_team_id: props.capabilities.actor_team_id,
         })
+    if (props.prototype && !props.plan && !props.recovery)
+      form.value.campaigns = [prototypeCampaign()]
+    if (props.prototype) void loadChannels()
     stripReadOnlyFields(form.value)
     savedSignature.value = props.plan ? signature.value : ''
     if (props.recovery) {
@@ -752,9 +1131,13 @@ async function beforeClose(done: () => void) {
   emit('update:modelValue', false)
   done()
 }
-function requestClose() {
-  void beforeClose(() => emit('update:modelValue', false))
+async function requestClose() {
+  await beforeClose(() => {
+    emit('update:modelValue', false)
+    if (props.prototype) emit('closed')
+  })
 }
+defineExpose({ requestClose })
 function protectUnknownScope(event: BeforeUnloadEvent) {
   if (!props.modelValue || !accountScopeLocked.value) return
   // 范围POST原意图只在子组件内存中；未知结果时刷新会丢意图，必须交浏览器确认离开。

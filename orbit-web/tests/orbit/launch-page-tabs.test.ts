@@ -53,6 +53,12 @@ async function start() {
     },
   })
   await flushPromises()
+  // 新版默认进入创建广告；列表回归从草稿管理入口关闭内嵌编辑后继续。
+  const initialEditor = wrapper!.findComponent(DraftStub)
+  if (initialEditor.exists() && initialEditor.props('modelValue')) {
+    initialEditor.vm.$emit('update:modelValue', false)
+    await flushPromises()
+  }
 }
 function tab(name: string) {
   const result = wrapper.findAll('[role="tab"]').find((element) => element.text() === name)
@@ -62,7 +68,7 @@ function tab(name: string) {
 
 it('真实ElementPlus在成功apply后先同步内部tab再开抽屉，关闭后可重返模板继续归档', async () => {
   await start()
-  await tab('配置模板').trigger('click')
+  await tab('模板管理').trigger('click')
   await flushPromises()
   const templates = wrapper.findComponent(TemplatesStub)
   expect(templates.props('active')).toBe(true)
@@ -79,40 +85,40 @@ it('真实ElementPlus在成功apply后先同步内部tab再开抽屉，关闭后
   // 模拟业务子组件仍在结束请求：先已确认结果，再撤销busy，不能依赖微任务偶然顺序。
   templates.vm.$emit('applied', plan)
   await flushPromises()
-  expect(tab('计划与草稿').attributes('aria-selected')).toBe('true')
+  expect(tab('创建广告').attributes('aria-selected')).toBe('true')
   expect(templates.props('active')).toBe(false)
   const editor = wrapper.findComponent(DraftStub)
   expect(editor.props('modelValue')).toBe(true)
   templates.vm.$emit('blocked', false)
   editor.vm.$emit('update:modelValue', false)
   await flushPromises()
-  await tab('配置模板').trigger('click')
+  await tab('模板管理').trigger('click')
   await flushPromises()
-  expect(tab('配置模板').attributes('aria-selected')).toBe('true')
+  expect(tab('模板管理').attributes('aria-selected')).toBe('true')
   expect(templates.props('active')).toBe(true)
 })
 
 it('普通模板待确认结果及草稿打开时仍不能切页，成功内部切换标志不会遗留', async () => {
   await start()
-  await tab('配置模板').trigger('click')
+  await tab('模板管理').trigger('click')
   await flushPromises()
   const templates = wrapper.findComponent(TemplatesStub)
   templates.vm.$emit('blocked', true)
   await flushPromises()
-  await tab('计划与草稿').trigger('click')
+  await tab('创建广告').trigger('click')
   await flushPromises()
-  expect(tab('配置模板').attributes('aria-selected')).toBe('true')
+  expect(tab('模板管理').attributes('aria-selected')).toBe('true')
   expect(templates.props('active')).toBe(true)
   templates.vm.$emit('blocked', false)
   await flushPromises()
-  await tab('计划与草稿').trigger('click')
+  await tab('创建广告').trigger('click')
   await flushPromises()
-  const create = wrapper.findAll('button').find((button) => button.text() === '新建服务器草稿')!
+  const create = wrapper.findAll('button').find((button) => button.text() === '创建广告')!
   await create.trigger('click')
   await flushPromises()
   expect(wrapper.findComponent(DraftStub).props('modelValue')).toBe(true)
-  await tab('配置模板').trigger('click')
+  await tab('模板管理').trigger('click')
   await flushPromises()
-  expect(tab('计划与草稿').attributes('aria-selected')).toBe('true')
+  expect(tab('创建广告').attributes('aria-selected')).toBe('true')
   expect(templates.props('active')).toBe(false)
 })

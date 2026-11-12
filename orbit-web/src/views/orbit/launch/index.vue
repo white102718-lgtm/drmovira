@@ -1,6 +1,12 @@
 <template>
-  <div class="app-container launch-page">
-    <h2>投放计划与配置模板</h2>
+  <div class="app-container launch-page prototype-page">
+    <header class="prototype-heading">
+      <h2>创建广告</h2>
+      <div>
+        <el-button @click="switchSection('templates')">选择模板</el-button
+        ><el-button v-if="canReadTasks" @click="switchSection('tasks')">执行任务</el-button>
+      </div>
+    </header>
     <el-alert v-if="error" :title="error" type="error" :closable="false" />
     <el-alert
       v-if="taskFallback && canReadTasks"
@@ -23,133 +29,135 @@
       ></el-alert
     >
     <el-tabs v-model="active" :before-leave="beforeTab">
-      <el-tab-pane label="计划与草稿" name="plans" :disabled="planTabDisabled">
-        <div class="launch-tools">
-          <el-input
-            v-model="q"
-            placeholder="搜索计划名称"
-            clearable
-            :disabled="loading || pageBusy"
-            @keyup.enter="load('')"
-          /><el-select
-            v-model="status"
-            clearable
-            placeholder="全部状态"
-            :disabled="loading || pageBusy"
-            ><el-option
-              v-for="state in states"
-              :key="state.value"
-              :label="state.label"
-              :value="state.value" /></el-select
-          ><el-date-picker
-            v-model="dates"
-            type="daterange"
-            value-format="YYYY-MM-DD"
-            start-placeholder="创建日期起（UTC）"
-            end-placeholder="创建日期止（UTC）"
-            :disabled="loading || pageBusy"
-          /><el-button :disabled="loading || pageBusy" @click="load('')">查询计划</el-button
-          ><el-button
-            v-if="capabilities?.actions.includes('create')"
-            type="primary"
-            :disabled="pageBusy || Boolean(recovery?.pendingKey)"
-            @click="create"
-            >新建服务器草稿</el-button
+      <el-tab-pane label="创建广告" name="plans" :disabled="planTabDisabled">
+        <div v-if="!editorOpen" class="draft-management">
+          <div class="launch-tools">
+            <el-input
+              v-model="q"
+              placeholder="搜索计划名称"
+              clearable
+              :disabled="loading || pageBusy"
+              @keyup.enter="load('')"
+            /><el-select
+              v-model="status"
+              clearable
+              placeholder="全部状态"
+              :disabled="loading || pageBusy"
+              ><el-option
+                v-for="state in states"
+                :key="state.value"
+                :label="state.label"
+                :value="state.value" /></el-select
+            ><el-date-picker
+              v-model="dates"
+              type="daterange"
+              value-format="YYYY-MM-DD"
+              start-placeholder="创建日期起（UTC）"
+              end-placeholder="创建日期止（UTC）"
+              :disabled="loading || pageBusy"
+            /><el-button :disabled="loading || pageBusy" @click="load('')">查询计划</el-button
+            ><el-button
+              v-if="capabilities?.actions.includes('create')"
+              type="primary"
+              :disabled="pageBusy || Boolean(recovery?.pendingKey)"
+              @click="create"
+              >创建广告</el-button
+            >
+          </div>
+          <p class="quiet">
+            保存草稿不会创建广告；启用和执行须完成独立核验。{{
+              dataAsOf ? `本页数据时刻 ${dataAsOf}（UTC）` : ''
+            }}
+          </p>
+          <el-alert
+            v-if="!validationAvailable"
+            title="预检依赖尚未就绪或当前账号没有计划编辑权限；预检入口关闭，不会发起命名、分配或预检请求。"
+            type="info"
+            :closable="false"
+          />
+          <el-alert
+            v-else-if="!executionAvailable"
+            title="可按当前服务端能力预检；执行依赖尚未就绪，不会提交广告任务。"
+            type="info"
+            :closable="false"
+          />
+          <p v-if="validationLoading" role="status">
+            正在读取服务器当前计划与预检权限。<el-button @click="cancelValidationRead"
+              >取消本地读取</el-button
+            >
+          </p>
+          <el-table v-loading="loading" :data="plans" row-key="id" style="width: 100%"
+            ><el-table-column prop="name" label="计划名称" min-width="180"
+              ><template #default="scope">{{
+                scope.row.name || '未命名草稿'
+              }}</template></el-table-column
+            ><el-table-column label="账户 / 素材" width="140"
+              ><template #default="scope"
+                >{{ scope.row.account_ids.length }} / {{ scope.row.asset_ids.length }}</template
+              ></el-table-column
+            ><el-table-column label="状态 / 版本" width="160"
+              ><template #default="scope"
+                ><el-tag>{{ label(scope.row.state) }}</el-tag> · {{ scope.row.revision }}</template
+              ></el-table-column
+            ><el-table-column
+              prop="updated_at"
+              label="最近保存（UTC）"
+              min-width="210"
+            /><el-table-column label="操作" min-width="270"
+              ><template #default="scope"
+                ><el-button link :disabled="pageBusy" @click="open(scope.row, true)">详情</el-button
+                ><el-button
+                  v-if="
+                    capabilities?.actions.includes('edit') &&
+                    ['DRAFT', 'VALIDATED'].includes(scope.row.state)
+                  "
+                  link
+                  :disabled="pageBusy"
+                  @click="open(scope.row, false)"
+                  >编辑草稿</el-button
+                ><el-button
+                  v-if="['DRAFT', 'VALIDATED'].includes(scope.row.state)"
+                  link
+                  :disabled="pageBusy || !validationAvailable || Boolean(recovery?.pendingKey)"
+                  @click="openValidation(scope.row)"
+                  >投放预检</el-button
+                ></template
+              ></el-table-column
+            ></el-table
           >
-        </div>
-        <p class="quiet">
-          保存草稿不会创建广告；启用和执行须完成独立核验。{{
-            dataAsOf ? `本页数据时刻 ${dataAsOf}（UTC）` : ''
-          }}
-        </p>
-        <el-alert
-          v-if="!validationAvailable"
-          title="预检依赖尚未就绪或当前账号没有计划编辑权限；预检入口关闭，不会发起命名、分配或预检请求。"
-          type="info"
-          :closable="false"
-        />
-        <el-alert
-          v-else-if="!executionAvailable"
-          title="可按当前服务端能力预检；执行依赖尚未就绪，不会提交广告任务。"
-          type="info"
-          :closable="false"
-        />
-        <p v-if="validationLoading" role="status">
-          正在读取服务器当前计划与预检权限。<el-button @click="cancelValidationRead"
-            >取消本地读取</el-button
-          >
-        </p>
-        <el-table v-loading="loading" :data="plans" row-key="id" style="width: 100%"
-          ><el-table-column prop="name" label="计划名称" min-width="180"
-            ><template #default="scope">{{
-              scope.row.name || '未命名草稿'
-            }}</template></el-table-column
-          ><el-table-column label="账户 / 素材" width="140"
-            ><template #default="scope"
-              >{{ scope.row.account_ids.length }} / {{ scope.row.asset_ids.length }}</template
-            ></el-table-column
-          ><el-table-column label="状态 / 版本" width="160"
-            ><template #default="scope"
-              ><el-tag>{{ label(scope.row.state) }}</el-tag> · {{ scope.row.revision }}</template
-            ></el-table-column
-          ><el-table-column
-            prop="updated_at"
-            label="最近保存（UTC）"
-            min-width="210"
-          /><el-table-column label="操作" min-width="270"
-            ><template #default="scope"
-              ><el-button link :disabled="pageBusy" @click="open(scope.row, true)">详情</el-button
-              ><el-button
-                v-if="
-                  capabilities?.actions.includes('edit') &&
-                  ['DRAFT', 'VALIDATED'].includes(scope.row.state)
-                "
-                link
-                :disabled="pageBusy"
-                @click="open(scope.row, false)"
-                >编辑草稿</el-button
-              ><el-button
-                v-if="['DRAFT', 'VALIDATED'].includes(scope.row.state)"
-                link
-                :disabled="pageBusy || !validationAvailable || Boolean(recovery?.pendingKey)"
-                @click="openValidation(scope.row)"
-                >投放预检</el-button
-              ></template
-            ></el-table-column
-          ></el-table
-        >
-        <div class="launch-tools">
-          <el-select
-            v-model="pageSize"
-            aria-label="每页计划数量"
-            :disabled="loading || pageBusy"
-            @change="load('')"
-            ><el-option
-              v-for="size in [20, 50, 100, 200]"
-              :key="size"
-              :label="`${size}个`"
-              :value="size"
-          /></el-select>
-          <el-button :disabled="loading || pageBusy" @click="load('')">重新读取首页</el-button
-          ><el-button
-            :disabled="loading || pageBusy || pageDirty || historyIndex === 0"
-            @click="previousPlanPage"
-            >上一页计划</el-button
-          ><el-button
-            v-if="nextCursor"
-            :disabled="loading || pageBusy || pageDirty"
-            @click="nextPlanPage"
-            >下一页计划</el-button
-          >
-          <span role="status"
-            >第 {{ historyIndex + 1 }} 页 · 当前返回 {{ plans.length }} 项。{{
-              pageDirty ? '条件已变化，请查询后翻页。' : ''
-            }}{{ error && plans.length ? '保留上次成功读取的数据。' : '' }}</span
-          >
+          <div class="launch-tools">
+            <el-select
+              v-model="pageSize"
+              aria-label="每页计划数量"
+              :disabled="loading || pageBusy"
+              @change="load('')"
+              ><el-option
+                v-for="size in [20, 50, 100, 200]"
+                :key="size"
+                :label="`${size}个`"
+                :value="size"
+            /></el-select>
+            <el-button :disabled="loading || pageBusy" @click="load('')">重新读取首页</el-button
+            ><el-button
+              :disabled="loading || pageBusy || pageDirty || historyIndex === 0"
+              @click="previousPlanPage"
+              >上一页计划</el-button
+            ><el-button
+              v-if="nextCursor"
+              :disabled="loading || pageBusy || pageDirty"
+              @click="nextPlanPage"
+              >下一页计划</el-button
+            >
+            <span role="status"
+              >第 {{ historyIndex + 1 }} 页 · 当前返回 {{ plans.length }} 项。{{
+                pageDirty ? '条件已变化，请查询后翻页。' : ''
+              }}{{ error && plans.length ? '保留上次成功读取的数据。' : '' }}</span
+            >
+          </div>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="配置模板" name="templates" :disabled="templateTabDisabled" />
-      <el-tab-pane v-if="canReadTasks" label="任务" name="tasks" />
+      <el-tab-pane label="模板管理" name="templates" :disabled="templateTabDisabled" />
+      <el-tab-pane v-if="canReadTasks" label="执行任务" name="tasks" />
     </el-tabs>
     <TaskPanel v-if="canReadTasks" :active="active === 'tasks'" :context-key="accountContextKey" />
     <TemplatesPanel
@@ -162,6 +170,10 @@
       @failure="showFailure"
     />
     <DraftEditor
+      ref="draftEditor"
+      prototype
+      :validation-available="validationAvailable"
+      @validate="validateInline"
       v-model="editorOpen"
       :plan="editing"
       :read-only="readOnly"
@@ -221,6 +233,7 @@ import PlanValidationDialog from './PlanValidationDialog.vue'
 import { parseTask, type Task } from '@/api/orbit/tasks'
 import useUserStore from '@/store/modules/user'
 import { ReferenceApiError } from '@/api/orbit/references'
+const draftEditor = ref<InstanceType<typeof DraftEditor>>()
 const user = useUserStore()
 // 若依当前会话权限控制入口；数据每次GET仍由服务端即时复核，不借launch.read读取任务。
 const has = (permission: string) =>
@@ -498,11 +511,24 @@ async function applied(plan: LaunchPlan) {
   editorOpen.value = true
   await load('')
 }
-function beforeTab() {
+async function switchSection(name: string) {
+  if (await beforeTab()) active.value = name
+}
+async function beforeTab() {
   if (switchingAppliedDraft.value) return true
+  if (editorOpen.value && !draftBlocked.value) await draftEditor.value?.requestClose?.()
   return !pageBusy.value
 }
+async function validateInline(plan: LaunchPlan) {
+  editorOpen.value = false
+  await nextTick()
+  await openValidation(plan)
+}
 onBeforeRouteLeave(() => {
+  if (editorOpen.value && !draftBlocked.value && draftEditor.value?.requestClose)
+    return draftEditor.value
+      .requestClose()
+      .then(() => !editorOpen.value && !validationBlocked.value && !validationOpen.value)
   if (
     editorOpen.value ||
     draftBlocked.value ||
@@ -518,7 +544,19 @@ onBeforeRouteLeave(() => {
 })
 onMounted(() => {
   window.addEventListener('beforeunload', protectPendingValidation)
-  if (!planTabDisabled.value) void load('')
+  if (!planTabDisabled.value) {
+    const initialEpoch = readEpoch + 1
+    void load('').then(() => {
+      if (
+        readEpoch === initialEpoch &&
+        active.value === 'plans' &&
+        !error.value &&
+        capabilities.value?.actions.includes('create') &&
+        !recovery.value
+      )
+        void create()
+    })
+  }
 })
 watch(canReadTasks, (allowed) => {
   if (!allowed && active.value === 'tasks') {
@@ -695,6 +733,50 @@ async function validationAccepted(value: Task) {
   }
   .launch-tools :deep(.el-date-editor) {
     width: 100%;
+  }
+}
+</style>
+
+<style scoped>
+.prototype-page {
+  background: #f2f4f8;
+  min-height: 100vh;
+  padding: 22px 24px;
+  --el-color-primary: #3b5bdb;
+}
+.prototype-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1280px;
+  margin: auto;
+}
+.prototype-heading > h2 {
+  font-size: 23px;
+  max-width: 1280px;
+  margin: 0 0 18px;
+}
+.prototype-page > :deep(.el-tabs) {
+  max-width: 1280px;
+  margin: auto;
+}
+.prototype-page :deep(.el-tabs__header) {
+  background: white;
+  border-radius: 8px;
+  padding: 0 16px;
+  margin-bottom: 0;
+}
+.prototype-page :deep(.el-tabs__nav-wrap::after) {
+  height: 1px;
+}
+.draft-management {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+@media (max-width: 700px) {
+  .prototype-page {
+    padding: 14px 10px;
   }
 }
 </style>

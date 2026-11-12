@@ -66,8 +66,8 @@ it('仅tasks.read可打开真实任务入口，不调用launch.read，撤权即�
   expect(launchApi.capabilities).not.toHaveBeenCalled()
   expect(launchApi.list).not.toHaveBeenCalled()
   const tabs = wrapper!.findAll('[role="tab"]')
-  expect(tabs.find((tab) => tab.text() === '任务')?.attributes('aria-selected')).toBe('true')
-  const planTab = tabs.find((tab) => tab.text() === '计划与草稿')!
+  expect(tabs.find((tab) => tab.text() === '执行任务')?.attributes('aria-selected')).toBe('true')
+  const planTab = tabs.find((tab) => tab.text() === '创建广告')!
   expect(planTab.classes()).toContain('is-disabled')
   await planTab.trigger('click')
   await flushPromises()
@@ -82,8 +82,8 @@ it('有launch.read但无tasks.read不显示任务tab，原布局和模板入口�
   state.user.permissions = ['launch.read']
   await start()
   expect(wrapper!.findAll('[role="tab"]').map((tab) => tab.text())).toEqual([
-    '计划与草稿',
-    '配置模板',
+    '创建广告',
+    '模板管理',
   ])
   expect(launchApi.list).toHaveBeenCalledTimes(1)
 })
@@ -95,7 +95,7 @@ it('父菜单伪含launch.read但实际动作403时，仅有tasks.read才安全�
   await start()
   expect(wrapper!.find('[data-test="task-active"]').text()).toBe('true')
   expect(wrapper!.text()).toContain('已切换任务查询')
-  const planTab = wrapper!.findAll('[role="tab"]').find((tab) => tab.text() === '计划与草稿')!
+  const planTab = wrapper!.findAll('[role="tab"]').find((tab) => tab.text() === '创建广告')!
   expect(planTab.classes()).toContain('is-disabled')
   await planTab.trigger('click')
   await flushPromises()
@@ -147,7 +147,7 @@ it('计划动作随后403时清除原列表与创建能力，保留Task入口且
   expect(
     wrapper!
       .findAll('[role="tab"]')
-      .find((tab) => tab.text() === '计划与草稿')!
+      .find((tab) => tab.text() === '创建广告')!
       .classes(),
   ).toContain('is-disabled')
 })
@@ -158,7 +158,7 @@ it('原草稿待保存门禁继续阻止切任务，关闭后才可切换', asyn
   await flushPromises()
   await wrapper!
     .findAll('[role="tab"]')
-    .find((tab) => tab.text() === '任务')!
+    .find((tab) => tab.text() === '执行任务')!
     .trigger('click')
   await flushPromises()
   expect(wrapper!.find('[data-test="task-active"]').text()).toBe('false')
@@ -166,7 +166,7 @@ it('原草稿待保存门禁继续阻止切任务，关闭后才可切换', asyn
   await flushPromises()
   await wrapper!
     .findAll('[role="tab"]')
-    .find((tab) => tab.text() === '任务')!
+    .find((tab) => tab.text() === '执行任务')!
     .trigger('click')
   await flushPromises()
   expect(wrapper!.find('[data-test="task-active"]').text()).toBe('true')

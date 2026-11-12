@@ -13,6 +13,32 @@
       type="info"
       :closable="false"
     />
+    <div v-if="prototype && kind === 'assets'" class="picker-tools">
+      <el-select
+        v-model="tagFilter"
+        clearable
+        placeholder="全部标签"
+        aria-label="素材标签"
+        @change="read('')"
+        ><el-option v-for="t in tags" :key="t.id" :value="t.id" :label="t.name"
+      /></el-select>
+      <el-select
+        v-model="categoryFilter"
+        clearable
+        placeholder="全部分类"
+        aria-label="素材分类"
+        @change="read('')"
+        ><el-option v-for="t in categories" :key="t.id" :value="t.id" :label="t.name"
+      /></el-select>
+      <el-button v-if="tagCursor" @click="loadTaxonomy('tags', tagCursor)">更多标签</el-button
+      ><el-button v-if="categoryCursor" @click="loadTaxonomy('categories', categoryCursor)"
+        >更多分类</el-button
+      >
+      <p>
+        {{ allowRepeat ? '允许重复使用素材' : '不重复使用素材' }} · 对应
+        {{ adCount ?? '待解析' }} 条广告。指标暂无汇总，未知显示 —。
+      </p>
+    </div>
     <div class="picker-tools">
       <el-input
         v-model="q"
@@ -24,7 +50,7 @@
       ><el-switch v-model="onlySelected" active-text="仅看已选" :disabled="disabled" /><el-button
         :disabled="loading || disabled || onlySelected"
         @click="selectPage"
-        >选择本页可用项</el-button
+        >{{ prototype ? '按广告数选择当前结果' : '选择本页可用项' }}</el-button
       >
     </div>
     <p role="status" :aria-busy="loading">
@@ -39,7 +65,23 @@
             :aria-label="`选择${scope.row.label}`"
             @change="toggle(scope.row, Boolean($event))" /></template
       ></el-table-column>
-      <el-table-column prop="label" label="名称" min-width="180" show-overflow-tooltip />
+      <el-table-column prop="label" :label="prototype ? '素材 / 标签' : '名称'" min-width="180"
+        ><template #default="{ row }"
+          >{{ row.label
+          }}<small v-if="prototype">{{
+            row.tags?.map((id: string) => tags.find((t) => t.id === id)?.name || id).join(' / ')
+          }}</small></template
+        ></el-table-column
+      >
+      <template v-if="prototype && kind === 'assets'"
+        ><el-table-column
+          v-for="label in ['消耗', '点击', 'ROAS', '使用次数']"
+          :key="label"
+          :label="label"
+          width="90"
+          ><template #default>—</template></el-table-column
+        ></template
+      >
       <el-table-column prop="summary" label="当前资料" min-width="180" show-overflow-tooltip />
       <el-table-column label="可选状态" width="120"
         ><template #default="scope"
@@ -73,7 +115,7 @@
 import { computed, ref, watch } from 'vue'
 import type { OrbitAccount } from '@/api/orbit/accounts'
 import type { Channel } from '@/api/orbit/channels'
-import type { MaterialAsset } from '@/api/orbit/materials'
+import { materialApi, type MaterialAsset, type MaterialTaxonomy } from '@/api/orbit/materials'
 import type { PlanOwnership } from '@/api/orbit/launch'
 import { referenceRequest } from '@/api/orbit/references'
 export interface PickedSource {
@@ -81,9 +123,13 @@ export interface PickedSource {
   label: string
   summary: string
   eligible: boolean
+  tags?: string[]
 }
 const props = withDefaults(
   defineProps<{
+    prototype?: boolean
+    adCount?: number | null
+    allowRepeat?: boolean
     modelValue: boolean
     kind: 'accounts' | 'assets' | 'channels'
     selected: string[]
@@ -96,7 +142,34 @@ const emit = defineEmits<{ 'update:modelValue': [value: boolean]; choose: [ids: 
 const title = computed(
   () => ({ accounts: '选择账户', assets: '选择素材池', channels: '选择渠道' })[props.kind],
 )
-const limit = computed(() => (props.kind === 'channels' ? 1 : 500))
+const limit = computed(() =>
+  props.kind === 'channels'
+    ? 1
+    : props.prototype && props.adCount !== null && props.adCount !== undefined
+      ? Math.min(500, props.adCount)
+      : 500,
+)
+const tags = ref<MaterialTaxonomy[]>([]),
+  categories = ref<MaterialTaxonomy[]>([]),
+  tagCursor = ref<string | null>(null),
+  categoryCursor = ref<string | null>(null),
+  tagFilter = ref(''),
+  categoryFilter = ref('')
+async function loadTaxonomy(kind: 'tags' | 'categories', cursor = '') {
+  try {
+    const result = await materialApi.taxonomy(kind, cursor, { status: 'ENABLED', page_size: 100 })
+    if (!props.modelValue) return
+    if (kind === 'tags') {
+      tags.value = cursor ? [...tags.value, ...result.items] : result.items
+      tagCursor.value = result.next_cursor
+    } else {
+      categories.value = cursor ? [...categories.value, ...result.items] : result.items
+      categoryCursor.value = result.next_cursor
+    }
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : '分类读取失败'
+  }
+}
 const q = ref(''),
   rows = ref<PickedSource[]>([]),
   labels = ref(new Map<string, PickedSource>()),
@@ -127,6 +200,11 @@ watch(
       return
     }
     q.value = ''
+    tagFilter.value = categoryFilter.value = ''
+    if (props.prototype && props.kind === 'assets') {
+      void loadTaxonomy('tags')
+      void loadTaxonomy('categories')
+    }
     selection.value = new Set(props.selected)
     labels.value = new Map()
     onlySelected.value = false
@@ -142,6 +220,8 @@ async function read(cursor: string) {
   try {
     const params = new URLSearchParams({
       page_size: '50',
+      ...(props.prototype && tagFilter.value ? { tag_ids: tagFilter.value } : {}),
+      ...(props.prototype && categoryFilter.value ? { category_id: categoryFilter.value } : {}),
       ...(q.value.trim() ? { q: q.value.normalize('NFC').trim() } : {}),
       ...(cursor ? { cursor } : {}),
     })
@@ -167,6 +247,7 @@ async function read(cursor: string) {
         return {
           id: row.id,
           label: row.name,
+          tags: row.tag_ids,
           summary: `${row.kind} · ${row.state}`,
           eligible:
             row.state === 'READY' && row.ownership.owner_team_id === props.ownership.owner_team_id,
@@ -215,7 +296,11 @@ function toggle(row: PickedSource, checked: boolean) {
 function selectPage() {
   if (props.disabled) return
   const ids = new Set(selection.value)
-  rows.value.filter((row) => row.eligible).forEach((row) => ids.add(row.id))
+  rows.value
+    .filter((row) => row.eligible)
+    .forEach((row) => {
+      if (!props.prototype || ids.size < limit.value) ids.add(row.id)
+    })
   if (ids.size > limit.value) {
     error.value = `本页合并后超过${limit.value}项，请逐项选择，原选择保持不变`
     return
@@ -224,6 +309,16 @@ function selectPage() {
 }
 function confirm() {
   if (props.disabled || loading.value) return
+  if (
+    props.prototype &&
+    props.kind === 'assets' &&
+    (!selection.value.size ||
+      selection.value.size > limit.value ||
+      (!props.allowRepeat && selection.value.size !== props.adCount))
+  ) {
+    error.value = '请按广告数量选择素材；素材不足时可取消后启用重复使用'
+    return
+  }
   emit('choose', [...selection.value])
   emit('update:modelValue', false)
 }

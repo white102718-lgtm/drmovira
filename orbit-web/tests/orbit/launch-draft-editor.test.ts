@@ -604,3 +604,50 @@ it('复制和移除配置同步处理身份引用，不修改其他节点', asyn
   expect(bindings).toEqual(original.identity_bindings)
   expect(original.identity_bindings[0].groups).toHaveLength(1)
 })
+
+it('创建广告按原型六段内嵌呈现，保存完整结构且不触发执行', async () => {
+  const { accountApi } = await import('@/api/orbit/accounts')
+  const { channelApi } = await import('@/api/orbit/channels')
+  vi.spyOn(accountApi, 'list').mockResolvedValue({
+    items: [],
+    next_cursor: null,
+    data_as_of: '2026-11-12',
+    scope_version: 1,
+  })
+  vi.spyOn(channelApi, 'list').mockResolvedValue({
+    items: [],
+    next_cursor: null,
+    data_as_of: '2026-11-12',
+    scope_version: 1,
+  })
+  const save = vi
+    .spyOn(launchApi, 'save')
+    .mockImplementation(async (body) => ({ ...saved(), ...body }))
+  wrapper = mount(DraftEditor, {
+    props: { prototype: true, modelValue: true, capabilities: caps, identityReadAllowed: true },
+    global: { plugins: [ElementPlus] },
+  })
+  await flushPromises()
+  expect(wrapper.find('.el-drawer').exists()).toBe(false)
+  expect(wrapper.findAll('.prototype-create section>h3').map((e) => e.text())).toEqual(
+    expect.arrayContaining([
+      '1. 选择广告账户 已选 0 个',
+      '2. 广告系列设置',
+      '5. 组合数量与素材分配',
+      '6. 确认执行',
+    ]),
+  )
+  expect(
+    wrapper.findAll('[data-launch-section]').map((e) => e.attributes('data-launch-section')),
+  ).toEqual(['accounts', 'campaign', 'adset', 'ad', 'assets', 'summary'])
+  expect(wrapper.text()).not.toContain('模拟保存失败')
+  const buttons = wrapper.findAll('button')
+  await buttons.find((b) => b.text() === '保存草稿')!.trigger('click')
+  await flushPromises()
+  expect(save).toHaveBeenCalledOnce()
+  const body = save.mock.calls[0][0]
+  expect(body.campaigns[0].adsets[0].ads).toHaveLength(1)
+  expect(body.activate_after_create).toBe(false)
+  expect(body.account_ids).toEqual([])
+  expect(wrapper.emitted('validate')).toBeUndefined()
+})

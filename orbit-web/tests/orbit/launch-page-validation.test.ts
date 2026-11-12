@@ -96,6 +96,12 @@ async function start() {
     },
   })
   await flushPromises()
+  // 新版默认进入创建广告；列表回归从草稿管理入口关闭内嵌编辑后继续。
+  const initialEditor = wrapper!.findComponent(DraftStub)
+  if (initialEditor.exists() && initialEditor.props('modelValue')) {
+    initialEditor.vm.$emit('update:modelValue', false)
+    await flushPromises()
+  }
 }
 const validation = () => wrapper!.findComponent(ValidationStub)
 it('指标目录权限只从原monitor.read透传给计划与模板，权限变动同步换context', async () => {
@@ -175,11 +181,11 @@ it('子未知写入锁阻止关闭/切tab/路由离开/刷新，解锁并明确�
   await flushPromises()
   expect(validation().props('modelValue')).toBe(true)
   expect(state.leave!()).toBe(false)
-  expect(button('新建服务器草稿').attributes('disabled')).toBeDefined()
+  expect(button('创建广告').attributes('disabled')).toBeDefined()
   const event = new Event('beforeunload', { cancelable: true })
   window.dispatchEvent(event)
   expect(event.defaultPrevented).toBe(true)
-  const tab = wrapper!.findAll('[role="tab"]').find((row) => row.text() === '任务')!
+  const tab = wrapper!.findAll('[role="tab"]').find((row) => row.text() === '执行任务')!
   await tab.trigger('click')
   await flushPromises()
   expect(tab.attributes('aria-selected')).toBe('false')
@@ -269,7 +275,7 @@ it('仅实际Task合同事件接力既有详情，不把allocation/runtime UUID�
   expect(
     wrapper!
       .findAll('[role="tab"]')
-      .find((row) => row.text() === '任务')
+      .find((row) => row.text() === '执行任务')
       ?.attributes('aria-selected'),
   ).toBe('true')
   expect(wrapper!.text()).not.toContain('广告创建成功')
