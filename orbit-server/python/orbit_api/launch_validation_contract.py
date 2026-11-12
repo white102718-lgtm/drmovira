@@ -286,6 +286,9 @@ def freeze_validation(
     _positive(total_dag_node_count, "total_dag_node_count", maximum=100000)
     now = _time(validated_at)
     value = parse_plan(_bounded_json(plan, MAX_CONFIG_BYTES))
+    from orbit_api.launch_meta_settings import require_meta_capabilities
+
+    require_meta_capabilities(value)
     counts = expanded_counts(value)
     if (
         not value["account_ids"]

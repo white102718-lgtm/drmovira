@@ -13,7 +13,79 @@ export interface Budget {
   currency: string
   spend_cap: string | null
 }
+export interface CampaignMetaSettings {
+  spending_limit?: string | null
+  advantage_campaign_budget?: boolean
+  bid_amount?: string | null
+  roas_goal?: string | null
+}
+export interface ManualPlacements {
+  facebook?: (
+    | 'FEED'
+    | 'STORY'
+    | 'REELS'
+    | 'RIGHT_COLUMN'
+    | 'MARKETPLACE'
+    | 'VIDEO_FEEDS'
+    | 'SEARCH'
+    | 'INSTREAM_VIDEO'
+    | 'PROFILE_FEED'
+    | 'REELS_OVERLAY'
+  )[]
+  instagram?: (
+    | 'STREAM'
+    | 'STORY'
+    | 'REELS'
+    | 'EXPLORE'
+    | 'EXPLORE_HOME'
+    | 'PROFILE_FEED'
+    | 'SEARCH'
+    | 'PROFILE_REELS'
+  )[]
+  messenger?: ('INBOX' | 'STORY' | 'SPONSORED_MESSAGES')[]
+  audience_network?: ('CLASSIC' | 'REWARDED_VIDEO' | 'INSTREAM_VIDEO')[]
+  threads?: 'FEED'[]
+}
+export interface DeviceSettings {
+  platforms?: ('MOBILE' | 'DESKTOP')[]
+  operating_systems?: ('ANDROID' | 'IOS')[]
+  android_models?: string[]
+  ios_models?: string[]
+  excluded_android_models?: string[]
+  excluded_ios_models?: string[]
+  android_min_version?: string | null
+  android_max_version?: string | null
+  ios_min_version?: string | null
+  ios_max_version?: string | null
+}
+export interface AdSetMetaSettings {
+  conversion_location?: 'WEBSITE' | 'APP'
+  conversion_event?:
+    | 'ADD_TO_CART'
+    | 'PURCHASE'
+    | 'COMPLETE_REGISTRATION'
+    | 'LEAD'
+    | 'SUBSCRIBE'
+    | null
+  attribution_click_days?: 1 | 7
+  attribution_view_days?: 0 | 1
+  audience_mode?: 'ORIGINAL' | 'ADVANTAGE'
+  excluded_country_codes?: string[]
+  genders?: ('MALE' | 'FEMALE')[]
+  excluded_custom_audience_ids?: string[]
+  manual_placements?: ManualPlacements
+  inventory_filter?: 'FULL' | 'STANDARD' | 'LIMITED'
+  audience_network_inventory_filter?: 'FULL' | 'STANDARD' | 'LIMITED'
+  devices?: DeviceSettings
+}
+export interface AdMetaSettings {
+  format?: 'SINGLE' | 'CAROUSEL'
+  start_time?: string | null
+  end_time?: string | null
+  carousel_asset_ids?: string[]
+}
 export interface AdConfig {
+  meta_settings?: AdMetaSettings | null
   local_id: string
   copies: number
   name?: string
@@ -26,6 +98,7 @@ export interface AdConfig {
   asset_type?: 'ANY' | 'IMAGE' | 'VIDEO'
 }
 export interface AdSetConfig {
+  meta_settings?: AdSetMetaSettings | null
   local_id: string
   copies: number
   ads: AdConfig[]
@@ -35,7 +108,7 @@ export interface AdSetConfig {
   age_min?: number
   age_max?: number
   locales?: string[]
-  placements?: 'AUTO'
+  placements?: 'AUTO' | 'MANUAL'
   optimization_goal?: string
   billing_event?: string
   metric_profile_id?: string
@@ -43,14 +116,19 @@ export interface AdSetConfig {
   end_time?: string | null
 }
 export interface CampaignConfig {
+  meta_settings?: CampaignMetaSettings | null
   local_id: string
   copies: number
   adsets: AdSetConfig[]
-  objective?: 'OUTCOME_SALES' | 'OUTCOME_APP_PROMOTION'
+  objective?: 'OUTCOME_SALES' | 'OUTCOME_APP_PROMOTION' | 'OUTCOME_LEADS'
   buying_type?: 'AUCTION'
   special_ad_categories?: string[]
   budget?: Budget | null
-  bid_strategy?: 'LOWEST_COST_WITHOUT_CAP'
+  bid_strategy?:
+    | 'LOWEST_COST_WITHOUT_CAP'
+    | 'COST_CAP'
+    | 'LOWEST_COST_WITH_MIN_ROAS'
+    | 'LOWEST_COST_WITH_BID_CAP'
 }
 export interface GroupIdentity {
   adset_local_id: string

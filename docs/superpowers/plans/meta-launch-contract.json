@@ -1,0 +1,837 @@
+{
+  "version": 1,
+  "notes": [
+    "meta_settings optional and nullable; omitted fields stay omitted on save",
+    "Existing budget/country_codes/age/locales/start/end/cta/optimization_goal and identity conversion_event fields retained",
+    "Defaults are UI product defaults only; old drafts never auto-filled",
+    "All explicit nested execution controls currently fail field-specific capability preflight; no real advertising writes"
+  ],
+  "schema": {
+    "$defs": {
+      "AdConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "meta_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AdMetaSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "local_id": {
+            "title": "Local Id",
+            "type": "string"
+          },
+          "copies": {
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Copies",
+            "type": "integer"
+          },
+          "name": {
+            "default": null,
+            "title": "Name",
+            "type": "string"
+          },
+          "title": {
+            "default": null,
+            "title": "Title",
+            "type": "string"
+          },
+          "body": {
+            "default": null,
+            "title": "Body",
+            "type": "string"
+          },
+          "description": {
+            "default": null,
+            "title": "Description",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "url_tags": {
+            "default": null,
+            "title": "Url Tags",
+            "type": "string"
+          },
+          "cta": {
+            "default": null,
+            "title": "Cta",
+            "type": "string"
+          },
+          "asset_type": {
+            "default": null,
+            "enum": [
+              "ANY",
+              "IMAGE",
+              "VIDEO"
+            ],
+            "title": "Asset Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "local_id",
+          "copies"
+        ],
+        "title": "AdConfig",
+        "type": "object"
+      },
+      "AdMetaSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "format": {
+            "default": "SINGLE",
+            "enum": [
+              "SINGLE",
+              "CAROUSEL"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start Time"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End Time"
+          },
+          "carousel_asset_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Carousel Asset Ids",
+            "type": "array"
+          }
+        },
+        "title": "AdMetaSettings",
+        "type": "object"
+      },
+      "AdSetConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "meta_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AdSetMetaSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "local_id": {
+            "title": "Local Id",
+            "type": "string"
+          },
+          "copies": {
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Copies",
+            "type": "integer"
+          },
+          "ads": {
+            "items": {
+              "$ref": "#/$defs/AdConfig"
+            },
+            "maxItems": 10000,
+            "title": "Ads",
+            "type": "array"
+          },
+          "name": {
+            "default": null,
+            "title": "Name",
+            "type": "string"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Budget"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "country_codes": {
+            "default": null,
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Country Codes",
+            "type": "array"
+          },
+          "age_min": {
+            "default": null,
+            "maximum": 65,
+            "minimum": 18,
+            "title": "Age Min",
+            "type": "integer"
+          },
+          "age_max": {
+            "default": null,
+            "maximum": 65,
+            "minimum": 18,
+            "title": "Age Max",
+            "type": "integer"
+          },
+          "locales": {
+            "default": null,
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Locales",
+            "type": "array"
+          },
+          "placements": {
+            "default": null,
+            "enum": [
+              "AUTO",
+              "MANUAL"
+            ],
+            "title": "Placements",
+            "type": "string"
+          },
+          "optimization_goal": {
+            "default": null,
+            "title": "Optimization Goal",
+            "type": "string"
+          },
+          "billing_event": {
+            "default": null,
+            "title": "Billing Event",
+            "type": "string"
+          },
+          "metric_profile_id": {
+            "default": null,
+            "title": "Metric Profile Id",
+            "type": "string"
+          },
+          "start_time": {
+            "default": null,
+            "title": "Start Time",
+            "type": "string"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End Time"
+          }
+        },
+        "required": [
+          "local_id",
+          "copies",
+          "ads"
+        ],
+        "title": "AdSetConfig",
+        "type": "object"
+      },
+      "AdSetMetaSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "conversion_location": {
+            "default": "WEBSITE",
+            "enum": [
+              "WEBSITE",
+              "APP"
+            ],
+            "title": "Conversion Location",
+            "type": "string"
+          },
+          "conversion_event": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ADD_TO_CART",
+                  "PURCHASE",
+                  "COMPLETE_REGISTRATION",
+                  "LEAD",
+                  "SUBSCRIBE"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Conversion Event"
+          },
+          "attribution_click_days": {
+            "default": 7,
+            "enum": [
+              1,
+              7
+            ],
+            "title": "Attribution Click Days",
+            "type": "integer"
+          },
+          "attribution_view_days": {
+            "default": 1,
+            "enum": [
+              0,
+              1
+            ],
+            "title": "Attribution View Days",
+            "type": "integer"
+          },
+          "audience_mode": {
+            "default": "ORIGINAL",
+            "enum": [
+              "ORIGINAL",
+              "ADVANTAGE"
+            ],
+            "title": "Audience Mode",
+            "type": "string"
+          },
+          "excluded_country_codes": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Excluded Country Codes",
+            "type": "array"
+          },
+          "genders": {
+            "items": {
+              "enum": [
+                "MALE",
+                "FEMALE"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Genders",
+            "type": "array"
+          },
+          "excluded_custom_audience_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Excluded Custom Audience Ids",
+            "type": "array"
+          },
+          "manual_placements": {
+            "$ref": "#/$defs/ManualPlacements"
+          },
+          "inventory_filter": {
+            "default": "STANDARD",
+            "enum": [
+              "FULL",
+              "STANDARD",
+              "LIMITED"
+            ],
+            "title": "Inventory Filter",
+            "type": "string"
+          },
+          "audience_network_inventory_filter": {
+            "default": "STANDARD",
+            "enum": [
+              "FULL",
+              "STANDARD",
+              "LIMITED"
+            ],
+            "title": "Audience Network Inventory Filter",
+            "type": "string"
+          },
+          "devices": {
+            "$ref": "#/$defs/DeviceSettings"
+          }
+        },
+        "title": "AdSetMetaSettings",
+        "type": "object"
+      },
+      "Budget": {
+        "additionalProperties": false,
+        "properties": {
+          "owner": {
+            "enum": [
+              "CAMPAIGN",
+              "ADSET"
+            ],
+            "title": "Owner",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "DAILY",
+              "LIFETIME"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "spend_cap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spend Cap"
+          }
+        },
+        "required": [
+          "owner",
+          "type",
+          "amount",
+          "currency",
+          "spend_cap"
+        ],
+        "title": "Budget",
+        "type": "object"
+      },
+      "CampaignMetaSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "spending_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Spending Limit"
+          },
+          "advantage_campaign_budget": {
+            "default": false,
+            "title": "Advantage Campaign Budget",
+            "type": "boolean"
+          },
+          "bid_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Bid Amount"
+          },
+          "roas_goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Roas Goal"
+          }
+        },
+        "title": "CampaignMetaSettings",
+        "type": "object"
+      },
+      "DeviceSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "platforms": {
+            "items": {
+              "enum": [
+                "MOBILE",
+                "DESKTOP"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Platforms",
+            "type": "array"
+          },
+          "operating_systems": {
+            "items": {
+              "enum": [
+                "ANDROID",
+                "IOS"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Operating Systems",
+            "type": "array"
+          },
+          "android_models": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Android Models",
+            "type": "array"
+          },
+          "excluded_android_models": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Excluded Android Models",
+            "type": "array"
+          },
+          "excluded_ios_models": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Excluded Ios Models",
+            "type": "array"
+          },
+          "ios_models": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Ios Models",
+            "type": "array"
+          },
+          "android_min_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Android Min Version"
+          },
+          "android_max_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Android Max Version"
+          },
+          "ios_min_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ios Min Version"
+          },
+          "ios_max_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ios Max Version"
+          }
+        },
+        "title": "DeviceSettings",
+        "type": "object"
+      },
+      "ManualPlacements": {
+        "additionalProperties": false,
+        "properties": {
+          "facebook": {
+            "items": {
+              "enum": [
+                "FEED",
+                "STORY",
+                "REELS",
+                "RIGHT_COLUMN",
+                "MARKETPLACE",
+                "VIDEO_FEEDS",
+                "SEARCH",
+                "INSTREAM_VIDEO",
+                "PROFILE_FEED",
+                "REELS_OVERLAY"
+              ],
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Facebook",
+            "type": "array"
+          },
+          "instagram": {
+            "items": {
+              "enum": [
+                "STREAM",
+                "STORY",
+                "REELS",
+                "EXPLORE",
+                "EXPLORE_HOME",
+                "PROFILE_FEED",
+                "SEARCH",
+                "PROFILE_REELS"
+              ],
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Instagram",
+            "type": "array"
+          },
+          "messenger": {
+            "items": {
+              "enum": [
+                "INBOX",
+                "STORY",
+                "SPONSORED_MESSAGES"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Messenger",
+            "type": "array"
+          },
+          "audience_network": {
+            "items": {
+              "enum": [
+                "CLASSIC",
+                "REWARDED_VIDEO",
+                "INSTREAM_VIDEO"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Audience Network",
+            "type": "array"
+          },
+          "threads": {
+            "items": {
+              "const": "FEED",
+              "type": "string"
+            },
+            "maxItems": 1,
+            "title": "Threads",
+            "type": "array"
+          }
+        },
+        "title": "ManualPlacements",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "meta_settings": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CampaignMetaSettings"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "local_id": {
+        "title": "Local Id",
+        "type": "string"
+      },
+      "copies": {
+        "maximum": 50,
+        "minimum": 1,
+        "title": "Copies",
+        "type": "integer"
+      },
+      "adsets": {
+        "items": {
+          "$ref": "#/$defs/AdSetConfig"
+        },
+        "maxItems": 10000,
+        "title": "Adsets",
+        "type": "array"
+      },
+      "objective": {
+        "default": null,
+        "enum": [
+          "OUTCOME_SALES",
+          "OUTCOME_APP_PROMOTION",
+          "OUTCOME_LEADS"
+        ],
+        "title": "Objective",
+        "type": "string"
+      },
+      "buying_type": {
+        "const": "AUCTION",
+        "default": null,
+        "title": "Buying Type",
+        "type": "string"
+      },
+      "special_ad_categories": {
+        "default": null,
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 10,
+        "title": "Special Ad Categories",
+        "type": "array"
+      },
+      "budget": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Budget"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "bid_strategy": {
+        "default": null,
+        "enum": [
+          "LOWEST_COST_WITHOUT_CAP",
+          "COST_CAP",
+          "LOWEST_COST_WITH_MIN_ROAS",
+          "LOWEST_COST_WITH_BID_CAP"
+        ],
+        "title": "Bid Strategy",
+        "type": "string"
+      }
+    },
+    "required": [
+      "local_id",
+      "copies",
+      "adsets"
+    ],
+    "title": "CampaignConfig",
+    "type": "object"
+  },
+  "ui_defaults": {
+    "campaign_meta_settings": {
+      "spending_limit": null,
+      "advantage_campaign_budget": false,
+      "bid_amount": null,
+      "roas_goal": null
+    },
+    "adset_meta_settings": {
+      "conversion_location": "WEBSITE",
+      "conversion_event": null,
+      "attribution_click_days": 7,
+      "attribution_view_days": 1,
+      "audience_mode": "ORIGINAL",
+      "excluded_country_codes": [],
+      "genders": [],
+      "excluded_custom_audience_ids": [],
+      "manual_placements": {
+        "facebook": [],
+        "instagram": [],
+        "messenger": [],
+        "audience_network": [],
+        "threads": []
+      },
+      "inventory_filter": "STANDARD",
+      "audience_network_inventory_filter": "STANDARD",
+      "devices": {
+        "platforms": [],
+        "operating_systems": [],
+        "android_models": [],
+        "excluded_android_models": [],
+        "excluded_ios_models": [],
+        "ios_models": [],
+        "android_min_version": null,
+        "android_max_version": null,
+        "ios_min_version": null,
+        "ios_max_version": null
+      }
+    },
+    "ad_meta_settings": {
+      "format": "SINGLE",
+      "start_time": null,
+      "end_time": null,
+      "carousel_asset_ids": []
+    },
+    "existing_fields": {
+      "objective": "OUTCOME_SALES",
+      "buying_type": "AUCTION",
+      "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
+      "placements": "AUTO",
+      "optimization_goal": "OFFSITE_CONVERSIONS",
+      "billing_event": "IMPRESSIONS",
+      "age_min": 18,
+      "age_max": 65,
+      "locales": [],
+      "cta": "SHOP_NOW",
+      "activate_after_create": false
+    },
+    "app_objective_override": {
+      "optimization_goal": "APP_INSTALLS",
+      "conversion_location": "APP",
+      "conversion_event": null
+    }
+  },
+  "validation_notes": [
+    "Same campaign optimization goals must agree once new settings are used",
+    "CBO conversion events must agree across groups and account identity bindings",
+    "VALUE requires PURCHASE; PURCHASE only sales; LEAD only leads; APP requires app resources",
+    "No fabricated budget, country, account, identity or asset defaults; incomplete drafts are permitted",
+    "Manual placements require at least one explicit selection; all placements require live capability verification",
+    "All new nonempty explicit execution controls, including defaults, currently produce field-specific META_CONFIGURATION_UNAVAILABLE; null/empty settings have no requested effect"
+  ]
+}

@@ -2,7 +2,8 @@
   <el-drawer
     :model-value="modelValue"
     :title="readOnly ? '投放计划详情' : existing ? '编辑投放草稿' : '新建投放草稿'"
-    size="96%"
+    size="min(1240px, 100%)"
+    class="comfort-draft"
     :close-on-click-modal="false"
     :close-on-press-escape="
       !locked && !identityEditing && !sourceOpen && !accountOpen && !metricBrowsing
@@ -11,7 +12,17 @@
     @closed="emit('closed')"
     @open-auto-focus="locationFocusTrigger++"
   >
-    <div ref="editorFields">
+    <div ref="editorFields" class="draft-content">
+      <nav class="draft-nav" aria-label="投放配置导航">
+        <button
+          v-for="section in sections"
+          :key="section.key"
+          type="button"
+          @click="goToSection(section.key)"
+        >
+          {{ section.label }}
+        </button>
+      </nav>
       <p v-if="locationNotice" ref="locationAnchor" tabindex="-1" role="status">
         {{ locationNotice }}
       </p>
@@ -45,7 +56,7 @@
         >
       </div>
       <el-form label-position="top" :disabled="locked || sourceOpen || accountOpen || readOnly">
-        <h3>1. 账户、负责人和渠道</h3>
+        <h3 data-launch-section="accounts" tabindex="-1">1. 账户、负责人和渠道</h3>
         <el-form-item label="计划名称（草稿可空，最多100码点）"
           ><el-input v-model="form.name" /><span
             >{{ codePoints(form.name) }}/100</span
@@ -91,18 +102,21 @@
           type="warning"
           :closable="false"
         />
-        <h3>2—4. 系列、广告组和广告</h3>
+        <p class="draft-intro">按从上到下的顺序配置。每层可切换和复制，复制后的配置独立修改。</p>
         <CampaignTree
           ref="campaignTree"
           v-model="form.campaigns"
+          :asset-ids="form.asset_ids"
           :disabled="locked || sourceOpen || accountOpen || readOnly"
           :metric-read-allowed="metricReadAllowed"
           :metric-context-key="accountContextKey"
           @browsing="metricBrowsing = $event"
+          @clone-branch="cloneIdentityReferences"
+          @remove-branch="removeIdentityReferences"
         />
         <el-divider />
       </el-form>
-      <h3>逐账户身份</h3>
+      <h3 data-launch-section="identity" tabindex="-1">逐账户身份</h3>
       <el-alert
         v-if="form.account_scope_snapshot_id"
         title="账户范围尚未解析，请先保存服务器草稿，再按返回的实际账户编辑身份。已有身份绑定保留，不会静默删除。"
@@ -121,18 +135,24 @@
         @editing="identityEditing = $event"
       />
       <el-form label-position="top" :disabled="locked || sourceOpen || accountOpen || readOnly">
-        <h3>5. 素材池与分配</h3>
+        <h3 data-launch-section="assets" tabindex="-1">5. 素材池与分配</h3>
         <div class="source-fields">
           <el-button @click="pick('assets')"
             >选择素材池（{{ form.asset_ids.length }}/500）</el-button
           ><el-switch v-model="form.allow_repeat" active-text="允许重复使用素材" />
         </div>
         <el-alert
-          title="素材选择不等于完成分配；完整兼容图、全局求解和安全证据验证另行执行，当前不能假分配。"
+          title="选定素材池后，在投放预检中核对素材分配。轮播卡片需选择素材池内的素材，保存时不自动发布。"
           type="info"
           :closable="false"
         />
-        <h3>6. 内部结构汇总与提交门禁</h3>
+        <h3 data-launch-section="summary" tabindex="-1">6. 配置汇总与执行设置</h3>
+        <el-alert
+          v-if="hasExtendedConfiguration"
+          title="本轮新增的 Meta 配置支持草稿保存和预览，尚未接通对应广告执行能力；投放预检会明确指出未支持的字段，不会忽略配置后创建广告。"
+          type="warning"
+          :closable="false"
+        />
         <p v-if="counts" role="status">
           系列 {{ counts.campaignCount }} · 广告组 {{ counts.adsetCount }} · 广告
           {{ counts.adCount }}（按账户和每层复制份数展开）
@@ -157,7 +177,7 @@
           active-text="创建后启用（仍需独立权限与二次确认）"
         />
         <el-alert
-          title="当前可保存草稿，尚不具备完整执行前置条件：身份授权、能力校验、命名、素材分配与命令服务。预检和执行保持关闭，保存不会创建广告。"
+          title="保存只更新平台草稿。正式执行前，需从计划列表完成投放预检，检查身份、素材和当前账户支持的配置；保存或预览均不会创建广告。"
           type="warning"
           :closable="false"
         />
@@ -181,8 +201,18 @@
         @locked="accountScopeLocked = $event"
       />
     </div>
+    <DraftConfigPreview v-model="previewOpen" :plan="form" :account-count="accountCount" />
     <template #footer
       ><div class="drawer-actions">
+        <span class="footer-status"
+          >{{ savedSignature === signature ? '更改已保存' : '更改尚未保存' }} ·
+          {{ accountCount ?? '待解析' }} 个账户</span
+        >
+        <el-button
+          :disabled="locked || sourceOpen || accountOpen || identityEditing || metricBrowsing"
+          @click="previewOpen = true"
+          >预览当前配置</el-button
+        >
         <el-button
           :disabled="locked || sourceOpen || accountOpen || identityEditing || metricBrowsing"
           @click="requestClose"
@@ -243,6 +273,7 @@ import {
   treeCounts,
 } from '@/api/orbit/launch-form'
 import CampaignTree from './CampaignTree.vue'
+import DraftConfigPreview from './DraftConfigPreview.vue'
 import SourcePicker from './SourcePicker.vue'
 import PlanIdentityBindings from './PlanIdentityBindings.vue'
 import PlanAccountScopePicker from './PlanAccountScopePicker.vue'
@@ -282,6 +313,55 @@ const sourceOpen = ref(false),
 const accountOpen = ref(false),
   accountScopeLocked = ref(false),
   scopeMetadata = ref<ScopeSnapshot | null>(null)
+/** 复制保留同账户身份关联，但新节点ID必须独立；移除只清理被删节点。 */
+function cloneIdentityReferences(mapping: Record<string, string>) {
+  if (locked.value || props.readOnly) return
+  for (const binding of form.value.identity_bindings) {
+    const groups = binding.groups
+      .filter((row) => mapping[row.adset_local_id])
+      .map((row) => ({ ...cloneValue(row), adset_local_id: mapping[row.adset_local_id] }))
+    const ads = binding.ad_overrides
+      .filter((row) => mapping[row.ad_local_id])
+      .map((row) => ({ ...cloneValue(row), ad_local_id: mapping[row.ad_local_id] }))
+    binding.groups.push(...groups)
+    binding.ad_overrides.push(...ads)
+  }
+}
+function removeIdentityReferences(ids: string[]) {
+  if (locked.value || props.readOnly) return
+  const removed = new Set(ids)
+  for (const binding of form.value.identity_bindings) {
+    binding.groups = binding.groups.filter((row) => !removed.has(row.adset_local_id))
+    binding.ad_overrides = binding.ad_overrides.filter((row) => !removed.has(row.ad_local_id))
+  }
+}
+const hasExtendedConfiguration = computed(() =>
+  form.value.campaigns.some(
+    (campaign) =>
+      campaign.meta_settings ||
+      campaign.objective === 'OUTCOME_LEADS' ||
+      campaign.adsets.some(
+        (group) =>
+          group.meta_settings ||
+          group.placements === 'MANUAL' ||
+          group.ads.some((ad) => ad.meta_settings),
+      ),
+  ),
+)
+const previewOpen = ref(false)
+const sections = [
+  { key: 'accounts', label: '1 账户' },
+  { key: 'campaign', label: '2 系列' },
+  { key: 'adset', label: '3 广告组' },
+  { key: 'ad', label: '4 广告' },
+  { key: 'identity', label: '身份资源' },
+  { key: 'assets', label: '5 素材' },
+  { key: 'summary', label: '6 汇总' },
+]
+function goToSection(key: string) {
+  const target = editorFields.value?.querySelector<HTMLElement>(`[data-launch-section="${key}"]`)
+  target?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })
+}
 const identityEditing = ref(false)
 const metricBrowsing = ref(false)
 const editorFields = ref<HTMLElement>(),
@@ -806,8 +886,66 @@ watch(
   gap: 10px;
   margin: 12px 0;
 }
+.draft-content {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.draft-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 0 18px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  margin-bottom: 20px;
+}
+.draft-nav button {
+  border: 0;
+  border-radius: 6px;
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-regular);
+  padding: 8px 14px;
+  cursor: pointer;
+  font: inherit;
+}
+.draft-nav button:hover,
+.draft-nav button:focus-visible {
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
+.draft-intro {
+  color: var(--el-text-color-secondary);
+  margin: 28px 0 16px;
+}
+.footer-status {
+  margin-right: auto;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+}
 h3 {
-  margin-top: 24px;
+  margin: 28px 0 18px;
+  scroll-margin-top: 12px;
+}
+.drawer-actions {
+  margin: 0;
+  justify-content: flex-end;
+}
+@media (max-width: 700px) {
+  .draft-nav {
+    gap: 5px;
+  }
+  .draft-nav button {
+    padding: 8px 10px;
+  }
+  .footer-status {
+    width: 100%;
+  }
+  .drawer-actions {
+    gap: 8px;
+    justify-content: flex-start;
+  }
+  .drawer-actions :deep(.el-button) {
+    margin-left: 0;
+  }
 }
 :deep(.el-select) {
   width: min(600px, 100%);

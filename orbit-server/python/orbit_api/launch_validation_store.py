@@ -472,11 +472,15 @@ class LaunchValidationStore:
                 return ValidationPreparation(
                     current, identifier, expected, input_hash, None, None, None
                 )
-            provider = await self.require_provider(session)
             await access.clock(session, current, write=True)
             head = await plans.row(session, current, identifier, write=True)
             self._head(head, expected)
             source = await capture_plan_source(session, current, head)
+            # 未接入的新字段先返回具体位置，不能被通用Provider缺失吞掉。
+            from orbit_api.launch_meta_settings import require_meta_capabilities
+
+            require_meta_capabilities(source.payload())
+            provider = await self.require_provider(session)
             # 提前整数乘法边界，不让外部采集为非法巨大展开服务。
             expanded_counts(source.payload())
             captured = ValidationInput(current, source, canonical(value).encode())

@@ -364,6 +364,9 @@ def prepare_execution(
         stale()
     plan = parse_plan(source.canonical_payload)
     expanded_counts(plan)
+    from orbit_api.launch_meta_settings import require_meta_capabilities
+
+    require_meta_capabilities(plan)
     _required_configuration(plan)
     request_value = parse_plan_action(_json(request), "execute")
     if request_value["hash"] != validation.hash:

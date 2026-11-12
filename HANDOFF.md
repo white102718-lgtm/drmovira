@@ -164,3 +164,11 @@ python -m venv .venv
 ## 2026-11-10：Meta 授权自动接入与账户列表真实同步
 
 已实现选应用直接跳转、授权后全量发现并沿原Worker接入、投放师归属授权发起人、户商可空后补。真实Meta完整分页对账2账户一致，归属及空户商通过；两账户资料同步成功。新增账户元数据和账户当地近90天日消耗接入原事实表；无指标策略不再阻止资料同步。缺失消耗不补零，余额不以应付账款替代。最终后端6328、前端1394、隔离数据库78项通过，gstack线上和隔离验收范围见 `orbit-server/docs/orbit/meta-integration/AUTO_IMPORT_VALIDATION.md`；字段、接口权限及仍未知内容见 `orbit-server/docs/orbit/META_ACCOUNT_LIST_ENRICHMENT.md`。迁移至077，最终生产目录 `/opt/orbit/releases/20261110-meta-fields`，API与只读Worker运行；AdsPower设备服务保持原发布。真实非零广告消耗、其他客户与广告写入仍未在本轮验收。
+
+## 2026-11-12：Meta 计划与草稿配置／舒适版交互
+
+用户确认上下排列，已在最新 Meta 授权/采集版本基础上补充精确配置合同、三层编辑、独立复制身份映射、中文选项、默认值及当前配置预览。详见 [功能说明](docs/META_LAUNCH_CONFIGURATION.md)、[验收记录](docs/META_LAUNCH_VALIDATION.md) 和 [源码指纹](docs/META_LAUNCH_SOURCE_HASHES.json)。
+
+线上发布 `/opt/orbit/releases/20261112-launch-config`，只切换API和前端，未改变AdsPower及Meta采集Worker。真实验收草稿已保存至revision3，未关联账户/素材、未发布。后端6362项全量后追加145项校验回归、前端1405项最终全量通过。新增配置尚未接通对应广告执行能力，明确拒绝预检／执行，不可把草稿能力称作真实广告创建已验收。
+
+下一步若要真实创建：接通新增控制的版本化Meta适配、账户能力与写入授权、完整素材与身份来源；保留当前明确失败护栏，不得直接删除护栏让新字段被忽略。

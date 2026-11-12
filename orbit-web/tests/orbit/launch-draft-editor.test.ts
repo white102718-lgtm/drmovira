@@ -546,3 +546,61 @@ it('非空身份草稿允许真实SDK保存成功并完整回读到编辑器', a
   })
   expect(document.body.textContent).toContain('服务器已保存')
 })
+
+it('舒适版预览展示未保存内容而不创建计划或广告', async () => {
+  const create = vi.spyOn(launchApi, 'save')
+  await start()
+  await fill('未保存的预览计划')
+  await click('预览当前配置')
+  expect(document.body.textContent).toContain('当前配置预览')
+  expect(document.body.textContent).toContain('包含尚未保存的更改')
+  expect(create).not.toHaveBeenCalled()
+  await click('返回配置')
+  expect(nameInput().value).toBe('未保存的预览计划')
+})
+
+it('复制和移除配置同步处理身份引用，不修改其他节点', async () => {
+  const original = saved()
+  original.account_ids = ['account']
+  original.campaigns = [
+    {
+      local_id: 'campaign',
+      copies: 1,
+      adsets: [{ local_id: 'group', copies: 1, ads: [{ local_id: 'ad', copies: 1 }] }],
+    },
+  ]
+  original.identity_bindings = [
+    {
+      account_id: 'account',
+      page_id: '123',
+      groups: [
+        {
+          adset_local_id: 'group',
+          pixel_id: '456',
+          conversion_event: 'PURCHASE',
+          application_id: null,
+          object_store_url: null,
+        },
+      ],
+      ad_overrides: [{ ad_local_id: 'ad', page_id: '789' }],
+    },
+  ]
+  await start({ plan: original })
+  const tree = wrapper.findComponent(CampaignTree)
+  tree.vm.$emit('clone-branch', { group: 'group-copy', ad: 'ad-copy' })
+  await flushPromises()
+  let bindings = wrapper.findComponent(PlanIdentityBindings).props('modelValue')
+  expect(bindings[0].groups.map((row: { adset_local_id: string }) => row.adset_local_id)).toEqual([
+    'group',
+    'group-copy',
+  ])
+  expect(bindings[0].ad_overrides.map((row: { ad_local_id: string }) => row.ad_local_id)).toEqual([
+    'ad',
+    'ad-copy',
+  ])
+  tree.vm.$emit('remove-branch', ['group-copy', 'ad-copy'])
+  await flushPromises()
+  bindings = wrapper.findComponent(PlanIdentityBindings).props('modelValue')
+  expect(bindings).toEqual(original.identity_bindings)
+  expect(original.identity_bindings[0].groups).toHaveLength(1)
+})

@@ -70,3 +70,12 @@ describe('投放配置树与原字段口径', () => {
     expect(ad.title).toBe('')
   })
 })
+
+it('结构汇总不删除旧草稿的空国家字段或回填新配置', () => {
+  const value = fixture()
+  value[0].adsets[0].country_codes = []
+  const before = JSON.stringify(value)
+  treeCounts(2, value)
+  expect(JSON.stringify(value)).toBe(before)
+  expect(value[0].meta_settings).toBeUndefined()
+})

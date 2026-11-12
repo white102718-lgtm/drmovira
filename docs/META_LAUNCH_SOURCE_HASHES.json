@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-12",
+  "files": {
+    "orbit-server/python/orbit_api/launch_contract.py": "25cb8b3a16a4f3e06f32e27c25b1eca8ef0303a65fc5d3272830b2b5f254c4f0",
+    "orbit-server/python/orbit_api/launch_meta_settings.py": "d79c94acc4702397afe8e3befa0e44590ac3de3aa075dfd7de7ed23c5cbb42d8",
+    "orbit-server/python/orbit_api/launch_validation_contract.py": "3f9460f84f3310d70684e145a8500ede75cc516dfa13d10c34d23e5e138d333e",
+    "orbit-server/python/orbit_api/launch_validation_store.py": "8d4c2eccc37a4c4b219f10978ff23bf05f93d8a44be39f2b87488bda1e22aba0",
+    "orbit-server/python/orbit_api/launch_execution_contract.py": "85bfe78c657d79786caaabfd066b48186958ab16cdcf78a2d836fbc07b9baea3",
+    "orbit-web/src/api/orbit/launch.ts": "7c81e01e6c2936f230326be5af96eafde0159fbc9336daba827ac8d7bfb00dab",
+    "orbit-web/src/api/orbit/launch-form.ts": "8fb890e433b2971983f5c9878fcdf8161255176eb8a9a7a69cff415ba438b6d3",
+    "orbit-web/src/views/orbit/launch/CampaignTree.vue": "ef32c2ee0ee1edcaefdde87bfdca9e45b367f75f4d0cc8e69aff31abbc2e1516",
+    "orbit-web/src/views/orbit/launch/LaunchNodeEditor.vue": "5e1728333d5f25a8b3d6021b2365853a5d1c879710e80cfe67c7ae6308b006c6",
+    "orbit-web/src/views/orbit/launch/MetaSettingsFields.vue": "a15791eb5d20fc6380777af9205061573cc2ffa0a5c3956f5b74d687ed873e2e",
+    "orbit-web/src/views/orbit/launch/DraftEditor.vue": "7501d96637b224182cc1e4cdb732a4788259ac1ad18e6bb99dd000e97169e084",
+    "orbit-web/src/views/orbit/launch/DraftConfigPreview.vue": "cb89d66b5a2ad7c8c55c9d48ff2c42b60d7a9279e47ef94160b49f70bdb64ec6"
+  }
+}

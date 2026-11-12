@@ -13,6 +13,14 @@ from pydantic import Field, ValidationError
 from orbit_api.channel_contract import https_url
 from orbit_api.errors import OrbitError
 from orbit_api.launch_countries import COUNTRY_CODES
+from orbit_api.launch_meta_settings import (
+    AdMetaSettings,
+    AdSetMetaSettings,
+    CampaignMetaSettings,
+    validate_meta_ad,
+    validate_meta_campaign,
+    validate_meta_identities,
+)
 from orbit_api.reference_contract import StrictInput, pointer, schema_error
 
 MAX_CONFIG_BYTES = 5 * 1024 * 1024
@@ -34,6 +42,7 @@ class Budget(StrictInput):
 
 
 class AdConfig(StrictInput):
+    meta_settings: AdMetaSettings | None = None
     local_id: str
     copies: int = Field(ge=1, le=50)
     # 默认None只表达原合同字段可省略；显式null仍被非nullable类型拒绝。
@@ -48,6 +57,7 @@ class AdConfig(StrictInput):
 
 
 class AdSetConfig(StrictInput):
+    meta_settings: AdSetMetaSettings | None = None
     local_id: str
     copies: int = Field(ge=1, le=50)
     ads: list[AdConfig] = Field(max_length=MAX_NODES)
@@ -57,7 +67,7 @@ class AdSetConfig(StrictInput):
     age_min: int = Field(default=None, ge=18, le=65)
     age_max: int = Field(default=None, ge=18, le=65)
     locales: list[str] = Field(default=None, max_length=20)
-    placements: Literal["AUTO"] = None
+    placements: Literal["AUTO", "MANUAL"] = None
     optimization_goal: str = None
     billing_event: str = None
     metric_profile_id: str = None
@@ -66,14 +76,20 @@ class AdSetConfig(StrictInput):
 
 
 class CampaignConfig(StrictInput):
+    meta_settings: CampaignMetaSettings | None = None
     local_id: str
     copies: int = Field(ge=1, le=50)
     adsets: list[AdSetConfig] = Field(max_length=MAX_NODES)
-    objective: Literal["OUTCOME_SALES", "OUTCOME_APP_PROMOTION"] = None
+    objective: Literal["OUTCOME_SALES", "OUTCOME_APP_PROMOTION", "OUTCOME_LEADS"] = None
     buying_type: Literal["AUCTION"] = None
     special_ad_categories: list[str] = Field(default=None, max_length=10)
     budget: Budget | None = None
-    bid_strategy: Literal["LOWEST_COST_WITHOUT_CAP"] = None
+    bid_strategy: Literal[
+        "LOWEST_COST_WITHOUT_CAP",
+        "COST_CAP",
+        "LOWEST_COST_WITH_MIN_ROAS",
+        "LOWEST_COST_WITH_BID_CAP",
+    ] = None
 
 
 class GroupIdentity(StrictInput):
@@ -234,6 +250,7 @@ def campaigns(value, prefix=("campaigns",)):
             for ai, ad in enumerate(adset["ads"]):
                 ap = (*sp, "ads", ai)
                 _node(ad, ap, seen)
+                validate_meta_ad(ad, ap)
                 ads.add(ad["local_id"])
                 _texts(
                     ad,
@@ -255,6 +272,7 @@ def campaigns(value, prefix=("campaigns",)):
                         "=" not in item or not item.split("=", 1)[0] for item in tags.split("&")
                     ):
                         fail((*ap, "url_tags"), "链接参数须为key=value且不含问号前缀")
+        validate_meta_campaign(campaign, cp)
     return adsets, ads
 
 
@@ -366,6 +384,7 @@ def parse_plan(raw):
                     item["object_store_url"] = _https(
                         item["object_store_url"], (*rp, "object_store_url")
                     )
+    validate_meta_identities(value)
     ensure_config_size(value)
     return value
 

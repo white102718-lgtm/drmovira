@@ -4,13 +4,45 @@ import type { AdConfig, AdSetConfig, CampaignConfig, PlanOwnership, PlanWrite } 
 export const codePoints = (value: string) => [...value.normalize('NFC').trim()].length
 export const cloneValue = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 export function newCampaign(): CampaignConfig {
-  return { local_id: crypto.randomUUID(), copies: 1, adsets: [] }
+  return {
+    local_id: crypto.randomUUID(),
+    copies: 1,
+    adsets: [],
+    objective: 'OUTCOME_SALES',
+    buying_type: 'AUCTION',
+    bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
+    meta_settings: { advantage_campaign_budget: false },
+  }
 }
-export function newAdSet(): AdSetConfig {
-  return { local_id: crypto.randomUUID(), copies: 1, ads: [] }
+export function newAdSet(objective?: CampaignConfig['objective']): AdSetConfig {
+  return {
+    local_id: crypto.randomUUID(),
+    copies: 1,
+    ads: [],
+    age_min: 18,
+    age_max: 65,
+    placements: 'AUTO',
+    billing_event: 'IMPRESSIONS',
+    optimization_goal:
+      objective === 'OUTCOME_APP_PROMOTION' ? 'APP_INSTALLS' : 'OFFSITE_CONVERSIONS',
+    meta_settings: {
+      conversion_location: objective === 'OUTCOME_APP_PROMOTION' ? 'APP' : 'WEBSITE',
+      attribution_click_days: 7,
+      attribution_view_days: 1,
+      audience_mode: 'ORIGINAL',
+      inventory_filter: 'STANDARD',
+      audience_network_inventory_filter: 'STANDARD',
+    },
+  }
 }
 export function newAd(): AdConfig {
-  return { local_id: crypto.randomUUID(), copies: 1 }
+  return {
+    local_id: crypto.randomUUID(),
+    copies: 1,
+    cta: 'SHOP_NOW',
+    asset_type: 'ANY',
+    meta_settings: { format: 'SINGLE' },
+  }
 }
 export function newDraft(ownership: PlanOwnership): PlanWrite {
   return {
@@ -44,7 +76,6 @@ export function treeCounts(accounts: number, campaigns: CampaignConfig[]) {
     const factor = accounts * campaign.copies
     campaignCount += factor
     for (const group of campaign.adsets) {
-      if (!group.country_codes?.length) delete group.country_codes
       const multiplier = factor * group.copies
       adsetCount += multiplier
       adCount += multiplier * group.ads.reduce((sum, ad) => sum + ad.copies, 0)
@@ -77,6 +108,7 @@ export function normalizeDraft(input: PlanWrite): PlanWrite {
   normalize(value as unknown as Record<string, unknown>)
   for (const campaign of value.campaigns) {
     for (const group of campaign.adsets) {
+      if (!group.country_codes?.length) delete group.country_codes
       if (!group.name?.trim()) delete group.name
       for (const ad of group.ads) {
         if (!ad.name?.trim()) delete ad.name
