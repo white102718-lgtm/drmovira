@@ -5,6 +5,8 @@ type Route = { path: string; fullPath: string; meta: { title?: string } }
 const state = vi.hoisted(() => ({
   guard: null as null | ((to: Route, from: Route) => Promise<unknown>),
   getInfo: vi.fn(),
+  getToken: vi.fn(),
+  probe: vi.fn(),
   logOut: vi.fn(),
   generate: vi.fn(),
   removeToken: vi.fn(),
@@ -33,7 +35,7 @@ vi.mock('@/router', () => ({
 }))
 vi.mock('element-plus', () => ({ ElMessage: { error: state.error } }))
 vi.mock('nprogress', () => ({ default: { configure: vi.fn(), start: vi.fn(), done: state.done } }))
-vi.mock('@/utils/auth', () => ({ getToken: () => 'stale-token', removeToken: state.removeToken }))
+vi.mock('@/utils/auth', () => ({ getToken: state.getToken, removeToken: state.removeToken }))
 vi.mock('@/utils/validate', () => ({
   isHttp: () => false,
   isPathMatch: (a: string, b: string) => a === b,
@@ -49,7 +51,7 @@ vi.mock('@/store/modules/permission', () => ({
 }))
 vi.mock('@/api/orbit/authentication', () => ({
   cookieSessionActive: () => false,
-  probeCookieSession: vi.fn(),
+  probeCookieSession: state.probe,
   clearCookieSession: state.clearCookie,
 }))
 
@@ -70,7 +72,8 @@ beforeEach(async () => {
     roles: [],
     permissions: ['old.permission'],
   })
-  state.getInfo.mockRejectedValue(new Error('会话已过期'))
+  state.getToken.mockReturnValue('stale-token')
+  state.getInfo.mockRejectedValue(Object.assign(new Error('会话已过期'), { status: 401 }))
   state.logOut.mockResolvedValue(undefined)
   state.generate.mockResolvedValue([])
   state.relogin.show = false
@@ -111,4 +114,45 @@ describe('过期身份路由恢复', () => {
     expect(state.clearCookie).not.toHaveBeenCalled()
     expect(state.user.name).toBe('旧用户')
   })
+})
+
+it.each([502, 503, 504, 403])('资料读取HTTP%s不会注销真实会话', async (status) => {
+  state.getToken.mockReturnValue('stale-token')
+  state.getInfo.mockRejectedValue(Object.assign(new Error('upstream unavailable'), { response: { status } }))
+  expect(await state.guard!(route, route)).toEqual({ path: '/service-unavailable', query: { redirect: route.fullPath }, replace: true })
+  expect(state.logOut).not.toHaveBeenCalled()
+  expect(state.removeToken).not.toHaveBeenCalled()
+  expect(state.clearCookie).not.toHaveBeenCalled()
+  expect(state.user.token).toBe('stale-token')
+  expect(state.relogin.show).toBe(false)
+})
+it('网络中断不清身份，重试成功后继续读取菜单', async () => {
+  state.getToken.mockReturnValue('stale-token')
+  state.getInfo.mockRejectedValue(new Error('Network Error'))
+  await state.guard!(route, route)
+  expect(state.logOut).not.toHaveBeenCalled()
+  state.getInfo.mockResolvedValue(undefined)
+  expect(await state.guard!(route, route)).toEqual({ ...route, replace: true })
+})
+it('恢复页本身不再发认证请求，避免故障重定向循环', async () => {
+  const recovery = {path:'/service-unavailable',fullPath:'/service-unavailable',meta:{}}
+  expect(await state.guard!(recovery,route)).toBe(true)
+  expect(state.getInfo).not.toHaveBeenCalled()
+})
+it('菜单读取502也不清登录，且清空不完整角色以确保下次重建路由', async () => {
+  state.getInfo.mockImplementation(async () => { state.user.roles = ['admin'] })
+  state.generate.mockRejectedValueOnce(Object.assign(new Error('gateway'),{response:{status:502}}))
+  await state.guard!(route, route)
+  expect(state.logOut).not.toHaveBeenCalled()
+  expect(state.user.roles).toEqual([])
+  state.generate.mockResolvedValue([])
+  expect(await state.guard!(route, route)).toEqual({...route,replace:true})
+})
+
+it('Cookie会话探测遇到502保留会话并进入恢复页', async () => {
+  state.getToken.mockReturnValue(undefined)
+  state.probe.mockRejectedValue(Object.assign(new Error('gateway'), {status:502}))
+  expect(await state.guard!(route,route)).toEqual({path:'/service-unavailable',query:{redirect:route.fullPath},replace:true})
+  expect(state.clearCookie).not.toHaveBeenCalled()
+  expect(state.logOut).not.toHaveBeenCalled()
 })

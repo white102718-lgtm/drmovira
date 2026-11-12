@@ -26,6 +26,7 @@ import Layout from '@/layout'
 
 // 公共路由
 export const constantRoutes = [
+  { path: '/service-unavailable', component: () => import('@/views/error/ServiceUnavailable.vue'), hidden: true },
   // 独立入口，不覆盖原若依登录页；邀请和回调只读取引导阶段捕获的内存参数。
   ...['/orbit-login', '/invite', '/auth/callback'].map(path => ({
     path,

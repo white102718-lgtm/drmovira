@@ -25,14 +25,14 @@ const isWhiteList = (path) => {
 
 router.beforeEach(async (to, from) => {
   NProgress.start()
-  if (['/orbit-login', '/invite', '/auth/callback'].includes(to.path)) return true
+  if (['/orbit-login', '/invite', '/auth/callback', '/service-unavailable'].includes(to.path)) return true
   let cookieAuthenticated = cookieSessionActive()
   if (!getToken() && !cookieAuthenticated && !isWhiteList(to.path)) {
     try {
       cookieAuthenticated = Boolean(await probeCookieSession())
     } catch {
       NProgress.done()
-      return '/orbit-login'
+      return { path: '/service-unavailable', query: { redirect: to.fullPath }, replace: true }
     }
   }
   if (getToken() || cookieAuthenticated) {
@@ -69,6 +69,14 @@ router.beforeEach(async (to, from) => {
         // 重新导航到目标路由，确保动态路由已注册
         return { ...to, replace: true }
       } catch (err) {
+        if (Number(err?.response?.status ?? err?.status) !== 401) {
+          // 服务或网络失败不等于身份失效；保留凭据，让用户恢复后重试。
+          useUserStore().roles = []
+          useUserStore().permissions = []
+          isRelogin.show = false
+          NProgress.done()
+          return { path: '/service-unavailable', query: { redirect: to.fullPath }, replace: true }
+        }
         // 过期会话的注销也可能返回401；仍须清除本机旧身份并完成导航，不能留在空白页。
         try {
           await useUserStore().logOut()
